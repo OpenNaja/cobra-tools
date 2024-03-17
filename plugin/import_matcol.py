@@ -117,7 +117,7 @@ def get_att(node, lut, names):
 			node.inputs[name].default_value = lut[n]
 
 
-def load(filepath=""):
+def load(reporter, filepath=""):
 	layers = LayeredMaterial()
 	layers.load_mat_layers(filepath)
 	slots = layers.slots
@@ -221,7 +221,7 @@ def load(filepath=""):
 
 	nodes_iterate(tree, output)
 	slots_arrange(tree, nodes)
-	return ()
+	reporter.show_info(f"Imported {layers.basename}")
 
 
 def slots_arrange(tree, nodes):

@@ -1,5 +1,6 @@
 import logging
 import math
+import os
 
 import bpy
 import mathutils
@@ -32,7 +33,8 @@ def get_local_bone(bone):
 	return bone.matrix_local
 
 
-def save(filepath=""):
+def save(reporter, filepath=""):
+	folder, banis_name = os.path.split(filepath)
 	corrector = Corrector(False)
 	scene = bpy.context.scene
 	bones_data = {}
@@ -107,5 +109,5 @@ def save(filepath=""):
 				frame["euler"][bone_i] = [math.degrees(v) for v in key.to_euler()]
 
 	banis.save(filepath)
-	print(banis)
-	return f"Finished banis export",
+	# print(banis)
+	reporter.show_info(f"Exported {banis_name}")

@@ -3,11 +3,9 @@ import bpy.types
 from bpy.props import BoolProperty, CollectionProperty, IntProperty
 
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
-from plugin.utils import shell, collection, lods, rig
-from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
+from plugin.utils import shell, collection, lods, rig, hair
 from plugin.utils.properties import LodData
-from plugin.utils.shell import extrude_fins, intrude_fins
-from plugin.utils.matrix_util import handle_errors, handle_errors_new
+from plugin.utils.matrix_util import report_messages
 
 
 class BaseOp(bpy.types.Operator):
@@ -18,15 +16,6 @@ class PopupOp(BaseOp):
 
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self)
-
-
-class UpdateFins(BaseOp):
-	"""Updates fins meshes from shell meshes in this scene"""
-	bl_idname = "object.update_fins"
-	bl_label = "Update Fins"
-
-	def execute(self, context):
-		return handle_errors(self, shell.update_fins_wrapper, {})
 
 
 class LODS_UL_items(bpy.types.UIList):
@@ -80,7 +69,7 @@ class UpdateLods(PopupOp):
 			row.template_list("LODS_UL_items", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
 
 	def execute(self, context):
-		return handle_errors_new(self, lods.update_lods, {"mdl2_coll": bpy.context.collection, "levels": self.levels})
+		return report_messages(self, lods.update_lods, mdl2_coll=bpy.context.collection, levels=self.levels)
 
 
 class EditFlag(PopupOp):
@@ -155,7 +144,7 @@ class VcolToComb(BaseOp):
 	bl_label = "Vcol to Comb"
 
 	def execute(self, context):
-		return handle_errors(self, vcol_to_comb, {})
+		return report_messages(self, hair.vcol_to_comb)
 
 
 class CombToVcol(BaseOp):
@@ -164,7 +153,16 @@ class CombToVcol(BaseOp):
 	bl_label = "Comb to Vcol"
 
 	def execute(self, context):
-		return handle_errors(self, comb_to_vcol, {})
+		return report_messages(self, hair.comb_to_vcol)
+
+
+class UpdateFins(BaseOp):
+	"""Updates fins meshes from shell meshes in this scene"""
+	bl_idname = "object.update_fins"
+	bl_label = "Update Fins"
+
+	def execute(self, context):
+		return report_messages(self, shell.update_fins_wrapper)
 
 
 class ExtrudeFins(BaseOp):
@@ -173,7 +171,7 @@ class ExtrudeFins(BaseOp):
 	bl_label = "Extrude Fins"
 
 	def execute(self, context):
-		return handle_errors(self, extrude_fins, {})
+		return report_messages(self, shell.extrude_fins)
 
 
 class IntrudeFins(BaseOp):
@@ -182,7 +180,7 @@ class IntrudeFins(BaseOp):
 	bl_label = "Intrude Fins"
 
 	def execute(self, context):
-		return handle_errors(self, intrude_fins, {})
+		return report_messages(self, shell.intrude_fins)
 
 
 class TransferHairCombing(BaseOp):
@@ -191,7 +189,7 @@ class TransferHairCombing(BaseOp):
 	bl_label = "Transfer Combing"
 
 	def execute(self, context):
-		return handle_errors(self, transfer_hair_combing, {})
+		return report_messages(self, hair.transfer_hair_combing)
 
 
 class AddHair(BaseOp):
@@ -200,7 +198,7 @@ class AddHair(BaseOp):
 	bl_label = "Add Hair"
 
 	def execute(self, context):
-		return handle_errors(self, shell.add_hair, {})
+		return report_messages(self, shell.add_hair)
 
 
 class ApplyPoseAll(BaseOp):
@@ -209,7 +207,7 @@ class ApplyPoseAll(BaseOp):
 	bl_label = "Apply Poses"
 
 	def execute(self, context):
-		return handle_errors(self, rig.apply_armature_all, {})
+		return report_messages(self, rig.apply_armature_all)
 
 
 class SetupRig(PopupOp):
@@ -232,7 +230,7 @@ class SetupRig(PopupOp):
 		self.layout.prop(self, "add_physics")
 
 	def execute(self, context):
-		return handle_errors(self, rig.setup_rig, self.as_keywords())
+		return report_messages(self, rig.setup_rig, **self.as_keywords())
 
 
 class GenerateRigEdit(PopupOp):
@@ -256,7 +254,7 @@ class GenerateRigEdit(PopupOp):
 		row.prop(self, "applyarmature", icon="CHECKBOX_HLT" if self.applyarmature else "CHECKBOX_DEHLT")
 
 	def execute(self, context):
-		return handle_errors(self, rig.generate_rig_edit, self.as_keywords())
+		return report_messages(self, rig.generate_rig_edit, **self.as_keywords())
 
 
 class ConvertScaleToLoc(BaseOp):
@@ -265,7 +263,7 @@ class ConvertScaleToLoc(BaseOp):
 	bl_label = "Convert Scale to Location"
 
 	def execute(self, context):
-		return handle_errors(self, rig.convert_scale_to_loc, {})
+		return report_messages(self, rig.convert_scale_to_loc)
 
 
 class AutosmoothAll(BaseOp):

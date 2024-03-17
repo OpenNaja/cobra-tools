@@ -217,21 +217,10 @@ class OperatorWrap:
 			self.op.report({"INFO"}, msg)
 
 
-def handle_errors(inst, func, kwargs):
+def report_messages(inst, func, *args, **kwargs):
 	wrap = OperatorWrap(inst)
 	try:
-		for msg in func(**kwargs):
-			wrap.show_info(msg)
-	except Exception as err:
-		wrap.show_error(err)
-	wrap.report()
-	return {'FINISHED'}
-
-
-def handle_errors_new(inst, func, kwargs):
-	wrap = OperatorWrap(inst)
-	try:
-		func(wrap, **kwargs)
+		func(wrap, *args, **kwargs)
 	except Exception as err:
 		wrap.show_error(err)
 	wrap.report()

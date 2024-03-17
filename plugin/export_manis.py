@@ -102,7 +102,7 @@ def export_wsm(corrector, b_action, folder, mani_info, bone_name, pose_info):
 				pass
 
 
-def save(filepath=""):
+def save(reporter, filepath=""):
 	folder, manis_name = os.path.split(filepath)
 	scene = bpy.context.scene
 	bones_data = {}
@@ -191,7 +191,7 @@ def save(filepath=""):
 	mani.name_buffer.bone_names[:] = sorted(target_names)
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
 	mani.save(filepath)
-	return f"Finished manis export",
+	reporter.show_info(f"Exported {manis_name}")
 
 
 def export_scale(corrector, name, frames, pose_info):

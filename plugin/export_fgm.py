@@ -270,10 +270,10 @@ def texture_save_or_generate(data, base_path, file_name, size):
 		bpy.data.images.remove(img)
 
 
-def save(filepath=""):
+def save(reporter, filepath=""):
 	folder, mat_name = os.path.split(filepath)
 	mat_name, ext = os.path.splitext(mat_name)
 	# get game from GUI dropdown
 	game = bpy.context.scene.cobra.game
 	export_fgm_at(folder, game, mat_name)
-	return f"Finished FGM export",
+	reporter.show_info(f"Exported {mat_name}")

@@ -118,7 +118,7 @@ def comb_common(adjust_psys_count=False, warn=True):
 	return me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
 
 
-def vcol_to_comb():
+def vcol_to_comb(reporter):
 	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common(adjust_psys_count=True)
 	# loop faces
 	vcol_layer = me.vertex_colors[0].data
@@ -136,11 +136,10 @@ def vcol_to_comb():
 		particle = particle_system.particles[loop.vertex_index]
 		particle_eval = particle_system_eval.particles[loop.vertex_index]
 		set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root, tip)
+	reporter.show_info(f"Converted Vertex Color to Combing for {ob_eval.name}")
 
-	return f"Converted Vertex Color to Combing for {ob_eval.name}",
 
-
-def comb_to_vcol():
+def comb_to_vcol(reporter):
 	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
 	# loop faces
 	vcol_layer = me.vertex_colors[0].data
@@ -159,7 +158,7 @@ def comb_to_vcol():
 			# vcol[0] = (vec.x/FAC) + MID
 			# vcol[2] = -(vec.y/FAC) + MID
 			vec_2_vcol(vec, vcol)
-	return f"Converted Combing to Vertex Color for {ob_eval.name}",
+	reporter.show_info(f"Converted Combing to Vertex Color for {ob_eval.name}")
 
 
 def get_tangent_space_mat(vert):
@@ -172,7 +171,7 @@ def get_tangent_space_mat(vert):
 	return tangent_space_mat
 
 
-def transfer_hair_combing():
+def transfer_hair_combing(reporter):
 	src_ob = bpy.context.object
 	trg_obs = [ob for ob in bpy.context.selected_objects if ob != src_ob]
 	logging.info(f"Transferring hair combing from {src_ob.name}, preparing for {len(trg_obs)} targets")
@@ -207,7 +206,7 @@ def transfer_hair_combing():
 			trg_tip = trg_root + src_direction
 			# change the target particle
 			set_hair_keys(trg_particle, trg_particle_eval, trg_ob_eval, trg_particle_modifier_eval, trg_root, trg_tip)
-	return f"Finished hair transfer",
+	reporter.show_info(f"Finished hair transfer")
 
 
 def get_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval):

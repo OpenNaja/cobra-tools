@@ -29,7 +29,7 @@ def apply_pose_to_meshes(b_armature_ob):
 						bpy.ops.object.modifier_apply(modifier=modifier.name)
 
 
-def apply_armature_all():
+def apply_armature_all(reporter):
 	# Check if the active object is a valid armature
 	if bpy.context.active_object.type != 'ARMATURE':
 		# Object is not an armature. Cancelling.
@@ -39,8 +39,6 @@ def apply_armature_all():
 	b_armature_ob = bpy.context.object
 	apply_pose_to_meshes(b_armature_ob)
 	bpy.ops.pose.armature_apply()
-	return ()
-
 
 
 def add_hitcheck_to_mdl2(obj, collection, parent):
@@ -124,7 +122,7 @@ def comform_object_to_mdl2(obj):
 	pass
 
 
-def setup_rig(add_armature=True, add_physics=True):
+def setup_rig(reporter, add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
 	scene = bpy.context.scene
 	name = b_ob.name
@@ -184,8 +182,6 @@ def setup_rig(add_armature=True, add_physics=True):
 	# mdl2 require objects to have only one material
 	split_object_by_material(b_ob)
 
-	return ()
-
 
 def move_to_collection(b_ob, target_coll):
 	for coll in b_ob.users_collection:
@@ -193,11 +189,8 @@ def move_to_collection(b_ob, target_coll):
 	target_coll.objects.link(b_ob)
 
 
-def generate_rig_edit(**kwargs):
+def generate_rig_edit(reporter, **kwargs):
 	"""Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
-	# Initiate logging
-	msgs = []
-	# logging.info(f"-------------------------------------------------------------")
 	logging.info(f"generating rig edit from pose")
 
 	# Function settings
@@ -262,8 +255,8 @@ def generate_rig_edit(**kwargs):
 		if not vectorisclose(p_bone.scale, VEC3_1, errortolerance):
 			logging.info(
 				f"{p_bone.name} had scale. Value = {repr(p_bone.scale)}, difference: {(p_bone.scale - VEC3_1).length}")
-			msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
-			return msgs
+			reporter.show_warning(f"{p_bone.name} had scale transforms. Reset scale for all bones and try again.")
+			return
 
 		# We check for NODE bones with transforms and skip them.
 		if (not vectorisclose(p_bone.location, VEC3_0, errortolerance) or not vectorisclose(
@@ -456,13 +449,10 @@ def generate_rig_edit(**kwargs):
 	logging.info(f"total bones: {totalbones}")
 
 	if totalbones > 254:
-		msgs.append(
-			f"Warning: Total amount of bones exceeds 254 after rig edit, game will crash. Please undo, reduce the number of edits, and try again.")
-		return msgs
-
-	# Return count of succesfull rig edits
-	msgs.append(f"{editnumber} rig edits generated succesfully")
-	return msgs
+		reporter.show_warning(
+			f"Total amount of bones exceeds 254 after rig edit, game will crash. Please undo, reduce the number of edits, and try again.")
+	else:
+		reporter.show_info(f"{editnumber} rig edits generated succesfully")
 
 
 def get_active_armature():
@@ -477,11 +467,9 @@ def get_active_armature():
 	return b_armature_ob
 
 
-def convert_scale_to_loc():
+def convert_scale_to_loc(reporter):
 	"""Automatically convert scaled bones into equivalent visual location transforms"""
 	# Function for converting scale to visual location transforms in pose mode
-	# Initiate logging
-	msgs = []
 	logging.info(f"converting scale transforms to visual location")
 
 	# Store current mode
@@ -547,12 +535,10 @@ def convert_scale_to_loc():
 	for p_bone in posebone_list:
 		p_bone.rotation_quaternion = posebone_data[p_bone][3]
 
-	if editnumber > 0:
-		msgs.append(f"Moved {editnumber} bones to their visual locations and reset scales")
-	else:
-		msgs.append(f"No bones required movement.")
-
 	# Return to original mode
 	bpy.ops.object.mode_set(mode=original_mode)
 
-	return msgs
+	if editnumber > 0:
+		reporter.show_info(f"Moved {editnumber} bones to their visual locations and reset scales")
+	else:
+		reporter.show_info(f"No bones required movement")

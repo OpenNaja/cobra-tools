@@ -34,7 +34,7 @@ def get_copy_material(b_mat, target_name):
 	return copy_mat
 
 
-def add_hair():
+def add_hair(reporter):
 	game = bpy.context.scene.cobra.game
 	base_ob = bpy.context.object
 	base_me = base_ob.data
@@ -87,7 +87,7 @@ def add_hair():
 	elif game == "Jurassic World Evolution 2":
 		base_me["flag"] = 0
 		shell_me["shell_count"] = 3
-	return f"Added hair",
+	reporter.show_info(f"Added hair")
 
 
 def get_ob_count(lod_collections):
@@ -105,8 +105,7 @@ def copy_ob(src_obj, coll=None):
 	return new_obj
 
 
-def ob_processor_wrapper(func):
-	msgs = []
+def ob_processor_wrapper(reporter, func):
 	for lod_i in range(6):
 		for mdl2_coll in bpy.context.scene.collection.children:
 			coll = get_collection_endswith(bpy.context.scene, f"{mdl2_coll.name}_L{lod_i}")
@@ -115,18 +114,17 @@ def ob_processor_wrapper(func):
 			src_obs = [ob for ob in coll.objects if is_shell(ob)]
 			trg_obs = [ob for ob in coll.objects if is_fin(ob)]
 			if src_obs and trg_obs:
-				msgs.append(func(src_obs[0], trg_obs[0]))
-	return msgs
+				reporter.show_info(func(src_obs[0], trg_obs[0]))
 
 
-def update_fins_wrapper():
+def update_fins_wrapper(reporter):
 	logging.info(f"Creating fins")
-	return ob_processor_wrapper(build_fins)
+	ob_processor_wrapper(reporter, build_fins)
 
 
-def gauge_uv_scale_wrapper():
+def gauge_uv_scale_wrapper(reporter):
 	logging.info(f"Gauging UV scales")
-	return ob_processor_wrapper(gauge_uv_factors)
+	ob_processor_wrapper(reporter, gauge_uv_factors)
 
 
 def get_collection_endswith(scene, suffix):
@@ -576,7 +574,7 @@ def num_fur_as_weights(mat_name):
 	return 0
 
 
-def extrude_fins():
+def extrude_fins(reporter):
 	ob = bpy.context.active_object
 	if not ob:
 		raise AttributeError("No object in context")
@@ -605,11 +603,11 @@ def extrude_fins():
 			b_vert = me.vertices[b_loop.vertex_index]
 			b_vert.co += mathutils.Vector(direction / scale_y)
 
-	return f"extruded fins for {ob.name}",
+	reporter.show_info(f"extruded fins for {ob.name}")
 
 
-def intrude_fins():
+def intrude_fins(reporter):
 	ob = bpy.context.active_object
 	if not ob:
 		raise AttributeError("No object in context")
-	return f"intruded fins for {ob.name}",
+	reporter.show_info(f"intruded fins for {ob.name}")

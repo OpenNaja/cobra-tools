@@ -11,7 +11,7 @@ def unpack(v, s):
     return mathutils.Vector(unpack_swizzle([i * s for i in (v.x, v.y, v.z)]))
 
 
-def load(filepath=""):
+def load(reporter, filepath=""):
     in_dir, spl_name = os.path.split(filepath)
     spl_basename, ext = os.path.splitext(spl_name)
 
@@ -41,4 +41,4 @@ def load(filepath=""):
     scene = bpy.context.scene
     scene.collection.objects.link(b_ob)
 
-    return f"Finished SPL import",
+    reporter.show_info(f"Imported {spl_basename}")

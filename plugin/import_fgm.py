@@ -3,14 +3,15 @@ import bpy
 
 from plugin.modules_import.material import create_material
 
+
 def object_has_material(obj, material):
     for slot in obj.material_slots:
         if slot.material.name == material:
             return True
     return False
 
-def load(filepath):
-    messages = set()
+
+def load(reporter, filepath=""):
     in_dir, material_ext = os.path.split(filepath)
     material, ext = os.path.splitext(material_ext)
 
@@ -42,5 +43,4 @@ def load(filepath):
         #b_me.materials.append(b_mat)
         pass
 
-    messages.add(f"Finished fgm import")
-    return messages
+    reporter.show_info(f"Imported {material}")

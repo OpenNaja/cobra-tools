@@ -1,4 +1,5 @@
 import math
+import os
 
 import bpy
 import mathutils
@@ -17,7 +18,8 @@ global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, 0, 0)])
 global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
-def load(files=[], filepath="", set_fps=False):
+def load(reporter, files=(), filepath="", set_fps=False):
+	in_dir, banis_name = os.path.split(filepath)
 	use_armature = True
 	scene = bpy.context.scene
 	b_armature_ob = get_armature(scene.objects)
@@ -49,7 +51,7 @@ def load(files=[], filepath="", set_fps=False):
 			# b_empty_ob.matrix_local = bind.inverted()
 			b_empty_ob.location = bind.translation
 			b_empty_ob.scale = (0.01, 0.01, 0.01)
-	return {'FINISHED'}
+	reporter.show_info(f"Imported {banis_name}")
 
 
 def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map, use_armature=True):

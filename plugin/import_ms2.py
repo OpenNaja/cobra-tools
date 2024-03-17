@@ -16,8 +16,7 @@ from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
 
-def load(filepath="", use_custom_normals=False, mirror_mesh=False):
-	messages = set()
+def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
@@ -107,9 +106,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					add_psys(b_ob, mesh.fur_length)
 			# show lod 0, hide the others
 			set_collection_visibility(scene, lod_coll.name, lod_i != 0)
-		gauge_uv_scale_wrapper()
-	messages.add(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
-	return messages
+		gauge_uv_scale_wrapper(reporter)
+	reporter.show_info(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
 
 
 def per_loop(b_me, per_vertex_input):

@@ -18,7 +18,7 @@ def get_max(list_of_b_vecs):
 	return max(abs(c) for vec in list_of_b_vecs for c in vec)
 
 
-def save(filepath=""):
+def save(reporter, filepath=""):
 	# get selected curve b_ob
 	b_ob = bpy.context.object
 	b_cu = b_ob.data
@@ -49,4 +49,4 @@ def save(filepath=""):
 
 	with SplRoot.to_xml_file(spl_root, filepath) as xml_root:
 		pass
-	return f"Finished SPL export",
+	reporter.show_info(f"Exported {b_ob.name}")

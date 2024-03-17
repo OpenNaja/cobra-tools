@@ -56,11 +56,10 @@ def create_tex(fp):
 	return b_tex
 
 
-def load(filepath=""):
+def load(reporter, filepath=""):
 	in_dir = os.path.dirname(filepath)
 	path_no_ext, ext = os.path.splitext(filepath)
 	starttime = time.time()
-	errors = []
 
 	for area in bpy.context.screen.areas:  # iterate through areas in current screen
 		if area.type == 'VIEW_3D':
@@ -115,5 +114,4 @@ def load(filepath=""):
 				ob.location = unpack_swizzle((loc.x, loc.y, loc.z))
 				ob.rotation_euler.z = entity_instance.z_rot
 
-	logging.info(f'Finished Import in {time.time() - starttime: .2f} seconds')
-	return errors
+	reporter.show_info(f'Imported {path_no_ext} in {time.time() - starttime: .2f} seconds')

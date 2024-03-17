@@ -75,7 +75,7 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
 				out_keys.append(key)
 
 
-def load(files=[], filepath="", set_fps=False):
+def load(reporter, files=(), filepath="", set_fps=False):
 	folder, manis_name = os.path.split(filepath)
 	starttime = time.time()
 	corrector = ManisCorrector(False)
@@ -195,4 +195,4 @@ def load(files=[], filepath="", set_fps=False):
 	scene.frame_start = 0
 	scene.frame_end = mi.frame_count-1
 	scene.render.fps = int(round((mi.frame_count-1) / mi.duration))
-	return {'FINISHED'}
+	reporter.show_info(f"Imported {manis_name}")
