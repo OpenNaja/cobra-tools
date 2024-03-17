@@ -4,6 +4,8 @@ import re
 import subprocess
 import struct
 
+from ovl_util.shared import check_any
+
 util_dir = os.path.dirname(__file__)
 BINARY = os.path.normpath(os.path.join(util_dir, "texconv/texconv.exe"))
 ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
@@ -68,6 +70,16 @@ def bin_to_lua(bin_file):
 		print(err)
 
 
+error_code_filters: dict[int, tuple[str, ...]] = {
+	113: ("vec3_const", "vec2_const"),
+}
+
+
+def filter_error_code(error_code: int, msg: str) -> bool:
+	filters: tuple[str, ...] = error_code_filters.get(error_code, ())
+	return check_any(filters, msg)
+
+
 def check_lua_syntax(lua_path):
 	try:
 		# https://luacheck.readthedocs.io/en/stable/cli.html
@@ -86,6 +98,8 @@ def check_lua_syntax(lua_path):
 				error_code = int(match.group(0).lstrip("EW"))
 				msg = f"{lua_name}: line {line_nr}, column {col_nr}: {info.strip()}"
 				# select which luacheck warnings to show to user
+				if filter_error_code(error_code, msg):
+					continue
 				if error_code < 100:
 					raise SyntaxError(msg)
 				elif 100 <= error_code < 200:

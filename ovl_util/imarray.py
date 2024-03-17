@@ -5,7 +5,7 @@ import imageio.v3 as iio
 import numpy as np
 import PIL
 
-
+from ovl_util.shared import check_any
 from generated.formats.ovl.versions import is_ztuac
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
@@ -41,11 +41,6 @@ def flip_g(im):
 	im[:, :, 1] = 255 - im[:, :, 1]
 	logging.debug(f"Flipped G channel")
 	return im
-
-
-def check_any(iterable, string):
-	"""Returns true if any of the entries of the iterable occur in string"""
-	return any([i in string for i in iterable])
 
 
 def has_vectors(png_name, compression):
