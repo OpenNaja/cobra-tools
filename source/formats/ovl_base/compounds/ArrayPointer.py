@@ -27,6 +27,21 @@ class ArrayPointer(Pointer):
 				self.data = None
 
 	@classmethod
+	def from_xml(cls, target, elem, prop, arg, template):
+		"""Creates object for parent object 'target', from parent element elem."""
+		# create Pointer instance
+		instance = cls(target.context, arg, template, set_default=False)
+		# check if the pointer holds data
+		sub = elem.find(f'./{prop}')
+		if sub is None:
+			logging.warning(f"Missing array '{prop}' on XML element '{elem.tag}'")
+			cls._from_xml(instance, ())
+		else:
+			cls._from_xml(instance, sub)
+			cls.pool_type_from_xml(sub, instance)
+		return instance
+
+	@classmethod
 	def _to_xml(cls, instance, elem, debug):
 		"""Assigns data self to xml elem"""
 		if callable(getattr(instance.template, "_to_xml_array", None)):

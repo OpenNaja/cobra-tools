@@ -36,13 +36,13 @@
         # JWE, PZ - 64 bytes
         # JWE2 - 80 bytes
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-        <add name="_texture_count" type="uint" until="15"/>
-        <add name="_texture_count" type="uint64" since="17"/>
-        <add name="_attribute_count" type="uint" until="15"/>
-        <add name="_attribute_count" type="uint64" since="17"/>
+        <add name="textures_count" type="uint" until="15"/>
+        <add name="textures_count" type="uint64" since="17"/>
+        <add name="attributes_count" type="uint" until="15"/>
+        <add name="attributes_count" type="uint64" since="17"/>
         followed by 32 bytes for 4 pointers, which are not always all used
-        <add name="textures" type="ArrayPointer" template="TextureInfo" arg="_texture_count"/>
-        <add name="attributes" type="ArrayPointer" template="AttribInfo" arg="_attribute_count"/>
+        <add name="textures" type="ArrayPointer" template="TextureInfo" arg="textures_count"/>
+        <add name="attributes" type="ArrayPointer" template="AttribInfo" arg="attributes_count"/>
         <add name="name_foreach_textures" type="ForEachPointer" template="TextureData" arg="textures"/>
         <add name="value_foreach_attributes" type="ForEachPointer" template="AttribData" arg="attributes"/>
         and finally 16 bytes, apparently unused

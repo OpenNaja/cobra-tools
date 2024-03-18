@@ -58,11 +58,12 @@ class ForEachPointer(Pointer):
 		assert FOREACH_MARK in prop
 		src_prop = prop.split(FOREACH_MARK)[1]
 		sub = elem.find(f'./{src_prop}')
-		if sub is None:
-			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
-			return
 		instance = cls(target.context, arg, template, set_default=False)
-		cls.pool_type_from_xml(sub, instance)
-		cls._from_xml(instance, sub)
+		if sub is None:
+			logging.warning(f"Missing array '{prop}' on XML element '{elem.tag}'")
+			cls._from_xml(instance, ())
+		else:
+			cls._from_xml(instance, sub)
+			cls.pool_type_from_xml(sub, instance)
 		return instance
 

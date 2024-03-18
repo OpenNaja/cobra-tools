@@ -45,8 +45,8 @@ class FgmLoader(MemStructLoader):
 
 	def update_names_buffer(self):
 		"""Rewrites the name buffer and updates the offsets"""
-		self.header._attribute_count = len(self.header.attributes.data)
-		self.header._texture_count = len(self.header.textures.data)
+		# self.header._attribute_count = len(self.header.attributes.data)
+		# self.header._texture_count = len(self.header.textures.data)
 		with BytesIO() as names_writer:
 			# shader name is at 0
 			ZString.to_stream(self.header.shader_name, names_writer, self.header.context)

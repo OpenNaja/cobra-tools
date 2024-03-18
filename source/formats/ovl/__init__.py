@@ -627,7 +627,6 @@ class OvlFile(Header):
 		file_name = file_name.lower()
 		_, ext = os.path.splitext(file_name)
 		logging.info(f"Creating {file_name} in {ovs_name}")
-		logging.info(self.is_dev)
 		try:
 			loader = self.init_loader(file_name, ext, )
 			loader.get_constants_entry()
