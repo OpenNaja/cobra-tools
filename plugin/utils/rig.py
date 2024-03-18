@@ -139,9 +139,9 @@ def setup_rig(reporter, add_armature=True, add_physics=True):
 	# Add a default render flag custom property to the collection, 
 	# 0 for scenery most of the games, 4 for PZ scenery. 
 	# TODO: probably need to move this to a better scene/render flag/mesh flags setup
-	mdl2_coll['flag_render'] = 0
+	mdl2_coll['render_flag'] = 0
 	if scene.cobra.game == 'Planet Zoo':
-		mdl2_coll['flag_render'] = 4
+		mdl2_coll['render_flag'] = 4
 
 	# ensure the object/mesh has the right valid data 
 	comform_object_to_mdl2(b_ob)
