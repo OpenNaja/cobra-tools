@@ -1,0 +1,7 @@
+- Scripting Guide
+    - [Content Packs](Scripting-Guide/Content-Packs.md)
+    - [Game Databases](Scripting-Guide/Game-Databases.md)
+    - [Game Managers](Scripting-Guide/Game-Managers.md)
+    - [LuaDatabase and Prefabs](Scripting-Guide/LuaDatabase-Prefabs.md)
+- */
+- *.md

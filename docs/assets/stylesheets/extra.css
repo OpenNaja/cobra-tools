@@ -1,0 +1,112 @@
+
+/*
+@media screen and (min-width: 76.25em) {
+    .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav__link:last-child {
+        display: none;
+    }
+}*/
+
+/*
+    External Links
+*/
+
+li.md-tabs__item:has(.md-tabs__link.trello),
+li.md-tabs__item:has(.md-tabs__link.discord),
+li.md-tabs__item:has(.md-tabs__link.download) {
+    background-color: rgba(50, 50, 50, 0.4);
+}
+
+li.md-tabs__item:has(.md-tabs__link.trello:hover),
+li.md-tabs__item:has(.md-tabs__link.discord:hover),
+li.md-tabs__item:has(.md-tabs__link.download:hover) {
+    background-color: rgba(50, 50, 50, 0.6);
+}
+
+li.md-tabs__item:has(.md-tabs__link.trello) {
+    filter: invert(18%) sepia(99%) saturate(5719%) hue-rotate(220deg) brightness(200%) contrast(104%);
+}
+li.md-tabs__item:has(.md-tabs__link.discord) {
+    filter: invert(12%) sepia(90%) saturate(3994%) hue-rotate(234deg) brightness(200%) contrast(100%);
+}
+li.md-tabs__item:has(.md-tabs__link.download) {
+    filter: invert(52%) sepia(24%) saturate(1924%) hue-rotate(59deg) brightness(200%) contrast(89%);
+}
+
+/* 
+    Larger Admonitions
+*/
+.md-typeset .admonition,
+.md-typeset .admonition-title {
+    font-size: 0.7rem
+}
+
+/*
+    FAQ Admonition
+*/
+:root {
+    --md-admonition-icon--faq: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m-7 12h-2v-2h2v2m1.8-5c-.3.4-.7.6-1.1.8-.3.2-.4.3-.5.5-.2.2-.2.4-.2.7h-2c0-.5.1-.8.3-1.1.2-.2.6-.5 1.1-.8.3-.1.5-.3.6-.5.1-.2.2-.5.2-.7 0-.3-.1-.5-.3-.7-.2-.2-.5-.3-.8-.3-.3 0-.5.1-.7.2-.2.1-.3.3-.3.6h-2c.1-.7.4-1.3.9-1.7.5-.4 1.2-.5 2.1-.5.9 0 1.7.2 2.2.6.5.4.8 1 .8 1.7.1.4 0 .8-.3 1.2Z"/></svg>')
+}
+
+.md-typeset .admonition.faq .admonition-title {
+    font-size: 0.8rem;
+    margin: -0.6rem -0.6rem 0 -0.6rem;
+}
+.md-typeset .admonition.faq,
+.md-typeset details.faq {
+    border-color: rgb(43, 155, 70);
+    font-size: 0.8rem;
+    padding: 0.6rem;
+}
+.md-typeset .faq > .admonition-title,
+.md-typeset .faq > summary {
+    background-color: rgba(43, 155, 70, 0.1);
+}
+.md-typeset .faq > .admonition-title::before,
+.md-typeset .faq > summary::before {
+    background-color: rgb(43, 155, 70);
+    -webkit-mask-image: var(--md-admonition-icon--faq);
+            mask-image: var(--md-admonition-icon--faq);
+}
+/* end FAQ Admonition */
+
+/*
+    Download Button
+*/
+.md-button.md-button--download {
+    background: rgb(94, 156, 70);
+    border-color: rgb(178, 226, 159);
+    color: white;
+}
+
+.md-button.md-button--download:hover {
+    background: rgb(49, 172, 0);
+    border-color: rgb(49, 172, 0);
+    color: white;
+}
+
+/*
+    Game-Specific Content Tabs
+*/
+
+.md-typeset .tabbed-labels label[for^="planet-zoo"],
+.md-typeset .tabbed-labels label[for^="planet-zoo"]:active {
+    color: rgb(24, 185, 129) !important;
+    background: rgba(19, 156, 108, 0.2);
+    border-bottom-color: rgba(24, 185, 129, 0.3);
+}
+
+.md-typeset .tabbed-labels label[for^="jurassic-world-evolution"],
+.md-typeset .tabbed-labels label[for^="jurassic-world-evolution"]:active {
+    color: rgb(255, 197, 72) !important;
+    background: rgba(255, 197, 72, 0.2);
+    border-bottom-color: rgba(255, 197, 72, 0.3);
+}
+
+.md-typeset .tabbed-labels label[for^="planet-coaster"],
+.md-typeset .tabbed-labels label[for^="planet-coaster"]:active {
+    color: rgb(0, 159, 233) !important;
+    background: rgba(0, 138, 203, 0.2);
+    border-bottom-color: rgba(0, 138, 203, 0.3);
+}
+
+

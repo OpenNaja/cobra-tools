@@ -1,0 +1,60 @@
+site_name: Cobra Tools
+site_url: https://opennaja.github.io/cobra-tools/
+repo_url: https://github.com/OpenNaja/cobra-tools
+repo_name: cobra-tools
+extra_css:
+  - assets/stylesheets/extra.css
+theme:
+  name: material
+  logo: assets/Cobra_Tools_Logo.png
+  favicon: assets/Cobra_Tools_Logo_16px.svg
+  custom_dir: docs/overrides
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: black
+    scheme: slate
+  navigation_depth: 2
+  features:
+    - toc.integrate
+    - search.suggest
+    - navigation.expand
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.footer
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.select
+    - content.code.copy
+plugins:
+  - search
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - social:
+      enabled: !ENV [CI, false]
+markdown_extensions:
+  - abbr
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.tilde
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - overrides/.icons
+  - toc:
+      permalink: true

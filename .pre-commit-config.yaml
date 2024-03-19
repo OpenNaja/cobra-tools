@@ -29,6 +29,7 @@ repos:
     -   id: check-toml
     -   id: check-xml
     -   id: check-yaml
+        exclude: ^mkdocs.yml
     -   id: check-added-large-files
         args: ['--maxkb=50000']
     -   id: check-shebang-scripts-are-executable
