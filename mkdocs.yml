@@ -36,6 +36,7 @@ plugins:
       nav_file: SUMMARY.md
   - social:
       enabled: !ENV [CI, false]
+  - glightbox
 markdown_extensions:
   - abbr
   - attr_list
