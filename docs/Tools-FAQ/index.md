@@ -25,6 +25,7 @@ For game-specific issues, please see [Modding FAQ](../Modding-FAQ/index.md)
     1. Ensure you have at least Python 3.11
     2. Ensure you have all Python dependencies.
     3. Do not run the tools from the ZIP file. Extract the folder instead.
+    4. If you have multiple version of Python installed, consider removing the other ones (if possible), or associate the cobra-tools .py files with the correct version of Python.
 
 !!! faq "Q: I receive an error on injecting a file.<br />Q: When I import an MS2 into Blender, there is an error and the scene is blank.<br />Q: My Blender plugin will not open the files I extract, or my tools will not inject the MS2 I export."
 
