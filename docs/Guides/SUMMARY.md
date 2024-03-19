@@ -1,3 +1,4 @@
+- [Guides](index.md)
 - [ACSE](ACSE/)
 - */
 - *.md
