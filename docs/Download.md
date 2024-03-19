@@ -48,3 +48,6 @@ If you would like to install the dependencies manually:
     !!! tip "IMPORTANT"
         If you do not open `cmd` in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`
 
+### Troubleshooting errors
+
+If you still encounter errors after following these instructions, please visit our [Tools FAQ](Tools-FAQ/index.md).
