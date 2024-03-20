@@ -31,6 +31,8 @@ theme:
     - content.code.select
     - content.code.copy
 plugins:
+  - privacy:
+      enabled: !ENV [CI, false]
   - search
   - literate-nav:
       nav_file: SUMMARY.md
