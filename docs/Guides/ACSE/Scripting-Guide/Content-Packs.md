@@ -104,8 +104,8 @@ Version: 1.0
 Now it is time to create the OVL files for your Content Pack. Run the `cobra-tools\ovl_tool_gui.py` script and perform the following actions:
 
 - Select the right title from the game dropdown list.
-- Click File > New (Ctrl+N) and select the ```ExampleContentPack\Main``` folder. The tool will try loading all the known files and show the list of OVL contents.
-- Click File > Save (Ctrl+S). This saves the OVL to ```ExampleContentPack\Main.ovl```.
+- Click File > New (++ctrl+n++) and select the ```ExampleContentPack\Main``` folder. The tool will try loading all the known files and show the list of OVL contents.
+- Click File > Save (++ctrl+s++). This saves the OVL to ```ExampleContentPack\Main.ovl```.
 
 
 At this point, the tool has created the ```ExampleContentPack\Main.ovl``` file from the contents of the ```ExampleContentPack\Main``` folder. Your module folder should look like this now:
