@@ -1,35 +1,67 @@
-
 /*
-@media screen and (min-width: 76.25em) {
-    .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav__link:last-child {
-        display: none;
-    }
-}*/
+    Colors
+*/
+:root {
+    /* Game Colors */
+    --pz: 24, 185, 129;
+    --jwe: 255, 197, 72;
+    --planco: 0, 159, 233;
+
+    /* Brand Colors */
+    --discord: 88, 101, 242;
+    --trello: 0, 121, 191;
+    /* Colorize White SVG */
+    --discord-filter-white: invert(47%) sepia(48%) saturate(9961%) hue-rotate(228deg) brightness(150%) contrast(91%);
+    --trello-filter-white: invert(34%) sepia(52%) saturate(3335%) hue-rotate(181deg) brightness(100%) contrast(101%);
+
+    /* Download Button */
+    --download: 94, 156, 70;
+    --download-lighter: 138, 183, 120;
+    --download-hover: 49, 172, 0;
+    /* Colorize White SVG */
+    --download-filter-white: invert(52%) sepia(24%) saturate(1924%) hue-rotate(59deg) brightness(200%) contrast(89%);
+
+    /* Custom Admonition Colors */
+    --faq: 43, 155, 70;
+}
+
 
 /*
     External Links
 */
-
-li.md-tabs__item:has(.md-tabs__link.trello),
-li.md-tabs__item:has(.md-tabs__link.discord),
-li.md-tabs__item:has(.md-tabs__link.download) {
-    background-color: rgba(50, 50, 50, 0.4);
-}
-
-li.md-tabs__item:has(.md-tabs__link.trello:hover),
-li.md-tabs__item:has(.md-tabs__link.discord:hover),
-li.md-tabs__item:has(.md-tabs__link.download:hover) {
-    background-color: rgba(50, 50, 50, 0.6);
-}
-
 li.md-tabs__item:has(.md-tabs__link.trello) {
-    filter: invert(18%) sepia(99%) saturate(5719%) hue-rotate(220deg) brightness(200%) contrast(104%);
+    filter: var(--trello-filter-white);
+}
+li.md-tabs__item:has(.md-tabs__link.trello:hover) {
+    filter: none;
+    border-radius: 0.1rem;
+    background-color: rgba(var(--trello), 0.8)
 }
 li.md-tabs__item:has(.md-tabs__link.discord) {
-    filter: invert(12%) sepia(90%) saturate(3994%) hue-rotate(234deg) brightness(200%) contrast(100%);
+    filter: var(--discord-filter-white);
+}
+li.md-tabs__item:has(.md-tabs__link.discord:hover) {
+    filter: none;
+    border-radius: 0.1rem;
+    background-color: rgba(var(--discord), 0.8)
 }
 li.md-tabs__item:has(.md-tabs__link.download) {
-    filter: invert(52%) sepia(24%) saturate(1924%) hue-rotate(59deg) brightness(200%) contrast(89%);
+    filter: var(--download-filter-white);
+}
+li.md-tabs__item:has(.md-tabs__link.download:hover) {
+    filter: none;
+    border-radius: 0.1rem;
+    background-color: rgba(var(--download-hover), 0.8)
+}
+
+/*
+    More Subtle View Source/Edit Buttons
+*/
+.md-content__button.md-icon {
+    opacity: 0.5;
+}
+.md-content__button.md-icon:hover {
+    opacity: 1.0;
 }
 
 /* 
@@ -53,17 +85,17 @@ li.md-tabs__item:has(.md-tabs__link.download) {
 }
 .md-typeset .admonition.faq,
 .md-typeset details.faq {
-    border-color: rgb(43, 155, 70);
+    border-color: rgb(var(--faq));
     font-size: 0.8rem;
     padding: 0.6rem;
 }
 .md-typeset .faq > .admonition-title,
 .md-typeset .faq > summary {
-    background-color: rgba(43, 155, 70, 0.1);
+    background-color: rgba(var(--faq), 0.1);
 }
 .md-typeset .faq > .admonition-title::before,
 .md-typeset .faq > summary::before {
-    background-color: rgb(43, 155, 70);
+    background-color: rgb(var(--faq));
     -webkit-mask-image: var(--md-admonition-icon--faq);
             mask-image: var(--md-admonition-icon--faq);
 }
@@ -73,40 +105,45 @@ li.md-tabs__item:has(.md-tabs__link.download) {
     Download Button
 */
 .md-button.md-button--download {
-    background: rgb(94, 156, 70);
-    border-color: rgb(178, 226, 159);
+    background: rgb(var(--download));
+    border-color: rgb(var(--download-lighter));
     color: white;
 }
 
 .md-button.md-button--download:hover {
-    background: rgb(49, 172, 0);
-    border-color: rgb(49, 172, 0);
+    background: rgb(var(--download-hover));
+    border-color: rgb(var(--download-hover));
     color: white;
 }
 
 /*
     Game-Specific Content Tabs
 */
-
 .md-typeset .tabbed-labels label[for^="planet-zoo"],
 .md-typeset .tabbed-labels label[for^="planet-zoo"]:active {
-    color: rgb(24, 185, 129) !important;
-    background: rgba(19, 156, 108, 0.2);
-    border-bottom-color: rgba(24, 185, 129, 0.3);
+    color: rgb(var(--pz)) !important;
+    background: rgba(var(--pz), 0.2);
+    border-bottom-color: rgba(var(--pz), 0.3);
 }
 
 .md-typeset .tabbed-labels label[for^="jurassic-world-evolution"],
 .md-typeset .tabbed-labels label[for^="jurassic-world-evolution"]:active {
-    color: rgb(255, 197, 72) !important;
-    background: rgba(255, 197, 72, 0.2);
-    border-bottom-color: rgba(255, 197, 72, 0.3);
+    color: rgb(var(--jwe)) !important;
+    background: rgba(var(--jwe), 0.2);
+    border-bottom-color: rgba(var(--jwe), 0.3);
 }
 
 .md-typeset .tabbed-labels label[for^="planet-coaster"],
 .md-typeset .tabbed-labels label[for^="planet-coaster"]:active {
-    color: rgb(0, 159, 233) !important;
-    background: rgba(0, 138, 203, 0.2);
-    border-bottom-color: rgba(0, 138, 203, 0.3);
+    color: rgb(var(--planco)) !important;
+    background: rgba(var(--planco), 0.2);
+    border-bottom-color: rgba(var(--planco), 0.3);
 }
 
-
+/*
+    Blend tabbed indicator better with colored tabs
+*/
+.js .md-typeset .tabbed-labels:before {
+    background: rgba(255, 255, 255, 0.5);
+    mix-blend-mode: overlay;
+}
