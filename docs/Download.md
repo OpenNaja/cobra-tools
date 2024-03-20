@@ -24,7 +24,7 @@ You need to have installed:
 2. Required for Lua decompilation
 
 
-### Installing Python dependencies
+### Installing Python Dependencies
 
 Opening any of the GUI tools after installing Python 3.11 and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages.
 
@@ -48,6 +48,6 @@ If you would like to install the dependencies manually:
     !!! tip "IMPORTANT"
         If you do not open `cmd` in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`
 
-### Troubleshooting errors
+## Troubleshooting Errors
 
 If you still encounter errors after following these instructions, please visit our [Tools FAQ](Tools-FAQ/index.md).

@@ -1,5 +1,6 @@
 - [Home](index.md)
     - [Download](Download.md)
+    - [Updating](Updating.md)
     - [Disclaimers](Disclaimers.md)
     - [Credits](Credits.md)
 - [Development](Development/)
