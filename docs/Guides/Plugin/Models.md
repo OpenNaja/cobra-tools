@@ -13,16 +13,16 @@ Each MDL2 has several sub-collections for LODs (..._L0, ..._L1, etc) and one for
 To accomodate all relevant data and provide easy access to various operators, several panels are added to blender's GUI. See the sections below for explanations of the operators and suggested workflows.
 
 #### Scene Panel
-![Scene Panel](images\cobra_scene_panel.png){data-gallery="tools"}
+![Scene Panel](./images/cobra_scene_panel.png){data-gallery="tools"}
 
 #### MDL2 Panel
-![MDL2 Panel](images\cobra_mdl2_panel.png){data-gallery="tools"}
+![MDL2 Panel](./images/cobra_mdl2_panel.png){data-gallery="tools"}
 
 #### Mesh Panel
-![Mesh Panel](images\cobra_mesh_panel.png){data-gallery="tools"}
+![Mesh Panel](./images/cobra_mesh_panel.png){data-gallery="tools"}
 
 #### View Panel
-![View Panel](images\cobra_view_panel.png){data-gallery="tools"}
+![View Panel](./images/cobra_view_panel.png){data-gallery="tools"}
 
 ## LODs
 
