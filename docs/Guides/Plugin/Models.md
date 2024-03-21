@@ -34,7 +34,7 @@ Models usually have anywhere between 1 and 6 LODs.
 ## Hair
 
 The Cobra Engine uses the shells and fins technique to render realistic fur. Additionally, hair cards may be used for long strands of hair.
-Internally, a [flow map](http://wiki.polycount.com/wiki/Flow_map) is used to store the direction of the fur as vertex colors. As flow maps are not intuitive to edit, we provide tools to convert to and from blender's particle hair.
+Internally, a [flow map](http://wiki.polycount.com/wiki/Flow_map){:target="_blank"} is used to store the direction of the fur as vertex colors. As flow maps are not intuitive to edit, we provide tools to convert to and from blender's particle hair.
 
 See the relevant operators in the [Mesh Panel](#mesh-panel). The custom properties are also known to affect the rendering of hair.
 

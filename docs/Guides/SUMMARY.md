@@ -1,5 +1,6 @@
 - [Guides](index.md)
 - [ACSE](ACSE/)
+- [Blender Plugin](Plugin/)
 - */
 - *.md
 - [Supported Formats](Supported-Formats.md)
