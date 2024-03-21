@@ -450,8 +450,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def buffers(self):
 		yield self.buffer_0_bytes
 		yield self.buffer_1_bytes
-		# PZ uses only two buffers in this case, JWE2 keeps an empty third buffer
-		if not self.buffer_2_bytes and is_pz(self.info):
+		# JWE1 and PZ use only two buffers in this case, JWE2 keeps an empty third buffer
+		if not self.buffer_2_bytes and self.context.version <= 50:
 			return
 		yield self.buffer_2_bytes
 
