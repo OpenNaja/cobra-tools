@@ -5,9 +5,9 @@ icon: octicons/file-binary-16
 
 # Reverse Engineering an OVL File Format
 
-## Tutorial Steps
-
 This tutorial assumes that you have basic knowledge of a hex editor, data types and reverse engineering in general.
+
+## Workflow
 
 1. Download the source code for cobra tools, open in an IDE. For a new format, you need to do three things:
     * In `/source/formats/`, duplicate an existing OVL file format's folder (eg. `animalresearch`) and rename it to your new format. Rename the XML inside of it, too.
@@ -144,12 +144,30 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
     Notice that `ptr_0` has been renamed to `array_0`, its `type` changed to `ArrayPointer`. Its sub-struct is set to `template="Sub1"`, counted by `arg="count_0"`.
 
 
-## Some general strategies:
+## Tips & Tricks
 
-### Identifying counts for pointers
+!!! info "Identifying counts for pointers"
+    You'll want to compare the data size of the sub-structs with candidates for counts. If you find integer divisions, you have a likely match. Be aware that these are memory representations and (array) data can be and often is padded to align with 16 bytes offsets.
 
-You'll want to compare the data size of the sub-structs with candidates for counts. If you find integer divisions, you have a likely match. Be aware that these are memory representations and (array) data can be and often is padded to align with 16 bytes offsets.
+    In most but not all formats, the count somewhat counter-intuitively _follows_ the array pointer.
 
-### Homogeneous data with no obvious pattern
+!!! info "Data type of sub-structs"
+    A quick way to determine the data type of sub-structs is looking at the stack log.
 
-Assuming you have identified the data type already: Modify data, put ingame, observe changes to identify the meaning of the data.
+    - Are there any pointers in the sub-struct? &rarr; it must be a struct too
+    - Is its length not divisible by 8? &rarr; it is most likely a ZString
+
+!!! info "Finding rare pointers"
+    You can easily miss out on conditional pointers if you don't look at all files of a format in the stack log, as null pointers don't necessarily appear in the stack log.
+
+    Once you have defined and implemented a preliminary struct, open an OVL containing your format with `Debug Mode` turned on. All instances of the struct are then checked for pointers missing from the XML specification and you will receive warnings in the console if any are found.
+
+!!! info "Naming arrays and counts"
+    If you follow naming conventions for arrays and counts, the count is automatically hidden from the XML on extraction and calculated on injection. Consider the following examples:
+    
+    - [ ] dependencies, dependency_count
+    - [x] dependencies, dependencies_count
+    - [x] dependencies, num_dependencies
+
+!!! info "Homogeneous data with no obvious pattern"
+    Assuming you have identified the data type already: Modify data, put ingame, observe changes to identify the meaning of the data.
