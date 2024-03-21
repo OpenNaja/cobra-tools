@@ -25,6 +25,37 @@
     --faq: 43, 155, 70;
 }
 
+/*
+    Task Lists
+*/
+
+:root {
+    --md-tasklist-icon: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2c5.53 0 10 4.47 10 10s-4.47 10-10 10S2 17.53 2 12 6.47 2 12 2m3.59 5L12 10.59 8.41 7 7 8.41 10.59 12 7 15.59 8.41 17 12 13.41 15.59 17 17 15.59 13.41 12 17 8.41 15.59 7Z"/></svg>');
+    --md-tasklist-icon--checked: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9Z"/></svg>');
+}
+
+.md-typeset .task-list-indicator:before {
+    background-color: #e63600;
+    content: "";
+    height: 1.25em;
+    -webkit-mask-image: var(--md-tasklist-icon);
+    mask-image: var(--md-tasklist-icon);
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    position: absolute;
+    top: .15em;
+    width: 1.25em;
+}
+
+.md-typeset [type=checkbox]:checked+.task-list-indicator:before {
+    background-color: #00e676;
+    -webkit-mask-image: var(--md-tasklist-icon--checked);
+    mask-image: var(--md-tasklist-icon--checked);
+}
 
 /*
     External Links
