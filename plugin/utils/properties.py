@@ -48,7 +48,16 @@ def show_lod_callback(self, context):
 		if view_coll.name in context.scene.collection.children:
 			# don't alter the visibility of mdl2 collections
 			continue
-		view_coll.hide_viewport = f"_L{self.current_lod}" not in view_coll.name
+		lod_index = int(math.floor(self.current_lod))
+		lod_transition = self.current_lod - lod_index
+		view_coll.hide_viewport = f"_L{lod_index}" not in view_coll.name
+		# set LOD blending state
+		if not view_coll.hide_viewport:
+			for ob in view_coll.collection.objects:
+				b_keys = ob.data.shape_keys
+				if b_keys and "LOD" in b_keys.key_blocks:
+					k = b_keys.key_blocks["LOD"]
+					k.value = lod_transition
 
 
 def make_material_callback(var_name):
@@ -90,12 +99,12 @@ class CobraSceneSettings(PropertyGroup):
 		min=0,
 		max=6
 	)
-	current_lod: IntProperty(
+	current_lod: FloatProperty(
 		name="Current LOD",
 		description="LOD index to show",
-		default=0,
-		min=0,
-		max=5,
+		default=0.0,
+		min=0.0,
+		max=5.0,
 		update=show_lod_callback
 	)
 	for f in pz_shader_floats:
