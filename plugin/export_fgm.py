@@ -179,7 +179,7 @@ def export_fgm_at(folder, game, mat_name):
 
 	# ignore saving for materials linked from a library, we might not have all the data available.
 	# TODO: Alternatively, retrieve the missing information from the asset library
-	if b_mat['AssetPackageName']:
+	if b_mat.asset_data and b_mat['AssetPackageName']:
 		logging.info(f"Material {mat_name} belongs to library: {str(b_mat.library)}, exporting aborted")
 		return
 
