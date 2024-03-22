@@ -26,6 +26,15 @@
 }
 
 /*
+    Layout
+
+*/
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+/*
     Task Lists
 */
 
@@ -101,6 +110,10 @@ li.md-tabs__item:has(.md-tabs__link.download:hover) {
 .md-typeset .admonition,
 .md-typeset .admonition-title {
     font-size: 0.7rem
+}
+
+.md-typeset .admonition.inline.inline-wide {
+    width: 20rem;
 }
 
 /*

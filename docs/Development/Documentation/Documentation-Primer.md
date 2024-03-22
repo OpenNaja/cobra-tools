@@ -1,5 +1,6 @@
 ---
 title: Documentation Primer
+description: A brief overview of mkdocs-material and PyMdown extensions, mkdocs plugins, as well as any cobra-tools customizations.
 icon: material/file-document-edit-outline
 ---
 
@@ -87,7 +88,88 @@ In both `index.md` and `page.md`, links to `Plugin/images` should start with `./
 
 For full documentation see [Admonitions Usage](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#usage){:target=_blank}.
 
+### Admonition Classes
+
+All non-quoted text after `!!!` becomes a CSS class. Some useful built-in classes are `inline` and `end`.
+
+=== ":octicons-arrow-right-16: inline end"
+
+    !!! info inline end "Lorem ipsum"
+
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et
+        euismod nulla.
+
+    ```md
+    !!! info inline end "Lorem ipsum"
+
+        Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit. Nulla et euismod nulla.
+    ```
+
+    Use `inline end` to align to the right (left for rtl languages).
+
+=== ":octicons-arrow-left-16: inline"
+
+    !!! info inline "Lorem ipsum"
+
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et
+        euismod nulla.
+
+    ```md
+    !!! info inline "Lorem ipsum"
+
+        Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit. Nulla et euismod nulla.
+    ```
+
+To customize specific admonitions:  
+
+1. Create a CSS class in [extra.css](../../assets/stylesheets/extra.css){:target=_blank}
+2. Use this class in the admonition declaration.
+
+    !!! example "Example: Wider Inline Admonitions"
+
+        === ":octicons-file-code-16: extra.css"
+
+            ```css
+            /* The admonition type is not included in the selector, for use in all inline admonitions */
+            .md-typeset .admonition.inline.inline-wide {
+                width: 20rem;
+            }
+            ```
+
+        === "Usage"
+
+            ```md
+            !!! info inline inline-wide end "Info Title"
+                Info text
+            ```
+
+        === ":material-cancel: Result without inline-wide"
+
+            !!! info inline end "Info Title"
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod
+                nulla. Curabitur feugiat, tortor non consequat finibus, justo purus auctor
+                massa, nec semper lorem quam in massa.
+
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod
+            nulla. Curabitur feugiat, tortor non consequat finibus, justo purus auctor
+            massa, nec semper lorem quam in massa.
+
+        === ":material-check: Result with inline-wide"
+
+            !!! info inline inline-wide end "Info Title"
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod
+                nulla. Curabitur feugiat, tortor non consequat finibus, justo purus auctor
+                massa, nec semper lorem quam in massa.
+
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod
+            nulla. Curabitur feugiat, tortor non consequat finibus, justo purus auctor
+            massa, nec semper lorem quam in massa.
+
 ### Custom Admonitions
+
+Some new admonitions have been created for the cobra-tools documentation.  For reference on how to create them, see [Custom Admonitions](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#custom-admonitions){:target=_blank}.
 
 #### FAQ
 

@@ -40,6 +40,7 @@ plugins:
       enabled: !ENV [CI, false]
   - glightbox
 markdown_extensions:
+  - tables
   - abbr
   - attr_list
   - md_in_html
