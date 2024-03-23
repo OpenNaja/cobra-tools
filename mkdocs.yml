@@ -39,6 +39,15 @@ plugins:
   - social:
       enabled: !ENV [CI, false]
   - glightbox
+  - git-committers:
+      enabled: !ENV [CI, false]
+      repository: OpenNaja/cobra-tools
+      branch: master
+      exclude:
+        - index.md
+  - git-revision-date-localized:
+      exclude:
+        - index.md
 markdown_extensions:
   - tables
   - abbr

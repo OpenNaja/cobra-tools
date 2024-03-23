@@ -1,3 +1,5 @@
 mkdocs-material
 mkdocs-literate-nav
 mkdocs-glightbox
+mkdocs-git-revision-date-localized-plugin
+mkdocs-git-committers-plugin-2
