@@ -1462,9 +1462,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#on-animal-place" class="md-nav__link">
+  <a href="#on-animal-spawn" class="md-nav__link">
     <span class="md-ellipsis">
-      On Animal Place
+      On Animal Spawn
     </span>
   </a>
   
@@ -1710,23 +1710,56 @@
 </div>
 </div>
 <h3 id="in-game">In-Game<a class="headerlink" href="#in-game" title="Permanent link">&para;</a></h3>
-<h4 id="on-animal-place">On Animal Place<a class="headerlink" href="#on-animal-place" title="Permanent link">&para;</a></h4>
+<h4 id="on-animal-spawn">On Animal Spawn<a class="headerlink" href="#on-animal-spawn" title="Permanent link">&para;</a></h4>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="planet-zoo_1" name="__tabbed_2" type="radio" /><input id="jurassic-world-evolution-2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="planet-zoo_1">Planet Zoo</label><label for="jurassic-world-evolution-2_1">Jurassic World Evolution 2</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <ol>
-<li>Check that you have a visuals prefab for the animal and gender in your ACSEData Lua</li>
-<li>Check that the visuals prefab for the animal and gender is correctly spelled and capitalized in the AnimalDefinitions table of the Animals FDB</li>
-<li>Check that the modded AssetPackages referenced in your visuals prefabs exist as .assetpkg in Init.OVL</li>
-<li>Check that the .assetpkg reference your Animal OVLs correctly</li>
+<li>Main.OVL Prefabs<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Visuals Prefab for the animal/gender exists in your Data Lua, or is <code>required</code> in Data/LuaDatabases as its own .lua<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> If using separate .lua per Visuals Prefab, ensure these exist in your OVL and are named the same as in your Data Lua</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Visuals Prefab is correctly spelled and capitalized according to the AnimalDefinitions table of the Animals FDB</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The modded AssetPackages referenced by the Visuals Prefab exist as .assetpkg in your Init.OVL</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The <code>ModelName</code>, <code>MotionGraphName</code>, and <code>HitcheckModel</code> strings all match the names of the MDL2 and motiongraph files in your animal OVL</li>
+</ul>
+</li>
+<li>Init.OVL Asset Packages<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The .assetpkg match in name with the modded AssetPackages in your Visuals Prefabs</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The .assetpkg contents reference your Animal OVLs correctly i.e. <code>ovldata\{MOD_NAME}\Animals\{ANIMAL_NAME}\{ANIMAL_NAME}</code></li>
+</ul>
+</li>
+<li>Main.OVL FDBs<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Visuals Prefabs in the AnimalDefinitions table are spelled and capitalized the same as the Prefabs loaded by your Data Lua.</li>
+</ul>
+</li>
 </ol>
 </div>
 <div class="tabbed-block">
 <ol>
-<li>Check that you have a visuals prefab for the animal and gender in your ACSEData Lua</li>
-<li>Check that the visuals prefab for the animal and gender is correctly spelled and capitalized in the AnimalDefinitions table of the Animals FDB</li>
-<li>Check that the modded AssetPackages referenced in your visuals prefabs exist as .assetpkg in Init.OVL</li>
-<li>Check that the .assetpkg reference your Animal OVLs correctly</li>
+<li>Main.OVL Prefabs<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Prefab for the Dinosaur exists in your Data Lua, or is <code>required</code> in Data/LuaDatabases as its own .lua<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> If using separate .lua per Prefab, ensure these exist in your OVL and are named the same as in your Data Lua</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Prefab is correctly spelled and capitalized according to the Species table of the Dinosaurs FDB</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The modded AssetPackages referenced by the Prefab exist as .assetpkg in your Init.OVL</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The <code>ModelName</code> and <code>MotionGraphName</code> strings all match the names of the MDL2 and motiongraph files in your Dinosaur OVL</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The <code>DecalPrefabName</code>, if modded, matches the name and capitalization of the Decal Prefabs loaded by your Data Lua.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Any modded Prefabs (e.g. Footprint) referenced by your Dinosaur Prefab are listed <strong><em>before</em></strong> the Dinosaur Prefab in your Data Lua.</li>
+</ul>
+</li>
+<li>Init.OVL Asset Packages<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The .assetpkg match in name with the modded AssetPackages in your Prefabs</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The .assetpkg contents reference your Dinosaur OVLs correctly i.e. <code>ovldata\{MOD_NAME}\Dinosaurs\{DINO_NAME}\{DINO_NAME}</code></li>
+</ul>
+</li>
+<li>Main.OVL FDBs<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The Prefabs in the Species table are spelled and capitalized the same as the Prefabs loaded by your Data Lua.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> SpeciesID must be unique and not collide with any other Species</li>
+</ul>
+</li>
 </ol>
 </div>
 </div>
@@ -1780,7 +1813,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 19, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 24, 2024</span>
   </span>
 
     
