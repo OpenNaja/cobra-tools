@@ -44,21 +44,38 @@ This document assumes you are familiar with modding and are having trouble with 
 
 ### In-Game
 
-#### On Animal Place
+#### On Animal Spawn
 
 === "Planet Zoo"
 
-    1. Check that you have a visuals prefab for the animal and gender in your ACSEData Lua
-    2. Check that the visuals prefab for the animal and gender is correctly spelled and capitalized in the AnimalDefinitions table of the Animals FDB
-    3. Check that the modded AssetPackages referenced in your visuals prefabs exist as .assetpkg in Init.OVL
-    4. Check that the .assetpkg reference your Animal OVLs correctly
+    1. Main.OVL Prefabs
+        - [x] The Visuals Prefab for the animal/gender exists in your Data Lua, or is `required` in Data/LuaDatabases as its own .lua
+            - [x] If using separate .lua per Visuals Prefab, ensure these exist in your OVL and are named the same as in your Data Lua
+        - [x] The Visuals Prefab is correctly spelled and capitalized according to the AnimalDefinitions table of the Animals FDB
+        - [x] The modded AssetPackages referenced by the Visuals Prefab exist as .assetpkg in your Init.OVL
+        - [x] The `ModelName`, `MotionGraphName`, and `HitcheckModel` strings all match the names of the MDL2 and motiongraph files in your animal OVL
+    2. Init.OVL Asset Packages
+        - [x] The .assetpkg match in name with the modded AssetPackages in your Visuals Prefabs
+        - [x] The .assetpkg contents reference your Animal OVLs correctly i.e. `ovldata\{MOD_NAME}\Animals\{ANIMAL_NAME}\{ANIMAL_NAME}`
+    3. Main.OVL FDBs
+        - [x] The Visuals Prefabs in the AnimalDefinitions table are spelled and capitalized the same as the Prefabs loaded by your Data Lua.
 
 === "Jurassic World Evolution 2"
 
-    1. Check that you have a visuals prefab for the animal and gender in your ACSEData Lua
-    2. Check that the visuals prefab for the animal and gender is correctly spelled and capitalized in the AnimalDefinitions table of the Animals FDB
-    3. Check that the modded AssetPackages referenced in your visuals prefabs exist as .assetpkg in Init.OVL
-    4. Check that the .assetpkg reference your Animal OVLs correctly
+    1. Main.OVL Prefabs
+        - [x] The Prefab for the Dinosaur exists in your Data Lua, or is `required` in Data/LuaDatabases as its own .lua
+            - [x] If using separate .lua per Prefab, ensure these exist in your OVL and are named the same as in your Data Lua
+        - [x] The Prefab is correctly spelled and capitalized according to the Species table of the Dinosaurs FDB
+        - [x] The modded AssetPackages referenced by the Prefab exist as .assetpkg in your Init.OVL
+        - [x] The `ModelName` and `MotionGraphName` strings all match the names of the MDL2 and motiongraph files in your Dinosaur OVL
+        - [x] The `DecalPrefabName`, if modded, matches the name and capitalization of the Decal Prefabs loaded by your Data Lua.
+        - [x] Any modded Prefabs (e.g. Footprint) referenced by your Dinosaur Prefab are listed ***before*** the Dinosaur Prefab in your Data Lua.
+    2. Init.OVL Asset Packages
+        - [x] The .assetpkg match in name with the modded AssetPackages in your Prefabs
+        - [x] The .assetpkg contents reference your Dinosaur OVLs correctly i.e. `ovldata\{MOD_NAME}\Dinosaurs\{DINO_NAME}\{DINO_NAME}`
+    3. Main.OVL FDBs
+        - [x] The Prefabs in the Species table are spelled and capitalized the same as the Prefabs loaded by your Data Lua.
+        - [x] SpeciesID must be unique and not collide with any other Species
 
 #### Miscellaneous
 
