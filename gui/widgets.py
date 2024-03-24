@@ -19,7 +19,7 @@ import gui
 from gui import qt_theme
 from root_path import root_dir
 
-from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore  # noqa: F401
+from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QRectF, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
@@ -2910,6 +2910,14 @@ class TitleBar(StandardTitleBar):
         # Set NoTextInteraction to prevent dragability issues with HTML / rich text
         self.titleLabel.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
 
+        # Change iconLabel to QSvgWidget
+        self.iconLabel = QtSvg.QSvgWidget(os.path.join(root_dir, f'icons/Cobra_Tools_Logo_24px.svg'), parent)
+        self.iconLabel.setGeometry(6, 6, 24, 24)
+
+    def setIcon(self, icon):
+        """Overriding StandardTitleBar.setIcon since self.iconLabel widget was changed due to DPI issues."""
+        pass
+
 
 ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
 
@@ -2944,7 +2952,7 @@ class MainWindow(FramelessMainWindow):
         self.name = name
         self.log_name = ""
         self.setWindowTitle(name)
-        self.setWindowIcon(get_icon("frontier"))
+        self.setWindowIcon(QIcon(os.path.join(root_dir, f'icons/Cobra_Tools_Logo_24px.svg')))  # Do not cache with get_icon
         self._stdout_handler: logging.StreamHandler | None = None
 
         self.file_widget: Optional[FileWidget] = None
