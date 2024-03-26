@@ -2,7 +2,9 @@
 
 ## Installation
 
-**Read the instructions steps carefully and do not jump ahead and start downloading everything or you will miss important steps**.
+!!! tip
+    1. Read the instructions steps carefully before downloading anything or you will miss important steps.
+    2. If updating the tools, please also refer to [Updating](Updating.md).
 
 [Download :material-download:](https://github.com/OpenNaja/cobra-tools/archive/master.zip){ .md-button .md-button--download }
 
@@ -26,9 +28,9 @@ You need to have installed:
 
 ### Installing Python Dependencies
 
-Opening any of the GUI tools after installing Python 3.11 and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages.
+Opening any of the GUI tools after installing Python 3.11 and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages via this same prompt.
 
-![Auto Updater](assets/images/auto_updater.png)
+![Auto Updater](./assets/images/auto_updater.png)
 
 Simply follow the instructions, typing `y` and hitting `Enter`.
 
