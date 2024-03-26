@@ -1,3 +1,9 @@
+---
+title: Disclaimers & Legal
+description: Disclaimers, Legal Notices, and Terms of Conduct for using Cobra Tools
+icon: material/clipboard-text
+---
+
 # Disclaimers & Legal
 
 ## Disclaimers

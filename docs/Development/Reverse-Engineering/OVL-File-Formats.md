@@ -1,5 +1,6 @@
 ---
 title: Reverse Engineering an OVL File Format
+description: A primer for the reverse engineering workflow of OVL file formats
 icon: octicons/file-binary-16
 ---
 

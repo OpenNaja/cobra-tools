@@ -1,3 +1,9 @@
+---
+title: Download
+description: Download and installation information including prerequisites
+icon: material/download
+---
+
 # Download
 
 ## Installation

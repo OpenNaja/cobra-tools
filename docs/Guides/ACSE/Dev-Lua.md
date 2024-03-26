@@ -1,5 +1,6 @@
 ---
 title: dev/Lua
+description: Guide for setting up the dev environment for the game
 icon: fontawesome/brands/dev
 ---
 

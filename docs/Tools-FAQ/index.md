@@ -1,4 +1,6 @@
 ---
+title: Tools FAQ
+description: FAQ for common issues and questions regarding the GUI tools and Blender Plugin
 icon: material/frequently-asked-questions
 ---
 

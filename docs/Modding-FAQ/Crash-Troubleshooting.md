@@ -1,3 +1,8 @@
+---
+title: Crash Troubleshooting for Modders
+description: Troubleshooting Guide for common sources of crashes when making mods
+---
+
 # Crash Troubleshooting
 
 !!! construction
@@ -10,9 +15,9 @@ This document assumes you are familiar with modding and are having trouble with 
 !!! tip "NON-MOD AUTHORS"
     For end-user troubleshooting regarding your installed mods, instead refer to [Installed Mods Troubleshooting](Installed-Mods-Troubleshooting.md)
 
-### On Game Start
+## On Game Start
 
-#### Immediate (Before intro cinematic)
+### Immediate (Before intro cinematic)
 
 1. Check your Lua file syntax. Lua syntax errors will show as Errors in OVL Tool upon injection
 
@@ -24,12 +29,12 @@ This document assumes you are familiar with modding and are having trouble with 
 4. Check that all used .assetpkg in Init.OVL reference an OVL that exists in ovldata/
 5. Check that all FDB named in GetDatabaseConfig in your Databases Lua exist in Main.OVL
 
-#### Just before globe menu
+### Just before globe menu
 
 1. A functional error in your Lua code that is not caught with just syntax checking, i.e. missing functions, tables
 2. ?
 
-### On Map Load
+## On Map Load
 
 === "Planet Zoo"
 
@@ -42,9 +47,9 @@ This document assumes you are familiar with modding and are having trouble with 
 
     1. ?
 
-### In-Game
+## In-Game
 
-#### On Animal Spawn
+### On Animal Spawn
 
 === "Planet Zoo"
 
@@ -77,17 +82,17 @@ This document assumes you are familiar with modding and are having trouble with 
         - [x] The Prefabs in the Species table are spelled and capitalized the same as the Prefabs loaded by your Data Lua.
         - [x] SpeciesID must be unique and not collide with any other Species
 
-#### Miscellaneous
+### Miscellaneous
 
 === "Planet Zoo"
 
-    ##### On Research Open
+    #### On Research Open
 
     1. Ensure the animal's Research FDB has been made with the tools/scripts. 
         - Tool-made Research FDB ResearchIDs are taken care of for you, thus minimizing chances of ID collision crashes
     2. ?
 
-    ##### On Zoopedia Open or Zoopedia Filtering/Scrolling
+    #### On Zoopedia Open or Zoopedia Filtering/Scrolling
 
     1. Check the references in your Zoopedia-related .userinterfaceicondata 
         - Check that the .assetpkg referenced exists
@@ -95,8 +100,8 @@ This document assumes you are familiar with modding and are having trouble with 
 
 === "Jurassic World Evolution 2"
 
-    ##### Something JWE2
+    #### Something JWE2
 
 === "Planet Coaster"
 
-    ##### Something PC
+    #### Something PC

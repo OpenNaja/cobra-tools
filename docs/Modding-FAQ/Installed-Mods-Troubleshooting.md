@@ -1,4 +1,11 @@
-### Before Installing Mods
+---
+title: Installed Mods Troubleshooting
+description: Troubleshooting Guide for users having issues installing mods
+---
+
+# Installed Mods Troubleshooting
+
+## Before Installing Mods
 
 !!! warning 
     Removing, installing, or updating mods comes with the risk of having issues with loading old parks. If there is a park you are working on and you do not want to deal with the associated risks, **do not modify your game**.
@@ -6,7 +13,7 @@
 1. Save a backup of your current ovldata folder so that you can always go back to the version of the game that can load your existing parks.
 2. Make a [copy of your save files](#).
 
-### When Installing Mods
+## When Installing Mods
 
 Mods interact with the game and other mods in different ways. Mods may:
 
@@ -25,19 +32,22 @@ Thus, it is important to read the Nexus Mods page description of the mod you are
     Install new mods one by one, and always make sure you download the latest version of the mod.
 
 
-### Installing the Mod
+## Installing the Mod
 
 The ovldata folder is where the game reads its ContentPacks. Every mod nowadays is a ContentPack and has to be installed the same way as the game installs its DLCs in this folder. Do not make folders and subfolders and put mods in them, this will break the game. Every mod needs to be installed in the same folder. 
 Mod folder names don't usually have sequences of numbers or other characters, just letters (and maybe a number or two). If you see a folder that has a long sequence of numbers on it you need to install the mod correctly.
 
 Every mod needs a 'manifest' file. You will find this file Inside every folder in OvlData. If you go to the mod folder and you can't find a file named 'Manifest' chances are this mod is installed wrong.
 
-### Crashes After Installation
+## Crashes After Installation
 
 If you install a mod and it crashes your game, check the installation instructions and requirements. 
 When things don't work, the best course of action is to remove the last mod you installed and try running the game again. If this mod keeps crashing your game you might want to open a bug report in Nexus Mods commenting on the problem.
 
-### if all mods are crashing or mods don't work for you
+!!! construction
+    The area below is under construction!
+
+## if all mods are crashing or mods don't work for you
 
 Usually this is a misconception and more like a rare case. Most likely you have reached a point where your game is completely unstable and will be like that even without mods. Here is a little troubleshooting guide to get you through this case:
 

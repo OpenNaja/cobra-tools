@@ -1,3 +1,8 @@
+---
+title: Updating
+description: Information for updating the GUI Tools and Blender Plugin
+icon: material/update
+---
 
 # Updating
 

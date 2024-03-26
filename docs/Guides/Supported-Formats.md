@@ -1,4 +1,6 @@
 ---
+title: Supported Formats
+description: List of supported formats, their use, and how to edit them
 icon: octicons/file-16
 ---
 

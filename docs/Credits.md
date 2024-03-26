@@ -1,4 +1,9 @@
-## Credits
+---
+title: Credits
+icon: material/account-circle
+---
+
+# Credits
 
 - Planet Zoo, Cobra, Frontier and the Frontier Developments logo are trademarks or registered trademarks of Frontier Developments, plc.
 - Jurassic World, Jurassic World Fallen Kingdom, Jurassic World Evolution, Jurassic World Evolution 2 and their respective logos are trademarks of Universal Studios and Amblin Entertainment, Inc.
