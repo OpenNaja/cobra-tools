@@ -5,5 +5,5 @@ icon: material/book-education-outline
 
 # Guides
 
-!!! warning "Construction"
+!!! construction
     This page is currently under construction!

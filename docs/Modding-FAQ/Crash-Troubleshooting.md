@@ -1,6 +1,6 @@
 # Crash Troubleshooting
 
-!!! warning "Construction"
+!!! construction
     This page is currently under construction!
 
 This document will cover various scenarios in which your game may crash, and provide possible solutions.

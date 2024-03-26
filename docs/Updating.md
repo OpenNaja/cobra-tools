@@ -17,12 +17,12 @@ The tools have an auto-updater to handle Python dependency updates for you, whic
 
 ## Blender Plugin
 
-!!! warning "Construction"
+!!! construction
     This area is currently under construction!
 
 ## Symlinking Guide
 
 If you would prefer to ensure that your GUI tools and Blender Plugin are always synced, you can create a symlink so that both operate from the same location. 
 
-!!! warning "Construction"
+!!! construction
     This area is currently under construction!

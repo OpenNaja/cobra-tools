@@ -4,5 +4,5 @@ icon: material/frequently-asked-questions
 
 # Modding FAQ
 
-!!! warning "Construction"
+!!! construction
     This page is currently under construction!

@@ -187,6 +187,9 @@ The FAQ admonition is used for Q&A formatting, with the Question as the custom a
         Answer for both questions
     ```
 
+    !!! tip
+        Be mindful of the use of quotes, line breaks, and indentation in the above example.
+
 === "Result"
 
     !!! faq "Question?"
@@ -195,8 +198,27 @@ The FAQ admonition is used for Q&A formatting, with the Question as the custom a
     !!! faq "Q. Question 1?<br>Q. Question 2?"
         Answer for both questions
 
-!!! tip
-    Be mindful of the use of quotes, line breaks, and indentation in the above example.
+
+
+#### Construction
+
+The Construction admonition is used to caution users of documents still under development.
+
+=== "Usage"
+
+    ```md
+    !!! construction
+        This page is still under construction!
+    ```
+
+    !!! tip
+        Be mindful of the use of quotes, line breaks, and indentation in the above example.
+
+=== "Result"
+
+    !!! construction
+        This page is still under construction!
+
 
 ## Content Tabs
 

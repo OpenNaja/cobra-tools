@@ -4,7 +4,7 @@ icon: material/frequently-asked-questions
 
 # Tools FAQ
 
-!!! warning "Construction"
+!!! construction
     This page is currently under construction!
 
 For game-specific issues, please see [Modding FAQ](../Modding-FAQ/index.md)

@@ -93,5 +93,5 @@ You can adjust each collider's physics properties in the [Collision Panel](#coll
 
 ### Constraints
 
-!!! warning "Construction"
+!!! construction
     This section is currently under construction!
