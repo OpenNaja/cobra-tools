@@ -172,3 +172,7 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
 
 !!! info "Homogeneous data with no obvious pattern"
     Assuming you have identified the data type already: Modify data, put ingame, observe changes to identify the meaning of the data.
+
+!!! info "Comparing to original"
+    Once you have a suitable XML description, extract your file and inject it back into the ovl. If it injected successfully, select the file in the GUI and click Utils > Compare, then select the OVL that contains the original file. If there are differences, you will find warnings in the log. If the injected file is identical to the original, the log will tell you so. You then have a working description of your format, at least for that particular file.
+    
