@@ -4,6 +4,8 @@ repo_url: https://github.com/OpenNaja/cobra-tools
 repo_name: cobra-tools
 extra_css:
   - assets/stylesheets/extra.css
+watch:
+  - docs_includes
 theme:
   name: material
   logo: assets/Cobra_Tools_Logo.png
@@ -61,7 +63,10 @@ markdown_extensions:
         kwds:
           case: lower
       alternate_style: true
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: ['docs_includes', 'docs_includes\snippets']
+      auto_append: ['abbreviations.md']
   - pymdownx.tilde
   - pymdownx.keys
   - pymdownx.tasklist:
