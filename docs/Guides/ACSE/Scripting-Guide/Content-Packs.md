@@ -39,21 +39,15 @@ When the game finds the Manifest file, it will first validate that this Content 
 
 The following instructions will show you how to create your first Content Pack.
 
-
 ### Content Pack Location and Folder
 
-
-Navigate into the game ovldata folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the
-``{platform}\ovldata\ExampleContentPack`` folder.
-
+Navigate into the game ovldata folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the `ovldata\ExampleContentPack` folder.
 
 ### Adding a Manifest File
 
-
 The Manifest file defines the Content Pack; it gives the module a name used later by the engine to bootstrap the content initialization and a unique ID used to check if the module has been loaded before. It is important that these two (Name and ID) are unique for the module to load properly.
 
-
-Content of {platform}\ovldata\ExampleContentPack\Manifest.xml
+Content of `ovldata\ExampleContentPack\Manifest.xml`
 ```xml
 <ContentPack version="1">
   <Name>ExampleContentPack</Name> <!-- This must match your folder name -->
@@ -71,9 +65,7 @@ Content of {platform}\ovldata\ExampleContentPack\Manifest.xml
 
 ## Creating the Content Package(s)
 
-
 Inside your Content Pack folder, add a subfolder called Main. If you also need some initialization (will explain later) Create an Init folder too. The content of your module folder Will look like this:
-
 
 ```
 ovldata\ExampleContentPack\Init
@@ -85,7 +77,6 @@ ovldata\ExampleContentPack\Manifest.xml
 
 While you have total freedom on how to name any extra OVL files included by your package, the game engine will also look for specific files/folders inside your module, like Localisation files. If your module has strings that need translation, you will need to provide the data through a localisation folder tree for the different languages.
 
-
 ## Content Pack Resources
 
 Anything inside the module OVL files will be considered a resource for the game, regardless of its mime type; however, some resources will be treated differently by the game engine precisely depending on their mime type. It is important to understand that OVL files are loaded on-demand, and therefore your resources in 'Init' will not be able to access your resources in the 'Main' OVL files, or any other OVL file your Content Package has that has not been loaded yet.
@@ -93,11 +84,9 @@ Anything inside the module OVL files will be considered a resource for the game,
 
 To begin with, we will add a harmless file without any purpose to the Main.ovl file. Create the ```ExampleContentPack.txt``` inside the ```ExampleContentPack\Main``` folder and type the following in it:
 
-
 ```
 Version: 1.0
 ```
-
 
 ## Packing Your Content
 
@@ -123,7 +112,7 @@ Because the tool only allows the creation of an OVL file at a time, you will nee
 
 ## Distributing the Content Pack
 
-If you want to share your Content Pack, you only need to distribute the Content Pack folder containing your Manifest.xml and OVL files. Inside `ovldata`, create a ZIP file from your Content Pack folder and save it. Open your ZIP file and remove any directory and file not required from it. Any folder such as `Init` or `Main` used for `File > New` in OVL tool does not need to be included in the package. 
+If you want to share your Content Pack, you only need to distribute the Content Pack folder containing your Manifest.xml and OVL files. Inside ovldata, create a ZIP file from your Content Pack folder and save it. Open your ZIP file and remove any directory and file not required from it. Any folder such as `Init` or `Main` used for `File > New` in OVL tool does not need to be included in the package. 
 
 In this example, the ZIP content will look like this:
 
@@ -132,7 +121,7 @@ ExampleContentPack\
     Main.ovl
     Manifest.xml
 ```
-You can share this ZIP file now. To use it, all a person has to do is unzip the Content Pack folder inside the ZIP to the ```ovldata``` folder.
+You can share this ZIP file now. To use it, all a person has to do is unzip the Content Pack folder inside the ZIP to the ovldata folder.
 
 
 ## Final Notes

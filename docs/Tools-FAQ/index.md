@@ -16,11 +16,9 @@ For game-specific issues, please see [Modding FAQ](../Modding-FAQ/index.md)
 
 !!! faq "I do not know where the log file is."
     - For Blender, the file is located in
-        <div class="annotate" markdown>
-            `C:\Users\USERNAME(1)\AppData\Roaming\Blender Foundation\Blender\x.x(2)\scripts\addons\cobra-tools-master\blender_plugin.log`
-        </div>
-        1. Your Windows username
-        2. Your version of Blender, e.g. 4.0
+
+        --8<-- "blender-log.md"
+
     - For OVL Tool, FGM Editor, MS2 Tool, Mod Tool, the log file is located next to the .py you open the tool with, with the same name.
 
 !!! faq "The tools immediately close after opening."

@@ -26,7 +26,7 @@ This document assumes you are familiar with modding and are having trouble with 
 
 2. Check that the OVLs included by your OVLs exist. Included OVLs are at the bottom of OVL Tool in the dropdown menu
 3. Check that all modded AssetPackages named in your Lua prefabs have an .assetpkg in Init.OVL
-4. Check that all used .assetpkg in Init.OVL reference an OVL that exists in ovldata/
+4. Check that all used .assetpkg in Init.OVL reference an OVL that exists in ovldata
 5. Check that all FDB named in GetDatabaseConfig in your Databases Lua exist in Main.OVL
 
 ### Just before globe menu

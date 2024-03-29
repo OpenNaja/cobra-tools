@@ -13,7 +13,7 @@ icon: fontawesome/brands/dev
 ACSE provides a few methods for quickly scripting and prototyping code for the game that does not require packing a complete content pack or mod. One of this methods it the local development init.lua file. This file only exists in your local copy of the game (JWE1, JWE2 or PZ) and can be used to speed up your modding capabilities.
 
 !!! warning
-    Do not add anything to this file that is required for other ContentPacks or mods to work because this file is not distributed widely, as part of ACSE or any other mod.
+    Do not add anything to this file that is required for other Content Packs or mods to work because this file is not distributed widely, as part of ACSE or any other mod.
 
 ## File location and default template code.
 
@@ -319,7 +319,7 @@ end
 -- This section allows you to inject custom componetns to the game for testing.
 -- Note that components are definitions required by some prefabs and if you are
 -- distributing a content pack with these prefabs you need to make sure to include
--- any required component in the ContentPack. Usually the components included
+-- any required component in the Content Pack. Usually the components included
 -- in this init.lua file are only used for testing on custom prefabs that don't
 -- need to be distributed, like debug assets etc.
 

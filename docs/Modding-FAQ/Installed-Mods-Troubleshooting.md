@@ -34,7 +34,7 @@ Thus, it is important to read the Nexus Mods page description of the mod you are
 
 ## Installing the Mod
 
-The ovldata folder is where the game reads its ContentPacks. Every mod nowadays is a ContentPack and has to be installed the same way as the game installs its DLCs in this folder. Do not make folders and subfolders and put mods in them, this will break the game. Every mod needs to be installed in the same folder. 
+The ovldata folder is where the game reads its Content Packs. Every mod nowadays is a ContentPack and has to be installed the same way as the game installs its DLCs in this folder. Do not make folders and subfolders and put mods in them, this will break the game. Every mod needs to be installed in the same folder. 
 Mod folder names don't usually have sequences of numbers or other characters, just letters (and maybe a number or two). If you see a folder that has a long sequence of numbers on it you need to install the mod correctly.
 
 Every mod needs a 'manifest' file. You will find this file Inside every folder in OvlData. If you go to the mod folder and you can't find a file named 'Manifest' chances are this mod is installed wrong.
@@ -62,5 +62,3 @@ Usually this is a misconception and more like a rare case. Most likely you have 
 ### Other tips
 
 When you want to preserve a park, it is important to know that you will most likely need the same mods installed the next time you want to open it. Either take notes or make a copy of your game files just in case so you will always have a list of the mods you used, or even the mod versions that worked when you were making the park.
-
-*[ovldata]: The folder located at {Game}\win64\ovldata
