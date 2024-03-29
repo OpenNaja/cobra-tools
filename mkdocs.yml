@@ -69,7 +69,7 @@ markdown_extensions:
         - .\docs_includes
         - .\docs_includes\snippets
       auto_append: 
-        - .\abbreviations.md
+        - ..\docs_includes\abbreviations.md
   - pymdownx.tilde
   - pymdownx.keys
   - pymdownx.tasklist:
