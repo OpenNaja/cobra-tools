@@ -49,6 +49,8 @@ tex_slots = {
     "NQ_SP": "Detail Unique Specular",
     "NQ_AO": "Detail Unique AO",
     "NQ_OP": "Detail Unique Opacity",
+    "DF_BC": "Diffuse Base Color",
+    "DF_OP": "Diffuse Opacity",
     "MS_BC": "Moss Base Color",
     "MS_RN": "Moss Roughness",
     "MS_VR": "Moss Variance",

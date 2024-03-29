@@ -133,7 +133,7 @@ def get_split_mode(png_name, compression):
 	if check_any(
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
-				"pbasecolourtexture", "pbasecolour2", "pdiffusealphatexture", "basecolourandmasktexture", "waternormalroughnessmap"
+				"pbasecolourtexture", "pbasecolour2", "pdiffusetexture", "pdiffusealphatexture", "basecolourandmasktexture", "waternormalroughnessmap"
 			), tex_type):
 		return "RGB_A"
 	if check_any(("pbasenormaltexture", "pgradheightarray"), tex_type):
