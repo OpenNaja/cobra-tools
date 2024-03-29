@@ -83,6 +83,9 @@ For images in the root assets folder, you will need to traverse every subfolder 
 
 In both `index.md` and `page.md`, links to `Plugin/images` should start with `./images/`.  Links starting with `images/` **will not work for `page.md`** as the URI will be `Guides/Plugin/Page/`.
 
+## Annotations
+
+For full documentation see [Annotations Usage](https://squidfunk.github.io/mkdocs-material/reference/annotations/#usage){:target=_blank}
 
 ## Admonitions
 
@@ -198,8 +201,6 @@ The FAQ admonition is used for Q&A formatting, with the Question as the custom a
     !!! faq "Q. Question 1?<br>Q. Question 2?"
         Answer for both questions
 
-
-
 #### Construction
 
 The Construction admonition is used to caution users of documents still under development.
@@ -218,7 +219,6 @@ The Construction admonition is used to caution users of documents still under de
 
     !!! construction
         This page is still under construction!
-
 
 ## Content Tabs
 
@@ -250,3 +250,20 @@ Paragraphs, code blocks, and entire sections can be turned into tabs with the fo
 
 !!! tip
     Be mindful of the use of quotes, line breaks, and indentation in the above example.
+
+## Snippets
+
+For full documentation see [PyMdown Extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/){:target=_blank}
+
+=== "Usage"
+
+    ```md
+    ;--8<-- "blender-log.md"
+    ```
+
+=== "Result"
+
+    --8<-- "blender-log.md"
+
+!!! tip
+    It helps to remember the syntax as ASCII scissors `8<` surrounded by two dashes
