@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'docs/**'
+      - 'docs_includes/**'
       - 'mkdocs.yml'
       - 'requirements-mkdocs.txt'
     branches:
