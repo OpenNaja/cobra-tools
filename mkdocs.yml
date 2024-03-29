@@ -66,8 +66,8 @@ markdown_extensions:
   - pymdownx.snippets:
       check_paths: true
       base_path:
-        - docs_includes
-        - docs_includes\snippets
+        - .\docs_includes
+        - .\docs_includes\snippets
       auto_append: 
         - abbreviations.md
   - pymdownx.tilde
