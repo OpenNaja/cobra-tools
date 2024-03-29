@@ -1590,7 +1590,7 @@
 <p>ACSE provides a few methods for quickly scripting and prototyping code for the game that does not require packing a complete content pack or mod. One of this methods it the local development init.lua file. This file only exists in your local copy of the game (JWE1, JWE2 or PZ) and can be used to speed up your modding capabilities.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Do not add anything to this file that is required for other ContentPacks or mods to work because this file is not distributed widely, as part of ACSE or any other mod.</p>
+<p>Do not add anything to this file that is required for other Content Packs or mods to work because this file is not distributed widely, as part of ACSE or any other mod.</p>
 </div>
 <h2 id="file-location-and-default-template-code">File location and default template code.<a class="headerlink" href="#file-location-and-default-template-code" title="Permanent link">&para;</a></h2>
 <p>ACSE makes use of a special folder accesible for the game code located in <code>{platform]\Dev\Lua</code> where platform is the game folder. If this folder exist, ACSE will look for a special file called init.lua and execute it during the game database bootstrap (the initial ACSE injection point). You can have any Lua code included in this file, however due to the current boostrap step it is being injected in the game it is very likely that many of the game API or features/facilities were not available for your code to use.</p>
@@ -1892,7 +1892,7 @@
 <span class="c1">-- This section allows you to inject custom componetns to the game for testing.</span>
 <span class="c1">-- Note that components are definitions required by some prefabs and if you are</span>
 <span class="c1">-- distributing a content pack with these prefabs you need to make sure to include</span>
-<span class="c1">-- any required component in the ContentPack. Usually the components included</span>
+<span class="c1">-- any required component in the Content Pack. Usually the components included</span>
 <span class="c1">-- in this init.lua file are only used for testing on custom prefabs that don&#39;t</span>
 <span class="c1">-- need to be distributed, like debug assets etc.</span>
 
@@ -1936,7 +1936,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 26, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 29, 2024</span>
   </span>
 
     

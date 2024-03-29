@@ -1684,11 +1684,10 @@
 <h2 id="creating-the-basic-modcontent-pack-structure">Creating the Basic Mod/Content Pack Structure<a class="headerlink" href="#creating-the-basic-modcontent-pack-structure" title="Permanent link">&para;</a></h2>
 <p>The following instructions will show you how to create your first Content Pack.</p>
 <h3 id="content-pack-location-and-folder">Content Pack Location and Folder<a class="headerlink" href="#content-pack-location-and-folder" title="Permanent link">&para;</a></h3>
-<p>Navigate into the game ovldata folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the
-<code>{platform}\ovldata\ExampleContentPack</code> folder.</p>
+<p>Navigate into the game <abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr> folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the <code>ovldata\ExampleContentPack</code> folder.</p>
 <h3 id="adding-a-manifest-file">Adding a Manifest File<a class="headerlink" href="#adding-a-manifest-file" title="Permanent link">&para;</a></h3>
 <p>The Manifest file defines the Content Pack; it gives the module a name used later by the engine to bootstrap the content initialization and a unique ID used to check if the module has been loaded before. It is important that these two (Name and ID) are unique for the module to load properly.</p>
-<p>Content of {platform}\ovldata\ExampleContentPack\Manifest.xml
+<p>Content of <code>ovldata\ExampleContentPack\Manifest.xml</code>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;ContentPack</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Name&gt;</span>ExampleContentPack<span class="nt">&lt;/Name&gt;</span><span class="w"> </span><span class="cm">&lt;!-- This must match your folder name --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;ID&gt;</span>9a1fce40-4dce-11ec-81d3-0242ac130003<span class="nt">&lt;/ID&gt;</span><span class="w"> </span><span class="cm">&lt;!-- You must replace this UUID --&gt;</span>
@@ -1732,13 +1731,13 @@ ovldata\ExampleContentPack\Manifest.xml
 </code></pre></div>
 <p>Because the tool only allows the creation of an OVL file at a time, you will need to repeat this process for every folder with content in your module, and you don't need to pack folders that don't have any files on them. The tool will try to guess the name of the file based on the last folder it loaded the content from, but don't forget to double check that you are using the right folder and name for your output OVL file.</p>
 <h2 id="distributing-the-content-pack">Distributing the Content Pack<a class="headerlink" href="#distributing-the-content-pack" title="Permanent link">&para;</a></h2>
-<p>If you want to share your Content Pack, you only need to distribute the Content Pack folder containing your Manifest.xml and OVL files. Inside <code>ovldata</code>, create a ZIP file from your Content Pack folder and save it. Open your ZIP file and remove any directory and file not required from it. Any folder such as <code>Init</code> or <code>Main</code> used for <code>File &gt; New</code> in OVL tool does not need to be included in the package. </p>
+<p>If you want to share your Content Pack, you only need to distribute the Content Pack folder containing your Manifest.xml and OVL files. Inside <abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr>, create a ZIP file from your Content Pack folder and save it. Open your ZIP file and remove any directory and file not required from it. Any folder such as <code>Init</code> or <code>Main</code> used for <code>File &gt; New</code> in OVL tool does not need to be included in the package. </p>
 <p>In this example, the ZIP content will look like this:</p>
 <p><div class="highlight"><pre><span></span><code>ExampleContentPack\
     Main.ovl
     Manifest.xml
 </code></pre></div>
-You can share this ZIP file now. To use it, all a person has to do is unzip the Content Pack folder inside the ZIP to the <code>ovldata</code> folder.</p>
+You can share this ZIP file now. To use it, all a person has to do is unzip the Content Pack folder inside the ZIP to the <abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr> folder.</p>
 <h2 id="final-notes">Final Notes<a class="headerlink" href="#final-notes" title="Permanent link">&para;</a></h2>
 <p>Not all file types can be imported at this time. There is a <a href="../../../Supported-Formats/">list of supported mime types</a> you can check.</p>
 <p>The game does not load loose files from the file system; all the resources need to be imported into an OVL file. Therefore, you will need to repeat the packing process every time you modify a file in your content; however, you will only need to repack the specific folder where the modified file is.</p>
@@ -1762,7 +1761,7 @@ You can share this ZIP file now. To use it, all a person has to do is unzip the 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 20, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 29, 2024</span>
   </span>
 
     

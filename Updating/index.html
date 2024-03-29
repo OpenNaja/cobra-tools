@@ -1593,10 +1593,7 @@
 <p>Updating the tools in the middle of a project may require re-extraction of files due to format changes, or the recreation of .blend files by re-importing your models.  Thus, it is recommended to avoid upgrades unless you are willing to update your project files.</p>
 </div>
 <h2 id="gui-tools">GUI Tools<a class="headerlink" href="#gui-tools" title="Permanent link">&para;</a></h2>
-<p class="annotate">To update the tools themselves, you should delete the contents of your <code>cobra-tools</code>(1) folder entirely and extract the newer tools into the same folder. This clears out any old, unused, or cached files that may interfere with tool updates.</p>
-<ol>
-<li>e.g. <code>cobra-tools-master</code></li>
-</ol>
+<p>To update the tools themselves, you should delete the contents of your <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr> entirely and extract the newer files into the same folder. This clears out any old, unused, or cached files that may interfere with tool updates.</p>
 <h2 id="python-dependencies">Python Dependencies<a class="headerlink" href="#python-dependencies" title="Permanent link">&para;</a></h2>
 <p>The tools have an auto-updater to handle Python dependency updates for you, which will operate the same as the automatic installer in <a href="../Download/#installing-python-dependencies">Installing Python Dependencies</a>.</p>
 <h2 id="blender-plugin">Blender Plugin<a class="headerlink" href="#blender-plugin" title="Permanent link">&para;</a></h2>
@@ -1605,11 +1602,52 @@
 <p>This area is currently under construction!</p>
 </div>
 <h2 id="symlinking-guide">Symlinking Guide<a class="headerlink" href="#symlinking-guide" title="Permanent link">&para;</a></h2>
-<p>If you would prefer to ensure that your GUI tools and Blender Plugin are always synced, you can create a symlink so that both operate from the same location. </p>
-<div class="admonition construction">
-<p class="admonition-title">Construction</p>
-<p>This area is currently under construction!</p>
+<p>If you would prefer to ensure that your GUI tools and Blender Plugin are always synced, you can create a symlink so that both operate from the same location.</p>
+<div class="admonition note">
+<p class="admonition-title">Notes</p>
+<ol>
+<li>For the sake of this guide we will assume your Cobra Tools location is <code>C:\cobra-tools-master</code> and that the <abbr title="e.g. C:\Users\USERNAME\AppData\Roaming\Blender Foundation\Blender\4.0\scripts\addons\cobra-tools-master">Blender addons folder</abbr> (if already installed) is called <code>cobra-tools-master</code>. <strong>Adjust these accordingly in the steps below</strong></li>
+<li>If you delete or move your <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr>, the symlink in Blender addons will become invalid and you will have to repeat this process.</li>
+<li>When updating Blender versions (e.g. 4.0 to 4.1), you will have to repeat this process with the new Blender version in the path.</li>
+</ol>
 </div>
+<ol>
+<li>
+<p>If the plugin is already installed, delete your existing <code>cobra-tools-master</code> folder located at:</p>
+<p class="annotate"><code>C:\Users\USERNAME(1)\AppData\Roaming\Blender Foundation\Blender\4.0(2)\scripts\addons</code></p>
+<ol>
+<li>Your Windows username</li>
+<li>Your version of Blender, e.g. 4.0</li>
+</ol>
+</li>
+<li>
+<p>Open up a command prompt as administrator.  Press <span class="keys"><kbd class="key-windows">Win</kbd></span> and type <code>cmd</code>, then select Run as Administator. If prompted to elevate privileges, click Yes.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="cmd" src="../assets/images/cmd_administrator.png" /></a></p>
+</li>
+<li>
+<p>Type the following command in the command prompt and hit Enter, after adjusting <code>USERNAME</code>, Blender version, and the path to your <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr>:</p>
+<p class="annotate"><code>mklink /J "C:\Users\USERNAME(1)\AppData\Roaming\Blender Foundation\Blender\4.0(2)\scripts\addons\cobra-tools-master" "C:\cobra-tools-master(3)"</code></p>
+<ol>
+<li>Your Windows username</li>
+<li>Your version of Blender, e.g. 4.0</li>
+<li>Replace this with the path of your Cobra Tools folder</li>
+</ol>
+</li>
+<li>
+<p>If successful, you will see a directory symlink located at:</p>
+<p class="annotate"><code>C:\Users\USERNAME(1)\AppData\Roaming\Blender Foundation\Blender\4.0(2)\scripts\addons</code></p>
+<ol>
+<li>Your Windows username</li>
+<li>Your version of Blender, e.g. 4.0</li>
+</ol>
+</li>
+<li>
+<p>When updating your tools, do not delete your <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr> or the symlink will become invalid. Remove the inner contents of the <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr> and extract the new files into it.</p>
+</li>
+<li>
+<p>Now, your GUI tools and Blender Plugin will always be in sync. You will also be able to access <code>blender_plugin.log</code> from your main <abbr title="e.g. C:\cobra-tools-master">cobra-tools folder</abbr> without having to navigate all the way through to the <abbr title="e.g. C:\Users\USERNAME\AppData\Roaming\Blender Foundation\Blender\4.0\scripts\addons\cobra-tools-master">Blender addons folder</abbr>.</p>
+</li>
+</ol>
 
 
 
@@ -1630,7 +1668,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 26, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 29, 2024</span>
   </span>
 
     
