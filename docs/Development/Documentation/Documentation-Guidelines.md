@@ -76,7 +76,6 @@ icon: material/file-document-edit-outline
 ---
 ```
 
-
 ## File and Folder Naming
 
 - [x] For correct URIs both Markdown files and folders must use `Title-Case`, with whitespace replaced by dashes.
@@ -122,4 +121,29 @@ icon: material/file-document-edit-outline
 
     ```md
     ## Calling other Managers code using their interface
+    ```
+
+## Discord Channel Links
+
+OpenNaja server channels may often need to be linked to, here is a list for copying/pasting where necessary (note the Copy button in each code block):
+
+- **[:discord-rules: rules](https://discord.com/channels/680909673607463131/680910494151868532)**
+    ```md
+    **[:discord-rules: rules](https://discord.com/channels/680909673607463131/680910494151868532)**
+    ```
+- **[:discord-channel: guidelines](https://discord.com/channels/680909673607463131/1223893560881840151)**
+    ```md
+    **[:discord-channel: guidelines](https://discord.com/channels/680909673607463131/1223893560881840151)**
+    ```
+- **[:discord-announcements: announcements](https://discord.com/channels/680909673607463131/680910508756303894)**
+    ```md
+    **[:discord-announcements: announcements](https://discord.com/channels/680909673607463131/680910508756303894)**
+    ```
+- **[:discord-topic: modding-help-pz](https://discord.com/channels/680909673607463131/1020301021756543017)**
+    ```md
+    **[:discord-topic: modding-help-pz](https://discord.com/channels/680909673607463131/1020301021756543017)**
+    ```
+- **[:discord-topic: modding-help-jwe2](https://discord.com/channels/680909673607463131/1020306232281677916)**
+    ```md
+    **[:discord-topic: modding-help-jwe2](https://discord.com/channels/680909673607463131/1020306232281677916)**
     ```
