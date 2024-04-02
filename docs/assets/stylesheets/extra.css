@@ -258,7 +258,7 @@ li.md-tabs__item:has(.md-tabs__link.download:hover) {
 }
 .md-typeset .download > .admonition-title,
 .md-typeset .download > summary {
-    background-color: rgba(var(--download), 0.1);
+    background-color: rgba(var(--download), 0.25);
 }
 .md-typeset details.download summary {
     padding-top: 0.6rem;
