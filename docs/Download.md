@@ -8,11 +8,10 @@ icon: material/download
 
 ## Installation
 
-!!! tip
+!!! warning
+
     1. Read the instructions steps carefully before downloading anything or you will miss important steps.
     2. If updating the tools, please also refer to [Updating](Updating.md).
-
-[Download :material-download:](https://github.com/OpenNaja/cobra-tools/archive/master.zip){ .md-button .md-button--download }
 
 ### Installing Prerequisites
 
@@ -31,10 +30,15 @@ You need to have installed:
 1. Required for texture conversion
 2. Required for Lua decompilation
 
+### Download
+
+??? download interactive "Download & Terms of Conduct"
+
+    --8<-- "terms-of-conduct.md"
 
 ### Installing Python Dependencies
 
-Opening any of the GUI tools after installing Python 3.11 and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages via this same prompt.
+Opening any of the GUI tools after installing Python 3.11 and the redistributables should auto-install the Python dependencies for you. You may also be prompted to update outdated packages via this same prompt. If you have issues please see [Installing Dependencies Manually](#installing-dependencies-manually).
 
 ![Auto Updater](./assets/images/auto_updater.png)
 
