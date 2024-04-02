@@ -33,6 +33,9 @@ theme:
 plugins:
   - privacy:
       enabled: !ENV [CI, false]
+  - blog:
+      blog_toc: true
+      draft_on_serve: true
   - search
   - literate-nav:
       nav_file: SUMMARY.md

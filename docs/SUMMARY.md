@@ -3,6 +3,7 @@
     - [Updating](Updating.md)
     - [Disclaimers](Disclaimers.md)
     - [Credits](Credits.md)
+- [Blog](blog/index.md)
 - [Development](Development/)
 - [Guides](Guides/)
 - [Modding FAQ](Modding-FAQ/)
