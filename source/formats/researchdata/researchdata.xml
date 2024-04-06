@@ -114,9 +114,9 @@
     <compound name="FxDataSettings" inherit="MemStruct">
         <add name="unk_0" type="uint64"/>
         <!--pointer @ 8 -->
-        <add name="unk_ptr" type="Pointer" template="ZString"/>
+        <add name="unk_ptr_0" type="Pointer" template="ZString"/>
         <!--pointer @ 16 -->
-        <add name="unk_ptr" type="Pointer" template="ZString"/>
+        <add name="unk_ptr_1" type="Pointer" template="ZString"/>
         <!-- all of these are 0-->
         <add name="unk_1" type="uint64"/>
         <add name="unk_2" type="uint64"/>
