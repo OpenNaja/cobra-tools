@@ -3,6 +3,7 @@ import os
 
 import bpy
 import mathutils
+import numpy as np
 
 from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis import ManisFile
@@ -13,19 +14,51 @@ from plugin.modules_export.armature import get_armature, assign_p_bone_indices
 from plugin.utils.matrix_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.transforms import ManisCorrector
 
+POS = "pos"
+ORI = "ori"
+SCL = "scl"
 
-def pose_frame_info(b_obj, frame_i, bones_data):
+
+def store_pose_frame_info(b_obj, frame_i, bones_data, bone_channels, corrector):
 	bpy.context.scene.frame_set(frame_i)
 	bpy.context.view_layer.update()
-	matrix = {}
 	for name, pbone in b_obj.pose.bones.items():
 		# Get the final transform of the bone in its own local space...
 		# then make it relative to the parent bone
 		# transform is stored relative to the parent rest
 		# whereas blender stores translation relative to the bone itself, not the parent
-		matrix[name] = bones_data[name] @ b_obj.convert_space(
+		matrix = bones_data[name] @ b_obj.convert_space(
 			pose_bone=pbone, matrix=pbone.matrix, from_space='POSE', to_space='LOCAL')
-	return matrix
+
+		# loc
+		v = sample_scale2(matrix, frame_i, inverted=True) @ matrix
+		bone_channels[name][POS][frame_i] = corrector.blender_bind_to_nif_bind(v).to_translation()
+		# rot
+		final_m = corrector.blender_bind_to_nif_bind(matrix)
+		key = final_m.to_quaternion()
+		# swizzle - w is stored last
+		bone_channels[name][ORI][frame_i] = key.x, key.y, key.z, key.w
+		# scale
+		scale_mat = sample_scale2(matrix, frame_i)
+		# needs axis correction, but appears to be stored relative to the animated bone's axes
+		scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
+		# swizzle
+		key = scale_mat.to_scale()
+		bone_channels[name][SCL][frame_i] = key.z, key.y, key.x
+
+
+def needs_keyframes(keys):
+	"""Checks a list of keys and returns True if temporal changes are detected"""
+	if not len(keys):
+		return False
+	# get the first key
+	key0 = keys[0]
+	# go over the channels
+	for ch_i, ch_v in enumerate(key0):
+		# do keys differ from first key?
+		if not np.allclose(keys[:, ch_i], ch_v, rtol=1e-03, atol=1e-04, equal_nan=False):
+			return True
+	return False
 
 
 def get_fcurves_by_type(group, dtype):
@@ -48,16 +81,15 @@ def index_min_max(indices):
 	return 255, 0
 
 
-def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
-	groups = get_groups_for_type(b_action, b_dtype)
-	groups = [group for group in groups if group.name in bones_lut]
-	count = len(groups)
+def set_mani_info_counts(mani_info, bone_channels, bones_lut, m_dtype):
+	# get count of all keyframed bones that appear in the bone index lut
+	bone_names = [bone_name for bone_name, channels in bone_channels.items() if m_dtype in channels and bone_name in bones_lut]
 	for s in (f"{m_dtype}_bone_count", f"{m_dtype}_bone_count_repeat", f"{m_dtype}_bone_count_related"):
-		setattr(mani_info, s, count)
-	indices = [bones_lut[group.name] for group in groups]
+		setattr(mani_info, s, len(bone_names))
+	indices = [bones_lut[bone_name] for bone_name in bone_names]
 	for s, v in zip((f"{m_dtype}_bone_min", f"{m_dtype}_bone_max"), index_min_max(indices)):
 		setattr(mani_info, s, v)
-	return [group.name for group in groups], indices
+	return bone_names, indices
 
 
 def update_key_indices(k, m_dtype, b_names, indices, target_names, bone_names):
@@ -80,14 +112,12 @@ def get_local_bone(bone):
 	return bone.matrix_local
 
 
-def export_wsm(corrector, b_action, folder, mani_info, bone_name, pose_info):
+def export_wsm(folder, mani_info, bone_name, bone_channels):
 	wsm_name = f"{mani_info.name}_{bone_name}.wsm"
 	wsm_path = os.path.join(folder, wsm_name)
-	group = b_action.groups.get(bone_name)
-	if group:
-		loc_fcurves = get_fcurves_by_type(group, "location")
-		rot_fcurves = get_fcurves_by_type(group, "rotation_quaternion")
-		if loc_fcurves and rot_fcurves:
+	channels = bone_channels.get(bone_name)
+	if channels:
+		if POS in channels and ORI in channels:
 			logging.info(f"Exporting {wsm_name} to {wsm_path}")
 			wsm = WsmHeader(mani_info.context)
 			wsm.duration = mani_info.duration
@@ -95,9 +125,11 @@ def export_wsm(corrector, b_action, folder, mani_info, bone_name, pose_info):
 			wsm.unknowns[6] = 1.0
 			wsm.reset_field("locs")
 			wsm.reset_field("quats")
+			for vec, data in zip(wsm.locs.data, bone_channels[bone_name][POS]):
+				vec[:] = data
+			for vec, data in zip(wsm.quats.data,bone_channels[bone_name][ORI]):
+				vec[:] = data
 			# print(wsm)
-			export_loc(corrector, bone_name, wsm.locs.data, pose_info)
-			export_rot(corrector, bone_name, wsm.quats.data, pose_info)
 			with WsmHeader.to_xml_file(wsm, wsm_path):
 				pass
 
@@ -151,19 +183,37 @@ def save(reporter, filepath=""):
 		mani_info.count_a = mani_info.count_b = 255
 		mani_info.target_bone_count = len(b_armature_ob.pose.bones)
 
-		# store pose data
+		# create arrays for loc, rot, scale keys
+		bone_channels = {bone_name: {
+			POS: np.empty((mani_info.frame_count, 3), float),
+			ORI: np.empty((mani_info.frame_count, 4), float),
+			SCL: np.empty((mani_info.frame_count, 3), float),
+		} for bone_name in bone_names}
+		# store pose data for b_action
 		b_armature_ob.animation_data.action = b_action
-		pose_info = [pose_frame_info(b_armature_ob, frame_i, bones_data) for frame_i in range(int(first_frame), int(last_frame)+1)]
+		for frame_i in range(int(first_frame), int(last_frame)+1):
+			store_pose_frame_info(b_armature_ob, frame_i, bones_data, bone_channels, corrector)
 
+		# export wsm before decimating bones
 		if scene.cobra.game == "Jurassic World Evolution 2":
-			export_wsm(corrector, b_action, folder, mani_info, srb_name, pose_info)
+			export_wsm(folder, mani_info, srb_name, bone_channels)
 
-		# todo - decide which channels to keyframe
-		pos_names, pos_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "pos", "location")
-		ori_names, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", ("quaternion", "euler"))
-		scl_names, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
+		# decide which channels to keyframe by determining if the keys are static
+		for bone, channels in bone_channels.items():
+			for channel_id, keys in tuple(channels.items()):
+				if needs_keyframes(keys):
+					logging.debug(f"{bone} {channel_id} needs keys")
+				else:
+					channels.pop(channel_id)
+		# print(bone_channels)
+		pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)
+		ori_names, ori_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, ORI)
+		scl_names, scl_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, SCL)
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
+		# todo floats
+		# todo export root motion channels as floats
 		floats = []
+		# fill in the actual keys data
 		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
 		k = mani_info.keys
@@ -171,18 +221,22 @@ def save(reporter, filepath=""):
 		update_key_indices(k, "ori", ori_names, ori_indices, target_names, bone_names)
 		update_key_indices(k, "scl", scl_names, scl_indices, target_names, bone_names)
 		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
+		# print(mani_info)
+
+		# todo maybe use key_indices lut to get root index
+		# copy the keys
 		for bone_i, name in enumerate(pos_names):
 			if name == root_name:
 				mani_info.root_pos_bone = bone_i
-			export_loc(corrector, name, k.pos_bones[:, bone_i], pose_info)
+			k.pos_bones[:, bone_i] = bone_channels[name][POS]
 		for bone_i, name in enumerate(ori_names):
 			if name == root_name:
 				mani_info.root_ori_bone = bone_i
-			export_rot(corrector, name, k.ori_bones[:, bone_i], pose_info)
+			k.ori_bones[:, bone_i] = bone_channels[name][ORI]
 		for bone_i, name in enumerate(scl_names):
-			export_scale(corrector, name, k.scl_bones[:, bone_i], pose_info)
-			# no support for shear in blender bones, so set to neutral - shear must not be 0.0
-			k.shr_bones[:] = 1.0
+			k.scl_bones[:, bone_i] = bone_channels[name][SCL]
+		# no support for shear in blender bones, so set to neutral - shear must not be 0.0
+		k.shr_bones[:] = 1.0
 		# print(mani_info)
 		# print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
@@ -192,36 +246,6 @@ def save(reporter, filepath=""):
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
 	mani.save(filepath)
 	reporter.show_info(f"Exported {manis_name}")
-
-
-def export_scale(corrector, name, frames, pose_info):
-	logging.info(f"Exporting scale '{name}'")
-	for frame_i, store in enumerate(frames):
-		key_mat = pose_info[frame_i][name]
-		scale_mat = sample_scale2(key_mat, frame_i)
-		# needs axis correction, but appears to be stored relative to the animated bone's axes
-		scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
-		# swizzle
-		key = scale_mat.to_scale()
-		store[:] = key.z, key.y, key.x
-
-
-def export_loc(corrector, name, frames, pose_info):
-	logging.info(f"Exporting loc '{name}'")
-	for frame_i, store in enumerate(frames):
-		key_mat = pose_info[frame_i][name]
-		v = sample_scale2(key_mat, frame_i, inverted=True) @ key_mat
-		store[:] = corrector.blender_bind_to_nif_bind(v).to_translation()
-
-
-def export_rot(corrector, name, frames, pose_info):
-	logging.info(f"Exporting rot '{name}'")
-	for frame_i, store in enumerate(frames):
-		final_m = pose_info[frame_i][name]
-		final_m = corrector.blender_bind_to_nif_bind(final_m)
-		key = final_m.to_quaternion()
-		# swizzle - w is stored last
-		store[:] = key.x, key.y, key.z, key.w
 
 
 def sample_scale2(keymat, frame_i, inverted=False):
