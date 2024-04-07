@@ -17,6 +17,11 @@ from plugin.utils.transforms import ManisCorrector
 POS = "pos"
 ORI = "ori"
 SCL = "scl"
+FLO = "float"
+EUL = "euler"
+
+root_name = "def_c_root_joint"
+srb_name = "srb"
 
 
 def store_pose_frame_info(b_obj, frame_i, bones_data, bone_channels, corrector):
@@ -38,6 +43,8 @@ def store_pose_frame_info(b_obj, frame_i, bones_data, bone_channels, corrector):
 		key = final_m.to_quaternion()
 		# swizzle - w is stored last
 		bone_channels[name][ORI][frame_i] = key.x, key.y, key.z, key.w
+		if name == root_name:
+			bone_channels[name][EUL][frame_i] = key.to_euler()
 		# scale
 		scale_mat = sample_scale2(matrix, frame_i)
 		# needs axis correction, but appears to be stored relative to the animated bone's axes
@@ -49,30 +56,14 @@ def store_pose_frame_info(b_obj, frame_i, bones_data, bone_channels, corrector):
 
 def needs_keyframes(keys):
 	"""Checks a list of keys and returns True if temporal changes are detected"""
-	if not len(keys):
-		return False
-	# get the first key
-	key0 = keys[0]
-	# go over the channels
-	for ch_i, ch_v in enumerate(key0):
-		# do keys differ from first key?
-		if not np.allclose(keys[:, ch_i], ch_v, rtol=1e-03, atol=1e-04, equal_nan=False):
-			return True
-	return False
-
-
-def get_fcurves_by_type(group, dtype):
-	return [fcurve for fcurve in group.channels if fcurve.data_path.endswith(dtype)]
-
-
-def get_groups_for_type(b_action, dtype):
-	out = {}
-	for group in b_action.groups:
-		# if group.name in bones_lut:
-		fcurves = get_fcurves_by_type(group, dtype)
-		if fcurves:
-			out[group] = fcurves
-	return out
+	if len(keys):
+		# get the first key
+		key0 = keys[0]
+		# go over the channels
+		for ch_i, ch_v in enumerate(key0):
+			# do keys differ from first key?
+			if not np.allclose(keys[:, ch_i], ch_v, rtol=1e-03, atol=1e-04, equal_nan=False):
+				yield ch_i
 
 
 def index_min_max(indices):
@@ -145,9 +136,6 @@ def save(reporter, filepath=""):
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone)
 
-	root_name = "def_c_root_joint"
-	srb_name = "srb"
-
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
 	target_names = set()
@@ -189,6 +177,9 @@ def save(reporter, filepath=""):
 			ORI: np.empty((mani_info.frame_count, 4), float),
 			SCL: np.empty((mani_info.frame_count, 3), float),
 		} for bone_name in bone_names}
+		# add euler for root motion
+		if root_name in bone_channels:
+			bone_channels[root_name][EUL] = np.empty((mani_info.frame_count, 3), float)
 		# store pose data for b_action
 		b_armature_ob.animation_data.action = b_action
 		for frame_i in range(int(first_frame), int(last_frame)+1):
@@ -199,20 +190,29 @@ def save(reporter, filepath=""):
 			export_wsm(folder, mani_info, srb_name, bone_channels)
 
 		# decide which channels to keyframe by determining if the keys are static
-		for bone, channels in bone_channels.items():
+		for bone, channels in tuple(bone_channels.items()):
 			for channel_id, keys in tuple(channels.items()):
-				if needs_keyframes(keys):
+				if list(needs_keyframes(keys)):
+					# copy root motion channels as floats
+					if bone == root_name and channels:
+						for ch_i in needs_keyframes(keys):
+							if channel_id == POS:
+								add_root_float_keys(bone_channels, ch_i, keys, ("X Motion Track", "Y Motion Track", "Z Motion Track"))
+							if channel_id == EUL:
+								add_root_float_keys(bone_channels, ch_i, keys, ("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 					logging.debug(f"{bone} {channel_id} needs keys")
 				else:
 					channels.pop(channel_id)
+
 		# print(bone_channels)
 		pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)
 		ori_names, ori_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, ORI)
 		scl_names, scl_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, SCL)
+		# floats are not necessarily per bone, so don't check for membership in bones_lut
+		floats_names = [name for name, channels in bone_channels.items() if FLO in channels]
+		target_names.update(floats_names)
+		mani_info.float_count = len(floats_names)
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
-		# todo floats
-		# todo export root motion channels as floats
-		floats = []
 		# fill in the actual keys data
 		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
@@ -220,9 +220,8 @@ def save(reporter, filepath=""):
 		update_key_indices(k, "pos", pos_names, pos_indices, target_names, bone_names)
 		update_key_indices(k, "ori", ori_names, ori_indices, target_names, bone_names)
 		update_key_indices(k, "scl", scl_names, scl_indices, target_names, bone_names)
+		k.floats_names[:] = floats_names
 		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
-		# print(mani_info)
-
 		# todo maybe use key_indices lut to get root index
 		# copy the keys
 		for bone_i, name in enumerate(pos_names):
@@ -235,6 +234,8 @@ def save(reporter, filepath=""):
 			k.ori_bones[:, bone_i] = bone_channels[name][ORI]
 		for bone_i, name in enumerate(scl_names):
 			k.scl_bones[:, bone_i] = bone_channels[name][SCL]
+		for bone_i, name in enumerate(floats_names):
+			k.floats[:, bone_i] = bone_channels[name][FLO]
 		# no support for shear in blender bones, so set to neutral - shear must not be 0.0
 		k.shr_bones[:] = 1.0
 		# print(mani_info)
@@ -246,6 +247,15 @@ def save(reporter, filepath=""):
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
 	mani.save(filepath)
 	reporter.show_info(f"Exported {manis_name}")
+
+
+def add_root_float_keys(bone_channels, ch_i, keys, names):
+	float_name = names[ch_i]
+	if float_name not in bone_channels:
+		bone_channels[float_name] = {}
+	bone_channels[float_name][FLO] = keys[:, ch_i]
+	# make relative to first key
+	bone_channels[float_name][FLO] -= keys[0, ch_i]
 
 
 def sample_scale2(keymat, frame_i, inverted=False):
