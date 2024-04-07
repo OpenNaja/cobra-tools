@@ -668,6 +668,10 @@ class OvlFile(Header):
 				inject_paths.add(fp)
 			# get all files in subfolders of a dir and add them
 			elif os.path.isdir(fp):
+				subfolder = os.path.basename(fp)
+				if subfolder in ("backups",) or subfolder[0] in (".", "_"):
+					logging.info(f"Ignoring subfolder {subfolder}")
+					continue
 				for root, dirs, files in os.walk(fp, topdown=False):
 					for name in files:
 						inject_paths.add(os.path.join(root, name))
