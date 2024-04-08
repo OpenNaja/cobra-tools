@@ -41,7 +41,8 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'AssetPackObjectListsRoot': 'generated.formats.assetpackobjectlists.compounds.AssetPackObjectListsRoot',
 	'AssetPackObjectList': 'generated.formats.assetpackobjectlists.compounds.AssetPackObjectList',
-	'AssetPackObject': 'generated.formats.assetpackobjectlists.compounds.AssetPackObject',
+	'SceneryObjectResourceRef': 'generated.formats.assetpackobjectlists.compounds.SceneryObjectResourceRef',
+	'UnitRef': 'generated.formats.assetpackobjectlists.compounds.UnitRef',
 }
 
 name_type_map = {}
