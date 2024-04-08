@@ -11,7 +11,7 @@ class AssetPackObjectList(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.scenery_object_resource_count = name_type_map['Uint64'](self.context, 0, None)
 		self.unit_count = name_type_map['Uint64'](self.context, 0, None)
-		self.name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.asset_pack_object_list_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.scenery_object_resource_items = name_type_map['ArrayPointer'](self.context, self.scenery_object_resource_count, name_type_map['SceneryObjectResourceRef'])
 		self.unit_items = name_type_map['ArrayPointer'](self.context, self.unit_count, name_type_map['UnitRef'])
 		if set_default:
@@ -20,7 +20,7 @@ class AssetPackObjectList(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'asset_pack_object_list_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'scenery_object_resource_items', name_type_map['ArrayPointer'], (None, name_type_map['SceneryObjectResourceRef']), (False, None), (None, None)
 		yield 'scenery_object_resource_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unit_items', name_type_map['ArrayPointer'], (None, name_type_map['UnitRef']), (False, None), (None, None)
@@ -29,7 +29,7 @@ class AssetPackObjectList(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'asset_pack_object_list_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'scenery_object_resource_items', name_type_map['ArrayPointer'], (instance.scenery_object_resource_count, name_type_map['SceneryObjectResourceRef']), (False, None)
 		yield 'scenery_object_resource_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unit_items', name_type_map['ArrayPointer'], (instance.unit_count, name_type_map['UnitRef']), (False, None)

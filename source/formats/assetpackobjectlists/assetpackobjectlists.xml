@@ -10,7 +10,7 @@
     </compound>
 
     <compound name="AssetPackObjectList" inherit="MemStruct">
-        <add name="Name" type="Pointer" template="ZString" />
+        <add name="AssetPackObjectList_Name" type="Pointer" template="ZString" />
         <add name="SceneryObjectResource_Items"   type="ArrayPointer" template="SceneryObjectResource_ref" arg="SceneryObjectResource_Count"/>
         <add name="SceneryObjectResource_Count" type="uint64" />
         <add name="Unit_Items"   type="ArrayPointer" template="Unit_ref" arg="Unit_Count"/> # is this .miniaturedata ?
