@@ -103,6 +103,22 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		print(mi)
 		k = mi.keys
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
+		# floats are present for compressed or uncompressed
+		# they can vary in use according to the name of the channel
+		for bone_i, m_name in enumerate(k.floats_names):
+			b_name = bone_name_for_blender(m_name)
+			logging.info(f"Importing '{b_name}'")
+			# only known for camera
+			if m_name == "CameraFOV":
+				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}Data")
+				fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
+				for frame_i, frame in enumerate(k.floats):
+					key = frame[bone_i]
+					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
+			else:
+				logging.warning(f"Don't know how to import floats for '{b_name}'")
+				logging.debug(k.floats[:, bone_i])
+		# check compression flag
 		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, trying to import anyway")
 			ck = k.compressed
@@ -178,19 +194,6 @@ def load(reporter, files=(), filepath="", set_fps=False):
 				key = corrector.nif_bind_to_blender_bind(mat).to_scale()
 				out_frames.append(frame_i)
 				out_keys.append(key)
-		# these can vary in use according to the name of the channel
-		for bone_i, m_name in enumerate(k.floats_names):
-			b_name = bone_name_for_blender(m_name)
-			logging.info(f"Importing '{b_name}'")
-			# only known for camera
-			if m_name == "CameraFOV":
-				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}Data")
-				fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
-				for frame_i, frame in enumerate(k.floats):
-					key = frame[bone_i]
-					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
-			else:
-				logging.warning(f"Don't know how to import floats for '{b_name}'")
 
 	scene.frame_start = 0
 	scene.frame_end = mi.frame_count-1
