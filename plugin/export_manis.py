@@ -125,6 +125,19 @@ def export_wsm(folder, mani_info, bone_name, bone_channels):
 				pass
 
 
+def get_actions(b_ob):
+	"""Returns a list of actions associated with b_ob"""
+	actions = set()
+	ad = b_ob.animation_data
+	if ad:
+		if ad.action:
+			actions.add(ad.action)
+		for t in ad.nla_tracks:
+			for s in t.strips:
+				actions.add(s.action)
+	return list(actions)
+
+
 def save(reporter, filepath="", per_armature=False):
 	folder, manis_name = os.path.split(filepath)
 	# manis_basename = os.path.splitext(filepath)[0]
@@ -164,9 +177,8 @@ def save(reporter, filepath="", per_armature=False):
 			# remove srb from bones_lut for JWE2, so it exported to wsm only
 			bones_lut.pop(srb_name, None)
 		bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
-		# todo store / detect actions that are valid for this armature
-		# actions = [b_action.name for b_action in bpy.data.actions]
-		actions = [b_armature_ob.animation_data.action, ]
+		# detect actions that are valid for this armature
+		actions = get_actions(b_armature_ob)
 		action_names = [b_action.name for b_action in actions]
 		manis.mani_count = len(action_names)
 		manis.names[:] = action_names
