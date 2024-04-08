@@ -75,6 +75,22 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
 				out_keys.append(key)
 
 
+def stash(b_ob, action, track_name, start_frame):
+	# Simulate stash :
+	# * add a track
+	# * add an action on track
+	# * lock & mute the track
+	# * remove active action from object
+	tracks = b_ob.animation_data.nla_tracks
+	new_track = tracks.new(prev=None)
+	new_track.name = track_name
+	strip = new_track.strips.new(action.name, start_frame, action)
+	new_track.lock = True
+	new_track.mute = True
+	# nah
+	# b_ob.animation_data.action = None
+
+
 def load(reporter, files=(), filepath="", set_fps=False):
 	folder, manis_name = os.path.split(filepath)
 	starttime = time.time()
@@ -100,6 +116,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 	for mi in manis.mani_infos:
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
+		stash(b_armature_ob, b_action, mi.name, 0)
 		print(mi)
 		k = mi.keys
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
