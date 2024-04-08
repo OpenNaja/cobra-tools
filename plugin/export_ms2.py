@@ -14,7 +14,7 @@ from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
 from generated.formats.ms2 import Ms2File, set_game
-from plugin.modules_export.armature import get_armature, export_bones_custom
+from plugin.modules_export.armature import export_bones_custom, get_armatures_collections
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
@@ -81,9 +81,7 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 	set_game(ms2.context, scene.cobra.game)
 	set_game(ms2.info, scene.cobra.game)
 
-	armatures_collections = [(get_armature(mdl2_coll.objects), mdl2_coll) for mdl2_coll in scene.collection.children]
-	# sort them so that armatures appear successively
-	armatures_collections.sort(key=lambda tup: (str(tup[0]), tup[1].name))
+	armatures_collections = get_armatures_collections(scene)
 	last_armature = None
 
 	with ensure_visible():
@@ -200,3 +198,4 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 			f"Found no collections matching MDL2s in MS2:\n"
 			f"{mdl2_names_str}\n"
 			f"Rename your collections to match the MDL2s")
+

@@ -298,3 +298,10 @@ def get_joint_matrix(b_joint):
 	joint_mat_local.translation.y += b_bone.length
 	# convert to armature space
 	return b_bone.matrix_local @ joint_mat_local
+
+
+def get_armatures_collections(scene):
+	armatures_collections = [(get_armature(mdl2_coll.objects), mdl2_coll) for mdl2_coll in scene.collection.children]
+	# sort them so that armatures appear successively
+	armatures_collections.sort(key=lambda tup: (str(tup[0]), tup[1].name))
+	return armatures_collections
