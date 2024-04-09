@@ -76,6 +76,10 @@ class ExportManis(ExportOp):
     bl_label = 'Export Manis'
     filename_ext = ".manis"
     filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+    per_armature: BoolProperty(
+        name="Per Armature",
+        description="Exports a single manis for each armature, or lumps all armatures in one manis",
+        default=False)
 
     def execute(self, context):
         return report_messages(self, export_manis.save, **self.kwargs)

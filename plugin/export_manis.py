@@ -143,134 +143,157 @@ def save(reporter, filepath="", per_armature=False):
 	# manis_basename = os.path.splitext(filepath)[0]
 	scene = bpy.context.scene
 	bpy.ops.object.mode_set(mode='OBJECT')
+	manis_datas = {}
 	for b_armature_ob, mdl2_coll in get_armatures_collections(scene):
-		bones_data = {}
 		logging.info(f"Exporting actions for {b_armature_ob.name}")
 		if not b_armature_ob:
 			logging.warning(f"No armature was found in MDL2 '{mdl2_coll.name}' - did you delete it?")
 			continue
+		# animation_data needn't be present on all armatures
+		if not b_armature_ob.animation_data:
+			logging.info(f"No animation data on '{b_armature_ob.name}'")
+			continue
+		# decide on exported name of manis file
+		if per_armature:
+			export_name = f"{b_armature_ob.name}_{manis_name}"
 		else:
-			for bone in b_armature_ob.data.bones:
-				bones_data[bone.name] = get_local_bone(bone)
-			# animation_data needn't be present on all armatures
-			if not b_armature_ob.animation_data:
-				logging.info(f"No animation data on '{b_armature_ob.name}'")
-				continue
+			export_name = manis_name
+		# store data for actual export later
+		if export_name not in manis_datas:
+			manis_datas[export_name] = {}
+		anim_map = manis_datas[export_name]
+		if b_armature_ob not in anim_map:
+			anim_map[b_armature_ob] = set()
+		# store actions that are valid for this armature
+		anim_map[b_armature_ob].update(get_actions(b_armature_ob))
 
-		corrector = ManisCorrector(False)
+	# export the actual manis
+	for export_name, anim_map in manis_datas.items():
 		manis = ManisFile()
-		target_names = set()
-		try:
-			bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
-		except:
-			assign_p_bone_indices(b_armature_ob)
-			bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
-			# raise AttributeError(
-			# 	f"Some bones in {b_armature_ob.name} don't have the custom property 'index'.\n"
-			# 	f"Assign a unique index to all bones by exporting the ms2 with 'Update Rig' checked.")
 		if scene.cobra.game == "Jurassic World Evolution":
 			manis.version = 258
 		elif scene.cobra.game == "Planet Zoo":
 			manis.version = 260
 		elif scene.cobra.game == "Jurassic World Evolution 2":
 			manis.version = 262
-			# remove srb from bones_lut for JWE2, so it exported to wsm only
-			bones_lut.pop(srb_name, None)
-		bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
-		# detect actions that are valid for this armature
-		actions = get_actions(b_armature_ob)
-		action_names = [b_action.name for b_action in actions]
-		manis.mani_count = len(action_names)
-		manis.names[:] = action_names
+		target_names = set()
+		all_actions = [action for actions in anim_map.values() for action in actions]
+		manis.mani_count = len(all_actions)
+		manis.names[:] = [b_action.name for b_action in all_actions]
 		manis.reset_field("mani_infos")
 		manis.reset_field("keys_buffer")
-		for b_action, mani_info in zip(actions, manis.mani_infos):
-			logging.info(f"Exporting {b_action.name}")
-			mani_info.name = b_action.name
-			first_frame, last_frame = b_action.frame_range
-			mani_info.frame_count = int(round(last_frame) - round(first_frame)) + 1
-			# index of last frame / fps
-			mani_info.duration = (mani_info.frame_count-1) / scene.render.fps
-			mani_info.count_a = mani_info.count_b = 255
-			mani_info.target_bone_count = len(b_armature_ob.pose.bones)
+		info_lut = {action: info for action, info in zip(all_actions, manis.mani_infos)}
+		# export each armature and its actions to the corresponding mani_infos
+		for b_armature_ob, actions in anim_map.items():
+			mani_infos = [info_lut[action] for action in actions]
+			export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, target_names)
 
-			# create arrays for loc, rot, scale keys
-			bone_channels = {bone_name: {
-				POS: np.empty((mani_info.frame_count, 3), float),
-				ORI: np.empty((mani_info.frame_count, 4), float),
-				SCL: np.empty((mani_info.frame_count, 3), float),
-			} for bone_name in bone_names}
-			# add euler for root motion
-			if root_name in bone_channels:
-				bone_channels[root_name][EUL] = np.empty((mani_info.frame_count, 3), float)
-			# store pose data for b_action
-			b_armature_ob.animation_data.action = b_action
-			for trg_i, src_i in enumerate(range(int(first_frame), int(last_frame)+1)):
-				store_pose_frame_info(b_armature_ob, src_i, trg_i, bones_data, bone_channels, corrector)
-
-			# export wsm before decimating bones
-			if scene.cobra.game == "Jurassic World Evolution 2":
-				export_wsm(folder, mani_info, srb_name, bone_channels)
-
-			# decide which channels to keyframe by determining if the keys are static
-			for bone, channels in tuple(bone_channels.items()):
-				for channel_id, keys in tuple(channels.items()):
-					if list(needs_keyframes(keys)):
-						# copy root motion channels as floats
-						if bone == root_name and channels:
-							for ch_i in needs_keyframes(keys):
-								if channel_id == POS:
-									add_root_float_keys(bone_channels, ch_i, keys, ("X Motion Track", "Y Motion Track", "Z Motion Track"))
-								if channel_id == EUL:
-									add_root_float_keys(bone_channels, ch_i, keys, ("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
-						logging.debug(f"{bone} {channel_id} needs keys")
-					else:
-						channels.pop(channel_id)
-
-			# print(bone_channels)
-			pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)
-			ori_names, ori_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, ORI)
-			scl_names, scl_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, SCL)
-			# floats are not necessarily per bone, so don't check for membership in bones_lut
-			floats_names = [name for name, channels in bone_channels.items() if FLO in channels]
-			target_names.update(floats_names)
-			mani_info.float_count = len(floats_names)
-			# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
-			# fill in the actual keys data
-			bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
-			mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
-			k = mani_info.keys
-			update_key_indices(k, "pos", pos_names, pos_indices, target_names, bone_names)
-			update_key_indices(k, "ori", ori_names, ori_indices, target_names, bone_names)
-			update_key_indices(k, "scl", scl_names, scl_indices, target_names, bone_names)
-			k.floats_names[:] = floats_names
-			mani_info.root_pos_bone = mani_info.root_ori_bone = 255
-			# todo maybe use key_indices lut to get root index
-			# copy the keys
-			for bone_i, name in enumerate(pos_names):
-				if name == root_name:
-					mani_info.root_pos_bone = bone_i
-				k.pos_bones[:, bone_i] = bone_channels[name][POS]
-			for bone_i, name in enumerate(ori_names):
-				if name == root_name:
-					mani_info.root_ori_bone = bone_i
-				k.ori_bones[:, bone_i] = bone_channels[name][ORI]
-			for bone_i, name in enumerate(scl_names):
-				k.scl_bones[:, bone_i] = bone_channels[name][SCL]
-			for bone_i, name in enumerate(floats_names):
-				k.floats[:, bone_i] = bone_channels[name][FLO]
-			# no support for shear in blender bones, so set to neutral - shear must not be 0.0
-			k.shr_bones[:] = 1.0
-			# print(mani_info)
-			# print(mani_info.keys)
 		manis.header.mani_files_size = manis.mani_count * 16
 		manis.header.hash_block_size = len(target_names) * 4
 		manis.reset_field("name_buffer")
 		manis.name_buffer.bone_names[:] = sorted(target_names)
 		manis.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in manis.name_buffer.bone_names]
-		filepath = os.path.join(folder, f"{b_armature_ob.name}_{manis_name}")
+		filepath = os.path.join(folder, export_name)
 		manis.save(filepath)
-		reporter.show_info(f"Exported {manis_name}")
+		reporter.show_info(f"Exported {export_name}")
+
+
+def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, target_names):
+	corrector = ManisCorrector(False)
+	bones_data = {bone.name: get_local_bone(bone) for bone in b_armature_ob.data.bones}
+	try:
+		bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	except:
+		assign_p_bone_indices(b_armature_ob)
+		bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	# raise AttributeError(
+	# 	f"Some bones in {b_armature_ob.name} don't have the custom property 'index'.\n"
+	# 	f"Assign a unique index to all bones by exporting the ms2 with 'Update Rig' checked.")
+	bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
+	for b_action, mani_info in zip(actions, mani_infos):
+		logging.info(f"Exporting {b_action.name}")
+		mani_info.name = b_action.name
+		first_frame, last_frame = b_action.frame_range
+		mani_info.frame_count = int(round(last_frame) - round(first_frame)) + 1
+		# index of last frame / fps
+		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
+		mani_info.count_a = mani_info.count_b = 255
+		mani_info.target_bone_count = len(b_armature_ob.pose.bones)
+
+		# create arrays for loc, rot, scale keys
+		bone_channels = {bone_name: {
+			POS: np.empty((mani_info.frame_count, 3), float),
+			ORI: np.empty((mani_info.frame_count, 4), float),
+			SCL: np.empty((mani_info.frame_count, 3), float),
+		} for bone_name in bone_names}
+		# add euler for root motion
+		if root_name in bone_channels:
+			bone_channels[root_name][EUL] = np.empty((mani_info.frame_count, 3), float)
+		# store pose data for b_action
+		b_armature_ob.animation_data.action = b_action
+		for trg_i, src_i in enumerate(range(int(first_frame), int(last_frame) + 1)):
+			store_pose_frame_info(b_armature_ob, src_i, trg_i, bones_data, bone_channels, corrector)
+
+		# export wsm before decimating bones
+		if scene.cobra.game == "Jurassic World Evolution 2":
+			export_wsm(folder, mani_info, srb_name, bone_channels)
+			# remove srb from bones_lut for JWE2, so it exported to wsm only
+			bones_lut.pop(srb_name, None)
+
+		# decide which channels to keyframe by determining if the keys are static
+		for bone, channels in tuple(bone_channels.items()):
+			for channel_id, keys in tuple(channels.items()):
+				needed_keys = list(needs_keyframes(keys))
+				if needed_keys:
+					# copy root motion channels as floats
+					if bone == root_name and channels:
+						for ch_i in needed_keys:
+							if channel_id == POS:
+								add_root_float_keys(bone_channels, ch_i, keys,
+													("X Motion Track", "Y Motion Track", "Z Motion Track"))
+							if channel_id == EUL:
+								add_root_float_keys(bone_channels, ch_i, keys,
+													("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
+					logging.debug(f"{bone} {channel_id} needs keys")
+				else:
+					channels.pop(channel_id)
+
+		# print(bone_channels)
+		pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)
+		ori_names, ori_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, ORI)
+		scl_names, scl_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, SCL)
+		# floats are not necessarily per bone, so don't check for membership in bones_lut
+		floats_names = [name for name, channels in bone_channels.items() if FLO in channels]
+		target_names.update(floats_names)
+		mani_info.float_count = len(floats_names)
+		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
+		# fill in the actual keys data
+		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
+		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
+		k = mani_info.keys
+		update_key_indices(k, POS, pos_names, pos_indices, target_names, bone_names)
+		update_key_indices(k, ORI, ori_names, ori_indices, target_names, bone_names)
+		update_key_indices(k, SCL, scl_names, scl_indices, target_names, bone_names)
+		k.floats_names[:] = floats_names
+		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
+		# todo maybe use key_indices lut to get root index
+		# copy the keys
+		for bone_i, name in enumerate(pos_names):
+			if name == root_name:
+				mani_info.root_pos_bone = bone_i
+			k.pos_bones[:, bone_i] = bone_channels[name][POS]
+		for bone_i, name in enumerate(ori_names):
+			if name == root_name:
+				mani_info.root_ori_bone = bone_i
+			k.ori_bones[:, bone_i] = bone_channels[name][ORI]
+		for bone_i, name in enumerate(scl_names):
+			k.scl_bones[:, bone_i] = bone_channels[name][SCL]
+		for bone_i, name in enumerate(floats_names):
+			k.floats[:, bone_i] = bone_channels[name][FLO]
+		# no support for shear in blender bones, so set to neutral - shear must not be 0.0
+		k.shr_bones[:] = 1.0
+	# print(mani_info)
+	# print(mani_info.keys)
 
 
 def add_root_float_keys(bone_channels, ch_i, keys, names):
