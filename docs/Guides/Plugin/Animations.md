@@ -9,7 +9,8 @@ Manis animations are sampled across all frames for different bones and transform
 Select a target armature you want to animate before importing a manis file.
 
 !!! construction "Limitations"
-    Compressed animations are currently imported incompletely. Specifically, only every 32nd rotation keyframe is imported.
+    - Compressed animations are currently imported incompletely. Specifically, only every 32nd rotation keyframe is imported.
+    - Not all anims decompress correctly. If an anim fails to decompress, you may see no keyframes at all or a distorted mess.
 
 ### Export
 
@@ -21,7 +22,11 @@ Transforms in blender actions are stored relative to the armature, but absolute 
 Export does not read the keyframes directly, but samples the visual transforms across an action's frame range. Constraints are automatically baked. Bones that don't move during an action are automatically discarded.
 
 !!! construction "Limitations"
-    Export only produces uncompressed animations, which occupy a lot of disk space and RAM in-game.
+    Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.
+
+### Scaling
+
+A command line script is provided to scale compressed animations and ms2 models by a given factor.
 
 ## Banis
 
