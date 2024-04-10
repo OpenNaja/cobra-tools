@@ -856,7 +856,8 @@ class OvlFile(Header):
 			# add file name to hash dict; ignoring the extension pointer
 			self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
 			self.files_ext = [f".{self.mimes_ext[i]}" for i in self.files["extension"]]
-			self.files_name = [f"{b}{e}" for b, e in zip(self.files_basename, self.files_ext)]
+			# remove any quotation chars, eg. homalocephale@huntkilledcarnotaurusin_srb".wsm
+			self.files_name = [f"{b}{e}".replace('"', "") for b, e in zip(self.files_basename, self.files_ext)]
 			self.dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 			self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
