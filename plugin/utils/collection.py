@@ -54,6 +54,9 @@ def copy(parent, collection, linked=False, replacer=None, share_materials=True, 
 
 	def _copy(parent, collection, linked=False):
 		cc = bpy.data.collections.new(replacer(collection.name))
+		# copy all custom properties over
+		for k, v in collection.items():
+			cc[k] = v
 		copy_objects(collection, cc, linked, dupe_lut, replacer, share_materials, share_rig)
 
 		for c in collection.children:
