@@ -1,7 +1,10 @@
 texchannels = {
 	'pAOTexture': {"": "AO"},
 	'pAlphaTexture': {"": "OP"},
-	'pBaseAOTexture': {"R": "AO", "G": "BA"},  # BC5
+	'pBaseAOTexture': {
+		"R": "AO", "G": "BA",  # BC5
+		"": "AO"  # BC4
+		},
 	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # check if A is used here  # Metallic_Roughness_Clip A = OP
 	# 'pBaseColourTextureDetailBase': {"RGB": "", "A": ""},
 	# 'pBaseColourTextureDetailBlend': {"RGB": "", "A": ""},
