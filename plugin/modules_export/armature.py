@@ -154,6 +154,27 @@ def export_ik(b_armature_ob, bone_info):
 		ik_link.matrix.set_rows(def_mat.transposed())
 
 
+def iter_constraints(joint_obs, joints, m_name, b_name, j_map, b_armature_basename):
+	joints_with_constraints = [b_joint for b_joint in joint_obs if b_joint.rigid_body_constraint and b_joint.rigid_body_constraint.type == b_name]
+	constraints_name = f"{m_name}_constraints"
+	setattr(joints, f"num_{constraints_name}", len(joints_with_constraints))
+	joints.reset_field(constraints_name)
+	m_constraints = getattr(joints, constraints_name)
+	for rd, b_joint in zip(m_constraints, joints_with_constraints):
+		rbc = b_joint.rigid_body_constraint
+		if not (rbc.object1 and rbc.object2):
+			raise AttributeError(f"Rigidbody constraint on '{b_joint.name}' lacks references to rigidbody objects")
+		# get the joint empties, which are the parents of the respective rigidbody objects
+		child_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object1.parent))
+		parent_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object2.parent))
+		rd.child.joint = j_map[child_joint_name]
+		rd.parent.joint = j_map[parent_joint_name]
+		rd.child.index = rd.child.joint.index
+		rd.parent.index = rd.parent.joint.index
+		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
+		yield rd, b_joint, rbc
+
+
 def export_joints(bone_info, corrector, b_armature_ob):
 	logging.info(f"Exporting joints for {b_armature_ob.name}")
 	joint_obs = [ob for ob in b_armature_ob.children if ob.type == "EMPTY"]
@@ -224,24 +245,18 @@ def export_joints(bone_info, corrector, b_armature_ob):
 	# update ragdoll constraints, relies on previously updated joints
 	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
-	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_obs if b_joint.rigid_body_constraint]
-	joints.num_ragdoll_constraints = len(joints_with_ragdoll_constraints)
-	joints.reset_field("ragdoll_constraints")
-	for rd, b_joint in zip(joints.ragdoll_constraints, joints_with_ragdoll_constraints):
-		rbc = b_joint.rigid_body_constraint
-		if not (rbc.object1 and rbc.object2):
-			raise AttributeError(f"Rigidbody constraint on '{b_joint.name}' lacks references to rigidbody objects")
-		# get the joint empties, which are the parents of the respective rigidbody objects
-		child_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object1.parent))
-		parent_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object2.parent))
-		rd.child.joint = j_map[child_joint_name]
-		rd.parent.joint = j_map[parent_joint_name]
-		rd.child.index = rd.child.joint.index
-		rd.parent.index = rd.parent.joint.index
-		# update the ragdolls to make sure they point to valid joints
-		# rd.parent.joint = j_map[rd.parent.joint.name]
-		# rd.child.joint = j_map[rd.child.joint.name]
-		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
+	# support different constraint types
+	for rd, b_joint, rbc in iter_constraints(joint_obs, joints, "ball", "POINT", j_map, b_armature_basename):
+		pass
+	for rd, b_joint, rbc in iter_constraints(joint_obs, joints, "hinge", "HINGE", j_map, b_armature_basename):
+		rd.limits.min = rbc.limit_ang_z_lower
+		rd.limits.max = rbc.limit_ang_z_upper
+		# Z direction vec, not sure about the proper correction so a swizzle does the trick
+		b_joint_mat = get_joint_matrix(b_joint)
+		vec = b_joint_mat.to_3x3().col[2]
+		rd.direction.set((-vec.x, vec.z, -vec.y))
+	# print(joints.hinge_constraints)
+	for rd, b_joint, rbc in iter_constraints(joint_obs, joints, "ragdoll", "GENERIC", j_map, b_armature_basename):
 		# before correcting, rot tends to point y to the child joint
 		# the z axis always matches that of the joint empty in blender
 		b_joint_mat = get_joint_matrix(b_joint)
@@ -265,13 +280,6 @@ def export_joints(bone_info, corrector, b_armature_ob):
 		# plasticity
 		rd.plasticity.min = b_joint.cobra_coll.plasticity_min
 		rd.plasticity.max = b_joint.cobra_coll.plasticity_max
-
-	# update JWE1 constraints
-	for rd in itertools.chain(joints.stretch_constraints, joints.push_constraints, ):
-		rd.parent.joint = j_map[rd.parent.joint.name]
-		rd.child.joint = j_map[rd.child.joint.name]
-		rd.child.index = rd.child.joint.index
-		rd.parent.index = rd.parent.joint.index
 
 	# find the root joint, assuming the first one with least parents
 	parents_map = []

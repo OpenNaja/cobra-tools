@@ -28,8 +28,8 @@ class JointData(BaseStruct):
 
 		# repeat
 		self.joint_count = name_type_map['Uint'](self.context, 0, None)
-		self.num_push_constraints = name_type_map['Uint'](self.context, 0, None)
-		self.num_stretch_constraints = name_type_map['Uint'](self.context, 0, None)
+		self.num_ball_constraints = name_type_map['Uint'](self.context, 0, None)
+		self.num_hinge_constraints = name_type_map['Uint'](self.context, 0, None)
 		self.num_ragdoll_constraints = name_type_map['Uint'](self.context, 0, None)
 		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
 		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
@@ -66,8 +66,8 @@ class JointData(BaseStruct):
 		self.joint_transforms = Array(self.context, 0, None, (0,), name_type_map['JointTransform'])
 		self.rigid_body_pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.rigid_body_list = Array(self.context, 0, None, (0,), name_type_map['RigidBody'])
-		self.push_constraints = Array(self.context, 0, None, (0,), name_type_map['PushConstraint'])
-		self.stretch_constraints = Array(self.context, 0, None, (0,), name_type_map['StretchConstraint'])
+		self.ball_constraints = Array(self.context, 0, None, (0,), name_type_map['BallConstraint'])
+		self.hinge_constraints = Array(self.context, 0, None, (0,), name_type_map['HingeConstraint'])
 		self.ragdoll_constraints = Array(self.context, 0, None, (0,), name_type_map['RagdollConstraint'])
 
 		# without hitchecks, they are added later
@@ -106,8 +106,8 @@ class JointData(BaseStruct):
 		yield 'before_dla_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'before_dla_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'joint_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'num_push_constraints', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'num_stretch_constraints', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_ball_constraints', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_hinge_constraints', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_ragdoll_constraints', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 32, None)
 		yield 'zero_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: 13 <= context.version <= 32, None)
@@ -126,8 +126,8 @@ class JointData(BaseStruct):
 		yield 'joint_transforms', Array, (0, None, (None,), name_type_map['JointTransform']), (False, None), (None, None)
 		yield 'rigid_body_pointers', Array, (0, None, (None,), name_type_map['Uint64']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'rigid_body_list', Array, (0, None, (None,), name_type_map['RigidBody']), (False, None), (lambda context: context.version >= 47, None)
-		yield 'push_constraints', Array, (0, None, (None,), name_type_map['PushConstraint']), (False, None), (lambda context: context.version >= 47, None)
-		yield 'stretch_constraints', Array, (0, None, (None,), name_type_map['StretchConstraint']), (False, None), (lambda context: context.version >= 47, None)
+		yield 'ball_constraints', Array, (0, None, (None,), name_type_map['BallConstraint']), (False, None), (lambda context: context.version >= 47, None)
+		yield 'hinge_constraints', Array, (0, None, (None,), name_type_map['HingeConstraint']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'ragdoll_constraints', Array, (0, None, (None,), name_type_map['RagdollConstraint']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'joint_infos', Array, (0, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version <= 32, None)
 		yield 'pc_floats', Array, (0, None, (None, 10,), name_type_map['Float']), (False, None), (lambda context: context.version <= 32, None)
@@ -149,8 +149,8 @@ class JointData(BaseStruct):
 			yield 'before_dla_0', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'before_dla_1', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'joint_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'num_push_constraints', name_type_map['Uint'], (0, None), (False, None)
-		yield 'num_stretch_constraints', name_type_map['Uint'], (0, None), (False, None)
+		yield 'num_ball_constraints', name_type_map['Uint'], (0, None), (False, None)
+		yield 'num_hinge_constraints', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_ragdoll_constraints', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'zero_0', name_type_map['Uint'], (0, None), (False, None)
@@ -175,8 +175,8 @@ class JointData(BaseStruct):
 		if instance.context.version >= 47:
 			yield 'rigid_body_pointers', Array, (0, None, (instance.joint_count,), name_type_map['Uint64']), (False, None)
 			yield 'rigid_body_list', Array, (0, None, (instance.joint_count,), name_type_map['RigidBody']), (False, None)
-			yield 'push_constraints', Array, (0, None, (instance.num_push_constraints,), name_type_map['PushConstraint']), (False, None)
-			yield 'stretch_constraints', Array, (0, None, (instance.num_stretch_constraints,), name_type_map['StretchConstraint']), (False, None)
+			yield 'ball_constraints', Array, (0, None, (instance.num_ball_constraints,), name_type_map['BallConstraint']), (False, None)
+			yield 'hinge_constraints', Array, (0, None, (instance.num_hinge_constraints,), name_type_map['HingeConstraint']), (False, None)
 			yield 'ragdoll_constraints', Array, (0, None, (instance.num_ragdoll_constraints,), name_type_map['RagdollConstraint']), (False, None)
 		if instance.context.version <= 32:
 			yield 'joint_infos', Array, (0, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)

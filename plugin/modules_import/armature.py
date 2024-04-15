@@ -373,17 +373,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 	corrector_rag = CorrectorRagdoll(False)
 	# ragdoll constraints
 	for ragdoll in j.ragdoll_constraints:
-		parent_name = ragdoll.parent.joint.name
-		child_name = ragdoll.child.joint.name
-		b_joint = joint_map[child_name]
-		# override = bpy.context.copy()
-		# override['selected_objects'] = b_joint
-		# override['active_object'] = b_joint
-		# bpy.ops.rigidbody.object_add(override)
-		bpy.context.view_layer.objects.active = b_joint
-		bpy.ops.rigidbody.constraint_add()
-		rbc = b_joint.rigid_body_constraint
-		rbc.type = 'GENERIC'
+		b_joint, rbc = add_rb_constraint(joint_map, ragdoll, constraint_type="GENERIC")
 		rbc.use_limit_ang_x = rbc.use_limit_ang_y = rbc.use_limit_ang_z = True
 		rbc.limit_ang_x_lower = -ragdoll.x.min
 		rbc.limit_ang_x_upper = ragdoll.x.max
@@ -397,12 +387,6 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 		# plasticity
 		b_joint.cobra_coll.plasticity_min = ragdoll.plasticity.min
 		b_joint.cobra_coll.plasticity_max = ragdoll.plasticity.max
-		child_collider = joint_map[child_name].children[0]
-		parent_collider = joint_map[parent_name].children[0]
-		rbc.object1 = child_collider
-		rbc.object2 = parent_collider
-		# only set constrained children to active
-		child_collider.rigid_body.type = "ACTIVE"
 
 		# # debug ragdoll matrix
 		# b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
@@ -430,6 +414,50 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 		# # mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
 		# b_trg.matrix_local = mat2
 		# # print(ragdoll)
+
+	for ball in j.ball_constraints:
+		b_joint, rbc = add_rb_constraint(joint_map, ball, constraint_type="POINT")
+		# tr = j.joint_transforms[ball.child.index]
+
+	for hinge in j.hinge_constraints:
+		# print(hinge)
+		b_joint, rbc = add_rb_constraint(joint_map, hinge, constraint_type="HINGE")
+		rbc.use_limit_ang_z = True
+		rbc.limit_ang_z_lower = hinge.limits.min
+		rbc.limit_ang_z_upper = hinge.limits.max
+		# # debug hinge direction
+		# b_trg = create_ob(scene, f"{'target'}_{b_joint.name}", None, coll_name="target")
+		# b_trg.empty_display_type = "PLAIN_AXES"
+		# b_trg.empty_display_size = 0.05
+		# n_bind = mathutils.Matrix().to_4x4()
+		# n_bind.translation = (hinge.direction.x, hinge.direction.y, hinge.direction.z)
+		# b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
+		# mat2 = mathutils.Matrix().to_4x4()
+		# mat2.translation = b_joint.matrix_world.translation + (mathutils.Vector(b_bind.translation) * 0.1)
+		# b_trg.matrix_world = mat2
+
+
+def add_rb_constraint(joint_map, constraint, constraint_type="GENERIC"):
+	parent_name = constraint.parent.joint.name
+	child_name = constraint.child.joint.name
+	b_joint = joint_map[child_name]
+	# override = bpy.context.copy()
+	# override['selected_objects'] = b_joint
+	# override['active_object'] = b_joint
+	# bpy.ops.rigidbody.object_add(override)
+	bpy.context.view_layer.objects.active = b_joint
+	bpy.ops.rigidbody.constraint_add()
+	rbc = b_joint.rigid_body_constraint
+	rbc.type = constraint_type
+	child_collider = joint_map[child_name].children[0]
+	parent_collider = joint_map[parent_name].children[0]
+	rbc.object1 = child_collider
+	rbc.object2 = parent_collider
+	# only set constrained children to active
+	child_collider.rigid_body.type = "ACTIVE"
+	# print(constraint.parent.joint)
+	# print(constraint.child.joint)
+	return b_joint, rbc
 
 
 def get_matrix(corrector, rot_mat, vec=None):

@@ -668,27 +668,27 @@
 	<compound name="Constraint">
 		<add name="parent" type="JointPointer"/>
 		<add name="child" type="JointPointer"/>
+		<add name="loc" type="Vector3" >the location of the child joint</add>
 	</compound>
 
-	<compound name="PushConstraint" inherit="Constraint">
+	<compound name="BallConstraint" inherit="Constraint">
+		fPhysicsBallJoint
 		used in JWE Pteranodon
 		no longer used in PZ, JWE2
-		might be some sort of avoidance
-		possibly also simple ragdolling
-		<add name="floats" type="float" arr1="3"/>
 	</compound>
 
-	<compound name="StretchConstraint" inherit="Constraint">
+	<compound name="HingeConstraint" inherit="Constraint">
+		fPhysicsHingeJoint
 		used in JWE dinos
 		no longer used in PZ, JWE2
-		<add name="loc" type="Vector3" >location of the joint</add>
-		<add name="direction" type="Vector3" >normalized</add>
-		<add name="min" type="float">min, le 0</add>
-		<add name="max" type="float">max, ge 0</add>
+		<add name="direction" type="Vector3" >normalized direction of Z axis in blender</add>
+		these are LE - GE 0, unlike the limits in RagdollConstraint
+		JWE1 nasuto has these, but inverted (due to mirroring?) on X (blender assumes Z for hinge)
+		<add name="limits" type="RotationRange" >radians</add>
 	</compound>
 
 	<compound name="RagdollConstraint" inherit="Constraint">
-		<add name="loc" type="Vector3" >the location of the child joint</add>
+		fPhysicsRagdollJoint
 		vec_a and rot row 0 seem to be identical (tested on JWE1, JWE2, PZ)
 		sometimes correspond to the negated child joint rot row0
 		<add name="vec_a" type="Vector3" >normed, matches first row of rot</add>
@@ -840,8 +840,8 @@
 		<add name="before_dla_0" type="uint64" until="7"/>
 		<add name="before_dla_1" type="uint64" until="7"/>
 		<add name="joint_count" type="uint" >repeat</add>
-		<add name="num_push_constraints" type="uint"/>
-		<add name="num_stretch_constraints" type="uint"/>
+		<add name="num_ball_constraints" type="uint"/>
+		<add name="num_hinge_constraints" type="uint"/>
 		<add name="num_ragdoll_constraints" type="uint"/>
 		<add name="zero 0" type="uint" until="32"/>
 		<add name="zero 1" type="uint" since="13" until="32"/>
@@ -861,8 +861,8 @@
 
 		<add name="rigid_body_pointers" type="uint64" arr1="joint_count" since="47"/>
 		<add name="rigid_body_list" type="RigidBody" arr1="joint_count" since="47"/>
-		<add name="push_constraints" type="PushConstraint" arr1="num_push_constraints" since="47"/>
-		<add name="stretch_constraints" type="StretchConstraint" arr1="num_stretch_constraints" since="47"/>
+		<add name="ball_constraints" type="BallConstraint" arr1="num_ball_constraints" since="47"/>
+		<add name="hinge_constraints" type="HingeConstraint" arr1="num_hinge_constraints" since="47"/>
 		<add name="ragdoll_constraints" type="RagdollConstraint" arr1="num_ragdoll_constraints" since="47"/>
 
 		todo arg="joint_names" for names reader fails here because joint_names is defined later
