@@ -6,7 +6,7 @@
 
     <compound name="AssetpkgRoot" inherit="MemStruct">
         <add name="asset_path" type="Pointer" template="ZString" />
-        <add name="shared" type="uint64" />
+        <add name="shared" type="uint64" default="0" optional="True"/>
     </compound>
 
 </niftoolsxml>
