@@ -47,22 +47,26 @@ class OvsFile(OvsHeader):
 		self.reset_field("buffer_groups")
 
 	@contextmanager
-	def unzipper(self, compressed_bytes, uncompressed_size):
+	def unzipper(self, reporter, compressed_bytes, uncompressed_size):
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}, {len(compressed_bytes)} bytes total")
-		if self.ovl.user_version.compression == Compression.OODLE:
-			logging.debug(f"Oodle compression")
-			from ovl_util.oodle.oodle import oodle_compressor
-			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
-		elif self.ovl.user_version.compression == Compression.ZLIB:
-			logging.debug("Zlib compression")
-			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
-			# we avoid the two zlib magic bytes to get our unzipped content
-			decompressed = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
-		# uncompressed archive
-		else:
-			logging.debug("No compression")
-			decompressed = compressed_bytes
+		try:
+			if self.ovl.user_version.compression == Compression.OODLE:
+				logging.debug(f"Oodle compression")
+				from ovl_util.oodle.oodle import oodle_compressor
+				decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
+			elif self.ovl.user_version.compression == Compression.ZLIB:
+				logging.debug("Zlib compression")
+				# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+				# we avoid the two zlib magic bytes to get our unzipped content
+				decompressed = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
+			# uncompressed archive
+			else:
+				logging.debug("No compression")
+				decompressed = compressed_bytes
+		except:
+			reporter.show_error(f"{self.ovl.user_version.compression.name} decompression failed for {self.arg.name} - potentially damaged file?")
+			raise
 		with BytesIO(decompressed) as stream:
 			yield stream
 
@@ -119,40 +123,46 @@ class OvsFile(OvsHeader):
 		logging.debug(
 			f"Compressed stream {archive_entry.name} in {os.path.basename(archive_entry.ovs_path)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
-		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
-			super().read_fields(stream, self)
-			# print(self)
-			pool_index = 0
-			for pool_type in self.pool_groups:
-				for i in range(pool_type.num_pools):
-					pool = self.pools[pool_index]
-					pool.type = pool_type.type
-					self.assign_name(pool)
-					pool_index += 1
+		with self.unzipper(self.ovl.reporter, compressed_bytes, archive_entry.uncompressed_size) as stream:
+			try:
+				super().read_fields(stream, self)
+				# print(self)
+				pool_index = 0
+				for pool_type in self.pool_groups:
+					for i in range(pool_type.num_pools):
+						pool = self.pools[pool_index]
+						pool.type = pool_type.type
+						self.assign_name(pool)
+						pool_index += 1
 
-			for data_entry in self.data_entries:
-				self.assign_name(data_entry)
-				loader = self.ovl.loaders[data_entry.name]
-				loader.data_entries[archive_entry.name] = data_entry
+				for data_entry in self.data_entries:
+					self.assign_name(data_entry)
+					loader = self.ovl.loaders[data_entry.name]
+					loader.data_entries[archive_entry.name] = data_entry
 
-			self.root_entries_name = self.get_names_list(self.root_entries)
+				self.root_entries_name = self.get_names_list(self.root_entries)
 
-			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
-				raise AttributeError("Set header signature check failed!")
-			if self.set_header.io_size != self.arg.set_data_size:
-				raise AttributeError(
-					f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
-			# for set_entry in self.set_header.sets:
-			# 	self.assign_name(set_entry)
-			# for asset_entry in self.set_header.assets:
-			# 	self.assign_name(asset_entry)
-			self.map_assets()
-			# add IO object to every pool
-			self.read_pools(stream)
-			self.map_buffers()
-			for buffer in self.buffers_io_order:
-				# read buffer data and store it in buffer object
-				buffer.read_data(stream)
+				if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
+					raise AttributeError("Set header signature check failed!")
+				if self.set_header.io_size != self.arg.set_data_size:
+					raise AttributeError(
+						f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
+				# for set_entry in self.set_header.sets:
+				# 	self.assign_name(set_entry)
+				# for asset_entry in self.set_header.assets:
+				# 	self.assign_name(asset_entry)
+				self.map_assets()
+				# add IO object to every pool
+				self.read_pools(stream)
+				self.map_buffers()
+				for buffer in self.buffers_io_order:
+					# read buffer data and store it in buffer object
+					buffer.read_data(stream)
+				# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+			except:
+				self.ovl.reporter.show_error(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed")
+				logging.warning(archive_entry)
+				logging.warning(self)
 
 	def read_pools(self, stream):
 		for pool in self.pools:
@@ -907,25 +917,17 @@ class OvlFile(Header):
 
 	def load_archives(self):
 		with self.reporter.log_duration("Loading archives"):
-			with self.reporter.report_error_files("Reading") as error_files:
-				with self.open_streams(mode="rb") as streams:
-					for archive_entry in self.reporter.iter_progress(self.archives, "Reading archives"):
-						# those point to external ovs archives
-						if archive_entry.name == "STATIC":
-							read_start = self.eof
-						else:
-							read_start = archive_entry.read_start
-						stream = streams[archive_entry.ovs_path]
-						stream.seek(read_start)
-						archive_entry.content = OvsFile(self.context, self, archive_entry)
-						try:
-							archive_entry.content.load(archive_entry, stream)
-						except:
-							error_files.append(archive_entry.name)
-							logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
-							logging.warning(archive_entry.content)
-							continue
-						# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+			with self.open_streams(mode="rb") as streams:
+				for archive_entry in self.reporter.iter_progress(self.archives, "Reading archives"):
+					# those point to external ovs archives
+					if archive_entry.name == "STATIC":
+						read_start = self.eof
+					else:
+						read_start = archive_entry.read_start
+					stream = streams[archive_entry.ovs_path]
+					stream.seek(read_start)
+					archive_entry.content = OvsFile(self.context, self, archive_entry)
+					archive_entry.content.load(archive_entry, stream)
 			# logging.info(self.archives_meta)
 			self.load_flattened_pools()
 			self.load_pointers()
@@ -1320,9 +1322,9 @@ class OvlFile(Header):
 		if stream_loaders and self.name.lower() in ("main.ovl", "init.ovl"):
 			tex_with_streams = [loader.name for loader in self.loaders.values() if loader.streams and loader.ext == ".tex"]
 			if tex_with_streams:
-				self.reporter.warning_msg.emit((
+				self.reporter.show_error(
 					f"You're trying to save streamed textures in '{self.name}', which does not support streams - "
-					f"please check 'Show Details' or the log.", "\n".join(tex_with_streams)))
+					f"please check 'Show Details' or the log.", tex_with_streams)
 		self.reset_field("stream_files")
 		if stream_loaders:
 			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
