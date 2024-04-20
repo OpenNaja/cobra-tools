@@ -96,12 +96,12 @@ class Corrector:
 		self.xflip[0][0] = -1
 
 	# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
-	def nif_bind_to_blender_bind(self, nif_armature_space_matrix):
+	def to_blender(self, nif_armature_space_matrix):
 		# post multiplication: local space
 		# position of xflip does not matter
 		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv @ self.xflip
 
-	def blender_bind_to_nif_bind(self, blender_armature_space_matrix):
+	def from_blender(self, blender_armature_space_matrix):
 		# xflip must be done before the conversions
 		bind = self.xflip @ blender_armature_space_matrix @ self.xflip
 		return self.correction_glob_inv @ bind @ self.correction

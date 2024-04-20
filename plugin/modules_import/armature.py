@@ -63,7 +63,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 			# store the ms2 armature space matrix
 			mats[b_edit_bone.name] = n_bind
 			# change orientation for blender bones
-			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+			b_bind = corrector.to_blender(n_bind)
 			mat_3x3 = b_bind.to_3x3()
 			# if bone_name in flips:
 			# 	print(f"flipping {bone_name}")
@@ -131,7 +131,7 @@ def get_flips(b_bone_names, bone_info, corrector):
 			n_bind = mats1[o_parent_ind].copy() @ n_bind
 		# store the ms2 armature space matrix
 		mats1.append(n_bind)
-	mats_corrected = [corrector.nif_bind_to_blender_bind(n_bind) for n_bind in mats1]
+	mats_corrected = [corrector.to_blender(n_bind) for n_bind in mats1]
 	vecs_map = {
 		bone_name: (mat.to_3x3(), mat.to_translation()) for bone_name, mat in zip(b_bone_names, mats_corrected)
 	}
@@ -278,7 +278,7 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 		# b_ik.empty_display_size = 0.05
 		# # mat = mathutils.Matrix(ik_link.matrix.data).inverted().to_4x4()
 		# mat = mathutils.Matrix(ik_link.matrix.data).to_4x4()
-		# # mat = corrector.nif_bind_to_blender_bind(mat)
+		# # mat = corrector.to_blender(mat)
 		# # mat = get_matrix(corrector, ik_link.matrix)
 		# # mat = mat.to_3x3()
 		# # cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
@@ -409,7 +409,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 		# # unsure if that transform is correct
 		# n_bind = mathutils.Matrix().to_4x4()
 		# n_bind.translation = (ragdoll.vec_b.x, ragdoll.vec_b.y, ragdoll.vec_b.z)
-		# b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
+		# b_bind = corrector_rag.to_blender(n_bind)
 		# mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
 		# # mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
 		# b_trg.matrix_local = mat2
@@ -431,7 +431,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 		# b_trg.empty_display_size = 0.05
 		# n_bind = mathutils.Matrix().to_4x4()
 		# n_bind.translation = (hinge.direction.x, hinge.direction.y, hinge.direction.z)
-		# b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
+		# b_bind = corrector_rag.to_blender(n_bind)
 		# mat2 = mathutils.Matrix().to_4x4()
 		# mat2.translation = b_joint.matrix_world.translation + (mathutils.Vector(b_bind.translation) * 0.1)
 		# b_trg.matrix_world = mat2
@@ -464,7 +464,7 @@ def get_matrix(corrector, rot_mat, vec=None):
 	n_bind = mathutils.Matrix(rot_mat.data).inverted().to_4x4()
 	if vec is not None:
 		n_bind.translation = (vec.x, vec.y, vec.z)
-	b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+	b_bind = corrector.to_blender(n_bind)
 	return b_bind
 
 

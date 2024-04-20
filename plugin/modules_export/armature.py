@@ -70,10 +70,10 @@ def export_bones_custom(b_armature_ob, model_info):
 
 	for bone_i, b_bone in enumerate(b_armature_ob.data.bones):
 		# correction function works only in armature space
-		mat_local = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
+		mat_local = corrector.from_blender(b_bone.matrix_local)
 		# make relative to parent
 		if b_bone.parent:
-			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ mat_local
+			mat_local_to_parent = corrector.from_blender(b_bone.parent.matrix_local).inverted() @ mat_local
 		else:
 			mat_local_to_parent = mat_local
 
@@ -204,7 +204,7 @@ def export_joints(bone_info, corrector, b_armature_ob):
 		joints.bone_to_joint[bone_i] = joint_i
 		# update joint transform
 		b_joint_mat = get_joint_matrix(b_joint)
-		n_bind = corrector.blender_bind_to_nif_bind(b_joint_mat)
+		n_bind = corrector.from_blender(b_joint_mat)
 		t = joints.joint_transforms[joint_i]
 		# should not need a transpose but does - maybe change api of set_rows
 		t.rot.set_rows(n_bind.to_3x3().inverted().transposed())
@@ -264,7 +264,7 @@ def export_joints(bone_info, corrector, b_armature_ob):
 		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
 		b_joint_mat = b_joint_mat @ cross
 		b_joint_mat = b_joint_mat.to_4x4()
-		n_bind = corrector_rag.blender_bind_to_nif_bind(b_joint_mat)
+		n_bind = corrector_rag.from_blender(b_joint_mat)
 		# should not need a transpose but does - maybe change api of set_rows
 		rd.rot.set_rows(n_bind.to_3x3().inverted().transposed())
 

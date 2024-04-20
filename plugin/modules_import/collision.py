@@ -93,7 +93,7 @@ def import_spherebv(sphere, hitcheck_name, collection):
 def import_collision_matrix(container, corrector):
 	mat = mathutils.Matrix(container.data).to_4x4()
 	mat.transpose()
-	return corrector.nif_bind_to_blender_bind(mat)
+	return corrector.to_blender(mat)
 
 
 def import_collision_quat(q, corrector):
@@ -104,7 +104,7 @@ def import_collision_quat(q, corrector):
 	# mat.transpose()
 	return mat
 	# not sure if a correction is right here
-	# return corrector.nif_bind_to_blender_bind(mat)
+	# return corrector.to_blender(mat)
 
 
 def import_boxbv(box, hitcheck_name, corrector, collection):

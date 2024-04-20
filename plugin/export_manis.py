@@ -37,9 +37,9 @@ def store_pose_frame_info(b_obj, src_i, trg_i, bones_data, bone_channels, correc
 
 		# loc
 		v = sample_scale2(matrix, src_i, inverted=True) @ matrix
-		bone_channels[name][POS][trg_i] = corrector.blender_bind_to_nif_bind(v).to_translation()
+		bone_channels[name][POS][trg_i] = corrector.from_blender(v).to_translation()
 		# rot
-		final_m = corrector.blender_bind_to_nif_bind(matrix)
+		final_m = corrector.from_blender(matrix)
 		key = final_m.to_quaternion()
 		# swizzle - w is stored last
 		bone_channels[name][ORI][trg_i] = key.x, key.y, key.z, key.w
@@ -48,7 +48,7 @@ def store_pose_frame_info(b_obj, src_i, trg_i, bones_data, bone_channels, correc
 		# scale
 		scale_mat = sample_scale2(matrix, src_i)
 		# needs axis correction, but appears to be stored relative to the animated bone's axes
-		scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
+		scale_mat = corrector.from_blender(scale_mat)
 		# swizzle
 		key = scale_mat.to_scale()
 		bone_channels[name][SCL][trg_i] = key.z, key.y, key.x

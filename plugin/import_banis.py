@@ -46,7 +46,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		for i, bone_name in bones_table:
 			b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
 			bind = b_armature_ob.data.bones[bone_name].matrix_local
-			# bind = corrector.blender_bind_to_nif_bind(bind)
+			# bind = corrector.from_blender(bind)
 			# b_empty_ob.matrix_local = bind.inverted()
 			# b_empty_ob.matrix_local = bind.inverted()
 			b_empty_ob.location = bind.translation
@@ -100,7 +100,7 @@ def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index
 			key = key @ binds[bone_i]
 			# key.translation += binds[bone_i].translation
 			# store the posed armature space matrix
-			posed_armature_space[bone_i] = corrector.nif_bind_to_blender_bind(key)
+			posed_armature_space[bone_i] = corrector.to_blender(key)
 		if use_armature:
 			# make posed armature space matrices relative to posed parent
 			for bone_i, parent_i in enumerate(parent_index_map):

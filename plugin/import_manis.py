@@ -63,14 +63,14 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
 				b_action, bone_name, "location", wsm.locs.data, bonerestmat_inv):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Vector(key)
-				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+				key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 				out_frames.append(frame_i)
 				out_keys.append(key)
 		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in keys_adder(
 				b_action, bone_name, "rotation_quaternion", wsm.quats.data, bonerestmat_inv):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
-				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+				key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 				out_frames.append(frame_i)
 				out_keys.append(key)
 
@@ -155,7 +155,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 					# # correct for scale
 					# if scale:
 					# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
-					key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+					key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 					out_frames.append(frame_i)
 					out_keys.append(key)
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
@@ -166,7 +166,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
 					# if frame_i == 0 and b_name == "def_c_hips_joint":
 					# 	logging.info(f"{mi.name} {key}")
-					key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+					key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 					# if cam_corr is not None:
 					# 	out = mathutils.Quaternion(cam_corr)
 					# 	out.rotate(key)
@@ -187,14 +187,14 @@ def load(reporter, files=(), filepath="", set_fps=False):
 					key = mathutils.Vector([key[0] * scale[2], key[1] * scale[1], key[2] * scale[0]])
 				else:
 					key = mathutils.Vector(key)
-				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+				key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 				out_frames.append(frame_i)
 				out_keys.append(key)
 		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 				k.ori_bones_names, k.ori_bones, bones_data, b_action, "rotation_quaternion"):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+				key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 				if cam_corr is not None:
 					out = mathutils.Quaternion(cam_corr)
 					out.rotate(key)
@@ -208,7 +208,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 				key = mathutils.Vector([key[2], key[1], key[0]])
 				# correct axes
 				mat = get_scale_mat(key)
-				key = corrector.nif_bind_to_blender_bind(mat).to_scale()
+				key = corrector.to_blender(mat).to_scale()
 				out_frames.append(frame_i)
 				out_keys.append(key)
 
