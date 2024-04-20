@@ -5,6 +5,64 @@ import os
 from root_path import root_dir
 
 
+class ImmediateSetting(object):
+
+	def __init__(self, default: object = 0):
+		self.default = default
+
+
+class DeferredSetting(object):
+
+	def __init__(self, default: object = 0):
+		self.default = default
+
+
+class TransientSetting(object):
+
+	def __init__(self, default: object = 0):
+		self.default = default
+
+
+class Config(dict):
+
+	immediate = ("recent_ovls", )
+	recent_ovls = ImmediateSetting([])
+	current_ovl = TransientSetting("some_ovl.ovl")
+	name = "config.json"
+
+	def __setitem__(self, k, v):
+		super().__setitem__(k, v)
+		if k in self.immediate:
+			logging.debug(f"Saved '{self.name}' after storing '{k}'")
+			self.save()
+	#
+	# def __getitem__(self, k):
+	# 	return self[k]
+
+	def __init__(self, name="config.json", **kwargs):
+		super().__init__(**kwargs)
+		self.name = name
+
+	@property
+	def cfg_path(self):
+		return os.path.join(root_dir, self.name)
+
+	def save(self):
+		logging.info(f"Saving config")
+		with open(self.cfg_path, "w") as json_writer:
+			json.dump(self.__slots__, json_writer, indent="\t", sort_keys=True)
+
+	def load(self):
+		try:
+			with open(self.cfg_path, "r") as json_reader:
+				self.update(json.load(json_reader))
+		except FileNotFoundError:
+			logging.debug(f"Config file missing at {self.cfg_path}")
+		except json.decoder.JSONDecodeError as e:
+			logging.error(f"Config file broken at {self.cfg_path}")
+			logging.error(str(e))
+
+
 def save_config(cfg_dict):
 	logging.info(f"Saving config")
 	with open(os.path.join(root_dir, "config.json"), "w") as json_writer:
@@ -46,7 +104,7 @@ def read_str_dict(cfg_path):
 
 
 def write_str_dict(cfg_path, config_dict):
-	stream = "\n".join([key+"="+str(val) for key, val in config_dict.items()])
+	stream = "\n".join([key + "=" + str(val) for key, val in config_dict.items()])
 	with open(cfg_path, 'w', encoding='utf8') as cfg_file:
 		cfg_file.write(stream)
 
