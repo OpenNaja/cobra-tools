@@ -735,7 +735,9 @@ class OvlFile(Header):
 		self.send_files()
 
 	def send_files(self):
-		f_list = [[loader.name, loader.ext] for loader in self.loaders.values()]
+		# f_list = [{"name": loader.name, "ext": loader.ext, "children": [l.name for l in loader.children]} for loader in self.loaders.values()]
+		# f_list.sort(key=lambda t: (t["ext"], t["name"]))
+		f_list = [[loader.name, loader.ext, "\n".join(l.name for l in loader.children)] for loader in self.loaders.values()]
 		f_list.sort(key=lambda t: (t[1], t[0]))
 		self.reporter.files_list.emit(f_list)
 
@@ -893,7 +895,6 @@ class OvlFile(Header):
 					loader.pool_type = pt
 					loader.set_pool_type = set_pt
 					self.loaders[filename] = loader
-				self.send_files()
 
 			# get included ovls
 			self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
@@ -929,6 +930,7 @@ class OvlFile(Header):
 					archive_entry.content = OvsFile(self.context, self, archive_entry)
 					archive_entry.content.load(archive_entry, stream)
 			# logging.info(self.archives_meta)
+			self.send_files()
 			self.load_flattened_pools()
 			self.load_pointers()
 

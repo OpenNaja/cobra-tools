@@ -585,4 +585,4 @@ class MimeVersionedLoader(MemStructLoader):
 		super().__init__(ovl, file_name)
 		self.get_constants_entry()
 		self.context = MimeContext(self.mime_version)
-		logging.debug(self.context)
+		# logging.debug(self.context)

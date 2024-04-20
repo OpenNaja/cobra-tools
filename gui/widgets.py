@@ -170,7 +170,7 @@ class TableModel(QAbstractTableModel):
         file_row = self._data[index.row()]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if len(file_row):
-                return self._data[index.row()][index.column()]
+                return file_row[index.column()]
 
         # TODO: Remove some hardcoding surrounding File Type
         if "File Type" in self.header_labels:
@@ -189,6 +189,10 @@ class TableModel(QAbstractTableModel):
             # center align non-primary integer columns
             if index.column() > 0 and str(file_row[index.column()]).isnumeric():
                 return Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter
+
+        if role == Qt.ItemDataRole.ToolTipRole:
+            if len(file_row) > 2:
+                return file_row[2]
 
     def setData(self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole) -> bool:
         if index.isValid():
@@ -2985,7 +2989,9 @@ class MainWindow(FramelessMainWindow):
         self.status_timer.setInterval(3500)
         self.status_timer.timeout.connect(self.reset_progress)
 
-        self.cfg: dict[str, Any] = config.load_config()
+        # self.cfg: dict[str, Any] = config.load_config()
+        self.cfg: config.Config[str, Any] = config.Config()
+        self.cfg.load()
 
         if self.opts.frameless:
             # Frameless titlebar
