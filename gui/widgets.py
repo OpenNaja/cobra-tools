@@ -33,8 +33,10 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QListView, QHeaderView, QTableView, QTreeView, QFileSystemModel, QStyle, QLayoutItem,
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QMessageBox, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton, QSpacerItem,
-                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy, QSplitter,
-                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox)
+                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
+                             QSplitter,
+                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox,
+                             QFileIconProvider)
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 
 import vdf
@@ -1962,7 +1964,7 @@ class GamesWidget(QWidget):
 
         self.entry = CleverCombo(self, options=[])
         self.entry.setEditable(False)
-        self.set_data(self.cfg["games"].keys())
+        self.set_data(self.cfg["games"])
 
         self.add_button = QPushButton("+")
         self.add_button.setMaximumWidth(20)
@@ -2126,16 +2128,28 @@ class GamesWidget(QWidget):
             self.cfg["games"][current_game] = dir_game
             self.cfg["current_game"] = current_game
             # update available games
-            self.set_data(self.cfg["games"].keys())
+            self.set_data(self.cfg["games"])
 
-    def set_data(self, items: Iterable[str]) -> None:
+    def set_data(self, available_games: dict) -> None:
         self.entry.clear()
-        items = sorted(set(items))
-        self.entry.addItems(items)
+        sorted_games = sorted(available_games.items())
+
+        provider = QFileIconProvider()
+        self.entry.clear()
+        for game, ovldata in sorted_games:
+            try:
+                game_dir = Path(ovldata).parent.parent
+                exe = [exe for exe in os.listdir(game_dir) if exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe", )][0]
+                exe_path = os.path.join(game_dir, exe)
+                info = QFileInfo(exe_path)
+                icon = QIcon(provider.icon(info))
+                self.entry.addItem(icon, game)
+            except:
+                self.entry.addItem(game)
         # update currently selected item
-        if items:
+        if sorted_games:
             # get the current game from cfg, and fall back to first of the list if needed
-            current_game = self.cfg.get("current_game", items[0])
+            current_game = self.cfg.get("current_game", sorted_games[0])
             self.entry.setText(current_game)
 
     def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
@@ -2145,7 +2159,7 @@ class GamesWidget(QWidget):
 
     def set_games(self) -> None:
         self.cfg["games"].update(self.get_steam_games())
-        self.set_data(self.cfg["games"].keys())
+        self.set_data(self.cfg["games"])
 
     def get_steam_games(self) -> dict[str, str]:
         try:
