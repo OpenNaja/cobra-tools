@@ -2149,7 +2149,7 @@ class GamesWidget(QWidget):
         # update currently selected item
         if sorted_games:
             # get the current game from cfg, and fall back to first of the list if needed
-            current_game = self.cfg.get("current_game", sorted_games[0])
+            current_game = self.cfg.get("current_game", sorted_games[0][0])
             self.entry.setText(current_game)
 
     def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
