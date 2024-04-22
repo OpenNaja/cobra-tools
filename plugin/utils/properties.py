@@ -48,6 +48,9 @@ def show_lod_callback(self, context):
 		if view_coll.name in context.scene.collection.children:
 			# don't alter the visibility of mdl2 collections
 			continue
+		if "_joints" in view_coll.name:
+			# don't alter the visibility of joints collections
+			continue
 		lod_index = int(math.floor(self.current_lod))
 		lod_transition = self.current_lod - lod_index
 		view_coll.hide_viewport = f"_L{lod_index}" not in view_coll.name
