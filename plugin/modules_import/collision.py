@@ -38,7 +38,7 @@ def import_collider(hitcheck, b_joint, corrector, collection):
 	return ob
 
 
-def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
+def set_b_collider(b_obj, bounds_type='BOX', display_type='BOX'):
 	"""Helper function to set up b_obj so it becomes recognizable as a collision object"""
 	# set bounds type
 	if display_type == "MESH":
@@ -47,6 +47,12 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 		b_obj.show_bounds = True
 		b_obj.display_type = 'BOUNDS'
 		b_obj.display_bounds_type = display_type
+
+	# alternative
+	# bpy.context.view_layer.objects.active = b_obj
+	# with bpy.context.temp_override(selected_objects=[b_obj], object=b_obj, active_object=b_obj):
+	# 	logging.debug(f"Operating on obj '{b_obj.name}'")
+	# 	bpy.ops.rigidbody.object_add()
 
 	bpy.context.view_layer.objects.active = b_obj
 	bpy.ops.rigidbody.object_add()
@@ -59,6 +65,11 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 	# if they are set to active they explode once you play back an anim
 	b_r_body.type = "PASSIVE"
 	
+
+def box_from_dimensions(b_name, dim, coll=None):
+	x, y, z = dim
+	return box_from_extents(b_name, -x/2, x/2, -y/2, y/2, -z/2, z/2, coll)
+
 
 def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz, coll=None):
 	verts = []
@@ -86,7 +97,7 @@ def import_spherebv(sphere, hitcheck_name, collection):
 	r = sphere.radius
 	b_obj, b_me = box_from_extents(hitcheck_name, -r, r, -r, r, -r, r, collection)
 	b_obj.location = unpack_swizzle((sphere.center.x, sphere.center.y, sphere.center.z))
-	set_b_collider(b_obj, r, bounds_type="SPHERE", display_type="SPHERE")
+	set_b_collider(b_obj, bounds_type="SPHERE", display_type="SPHERE")
 	return b_obj
 
 
@@ -113,7 +124,7 @@ def import_boxbv(box, hitcheck_name, corrector, collection):
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z, collection)
 	mat.translation = unpack_swizzle((box.center.x, box.center.y, box.center.z))
 	b_obj.matrix_local = mat
-	set_b_collider(b_obj, (x+y+z)/3)
+	set_b_collider(b_obj)
 	return b_obj
 
 
@@ -128,7 +139,7 @@ def import_capsulebv(capsule, hitcheck_name, collection):
 	b_obj, b_me = box_from_extents(hitcheck_name, minx, maxx, miny, maxy, minz, maxz, collection)
 	# apply transform in local space
 	b_obj.matrix_local = center_origin_to_matrix(capsule.offset, capsule.direction)
-	set_b_collider(b_obj, capsule.radius, bounds_type="CAPSULE", display_type="CAPSULE")
+	set_b_collider(b_obj, bounds_type="CAPSULE", display_type="CAPSULE")
 	return b_obj
 
 
@@ -143,7 +154,7 @@ def import_cylinderbv(cylinder, hitcheck_name, collection):
 	b_obj, b_me = box_from_extents(hitcheck_name, minx, maxx, miny, maxy, minz, maxz, collection)
 	# apply transform in local space
 	b_obj.matrix_local = center_origin_to_matrix(cylinder.offset, cylinder.direction)
-	set_b_collider(b_obj, cylinder.radius, bounds_type="CYLINDER", display_type="CYLINDER")
+	set_b_collider(b_obj, bounds_type="CYLINDER", display_type="CYLINDER")
 	return b_obj
 
 
@@ -175,7 +186,7 @@ def import_meshbv(coll, hitcheck_name, corrector, collection):
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
-	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="MESH")
+	set_b_collider(b_obj, bounds_type="MESH", display_type="MESH")
 	return b_obj
 
 
@@ -187,7 +198,7 @@ def import_hullbv(coll, hitcheck_name, corrector, collection):
 	# this is certainly needed for JWE2 as of 2023-06-12
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
-	set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
+	set_b_collider(b_obj, bounds_type="CONVEX_HULL", display_type="MESH")
 	return b_obj
 
 
@@ -225,7 +236,7 @@ def import_chunk_bounds(mesh_name, mesh, lod_coll):
 			v0 -= loc
 			v1 -= loc
 			b_obj, b_me = box_from_extents(bbox_name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll_name=None, coll=lod_coll)
-			set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
+			set_b_collider(b_obj, bounds_type="CONVEX_HULL", display_type="MESH")
 			# print(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], pos.loc, pos.rot)
 			# empty = create_ob(bpy.context.scene, name+"_empty", None, coll=lod_coll)
 			b_obj.matrix_local = import_collision_quat(tri_chunk.rot, corrector)

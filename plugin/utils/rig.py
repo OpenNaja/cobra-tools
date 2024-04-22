@@ -1,4 +1,5 @@
 import logging
+from math import radians
 
 import bpy
 import mathutils
@@ -6,7 +7,7 @@ from mathutils import Vector, Quaternion, Matrix
 
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.armature import set_transform4, append_armature_modifier
-from plugin.modules_import.collision import parent_to
+from plugin.modules_import.collision import parent_to, box_from_extents, box_from_dimensions, set_b_collider
 from plugin.utils.matrix_util import vectorisclose
 from plugin.utils.object import create_ob, create_collection
 
@@ -46,40 +47,24 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 
 	# get the bounding box of the original object
 	bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
-	edges = [(0, 1), (0, 3), (0, 4), (1, 5), (3, 7), (2, 1), (2, 6), (2, 3), (4, 5), (4, 7), (7, 6), (5, 6)]
+	x, y, z = obj.dimensions
+	hitcheck_ob, b_me = box_from_dimensions(f"{obj.name}_PhysicsVolume", (y, x, z), collection)
+	# this corresponds to identity rotation matrix in ms2 collider
+	hitcheck_ob.rotation_euler = (0, 0, 0)
 
-	mesh_name = obj.name + "_PhysicsVolume"
-	hitcheck_me = bpy.data.meshes.new(mesh_name)
-	hitcheck_me.from_pydata(bbox_corners, edges, [])
-	hitcheck_ob = create_ob(bpy.context.scene, mesh_name, hitcheck_me, coll=collection)
-
-	# rotate
-	hitcheck_ob.rotation_euler[2] = 1.5708
-
-	# center
+	# set center
 	x = (bbox_corners[4][0] + bbox_corners[0][0]) / 2  # invert x axis
 	y = (bbox_corners[3][1] + bbox_corners[0][1]) / -2
 	z = (bbox_corners[2][2] + bbox_corners[0][2]) / 2
-	vec_loc = Vector((y, x, z))
-	hitcheck_ob.location = hitcheck_ob.location + vec_loc
+	hitcheck_ob.location = (y, x, z)
 
+	set_b_collider(hitcheck_ob, bounds_type="BOX", display_type="BOX")
 	# Assign parent joint
 	hitcheck_ob.parent = parent
-
-	bpy.context.view_layer.objects.active = hitcheck_ob
-	with bpy.context.temp_override(selected_objects=[hitcheck_ob], object=hitcheck_ob, active_object=hitcheck_ob):
-		print('Operating on obj', hitcheck_ob)
-		bpy.ops.rigidbody.object_add()
-
-	hitcheck_ob.rigid_body.type = 'PASSIVE'
-	hitcheck_ob.rigid_body.collision_shape = 'BOX'
-	hitcheck_ob.rigid_body.mesh_source = 'BASE'
-
+	# collision data
 	hitcheck_ob.cobra_coll.flag = 'STATIC'
-
 	hitcheck_ob.cobra_coll.classification_jwe2 = 'Prop'
 	hitcheck_ob.cobra_coll.surface_jwe2 = 'PropWooden'
-
 	hitcheck_ob.cobra_coll.classification_pz = 'Scenery'
 	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
 
@@ -182,6 +167,7 @@ def setup_rig(reporter, add_armature=True, add_physics=True):
 			# add physics joint
 			b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
 			parent_to(b_armature_ob, b_joint, bone_name)
+			b_joint.rotation_euler = (0, 0, 0)
 
 			# create hitcheck object
 			add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
