@@ -215,6 +215,11 @@ class SetupRig(PopupOp):
 	bl_idname = "pose.setup_rig"
 	bl_label = "Setup Rig"
 
+	move_collections: bpy.props.BoolProperty(
+		name="Move to Collections",
+		description="Automatically move active mesh to the required collections",
+		default=True)
+
 	add_armature: bpy.props.BoolProperty(
 		name="Add Armature",
 		description="Automatically add minimal armature",

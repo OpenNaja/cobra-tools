@@ -107,7 +107,7 @@ def comform_object_to_mdl2(obj):
 	pass
 
 
-def setup_rig(reporter, add_armature=True, add_physics=True):
+def setup_rig(reporter, move_collections=True, add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
 	scene = bpy.context.scene
 	name = b_ob.name
@@ -116,13 +116,22 @@ def setup_rig(reporter, add_armature=True, add_physics=True):
 	# validate object before starting
 	validate_object_to_mdl2(b_ob)
 
-	# create collections
+	# get or create collections
 	mdl2_coll = create_collection(name, scene.collection)
-	lod_coll = create_collection(f"{name}_L0", mdl2_coll)
-	move_to_collection(b_ob, lod_coll)
+	if move_collections:
+		# move it to L0 collection
+		lod_coll = create_collection(f"{name}_L0", mdl2_coll)
+		move_to_collection(b_ob, lod_coll)
+		src_coll = scene.collection
+	else:
+		src_coll = mdl2_coll
+		lod_coll = b_ob.users_collection[0]
+	# rename b_ob to the right lod (mostly cosmetic)
+	for i, ob in enumerate(lod_coll.objects):
+		ob.name = f"{name}_ob{i}_L{lod_coll.name[-1]}"
 
-	# Add a default render flag custom property to the collection, 
-	# 0 for scenery most of the games, 4 for PZ scenery. 
+	# Add a default render flag custom property to the collection,
+	# 0 for scenery most of the games, 4 for PZ scenery.
 	# TODO: probably need to move this to a better scene/render flag/mesh flags setup
 	mdl2_coll['render_flag'] = 0
 	if scene.cobra.game == 'Planet Zoo':
@@ -131,11 +140,9 @@ def setup_rig(reporter, add_armature=True, add_physics=True):
 	# ensure the object/mesh has the right valid data 
 	comform_object_to_mdl2(b_ob)
 
-	# rename b_ob to the right lod (just cosmetic)
-	b_ob.name += '_ojb0_L0'
 	if add_armature:
-		# see if an armature exists in the scene collection
-		b_armature_ob = get_armature(scene.collection.objects)
+		# see if an armature exists in the source collection
+		b_armature_ob = get_armature(src_coll.objects)
 		if b_armature_ob:
 			move_to_collection(b_armature_ob, mdl2_coll)
 		else:
@@ -164,13 +171,14 @@ def setup_rig(reporter, add_armature=True, add_physics=True):
 
 		if add_physics:
 			joint_coll = create_collection(f"{name}_joints", mdl2_coll)
-			# add physics joint
-			b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
-			parent_to(b_armature_ob, b_joint, bone_name)
-			b_joint.rotation_euler = (0, 0, 0)
+			if not joint_coll.objects:
+				# add physics joint
+				b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
+				parent_to(b_armature_ob, b_joint, bone_name)
+				b_joint.rotation_euler = (0, 0, 0)
 
-			# create hitcheck object
-			add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
+				# create hitcheck object
+				add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
 
 	# mdl2 require objects to have only one material
 	split_object_by_material(b_ob)
