@@ -210,14 +210,6 @@ def load_material_from_asset_library(created_materials, filepath, matname):
 		directory=os.path.join(library_path, inner_path),
 		filename=material_name
 	)
-	# also try all lowercase
-	# if material_name != material_name.lower():
-	#	# try lowercase
-	#	bpy.ops.wm.append(
-	#		filepath=os.path.join(library_path, inner_path, material_name),
-	#		directory=os.path.join(library_path, inner_path),
-	#		filename=material_name.lower()
-	#		)
 
 	# if we have loaded the material, mark it out
 	b_mat = bpy.data.materials.get(matname)
@@ -249,6 +241,7 @@ def load_material_from_libraries(created_materials, matname):
 		for library in library_files:
 			# avoid reloading the same material in case it is present in several blend files
 			if matname not in created_materials:
+				logging.info(f"Checking: {library} for {matname}")
 				load_material_from_asset_library(created_materials, library, matname)
 
 
@@ -360,15 +353,15 @@ def presort_keys(colors, colors_pos):
 def import_material(created_materials, in_dir, b_me, material):
 	material_name = material.name
 	try:
-		# try finding the material first in the user libraries, only use lowercase
-		load_material_from_libraries(created_materials, material_name.lower())
-
 		# find if material is in blender already. Imported FGMs
 		# will have the material name all in lowercase, we need
 		# to check both.
 		b_mat = bpy.data.materials.get(material_name)
 		if not b_mat:
-			b_mat = bpy.data.materials.get(material_name.lower())
+			# try finding the material first in the user libraries, only use lowercase
+			load_material_from_libraries(created_materials, material_name)
+
+			b_mat = bpy.data.materials.get(material_name)
 
 		# if the material is in blender first, just apply the 
 		# existing one.
