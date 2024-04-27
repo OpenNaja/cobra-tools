@@ -301,7 +301,7 @@ def add_normed_float_keys(bone_channels, keys, needed_axes, float_name, game):
 		# T Motion Track ~ abs(RotY), probably also norm because usually only Y is used
 		# make relative to first key
 		val = np.array(keys[:, needed_axes])
-		val -= keys[0]
+		val -= val[0]
 		# calculate the length of the vector for each frame
 		bone_channels[float_name] = {}
 		bone_channels[float_name][FLO] = np.linalg.norm(val, axis=1)
