@@ -547,10 +547,9 @@ class ManisFile(InfoHeader, IoFile):
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
                         out[3] = 0.0
-                        # todo - reevaluate the use of linalg.norm: squares the components AND also takes sqrt
                         # todo check if this is the right scale
                         out *= scale + last_key_a
-                        norm = math.sqrt(max(0.0, 1.0 - np.linalg.norm(out)))
+                        norm = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
                         rel_scaled = out.copy()
                         rel_scaled[3] = norm
 
@@ -559,14 +558,14 @@ class ManisFile(InfoHeader, IoFile):
                         rel_inter[1] = quat[2] * norm + quat[3] * rel_scaled[2] + (quat[0] * rel_scaled[1] - quat[1] * rel_scaled[0])
                         rel_inter[2] = (norm * quat[3] - rel_scaled[2] * quat[2]) - (rel_scaled[1] * quat[1] + rel_scaled[0] * quat[0])
                         rel_inter[3] = (norm * quat[1] - rel_scaled[2] * quat[0]) + rel_scaled[1] * quat[3] + rel_scaled[0] * quat[2]
-                        norm = math.sqrt(np.linalg.norm(rel_inter))
+                        norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
                             scaled_inter = identity.copy()
                         else:
                             scaled_inter = rel_inter / norm
                         rel_scaled_clamped_copy = np.clip(scaled_inter, 0.0, 1.0)
-                        norm = math.sqrt(np.linalg.norm(rel_scaled_clamped_copy))
+                        norm = np.linalg.norm(rel_scaled_clamped_copy)
                         norm = np.clip(norm, 0.0, 1.0)
                         quant_fac = mani_info.keys.compressed.quantisation_level / norm
                         quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
@@ -588,7 +587,6 @@ class ManisFile(InfoHeader, IoFile):
                         final_inter = [scaled_inter[0], scaled_inter[3], scaled_inter[1], scaled_inter[2],]
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
                         segment_ori_bones[out_frame_i, ori_index, ] = final_inter
-                        # segment_ori_bones[out_frame_i, ori_index, ] = out + quat
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
