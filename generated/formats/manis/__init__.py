@@ -360,6 +360,25 @@ class ManisFile(InfoHeader, IoFile):
         plt.legend()
         plt.show()
 
+    def show_floats(self, name_filter=""):
+        try:
+            import matplotlib.pyplot as plt
+        except:
+            logging.warning("No matplotlib, can't show keys")
+            return
+        logging.info(f"Showing floats")
+        for mani_info in self.mani_infos:
+            k = mani_info.keys
+            for f_i, f_name in enumerate(k.floats_names):
+                if name_filter and name_filter not in f_name:
+                    continue
+                plt.plot(k.floats[:, f_i], label=f_name)
+            plt.xlabel('Frame')
+            plt.ylabel('Value')
+            plt.title(f"Float Keys for {mani_info.name}")
+            plt.legend()
+            plt.show()
+
     def decompress(self, keys_iter, mani_info):
         if bitarray is None:
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
@@ -528,6 +547,7 @@ class ManisFile(InfoHeader, IoFile):
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
                         out[3] = 0.0
+                        # todo - reevaluate the use of linalg.norm: squares the components AND also takes sqrt
                         # todo check if this is the right scale
                         out *= scale + last_key_a
                         norm = math.sqrt(max(0.0, 1.0 - np.linalg.norm(out)))
@@ -695,7 +715,12 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
     # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
     # print(mani)
-    mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset1d7ef17e.manis")
+    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset1d7ef17e.manis")
+    # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")
+    mani.load("C:/Users/arnfi/Desktop/test.manis")
+    # print(mani)
+    mani.show_floats("Track")
+
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
