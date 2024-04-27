@@ -163,14 +163,22 @@ def iter_constraints(joint_obs, joints, m_name, b_name, j_map, b_armature_basena
 		if not (rbc.object1 and rbc.object2):
 			raise AttributeError(f"Rigidbody constraint on '{b_joint.name}' lacks references to rigidbody objects")
 		# get the joint empties, which are the parents of the respective rigidbody objects
-		child_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object1.parent))
-		parent_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object2.parent))
-		rd.child.joint = j_map[child_joint_name]
-		rd.parent.joint = j_map[parent_joint_name]
+		rd.child.joint = set_joint_ref(b_armature_basename, j_map, rbc.object1, b_joint)
+		rd.parent.joint = set_joint_ref(b_armature_basename, j_map, rbc.object2, b_joint)
 		rd.child.index = rd.child.joint.index
 		rd.parent.index = rd.parent.joint.index
 		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
 		yield rd, b_joint, rbc
+
+
+def set_joint_ref(b_armature_basename, j_map, hitcheck, b_joint):
+	assert hitcheck.type == "MESH", f"Constraint on {b_joint.name} must point to a mesh, not '{hitcheck.name}' ({hitcheck.type})"
+	b_target_joint = hitcheck.parent
+	joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, b_target_joint))
+	if joint_name in j_map:
+		return j_map[joint_name]
+	else:
+		raise KeyError(f"Can't find joint '{joint_name}' for {b_joint.name}'s target '{hitcheck.name}'")
 
 
 def export_joints(bone_info, corrector, b_armature_ob):
