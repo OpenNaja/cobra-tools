@@ -6,15 +6,15 @@
    version="1.1"
    xml:space="preserve"
    style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"
-   id="svg3239"
-   sodipodi:docname="semanticflexicolours.svg"
+   id="svg43"
+   sodipodi:docname="semanticflexicolouroverrides.svg"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs3243" /><sodipodi:namedview
-   id="namedview3241"
+   id="defs47" /><sodipodi:namedview
+   id="namedview45"
    pagecolor="#000000"
    bordercolor="#000000"
    borderopacity="0.25"
@@ -23,43 +23,43 @@
    inkscape:pagecheckerboard="0"
    inkscape:deskcolor="#d1d1d1"
    showgrid="true"
-   inkscape:zoom="43.85"
-   inkscape:cx="9.9885975"
-   inkscape:cy="9.9885975"
+   inkscape:zoom="15.09673"
+   inkscape:cx="1.1260717"
+   inkscape:cy="8.4786574"
    inkscape:window-width="1920"
    inkscape:window-height="1057"
    inkscape:window-x="-8"
    inkscape:window-y="-8"
    inkscape:window-maximized="1"
-   inkscape:current-layer="g3237"><inkscape:grid
+   inkscape:current-layer="g31"><inkscape:grid
      type="xygrid"
-     id="grid3245" /></sodipodi:namedview>
+     id="grid153" /></sodipodi:namedview>
     <g
    transform="matrix(1.28555,0,0,1.28555,-2.85551,-2.85551)"
-   id="g3237">
+   id="g41">
         <g
-   transform="matrix(1.0369971,0,0,1,-46.771565,-575)"
-   id="g3227">
+   transform="matrix(1,0,0,1,-44.996,-575)"
+   id="g31">
             <path
-   d="m 48.5,578 c -0.274,0 -0.5,0.226 -0.5,0.5 L 47.992,589 c 0,1.517 1.22,3 2.985,3 1.765,0 3.015,-1.475 3.015,-3 L 54,578.5 c 0,-0.274 -0.226,-0.5 -0.5,-0.5 z m 2.5,10 c 0.546,0 1,0.454 1,1 0,0.546 -0.454,1 -1,1 -0.546,0 -1,-0.454 -1,-1 0,-0.546 0.454,-1 1,-1 z"
-   style="fill:#ffffff;fill-rule:nonzero"
-   id="path3225" />
+   id="path29"
+   style="fill:#ffffff;fill-rule:nonzero;stroke-width:1.01757"
+   d="M 48.517749 578.00063 C 48.234037 578.00063 47.999671 578.22648 47.999671 578.50048 L 47.992075 589.0003 C 47.992075 590.5173 49.254752 591.99938 51.082313 591.99938 C 52.909873 591.99938 54.204457 590.5253 54.204457 589.0003 L 54.213573 578.50048 C 54.213573 578.22648 53.979206 578.00063 53.695494 578.00063 L 48.517749 578.00063 z M 48.77299 578.77699 L 53.440253 578.77699 L 53.440253 586.55576 L 48.77299 586.55576 L 48.77299 578.77699 z M 51.106622 588.00061 C 51.671974 588.00061 52.142779 588.4543 52.142779 589.0003 C 52.142779 589.5463 51.671974 590 51.106622 590 C 50.541268 590 50.070465 589.5463 50.070465 589.0003 C 50.070465 588.4543 50.541268 588.00061 51.106622 588.00061 z " />
         </g>
         <g
    transform="matrix(1,0,0,1,-43.996,-575)"
-   id="g3231">
+   id="g35">
             <path
    d="M58.492,586C58.36,586 58.233,586.053 58.139,586.146L53.389,590.896C53.295,590.99 53.242,591.117 53.242,591.25L53.242,591.5C53.242,591.774 53.468,592 53.742,592L60.5,592C60.774,592 61,591.774 61,591.5L61,586.5C61,586.226 60.774,586 60.5,586L58.492,586Z"
    style="fill:white;fill-rule:nonzero;"
-   id="path3229" />
+   id="path33" />
         </g>
         <g
    transform="matrix(1,0,0,1,-43.996,-575)"
-   id="g3235">
+   id="g39">
             <path
    d="M56.486,579C56.356,579.002 56.231,579.054 56.139,579.146L54.139,581.146C54.045,581.24 53.992,581.367 53.992,581.5L53.992,587.5C53.992,587.5 53.992,587.501 53.992,587.501C53.992,587.775 54.218,588.001 54.492,588.001C54.625,588.001 54.752,587.948 54.846,587.854L59.846,582.854C59.94,582.76 59.993,582.633 59.993,582.5C59.993,582.367 59.94,582.24 59.846,582.146L56.846,579.146C56.751,579.051 56.621,578.998 56.486,579Z"
    style="fill:white;fill-rule:nonzero;"
-   id="path3233" />
+   id="path37" />
         </g>
     </g>
 </svg>

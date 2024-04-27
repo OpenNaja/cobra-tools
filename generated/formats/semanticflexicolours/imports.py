@@ -40,6 +40,10 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'SemanticFlexiColoursRoot': 'generated.formats.semanticflexicolours.compounds.SemanticFlexiColoursRoot',
+	'SemanticFlexiColourOverridesRoot': 'generated.formats.semanticflexicolours.compounds.SemanticFlexiColourOverridesRoot',
+	'FloatColor': 'generated.formats.semanticflexicolours.compounds.FloatColor',
+	'ColorOverride': 'generated.formats.semanticflexicolours.compounds.ColorOverride',
+	'GameOverride': 'generated.formats.semanticflexicolours.compounds.GameOverride',
 }
 
 name_type_map = {}
