@@ -233,9 +233,9 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 		b_armature_ob.animation_data.action = b_action
 		for trg_i, src_i in enumerate(range(int(first_frame), int(last_frame) + 1)):
 			store_pose_frame_info(b_armature_ob, src_i, trg_i, bones_data, bone_channels, corrector)
-
+		game = scene.cobra.game
 		# export wsm before decimating bones
-		if scene.cobra.game == "Jurassic World Evolution 2":
+		if game == "Jurassic World Evolution 2":
 			export_wsm(folder, mani_info, srb_name, bone_channels)
 			# remove srb from bones_lut for JWE2, so it exported to wsm only
 			bones_lut.pop(srb_name, None)
@@ -243,17 +243,18 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 		# decide which channels to keyframe by determining if the keys are static
 		for bone, channels in tuple(bone_channels.items()):
 			for channel_id, keys in tuple(channels.items()):
-				needed_keys = list(needs_keyframes(keys))
-				if needed_keys:
+				needed_axes = list(needs_keyframes(keys))
+				if needed_axes:
 					# copy root motion channels as floats
 					if bone == root_name and channels:
-						for ch_i in needed_keys:
-							if channel_id == POS:
-								add_root_float_keys(bone_channels, ch_i, keys,
-													("X Motion Track", "Y Motion Track", "Z Motion Track"))
-							if channel_id == EUL:
-								add_root_float_keys(bone_channels, ch_i, keys,
-													("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
+						if channel_id == POS:
+							add_root_float_keys(bone_channels, keys, needed_axes,
+												("X Motion Track", "Y Motion Track", "Z Motion Track"))
+							add_normed_float_keys(bone_channels, keys, needed_axes, "S Motion Track", game)
+						if channel_id == EUL:
+							add_root_float_keys(bone_channels, keys, needed_axes,
+												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
+							add_normed_float_keys(bone_channels, keys, needed_axes, "T Motion Track", game)
 					logging.debug(f"{bone} {channel_id} needs keys")
 				else:
 					channels.pop(channel_id)
@@ -292,17 +293,28 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 			k.floats[:, bone_i] = bone_channels[name][FLO]
 		# no support for shear in blender bones, so set to neutral - shear must not be 0.0
 		k.shr_bones[:] = 1.0
-	# print(mani_info)
-	# print(mani_info.keys)
 
 
-def add_root_float_keys(bone_channels, ch_i, keys, names):
-	float_name = names[ch_i]
-	if float_name not in bone_channels:
+def add_normed_float_keys(bone_channels, keys, needed_axes, float_name, game):
+	if game == "Jurassic World Evolution":
+		# S Motion Track ~ norm of X, Y, Z
+		# T Motion Track ~ abs(RotY), probably also norm because usually only Y is used
+		# make relative to first key
+		val = np.array(keys[:, needed_axes])
+		val -= keys[0]
+		# calculate the length of the vector for each frame
 		bone_channels[float_name] = {}
-	bone_channels[float_name][FLO] = keys[:, ch_i]
-	# make relative to first key
-	bone_channels[float_name][FLO] -= keys[0, ch_i]
+		bone_channels[float_name][FLO] = np.linalg.norm(val, axis=1)
+
+
+def add_root_float_keys(bone_channels, keys, needed_axes, names):
+	for ch_i in needed_axes:
+		float_name = names[ch_i]
+		assert float_name not in bone_channels
+		bone_channels[float_name] = {}
+		bone_channels[float_name][FLO] = keys[:, ch_i]
+		# make relative to first key
+		bone_channels[float_name][FLO] -= keys[0, ch_i]
 
 
 def sample_scale2(keymat, frame_i, inverted=False):
