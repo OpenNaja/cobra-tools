@@ -199,12 +199,12 @@ class BaseStruct(metaclass=StructMetaClass):
         for f_name, f_type, arguments, (optional, default) in cls._get_filtered_attribute_list(instance):
             if f_name in SKIPS:
                 continue
-            if cls.is_array_count(f_name, set_fields):
-                continue
             field_value = getattr(instance, f_name)
-            # keep clean XML
-            if f_name.startswith(DO_NOT_SERIALIZE) or (optional and field_value == default):
-                if not debug:
+            if not debug:
+                if cls.is_array_count(f_name, set_fields):
+                    continue
+                # keep clean XML
+                if f_name.startswith(DO_NOT_SERIALIZE) or (optional and field_value == default):
                     continue
             # even valid fields may be set to None in some edge cases
             if field_value is not None:
