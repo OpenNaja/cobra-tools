@@ -317,12 +317,11 @@ class ManisFile(InfoHeader, IoFile):
                 # if "def_c_hips_joint" == ori_name:
                 #     logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
 
-    def parse_keys(self):
+    def parse_keys(self, target=None):
         for mani_info in self.iter_compressed_manis():
             keys_iter = None
-            # if mani_info.name != "acrocanthosaurus@standidle01":
-            # if mani_info.name != "acrocanthosaurus@drinksocialinteractiona":
-            #     continue
+            if target and mani_info.name != target:
+                continue
             # acro debug keys
             dump_path = os.path.join(root_path.root_dir, "dumps", f"{mani_info.name}_keys.txt")
             if os.path.isfile(dump_path):
@@ -335,7 +334,6 @@ class ManisFile(InfoHeader, IoFile):
                 self.decompress(keys_iter, mani_info)
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
-            # break
 
     def show_keys(self, keys, bone_names, bone_name):
         try:
@@ -419,7 +417,8 @@ class ManisFile(InfoHeader, IoFile):
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
         self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
-        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
+        # self.show_keys(ck.ori_bones, k.ori_bones_names, "srb")
+        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
@@ -484,6 +483,10 @@ class ManisFile(InfoHeader, IoFile):
                 segment_pos_bones[:, pos_index] = vec[:3]
         logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 
+    def printm(self, v):
+        """print in order of memory register"""
+        print(list(reversed(v)))
+
     def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, scale, segment_frames_count,
                       segment_ori_bones, keys_iter=None):
         q_scale = 6.283185
@@ -514,7 +517,13 @@ class ManisFile(InfoHeader, IoFile):
                 # print(vec, norm)
                 quat = vec / norm
                 quat *= scale_fac
+                # [0.0, -0.6679229, -0.6209728, -0.11621484]
+                # dbg: 0 -0.667924 -0.620973 -0.116215
                 quat[3] = q
+                # if 0 == ori_index:
+                #     self.printm(quat)
+                #     # [-0.39340287, -0.6679229, -0.6209728, -0.11621484]
+                #     # dbg -0.393401 -0.667924 -0.620973 -0.116215
                 # logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
                 # print(scale_fac, quat)
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
@@ -535,6 +544,8 @@ class ManisFile(InfoHeader, IoFile):
                     # logging.info(f"BASE 0: {quat}, {ori_index}")
                     segment_ori_bones[0, ori_index] = quat
                     last_key_a = identity.copy()
+                    # sign flipping happens here
+                    quat = quat * -1 if quat[3] < 0 else quat
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
@@ -549,22 +560,46 @@ class ManisFile(InfoHeader, IoFile):
                         out[3] = 0.0
                         # todo check if this is the right scale
                         out *= scale + last_key_a
-                        norm = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
+                        q = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
                         rel_scaled = out.copy()
-                        rel_scaled[3] = norm
+                        rel_scaled[3] = q
 
+                        # if 0 == ori_index:
+                        #     self.printm(out)  # matches:        0 0 -0.000366233 0
+                        #     self.printm(rel_scaled)  # matches: 1 0 -0.000366233 0
+                        #     self.printm(quat)
                         rel_inter = out.copy()
-                        rel_inter[0] = (quat[0] * norm + quat[1] * rel_scaled[2]) - (quat[2] * rel_scaled[1] - quat[3] * rel_scaled[0])
-                        rel_inter[1] = quat[2] * norm + quat[3] * rel_scaled[2] + (quat[0] * rel_scaled[1] - quat[1] * rel_scaled[0])
-                        rel_inter[2] = (norm * quat[3] - rel_scaled[2] * quat[2]) - (rel_scaled[1] * quat[1] + rel_scaled[0] * quat[0])
-                        rel_inter[3] = (norm * quat[1] - rel_scaled[2] * quat[0]) + rel_scaled[1] * quat[3] + rel_scaled[0] * quat[2]
+                        rel_inter[0] = (quat[0] * q + quat[1] * rel_scaled[2]) - (quat[2] * rel_scaled[1] - quat[3] * rel_scaled[0])
+                        rel_inter[1] = quat[2] * q + quat[3] * rel_scaled[2] + (quat[0] * rel_scaled[1] - quat[1] * rel_scaled[0])
+                        rel_inter[2] = (q * quat[3] - rel_scaled[2] * quat[2]) - (rel_scaled[1] * quat[1] + rel_scaled[0] * quat[0])
+                        rel_inter[3] = (q * quat[1] - rel_scaled[2] * quat[0]) + rel_scaled[1] * quat[3] + rel_scaled[0] * quat[2]
                         norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
                             scaled_inter = identity.copy()
                         else:
-                            scaled_inter = rel_inter / norm
-                        rel_scaled_clamped_copy = np.clip(scaled_inter, 0.0, 1.0)
+                            # normalize and swizzle the quat
+                            scaled_inter = rel_inter[[0, 3, 1, 2]] / norm
+                        # if 0 == ori_index:
+                        #     # self.printm(rel_inter)
+                        #     # print(norm)
+                        #     self.printm(scaled_inter)
+                        # until here, scaled_inter should be fine as the first frame is good
+                        # for those observed: norm = 1, 1, 1, 1
+                        # norm * rel_inter 1: 0.393628 0.667881 0.620829 0.11646
+                        # norm * rel_inter 2: 0.39386 0.667572 0.621088 0.116068
+                        # norm * rel_inter 3: 0.393923 0.667412 0.621344 0.115401
+                        # norm * rel_inter 4: 0.393962 0.667174 0.621778 0.1143
+                        # norm * rel_inter 5: 0.393895 0.666904 0.622377 0.11284
+
+                        # current state, 1 is fine for root joint
+                        # [0.3936303, 0.66788036, 0.62082875, 0.11645946]
+                        # [0.39340726, 0.6676567, 0.6213749, 0.115578786]
+                        # [0.39159092, 0.6687292, 0.6216812, 0.11388766]
+                        # [0.38193962, 0.66985697, 0.62824786, 0.10352965]
+                        # [0.3212125, 0.67668223, 0.6612884, 0.040267248]
+                        rel_scaled_clamped_copy = np.clip(rel_scaled, 0.0, 1.0)
+                        # rel_scaled_clamped_copy = np.clip(scaled_inter, 0.0, 1.0)
                         norm = np.linalg.norm(rel_scaled_clamped_copy)
                         norm = np.clip(norm, 0.0, 1.0)
                         quant_fac = mani_info.keys.compressed.quantisation_level / norm
@@ -580,13 +615,20 @@ class ManisFile(InfoHeader, IoFile):
                         do_increment = out_frame_i == trg_frame_i
                         next_key_offset = 0 if do_increment else 4
                         which_key_flag = True if next_key_offset else False
+                        # last key_a derives from rel_scaled
+                        # last_key_a is 0 0 -0.000366233 0
                         last_key_a = identity.copy() if which_key_flag else rel_scaled_clamped_copy.copy()
                         if not do_increment:
                             # todo another round of clamping
                             pass
-                        final_inter = [scaled_inter[0], scaled_inter[3], scaled_inter[1], scaled_inter[2],]
+                        # todo where does this swizzle come from
+                        # final_inter = [scaled_inter[0], scaled_inter[3], scaled_inter[1], scaled_inter[2],]
+                        final_inter = scaled_inter
+                        # if 0 == ori_index:
+                        #     print(rel_inter)
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
                         segment_ori_bones[out_frame_i, ori_index, ] = final_inter
+                    # break
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
@@ -704,8 +746,6 @@ if __name__ == "__main__":
     # key.rot_rel = 4
     # print(key)
     mani = ManisFile()
-    # acro stand_ide
-    target = "acrocanthosaurus@standidle01"
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
@@ -715,12 +755,10 @@ if __name__ == "__main__":
     # print(mani)
     # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset1d7ef17e.manis")
     # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")
-    mani.load("C:/Users/arnfi/Desktop/test.manis")
+    # mani.load("C:/Users/arnfi/Desktop/test.manis")
     # print(mani)
-    mani.show_floats("Track")
+    # mani.show_floats("Track")
 
-    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
-    # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
     # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
     # mani.load("C:/Users/arnfi/Desktop/swan/animationmotionextractedbehaviour.maniset86a13695.manis")
@@ -730,7 +768,9 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    # mani.parse_keys()
+    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+    # mani.parse_keys("acrocanthosaurus@standidle01")
+    mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
