@@ -26,3 +26,11 @@ class ZStringList:
 			arr = Array(instance.context, 0, ZString, (len(elem)), Pointer, set_default=False)
 			instance.ptrs = Array._from_xml(arr, elem)
 		return instance
+
+	def from_strings(self, strings):
+		"""Populate ZStringList from list of strings"""
+		self.arg = len(strings)
+		self.ptrs = Array(self.context, 0, ZString, (self.arg,), Pointer, set_default=True)
+		for ptr, string in zip(self.ptrs, strings):
+			ptr.data = string
+
