@@ -564,17 +564,20 @@ class ManisFile(InfoHeader, IoFile):
                         out *= scale + last_key_a
                         q = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
                         rel_scaled = out.copy()
-                        rel_scaled[3] = q
+                        # q stays 0.0
+                        # rel_scaled[3] = q
+                        rel_scaled_q = out.copy()
+                        rel_scaled_q[3] = q
 
                         # if 0 == ori_index:
                         #     self.printm(out)  # matches:        0 0 -0.000366233 0
                         #     self.printm(rel_scaled)  # matches: 1 0 -0.000366233 0
                         #     self.printm(quat)
                         rel_inter = out.copy()
-                        rel_inter[0] = (quat[0] * q + quat[1] * rel_scaled[2]) - (quat[2] * rel_scaled[1] - quat[3] * rel_scaled[0])
-                        rel_inter[1] = quat[2] * q + quat[3] * rel_scaled[2] + (quat[0] * rel_scaled[1] - quat[1] * rel_scaled[0])
-                        rel_inter[2] = (q * quat[3] - rel_scaled[2] * quat[2]) - (rel_scaled[1] * quat[1] + rel_scaled[0] * quat[0])
-                        rel_inter[3] = (q * quat[1] - rel_scaled[2] * quat[0]) + rel_scaled[1] * quat[3] + rel_scaled[0] * quat[2]
+                        rel_inter[0] = (quat[0] * q + quat[1] * rel_scaled_q[2]) - (quat[2] * rel_scaled_q[1] - quat[3] * rel_scaled_q[0])
+                        rel_inter[1] = quat[2] * q + quat[3] * rel_scaled_q[2] + (quat[0] * rel_scaled_q[1] - quat[1] * rel_scaled_q[0])
+                        rel_inter[2] = (q * quat[3] - rel_scaled_q[2] * quat[2]) - (rel_scaled_q[1] * quat[1] + rel_scaled_q[0] * quat[0])
+                        rel_inter[3] = (q * quat[1] - rel_scaled_q[2] * quat[0]) + rel_scaled_q[1] * quat[3] + rel_scaled_q[0] * quat[2]
                         norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
@@ -600,34 +603,67 @@ class ManisFile(InfoHeader, IoFile):
                         # [0.39159092, 0.6687292, 0.6216812, 0.11388766]
                         # [0.38193962, 0.66985697, 0.62824786, 0.10352965]
                         # [0.3212125, 0.67668223, 0.6612884, 0.040267248]
-                        rel_scaled_clamped_copy = np.clip(rel_scaled, 0.0, 1.0)
-                        # rel_scaled_clamped_copy = np.clip(scaled_inter, 0.0, 1.0)
+
+                        # xmm12 0 0 -0.000366233 0
+                        # probably not clipped to 0.0, but -1.0
+                        rel_scaled_clamped_copy = np.clip(rel_scaled, -1.0, 1.0)
+                        # if 0 == ori_index:
+                        #     # [0.0, 0.0, -0.0003662333, 0.0]
+                        #     self.printm(rel_scaled_clamped_copy)
+                        # dbg 0 0 1.34127e-007 0.000366233  # only last coord is set to sqrt
                         norm = np.linalg.norm(rel_scaled_clamped_copy)
                         norm = np.clip(norm, 0.0, 1.0)
+                        # 0.00036623328924179077
+                        # print(norm)
+                        # xmm1 0 0 0 2730.5  # scale_f = 1 / norm
+                        # quantisation_level 420
                         quant_fac = mani_info.keys.compressed.quantisation_level / norm
+                        # quant_fac in xmm3 0 0 0 1.14681e+006
+                        # quant_fac = 1146810.0
                         quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
                         # not sure about the cond here
+                        # print(quant_fac_clamped)
+
                         if 0.0 <= norm <= 0.5:
                             quant_fac_picked = quant_fac_clamped
                         else:
                             quant_fac_picked = quant_fac_clamped
-
+                        # todo check if this is used for more than the isFinite sanity check
                         # todo do sth with quant_fac_picked
 
                         do_increment = out_frame_i == trg_frame_i
                         next_key_offset = 0 if do_increment else 4
                         which_key_flag = True if next_key_offset else False
                         # last key_a derives from rel_scaled
-                        # last_key_a is 0 0 -0.000366233 0
+                        # last_key_a is
+                        # 0 0 -0.000366233 0
+                        # 0 -0.00054935 0.000183117 0.000183117
+                        # 0 -0.00054935 0.000488311 0
+                        # 0 -0.000854544 0.000854544 0
+                        # 0 -0.00103766 0.00122078 0
+                        # 0 -0.00103766 0.00146493 0.000122078
+                        # 0 -0.00134286 0.00146493 0.000122078
+                        # 0 -0.00134286 0.00183117 0.000122078
                         last_key_a = identity.copy() if which_key_flag else rel_scaled_clamped_copy.copy()
-                        if not do_increment:
+                        # last_key_a = identity.copy() if not which_key_flag else rel_scaled_clamped_copy.copy()
+                        # if 0 == ori_index:
+                        #     # [0.0, 0.0, -0.0003662333, 0.0]
+                        #     # [0.0, -0.00054934993, -0.0027467497, 0.00018311664]
+                        #     # [0.0, -0.0, -0.013428554, -0.0007324666]
+                        #     # [0.0, -0.0003051944, -0.08020509, -0.0]
+                        #     # [0.0, 0.0007324666, -0.4808643, 0.0]
+                        #     self.printm(last_key_a)
+                        if do_increment:
+                            final_inter = scaled_inter
+                            # use scaled_inter_vec_copy
+                        else:
                             # todo another round of clamping
                             pass
-                        # todo where does this swizzle come from
-                        # final_inter = [scaled_inter[0], scaled_inter[3], scaled_inter[1], scaled_inter[2],]
-                        final_inter = scaled_inter
-                        # if 0 == ori_index:
-                        #     print(rel_inter)
+                            # transfer signs from sign_source, store on ptr_to_final?
+                            # use recon quat instead
+                            final_inter = quat
+                        # quat aka recon_quat is set to last key of curve for the next loop, todo verify
+                        quat = final_inter
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
                         segment_ori_bones[out_frame_i, ori_index, ] = final_inter
                     # break
