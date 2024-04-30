@@ -352,6 +352,8 @@ class ManisFile(InfoHeader, IoFile):
             plt.plot(keys[:, bone_i, 3], label='Q')
         else:
             dt = "Loc"
+        # mark every 32 frame
+        plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
         plt.xlabel('Frame')
         plt.ylabel('Value')
         plt.title(f"{dt} Keys for {bone_name}")
@@ -768,9 +770,13 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+
+    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")  # stationary anims
     # mani.parse_keys("acrocanthosaurus@standidle01")
     mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
+
+    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")  # hatchery anims
+    # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
