@@ -11,9 +11,9 @@
 
     <compound name="Research" inherit="MemStruct">
         <add name="item_name" type="Pointer" template="ZString"/>
-        <add name="unk0" type="uint" />
-        <add name="is_entry_level" type="uint" /> often but not always 1 on first level
-        <add name="unk2" type="uint64" />
+        <add name="is_completed" type="uint" /> set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)
+        <add name="is_entry_level" type="uint" /> first research enabled level (0 if research is complete)
+        <add name="is_enabled" type="uint64" /> at least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)
         <add name="next_research" type="Pointer" template="NextResearch" arg="next_research_count" />
         <add name="next_research_count" type="uint64" />
         <add name="unk3" type="uint64" />
@@ -22,7 +22,7 @@
 
     <compound name="NextResearch" inherit="MemStruct">
         <add name="item_name" type="Pointer" template="ZString" arr1="#ARG#" />
-        <add name="unk1" type="uint64" />
+        <add name="unk1" type="uint64" /> Walked all over the files and this was always 0
     </compound>
 
 </niftoolsxml>
