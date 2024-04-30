@@ -243,7 +243,7 @@ class GenerateRigEdit(PopupOp):
 	bl_idname = "pose.generate_rig_edit"
 	bl_label = "Add Rig Edit Bones from Pose"
 	mergenodes: bpy.props.BoolProperty(
-		name="Merge Idential Nodes",
+		name="Merge Identical Nodes",
 		description="Merges identical nodes to reduce the amount of duplicates if you moved several bones with the same parent",
 		default=True)
 
