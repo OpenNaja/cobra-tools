@@ -438,13 +438,14 @@ class ManisFile(InfoHeader, IoFile):
             f_pos = f.pos
             pos_base, vec = self.read_vec3(f)
             vec *= scale
+            scale_pack = float(scale)
             # logging.info(f"{pos_index} {pos_name} {vec}")
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
             keys_flag = f.read_int_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
-            if pos_name == "def_c_root_joint":
-                logging.info(f"{keys_flag}")
+            # if pos_name == "def_c_root_joint":
+            #     logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
@@ -470,7 +471,18 @@ class ManisFile(InfoHeader, IoFile):
                         base_plus_delta = last_key_delta + key_picked
                         # todo do something here for base_key_float
                         base_key_float = base_plus_delta
-                        final = base_key_float + out * scale
+                        final = base_key_float + out * scale_pack
+
+                        # # START guess from rot
+                        # # todo needs debugging to find the input and verify how it is treated
+                        # norm = np.linalg.norm(base_key_float)
+                        # # quantisation_level 420
+                        # quant_fac = mani_info.keys.compressed.quantisation_level / norm
+                        # quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
+                        # # update the packed scale
+                        # scale_pack = 1 / quant_fac_clamped
+                        # # END guess from rot
+
                         next_key_offset = 0 if out_frame_i == trg_frame_i else 4
                         # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
                         which_key_flag = True if next_key_offset else False
@@ -502,7 +514,7 @@ class ManisFile(InfoHeader, IoFile):
             frame_map = np.zeros(32, dtype=np.uint32)
             ushort_storage = np.zeros(156, dtype=np.uint32)
             # defines basic rot values
-            logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
+            # logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
             f_pos = f.pos
             pos_base, vec = self.read_vec3(f)
             scale_pack = float(scale)
