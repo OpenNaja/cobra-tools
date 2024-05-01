@@ -161,8 +161,8 @@ def load(reporter, files=(), filepath="", set_fps=False):
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 				k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
 				for frame_i, key in enumerate(in_keys):
-					if frame_i % 32:
-						continue
+					# if frame_i % 32:
+					# 	continue
 					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
 					# if frame_i == 0 and b_name == "def_c_hips_joint":
 					# 	logging.info(f"{mi.name} {key}")
