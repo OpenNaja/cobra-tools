@@ -492,7 +492,8 @@ class ManisFile(InfoHeader, IoFile):
                       segment_ori_bones, keys_iter=None):
         q_scale = 6.283185
         epsilon = 1.1920929E-7
-        identity = np.zeros(4, dtype=np.float32)
+        zeros = np.zeros(4, dtype=np.float32)
+        identity = zeros.copy()
         identity[3] = 1.0
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
@@ -544,39 +545,63 @@ class ManisFile(InfoHeader, IoFile):
                     # set base keyframe
                     # logging.info(f"BASE 0: {quat}, {ori_index}")
                     segment_ori_bones[0, ori_index] = quat
-                    last_key_a = identity.copy()
+                    last_key_a = zeros.copy()
                     # sign flipping happens here
-                    quat = quat * -1 if quat[3] < 0 else quat
+                    quat_pos = quat * -1 if quat[3] < 0 else quat
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
                         if trg_frame_i == out_frame_i:
                             frame_inc += 1
-                        # we're only accessing 3 in code, but Q is set to 0.0 so it's ok
+                        # base_scaled[0] = key_norm_scaled[0]; (move it from xmm10 to xmm3)
+                        # 0.393401 0.667924 0.620973 0.116215  (pos quat)
+                        # 0.393628 0.667881 0.620829 0.11646 (previous scaled_inter_vec)
+                        # 0.39386 0.667572 0.621088 0.116068 (previous scaled_inter_vec)
+
+                        # we're only accessing XYZ in code, but Q is set to 0.0 below so it's ok
                         rel = ushort_storage[out_frame_i*3: out_frame_i*3+4]
                         out = rel.astype(np.float32)
                         out[0] = self.make_signed(rel[0])
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
                         out[3] = 0.0
-                        # todo check if this is the right scale
-                        out *= scale + last_key_a
+                        # scaled rel key (xmm12)
+                        # 0 0 -0.000366233 0
+                        # 0 -0.00054935 0.00054935 0.000183117
+                        # 0 0 0.000305194 -0.000183117
+                        # adder (xmm9)
+                        # 0 0 0 0
+                        # 0 0 -0.000366233 0 (last_key_a)
+                        # 0 -0.00054935 0.000183117 0.000183117
+                        scaled_rel_key = out * scale
+                        # self.printm(scaled_rel_key)
+                        # self.printm(last_key_a)
+                        # these are ok
+                        out = scaled_rel_key + last_key_a
                         q = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
-                        rel_scaled = out.copy()
                         # q stays 0.0
-                        # rel_scaled[3] = q
+                        rel_scaled = out.copy()
                         rel_scaled_q = out.copy()
                         rel_scaled_q[3] = q
 
-                        # if 0 == ori_index:
-                        #     self.printm(out)  # matches:        0 0 -0.000366233 0
-                        #     self.printm(rel_scaled)  # matches: 1 0 -0.000366233 0
-                        #     self.printm(quat)
+                        # rel_scaled_q differs from scaled_rel_key
+                        # rel_scaled assignment of Q done
+                        # 1 0 -0.000366233 0
+                        # 1 -0.00054935 0.000183117 0.000183117
+                        # 1 -0.00054935 0.000488311 0
+                        # good
+                        # [0.99999994, 0.0, -0.0003662333, 0.0]
+                        # [0.9999998, -0.00054934993, 0.00018311664, 0.00018311664]
+                        # [0.9999997, -0.00054934993, 0.00048831105, 0.0]
+
+                        # self.printm(rel_scaled_q)
+                        # if out_frame_i == 3:
+                        #     return
                         rel_inter = out.copy()
-                        rel_inter[0] = (quat[0] * q + quat[1] * rel_scaled_q[2]) - (quat[2] * rel_scaled_q[1] - quat[3] * rel_scaled_q[0])
-                        rel_inter[1] = quat[2] * q + quat[3] * rel_scaled_q[2] + (quat[0] * rel_scaled_q[1] - quat[1] * rel_scaled_q[0])
-                        rel_inter[2] = (q * quat[3] - rel_scaled_q[2] * quat[2]) - (rel_scaled_q[1] * quat[1] + rel_scaled_q[0] * quat[0])
-                        rel_inter[3] = (q * quat[1] - rel_scaled_q[2] * quat[0]) + rel_scaled_q[1] * quat[3] + rel_scaled_q[0] * quat[2]
+                        rel_inter[0] = (quat_pos[0] * q + quat_pos[1] * rel_scaled_q[2]) - (quat_pos[2] * rel_scaled_q[1] - quat_pos[3] * rel_scaled_q[0])
+                        rel_inter[1] = quat_pos[2] * q + quat_pos[3] * rel_scaled_q[2] + (quat_pos[0] * rel_scaled_q[1] - quat_pos[1] * rel_scaled_q[0])
+                        rel_inter[2] = (q * quat_pos[3] - rel_scaled_q[2] * quat_pos[2]) - (rel_scaled_q[1] * quat_pos[1] + rel_scaled_q[0] * quat_pos[0])
+                        rel_inter[3] = (q * quat_pos[1] - rel_scaled_q[2] * quat_pos[0]) + rel_scaled_q[1] * quat_pos[3] + rel_scaled_q[0] * quat_pos[2]
                         norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
@@ -643,26 +668,59 @@ class ManisFile(InfoHeader, IoFile):
                         # 0 -0.00103766 0.00146493 0.000122078
                         # 0 -0.00134286 0.00146493 0.000122078
                         # 0 -0.00134286 0.00183117 0.000122078
-                        last_key_a = identity.copy() if which_key_flag else rel_scaled_clamped_copy.copy()
+
+                        # store scaled_inter_vec from xmm9 on ptr
+                        # round 1
+                        # xmm9 0.393628 0.667881 0.620829 0.11646 (scaled_inter_vec)
+                        # xmm13 -0.393401 -0.667924 -0.620973 -0.116215 (quat)
+                        # round 2
+                        # xmm9 0.39386 0.667572 0.621088 0.116068 (scaled_inter_vec)
+                        # xmm13 0.393628 0.667881 0.620829 0.11646 (NOT quat but previous scaled_inter_vec)
+                        # round 3
+                        # xmm9 0.393923 0.667412 0.621344 0.115401 (scaled_inter_vec)
+                        # xmm13 0.39386 0.667572 0.621088 0.116068 (NOT quat but previous scaled_inter_vec)
+                        # round 4
+                        # xmm9 0.393962 0.667174 0.621778 0.1143 (scaled_inter_vec)
+                        # xmm13 0.393923 0.667412 0.621344 0.115401 (NOT quat but previous scaled_inter_vec)
+
+                        last_key_a = zeros.copy() if which_key_flag else rel_scaled_clamped_copy.copy()
                         # last_key_a = identity.copy() if not which_key_flag else rel_scaled_clamped_copy.copy()
+
+                        # store last_key_a on ptr
+                        # 0 0 -0.000366233 0
+                        # 0 -0.00054935 0.000183117 0.000183117
+                        # 0 -0.00054935 0.000488311 0
+                        # 0 -0.000854544 0.000854544 0
+
+
                         # if 0 == ori_index:
+                        # [0.0, 0.0, -0.0003662333, 0.0]
+                        # [0.0, -0.00054934993, -0.0027467497, 0.00018311664]
+                        # [0.0, -0.0, -0.013428554, -0.0007324666]
                         #     # [0.0, 0.0, -0.0003662333, 0.0]
                         #     # [0.0, -0.00054934993, -0.0027467497, 0.00018311664]
                         #     # [0.0, -0.0, -0.013428554, -0.0007324666]
                         #     # [0.0, -0.0003051944, -0.08020509, -0.0]
                         #     # [0.0, 0.0007324666, -0.4808643, 0.0]
-                        #     self.printm(last_key_a)
+                        # self.printm(last_key_a)
                         if do_increment:
                             final_inter = scaled_inter
                             # use scaled_inter_vec_copy
                         else:
                             # todo another round of clamping
-                            pass
                             # transfer signs from sign_source, store on ptr_to_final?
                             # use recon quat instead
-                            final_inter = quat
+                            final_inter = quat_pos
+
+                        # store final xmm13 on ptr (equivalent to scaled_inter_vec from above)
+                        # 0.393628 0.667881 0.620829 0.11646
+                        # 0.39386 0.667572 0.621088 0.116068
+                        # 0.393923 0.667412 0.621344 0.115401
+                        # 0.393962 0.667174 0.621778 0.1143
+
+                        # self.printm(final_inter)
                         # quat aka recon_quat is set to last key of curve for the next loop, todo verify
-                        quat = final_inter
+                        quat_pos = final_inter
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
                         segment_ori_bones[out_frame_i, ori_index, ] = final_inter
                     # break
