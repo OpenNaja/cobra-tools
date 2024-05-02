@@ -175,7 +175,7 @@ class NewMeshData(MeshData):
 		self.update_shell_count()
 		if self.dt.itemsize != self.size_of_vertex:
 			raise AttributeError(
-				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
+				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, expected {self.size_of_vertex} bytes.")
 
 	def read_verts(self):
 		self.fur_length = 0.0
