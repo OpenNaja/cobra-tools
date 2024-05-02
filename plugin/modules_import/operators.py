@@ -36,7 +36,8 @@ class ImportManis(ImportOp):
 	filename_ext = ".manis"
 	filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
 	files: CollectionProperty(type=bpy.types.PropertyGroup)
-	# set_fps = BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
+	disable_ik: BoolProperty(name="Disable IK", description="Disable IK constraints on armature to enable jitter-free playback of baked animations", default=True)
+	# set_fps: BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
 
 	def execute(self, context):
 		return report_messages(self, import_manis.load, **self.kwargs)

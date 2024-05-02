@@ -91,7 +91,7 @@ def stash(b_ob, action, track_name, start_frame):
 	# b_ob.animation_data.action = None
 
 
-def load(reporter, files=(), filepath="", set_fps=False):
+def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	folder, manis_name = os.path.split(filepath)
 	starttime = time.time()
 	corrector = ManisCorrector(False)
@@ -108,6 +108,10 @@ def load(reporter, files=(), filepath="", set_fps=False):
 	else:
 		for p_bone in b_armature_ob.pose.bones:
 			p_bone.rotation_mode = "QUATERNION"
+			if disable_ik:
+				for constraint in p_bone.constraints:
+					if constraint.type == "IK":
+						constraint.enabled = False
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone).inverted()
 		cam_corr = None
