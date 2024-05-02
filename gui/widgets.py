@@ -251,7 +251,7 @@ class SortableTable(QWidget):
         #self.filter_entry.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         self.filter_entry.entry.textChanged.connect(self.table.set_filter)
         self.filter_entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-        self.hide_unused = QCheckBox("Hide unextractable")
+        self.hide_unused = QCheckBox("Hide Unextractable")
         if opt_hide:
             self.hide_unused.stateChanged.connect(self.toggle_hide)
         else:
