@@ -313,11 +313,12 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 		b_copy.subtarget = get_name(target_name)
 		if end_name in chains:
 			chain = chains.pop(end_name)
-			# add an ik constraint to the end's parent
+			# add an ik constraint to the end
 			if len(chain) > 1:
-				b_ik = p_bone.parent.constraints.new("IK")
+				b_ik = p_bone.constraints.new("IK")
 				b_ik.chain_count = len(chain)
 				b_ik.target = armature_ob
+				b_ik.use_tail = False
 				b_ik.subtarget = get_name(target_name)
 			else:
 				raise AttributeError(f"IK chain too short")

@@ -109,9 +109,10 @@ def export_ik(b_armature_ob, bone_info):
 				if not constraint.subtarget:
 					raise AttributeError(f"Copy Rotation constraint on bone '{p_bone.name}' has no target")
 				bones_with_target[p_bone] = constraint.subtarget
-				# only if parent actually has IK constraint
-				if p_bone.parent.constraints:
-					add_parents(bones_with_ik, p_bone, p_bone.parent.constraints["IK"].chain_count)
+				# only if bone actually has IK constraint
+				if "IK" in p_bone.constraints:
+					# f"{p_bone.name} on {b_armature_ob.name} has copy rot, but no IK constraint"
+					add_parents(bones_with_ik, p_bone, p_bone.constraints["IK"].chain_count)
 	# bare IK
 	for p_bone in b_armature_ob.pose.bones:
 		for constraint in p_bone.constraints:
