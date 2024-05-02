@@ -127,18 +127,23 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		# floats are present for compressed or uncompressed
 		# they can vary in use according to the name of the channel
 		for bone_i, m_name in enumerate(k.floats_names):
+			if "." in m_name:
+				m_name, suffix = m_name.rsplit(".", 1)
+			else:
+				suffix = ""
 			b_name = bone_name_for_blender(m_name)
 			logging.info(f"Importing '{b_name}'")
-			# only known for camera
 			if m_name == "CameraFOV":
 				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}Data")
 				fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
 				for frame_i, frame in enumerate(k.floats):
 					key = frame[bone_i]
 					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
+			elif b_name in bones_data and suffix:
+				logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
 			else:
 				logging.warning(f"Don't know how to import floats for '{b_name}'")
-				logging.debug(k.floats[:, bone_i])
+				# logging.debug(k.floats[:, bone_i])
 		# check compression flag
 		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, trying to import anyway")
