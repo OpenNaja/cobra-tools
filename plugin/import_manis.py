@@ -119,6 +119,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	manis.load(filepath)
 
 	for mi in manis.mani_infos:
+		logging.info(f"Importing '{mi.name}'")
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		stash(b_armature_ob, b_action, mi.name, 0)
 		print(mi)
@@ -184,7 +185,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					out_keys.append(key)
 			# skip uncompressed anim
 			continue
-		logging.info(f"Importing '{mi.name}'")
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
 		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location"):

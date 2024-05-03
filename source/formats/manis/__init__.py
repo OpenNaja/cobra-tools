@@ -381,8 +381,6 @@ class ManisFile(InfoHeader, IoFile):
     def decompress(self, keys_iter, mani_info):
         if bitarray is None:
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
-        # 1 / 16383
-        scale = 6.103888e-05
         k_channel_bitsize = self.get_bitsize()
         k = mani_info.keys
         ck = mani_info.keys.compressed
@@ -406,8 +404,8 @@ class ManisFile(InfoHeader, IoFile):
                 wavelet_byte_offset = f.read_int_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset)
                 self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
-                                    scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
-                self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, scale, segment_frames_count,
+                                    segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
+                self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, segment_frames_count,
                                    segment_ori_bones, keys_iter=keys_iter)
             except:
                 logging.exception(f"Reading Segment[{segment_i}] failed at bit {f.pos}, byte {f.pos / 8}")
@@ -417,17 +415,19 @@ class ManisFile(InfoHeader, IoFile):
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
-        self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
-        self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
+        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
+        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "srb")
         # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
+        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
     def read_vec3_keys(self, context, f, f2, i, k_channel_bitsize, mani_info,
-                       scale, segment_frames_count, segment_pos_bones, keys_iter=None):
+                       segment_frames_count, segment_pos_bones, keys_iter=None):
         identity = np.zeros(3, np.float32)
+        scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             frame_map = np.zeros(32, dtype=np.uint32)
             ushort_storage = np.zeros(156, dtype=np.uint32)
@@ -437,7 +437,9 @@ class ManisFile(InfoHeader, IoFile):
             f_pos = f.pos
             pos_base, vec = self.read_vec3(f)
             vec *= scale
-            scale_pack = float(scale)
+            # scale_pack = float(scale)
+            # the scale per bone is always norm = 0 in acro_run
+            scale_pack = self.get_pack_scale(mani_info)
             # logging.info(f"{pos_index} {pos_name} {vec}")
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
@@ -470,26 +472,21 @@ class ManisFile(InfoHeader, IoFile):
                         base_plus_delta = last_key_delta + key_picked
                         # todo do something here for base_key_float
                         base_key_float = base_plus_delta
-                        final = base_key_float + out * scale_pack
-
-                        # # START guess from rot
-                        # # todo needs debugging to find the input and verify how it is treated
-                        # norm = np.linalg.norm(base_key_float)
-                        # # quantisation_level 420
-                        # quant_fac = mani_info.keys.compressed.quantisation_level / norm
-                        # quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
-                        # # update the packed scale
-                        # scale_pack = 1 / quant_fac_clamped
-                        # # END guess from rot
+                        # instead of scale_pack, this scale is hard-coded to the corresponding float of 1 / 16383
+                        final = base_key_float + out * 6.103888e-05
 
                         next_key_offset = 0 if out_frame_i == trg_frame_i else 4
                         # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
                         which_key_flag = True if next_key_offset else False
                         key_picked = vec[:3] if which_key_flag else final
                         last_key_a = identity.copy() if which_key_flag else last_key_b.copy()
-                        last_key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale
-                        # if out_frame_i == trg_frame_i:
-                        #     pass
+                        # this scale uses the calculated scale
+                        last_key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale_pack
+                        # if (trg_frame_i != out_frame_i) {
+                        if next_key_offset:
+                            # update scale_pack here, todo check if / what norm is used
+                            # apparently also norm = 0 in acro_run, but too many to properly verify that for sucessive bones
+                            scale_pack = self.get_pack_scale(mani_info)
                         segment_pos_bones[out_frame_i, pos_index] = final
                 # print(segment_pos_bones[:, pos_index])
             else:
@@ -501,13 +498,14 @@ class ManisFile(InfoHeader, IoFile):
         """print in order of memory register"""
         print(list(reversed(v)))
 
-    def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, scale, segment_frames_count,
+    def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, segment_frames_count,
                       segment_ori_bones, keys_iter=None):
         q_scale = 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
         identity = zeros.copy()
         identity[3] = 1.0
+        scale = self.get_pack_scale(mani_info)
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             frame_map = np.zeros(32, dtype=np.uint32)
@@ -517,6 +515,7 @@ class ManisFile(InfoHeader, IoFile):
             f_pos = f.pos
             pos_base, vec = self.read_vec3(f)
             scale_pack = float(scale)
+            # vec *= scale_pack * q_scale
             vec *= scale * q_scale
             norm = np.linalg.norm(vec)
             # logging.info(f"{ori_index} {ori_name} at {f_pos} {vec} {norm}")
@@ -813,22 +812,13 @@ class ManisFile(InfoHeader, IoFile):
                         # dbg 0 0 1.34127e-007 0.000366233  # only last coord is set to sqrt
                         norm = np.linalg.norm(rel_scaled_clamped_copy)
                         norm = np.clip(norm, 0.0, 1.0)
-                        # 0.00036623328924179077
-                        # print(norm)
-                        # xmm1 0 0 0 2730.5  # scale_f = 1 / norm
-                        # quantisation_level 420
-                        quant_fac = mani_info.keys.compressed.quantisation_level / norm
-                        # quant_fac in xmm3 0 0 0 1.14681e+006
-                        # quant_fac = 1146810.0
-                        quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
-                        # update the packed scale
-                        scale_pack = 1 / quant_fac_clamped
+                        scale_pack = self.get_pack_scale(mani_info, norm)
                         # not sure about the cond here
                         # print(quant_fac_clamped)
-                        if 0.0 <= norm <= 0.5:
-                            quant_fac_picked = quant_fac_clamped
-                        else:
-                            quant_fac_picked = quant_fac_clamped
+                        # if 0.0 <= norm <= 0.5:
+                        #     quant_fac_picked = quant_fac_clamped
+                        # else:
+                        #     quant_fac_picked = quant_fac_clamped
                         # quant_fac_switched[0] = (float)(quant_fac_clamped[0] & norm_is_0_05);
                         # quant_fac_switched[1] = 0.0;
                         # quant_fac_switched[2] = 0.0;
@@ -919,6 +909,21 @@ class ManisFile(InfoHeader, IoFile):
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
         logging.info(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
+
+    def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):
+        # the default initial scale seems to be for loc and rot
+        # 1 / 16383 = 6.103888e-05
+        # apparently starting out with norm=0
+        # 0.00036623328924179077
+        # print(norm)
+        # xmm1 0 0 0 2730.5  # scale_f = 1 / norm
+        # quantisation_level 420
+        quant_fac = mani_info.keys.compressed.quantisation_level / norm
+        # quant_fac in xmm3 0 0 0 1.14681e+006
+        # quant_fac = 1146810.0
+        quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
+        # update the packed scale
+        return 1 / quant_fac_clamped
 
     def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i):
         for channel_i, is_active in enumerate((keys_flag.z, keys_flag.y, keys_flag.x)):
@@ -1060,7 +1065,8 @@ if __name__ == "__main__":
     # mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
 
     mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset85c65403.manis")  # locomotion
-    mani.parse_keys("acrocanthosaurus@run")
+    # mani.parse_keys("acrocanthosaurus@run")
+    mani.parse_keys("acrocanthosaurus@walk")
 
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")  # hatchery anims
     # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
