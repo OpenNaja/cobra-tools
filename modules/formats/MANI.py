@@ -107,6 +107,8 @@ class ManisLoader(MemStructLoader):
 		"""Loads and returns the data for a manis"""
 		manis_file = ManisFile()
 		manis_file.load(file_path)
+		# update mime version before writing to binary
+		manis_file.version = manis_file.context.version = self.mime_version
 		return manis_file, as_bytes(manis_file.header), \
 			as_bytes(manis_file.mani_infos), as_bytes(manis_file.name_buffer), \
 			as_bytes(manis_file.keys_buffer)

@@ -123,6 +123,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		stash(b_armature_ob, b_action, mi.name, 0)
 		# print(mi)
+		logging.info(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 		# floats are present for compressed or uncompressed

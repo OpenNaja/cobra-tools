@@ -501,6 +501,7 @@ class ManisFile(InfoHeader, IoFile):
 
     def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, segment_frames_count,
                       segment_ori_bones, keys_iter=None):
+        # todo - unlikely, but may be related to manis dtype, possible difference for JWE1 4 vs 6
         q_scale = 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
