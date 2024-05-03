@@ -48,7 +48,7 @@ def keys_adder(b_action, b_channel, b_dtype, in_keys, bonerestmat_inv):
 	out_keys = []
 	out_frames = []
 	yield b_channel, bonerestmat_inv, out_frames, out_keys, in_keys
-	anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_frames, out_keys, None, bone_name=b_channel)
+	anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_frames, out_keys, None, n_bone=b_channel)
 
 
 def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
@@ -122,7 +122,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		logging.info(f"Importing '{mi.name}'")
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		stash(b_armature_ob, b_action, mi.name, 0)
-		print(mi)
+		# print(mi)
 		k = mi.keys
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 		# floats are present for compressed or uncompressed
@@ -141,7 +141,23 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					key = frame[bone_i]
 					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
 			elif b_name in bones_data and suffix:
-				logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
+				# represented by animated properties of bone constraints
+				p_bone = b_armature_ob.pose.bones[b_name]
+				keys = k.floats[:, bone_i]
+				samples = range(len(keys))
+				if suffix == "Footplant":
+					b_footplant = get_constraint(p_bone, "FLOOR", create=True)
+					anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_footplant.name)
+				elif suffix == "IKEnabled":
+					b_ik = get_constraint(p_bone, "IK", create=False)
+					if b_ik:
+						anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_ik.name)
+				# elf suffix == "phaseStream":
+				# range +-pi, looped locomotion anims lerp from -pi to +pi, apparently denotes the phase of the limbs, stand is 0
+				else:
+					logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
+			elif "Motion Track" in m_name:
+				logging.debug(f"Ignoring redundant import of '{m_name}'")
 			else:
 				logging.warning(f"Don't know how to import floats for '{b_name}'")
 				# logging.debug(k.floats[:, bone_i])
@@ -225,3 +241,15 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	scene.frame_end = mi.frame_count-1
 	scene.render.fps = int(round((mi.frame_count-1) / mi.duration))
 	reporter.show_info(f"Imported {manis_name}")
+
+
+def get_constraint(p_bone, c_type="IK", create=True):
+	for const in p_bone.constraints:
+		if const.type == c_type:
+			return const
+	if not create:
+		logging.warning(f"Trying to animate '{c_type}' property on bone '{p_bone.name}' without IK constraint")
+		return None
+	else:
+		const = p_bone.constraints.new(c_type)
+		return const

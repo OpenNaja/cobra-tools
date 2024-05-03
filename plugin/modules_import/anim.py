@@ -36,17 +36,22 @@ class Animation:
 		b_obj.animation_data.action = b_action
 		return b_action
 
-	def create_fcurves(self, action, dtype, drange, flags=None, bonename=None, keyname=None):
+	def create_fcurves(self, action, dtype, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
 		""" Create fcurves in action for desired conditions. """
 		# armature pose bone animation
-		if bonename:
-			fcurves = [
-				action.fcurves.new(data_path=f'pose.bones["{bonename}"].{dtype}', index=i, action_group=bonename)
-				for i in drange]
+		if n_bone:
+			if n_constraint:
+				fcurves = [
+					action.fcurves.new(data_path=f'pose.bones["{n_bone}"].constraints["{n_constraint}"].{dtype}', index=i)
+					for i in drange]
+			else:
+				fcurves = [
+					action.fcurves.new(data_path=f'pose.bones["{n_bone}"].{dtype}', index=i, action_group=n_bone)
+					for i in drange]
 		# shapekey pose bone animation
-		elif keyname:
+		elif n_shapekey:
 			fcurves = [
-				action.fcurves.new(data_path=f'key_blocks["{keyname}"].{dtype}', index=0,)
+				action.fcurves.new(data_path=f'key_blocks["{n_shapekey}"].{dtype}', index=0,)
 			]
 		else:
 			# Object animation (non-skeletal) is lumped into the "LocRotScale" action_group
@@ -88,7 +93,7 @@ class Animation:
 			for fcurve in fcurves:
 				fcurve.extrapolation = 'CONSTANT'
 
-	def add_keys(self, b_action, key_type, key_range, flags, samples, keys, interp, bone_name=None, key_name=None):
+	def add_keys(self, b_action, key_type, key_range, flags, samples, keys, interp, n_bone=None, n_key=None, n_constraint=None):
 		"""
 		Create needed fcurves and add a list of keys to an action.
 		"""
@@ -100,7 +105,7 @@ class Animation:
 		interpolations = [ipo for _ in range(len(samples))]
 		# import the keys
 		try:
-			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, bone_name, key_name)
+			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, n_bone, n_key, n_constraint)
 			if len(key_range) == 1:
 				# flat key - make it zippable
 				key_per_fcurve = [keys]

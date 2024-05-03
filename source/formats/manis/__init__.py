@@ -1066,7 +1066,9 @@ if __name__ == "__main__":
 
     mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset85c65403.manis")  # locomotion
     # mani.parse_keys("acrocanthosaurus@run")
+    # todo see if def_horselink_joint_IKBlend.L loc can be easily debugged
     mani.parse_keys("acrocanthosaurus@walk")
+    # mani.show_floats("phase")
 
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")  # hatchery anims
     # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
