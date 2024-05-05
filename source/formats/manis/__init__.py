@@ -58,7 +58,7 @@ class BinStream:
 
     # return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
 
-    def read_int_reversed(self, size):
+    def read_uint_reversed(self, size):
         out = 0
         for _ in range(size):
             new_bit = self.read_uint(1)
@@ -94,8 +94,8 @@ class KeysContext:
         # size = k_channel_bitsize + 1
         # verified
         size = 4
-        self.init_k_a = f2.read_int_reversed(size)
-        self.init_k_b = f2.read_int_reversed(size)
+        self.init_k_a = f2.read_uint_reversed(size)
+        self.init_k_b = f2.read_uint_reversed(size)
         if not self.do_increment:
             self.init_k_a, self.init_k_b = self.init_k_b, self.init_k_a
         logging.info(self)
@@ -340,24 +340,25 @@ class ManisFile(InfoHeader, IoFile):
         except:
             logging.warning("No matplotlib, can't show keys")
             return
-        logging.info(f"Showing keys")
-        bone_i = bone_names.index(bone_name)
-        # plt.figure(figsize=(5, 2.7), layout='constrained')
-        plt.plot(keys[:, bone_i, 0], label='X')
-        plt.plot(keys[:, bone_i, 1], label='Y')
-        plt.plot(keys[:, bone_i, 2], label='Z')
-        if len(keys[0, 0]) > 3:
-            dt = "Rot"
-            plt.plot(keys[:, bone_i, 3], label='Q')
-        else:
-            dt = "Loc"
-        # mark every 32 frame
-        plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
-        plt.xlabel('Frame')
-        plt.ylabel('Value')
-        plt.title(f"{dt} Keys for {bone_name}")
-        plt.legend()
-        plt.show()
+        if bone_name in bone_names:
+            logging.info(f"Showing keys")
+            bone_i = bone_names.index(bone_name)
+            # plt.figure(figsize=(5, 2.7), layout='constrained')
+            plt.plot(keys[:, bone_i, 0], label='X')
+            plt.plot(keys[:, bone_i, 1], label='Y')
+            plt.plot(keys[:, bone_i, 2], label='Z')
+            if len(keys[0, 0]) > 3:
+                dt = "Rot"
+                plt.plot(keys[:, bone_i, 3], label='Q')
+            else:
+                dt = "Loc"
+            # mark every 32 frame
+            plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
+            plt.xlabel('Frame')
+            plt.ylabel('Value')
+            plt.title(f"{dt} Keys for {bone_name}")
+            plt.legend()
+            plt.show()
 
     def show_floats(self, name_filter=""):
         try:
@@ -401,7 +402,7 @@ class ManisFile(InfoHeader, IoFile):
             segment_ori_bones = ck.ori_bones[frame_offset:frame_offset + segment_frames_count]
             try:
                 # this is a jump to the end of the compressed keys
-                wavelet_byte_offset = f.read_int_reversed(16)
+                wavelet_byte_offset = f.read_uint_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset)
                 self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
                                     segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
@@ -418,8 +419,10 @@ class ManisFile(InfoHeader, IoFile):
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "srb")
+        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_spine0_joint")
         # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
-        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
+        self.show_keys(ck.pos_bones, k.pos_bones_names, "srb")
+        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
@@ -437,13 +440,14 @@ class ManisFile(InfoHeader, IoFile):
             f_pos = f.pos
             pos_base, vec = self.read_vec3(f)
             vec *= scale
+
             # scale_pack = float(scale)
             # the scale per bone is always norm = 0 in acro_run
             scale_pack = self.get_pack_scale(mani_info)
             # logging.info(f"{pos_index} {pos_name} {vec}")
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
-            keys_flag = f.read_int_reversed(3)
+            keys_flag = f.read_uint_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             # if pos_name == "def_c_root_joint":
             #     logging.info(f"{keys_flag}")
@@ -500,8 +504,7 @@ class ManisFile(InfoHeader, IoFile):
 
     def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, segment_frames_count,
                       segment_ori_bones, keys_iter=None):
-        # todo - unlikely, but may be related to manis dtype, possible difference for JWE1 4 vs 6
-        q_scale = 6.283185
+        q_scale = 2 * math.pi  # 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
         identity = zeros.copy()
@@ -546,7 +549,7 @@ class ManisFile(InfoHeader, IoFile):
             self.compare_key_with_reference(f, keys_iter, pos_base)
             # return
             # which channels are keyframed
-            keys_flag = f.read_int_reversed(3)
+            keys_flag = f.read_uint_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             # logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
@@ -931,7 +934,7 @@ class ManisFile(InfoHeader, IoFile):
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
                 # define the minimal key size for this channel
-                ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
+                ch_key_size = f.read_uint_reversed(k_channel_bitsize + 1)
                 ch_key_size_masked = ch_key_size & 0x1f
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
@@ -949,7 +952,7 @@ class ManisFile(InfoHeader, IoFile):
                     # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
                     # read the key, if it has a size
                     if ch_rel_key_size:
-                        ch_rel_key = f.read_int_reversed(ch_rel_key_size)
+                        ch_rel_key = f.read_uint_reversed(ch_rel_key_size)
                     else:
                         ch_rel_key = 0
                     # logging.info(f"key = {ch_rel_key}")
@@ -974,7 +977,7 @@ class ManisFile(InfoHeader, IoFile):
                 k_flag_out = f2.interpret_as_shift(k_size, k_flag)
                 # logging.info(
                 # 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
-                k_key = f2.read_int_reversed(k_size + init_k)
+                k_key = f2.read_uint_reversed(k_size + init_k)
                 assert k_size + init_k < 32
                 context.i_in_run = k_key + k_flag_out
             # logging.info(
@@ -991,19 +994,28 @@ class ManisFile(InfoHeader, IoFile):
 
     def read_vec3(self, f):
         # f_pos = int(f.pos)
-        pos_base = f.read_uint(45)
-        # logging.info(f"{hex(pos_base)}, {pos_base}")
-        x = pos_base & 0x7fff
-        y = (pos_base >> 0xf) & 0x7fff
-        z = (pos_base >> 0x1e) & 0x7fff
+        # pos_base = f.read_uint(45)
+        pos_base = 0
+        # # logging.info(f"{hex(pos_base)}, {pos_base}")
+        # x = pos_base & 0x7fff
+        # y = (pos_base >> 0xf) & 0x7fff
+        # z = (pos_base >> 0x1e) & 0x7fff
+        if self.context.version > 259:
+            # current PZ, JWE2
+            x = f.read_uint(15)
+            y = f.read_uint(15)
+            z = f.read_uint(15)
+        else:
+            # PC, JWE1, old PC have the order reversed
+            x = f.read_uint_reversed(15)
+            y = f.read_uint_reversed(15)
+            z = f.read_uint_reversed(15)
+        raw = np.zeros(4, dtype=np.uint32)
+        raw[:3] = x, y, z
         vec = np.zeros(4, dtype=np.float32)
         vec[0] = self.make_signed(x)
         vec[1] = self.make_signed(y)
         vec[2] = self.make_signed(z)
-        # f.pos = f_pos
-        # x = f.read_int(15)
-        # y = f.read_int(15)
-        # z = f.read_int(15)
         # print(x,vec[0])
         # logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
         return pos_base, vec
@@ -1065,11 +1077,34 @@ if __name__ == "__main__":
     # # mani.parse_keys("acrocanthosaurus@standidle01")
     # mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
 
-    mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset85c65403.manis")  # locomotion
-    # mani.parse_keys("acrocanthosaurus@run")
-    # todo see if def_horselink_joint_IKBlend.L loc can be easily debugged
-    mani.parse_keys("acrocanthosaurus@walk")
-    # mani.show_floats("phase")
+    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset85c65403.manis")  # locomotion
+    # # mani.parse_keys("acrocanthosaurus@run")
+    # # todo see if def_horselink_joint_IKBlend.L loc can be easily debugged
+    # mani.parse_keys("acrocanthosaurus@walk")
+    # # mani.show_floats("phase")
+
+    # # JWE1
+    mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting
+    print(mani)
+    # mani.parse_keys("ankylosaurus@standidle01")
+    # mani.load("C:/Users/arnfi/Desktop/notmotionextracted.manisetb28920cd.manis")  # stationary
+    # mani.parse_keys("ankylosaurus@standidle01")
+    # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")  # locomotion
+    # mani.parse_keys("ankylosaurus@walkbase")
+
+    # # JWE2
+    # # mani.load("C:/Users/arnfi/Desktop/notmotionextracted.maniset81182102.manis")
+    # # mani.parse_keys("ankylosaurus@standidlexx")
+    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset6dfd5af.manis")  # locomotion
+    # mani.parse_keys("ankylosaurus@walk")
+
+    # # PZ old
+    # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.manisete954492e_old.manis")  # locomotion
+    # mani.parse_keys("bengal_tiger_male@walkbase")
+    #
+    # # PZ new
+    # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.manisete954492e_new.manis")  # locomotion
+    # mani.parse_keys("bengal_tiger_male@walkbase")
 
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")  # hatchery anims
     # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
