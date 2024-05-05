@@ -8,11 +8,11 @@ import numpy as np
 np.set_printoptions(precision=4, suppress=True)
 
 import root_path
-from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from ovl_util.logs import logging_setup
+from generated.io import IoFile
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
-from generated.io import IoFile
+from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 
 try:
     import bitarray
@@ -20,12 +20,6 @@ try:
 except:
     bitarray = None
     logging.warning(f"bitarray module is not installed")
-
-# np.set_printoptions(suppress=True, precision=4)
-
-
-def swap16(i):
-    return struct.unpack("<h", struct.pack(">h", i))[0]
 
 
 def hex_test():
@@ -56,8 +50,6 @@ class BinStream:
     def read_uint(self, size):
         bits = self.read(size)
         return bitarray.util.ba2int(bits, signed=False)
-
-    # return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
 
     def read_uint_reversed(self, size):
         out = 0
@@ -292,7 +284,6 @@ class ManisFile(InfoHeader, IoFile):
         # 		return i
         # return -1
         new_bit = 0xf  # MOV new_bit,0xf
-        # return new_bit.bit_length()  # - 1
         return new_bit.bit_length() - 1
 
     def segment_frame_count(self, i, frame_count):
