@@ -1019,26 +1019,26 @@ class ManisFile(InfoHeader, IoFile):
 
 def get_quat_scale_fac2(norm_half_abs):
     flip_scale = norm_half_abs < 0.0  # input is generally positive as it comes from a norm
-    xmm6 = np.abs(np.float32(norm_half_abs))
-    xmm6 = xmm6 % (2*np.pi)  # wrap to 2pi range
-    quadrant = round(xmm6 * 0.6366197)  # 0.6366197 ~ 2 / pi
+    clamped = np.abs(np.float32(norm_half_abs))
+    clamped = clamped % (2*np.pi)  # wrap to 2pi range
+    quadrant = round(clamped * 0.6366197)  # 0.6366197 ~ 2 / pi
     flip_q = quadrant in (2.0, 3.0)
     wrap_phase = quadrant in (1.0, 3.0)
-    xmm6 -= quadrant * np.float32(1.570313)  # very close to pi/2
-    xmm6 -= quadrant * np.float32(0.0004837513)
-    xmm6 = -xmm6 if wrap_phase else xmm6
-    xmm6 -= quadrant * np.float32(7.54979e-08)
-    xmm6 = -xmm6 if flip_q else xmm6
-    scale = xmm6 * xmm6
+    x = clamped - quadrant * np.float32(1.570313)  # very close to pi/2
+    x -= quadrant * np.float32(0.0004837513)
+    x = -x if wrap_phase else x
+    x -= quadrant * np.float32(7.54979e-08)
+    x = -x if flip_q else x
+    scale = x * x
     a = (np.float32(2.44332e-005) * scale + np.float32(-0.001388732)) * scale + np.float32(0.04166665)
     b = (np.float32(-0.000195153) * scale + np.float32(0.008332161)) * scale + np.float32(-0.1666666)
     a *= scale
     a -= np.float32(0.5)
     a *= scale
-    scale *= xmm6
+    scale *= x
     a += np.float32(1.0)
     b *= scale
-    b += xmm6
+    b += x
     q = b if wrap_phase else a
     scale = a if wrap_phase else b
     q = -q if flip_q else q
