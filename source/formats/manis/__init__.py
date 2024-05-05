@@ -157,7 +157,7 @@ def get_quat_scale_fac(norm_half_abs):
     xmm6 = xmm8  # copy halfnorm from xmm8 to xmm6
     xmm6 = np.abs(xmm6)  # take abs of xmm6 (copy of halfnorm)
     xmm4 = xmm6  # copy abs halfnorm to xmm4
-    xmm4 *= np.float32(0.63662)  # halfnorm
+    xmm4 *= np.float32(0.6366197)  # halfnorm
     xmm4 += xmm2  # halfnorm + 8388608f
     xmm3 = i_as_f(f_as_i(xmm3) & f_as_i(xmm4))  # mask xmm3 (...10f) with xmm4 (halfnorm+...8f)
     xmm7 = i_as_f(f_as_i(xmm7) & f_as_i(xmm4))  # mask xmm7 (...9f) with xmm4 (halfnorm+...8f)
@@ -173,7 +173,7 @@ def get_quat_scale_fac(norm_half_abs):
     xmm2 = xmm7
     xmm0 = xmm4
     xmm1 = xmm4
-    xmm0 *= np.float32(1.57031)
+    xmm0 *= np.float32(1.570313)
     xmm4 *= np.float32(7.54979e-08)
     xmm1 *= np.float32(0.0004837513)
     xmm6 -= xmm0  # halfnorm -xmm0
@@ -196,12 +196,12 @@ def get_quat_scale_fac(norm_half_abs):
     xmm0 *= xmm6
     xmm4 *= xmm0
     xmm3 *= xmm0
-    xmm4 += np.float32(-0.00138873)
-    xmm3 += np.float32(0.00833216)
+    xmm4 += np.float32(-0.001388732)
+    xmm3 += np.float32(0.008332161)
     xmm4 *= xmm0
     xmm3 *= xmm0
-    xmm4 += np.float32(0.0416666)
-    xmm3 += np.float32(-0.166667)
+    xmm4 += np.float32(0.04166665)
+    xmm3 += np.float32(-0.1666666)
     xmm4 *= xmm0
     xmm4 -= np.float32(0.5)
     xmm4 *= xmm0
@@ -517,14 +517,7 @@ class ManisFile(InfoHeader, IoFile):
             if norm < epsilon:
                 quat = identity.copy()
             else:
-                y_rel = identity.copy()
-                y_rel[1] = vec[1] * vec[1]
-                y_rel[0] = norm * 0.5
-                b = identity.copy()
-                b[1] = vec[2] * vec[2]
-                b[0] = 0.0
                 q, scale_fac = get_quat_scale_fac(norm * 0.5)
-                # print(vec, norm)
                 quat = vec / norm
                 quat *= scale_fac
                 # [0.0, -0.6679229, -0.6209728, -0.11621484]
@@ -538,7 +531,7 @@ class ManisFile(InfoHeader, IoFile):
                 # print(scale_fac, quat)
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
-            # return
+
             # which channels are keyframed
             keys_flag = f.read_uint_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
@@ -1014,14 +1007,66 @@ class ManisFile(InfoHeader, IoFile):
     def compare_key_with_reference(self, f, keys_iter, pos_base):
         if keys_iter is not None:
             expected_key = next(keys_iter)
-            expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
-            f.find_all(expected_key_bin)
+            # expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
             # logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
             if expected_key != pos_base:
                 raise AttributeError(f"Expected and found keys do not match")
 
     def make_signed(self, x):
         return -(x + 1 >> 1) if x & 1 else x >> 1
+
+
+def get_quat_scale_fac2(norm_half_abs):
+    flip_scale = norm_half_abs < 0.0  # input is generally positive as it comes from a norm
+    xmm6 = np.abs(np.float32(norm_half_abs))
+    xmm6 = xmm6 % (2*np.pi)  # wrap to 2pi range
+    quadrant = round(xmm6 * 0.6366197)  # 0.6366197 ~ 2 / pi
+    flip_q = quadrant in (2.0, 3.0)
+    wrap_phase = quadrant in (1.0, 3.0)
+    xmm6 -= quadrant * np.float32(1.570313)  # very close to pi/2
+    xmm6 -= quadrant * np.float32(0.0004837513)
+    xmm6 = -xmm6 if wrap_phase else xmm6
+    xmm6 -= quadrant * np.float32(7.54979e-08)
+    xmm6 = -xmm6 if flip_q else xmm6
+    scale = xmm6 * xmm6
+    a = (np.float32(2.44332e-005) * scale + np.float32(-0.001388732)) * scale + np.float32(0.04166665)
+    b = (np.float32(-0.000195153) * scale + np.float32(0.008332161)) * scale + np.float32(-0.1666666)
+    a *= scale
+    a -= np.float32(0.5)
+    a *= scale
+    scale *= xmm6
+    a += np.float32(1.0)
+    b *= scale
+    b += xmm6
+    q = b if wrap_phase else a
+    scale = a if wrap_phase else b
+    q = -q if flip_q else q
+    scale = -scale if flip_scale else scale
+    return q, scale
+
+
+def test_get_scale_fac():
+    # inp = np.arange(0, 4 * math.pi, math.pi*0.1)
+    # inp = np.arange(0, 2 * math.pi, math.pi*0.1)
+    inp = np.arange(0, 4 * math.pi, math.pi*0.01)
+    q_data = np.zeros(len(inp))
+    s_data = np.zeros(len(inp))
+    q2_data = np.zeros(len(inp))
+    s2_data = np.zeros(len(inp))
+    for i, x in enumerate(inp):
+        q_data[i], s_data[i] = get_quat_scale_fac(x)
+        q2_data[i], s2_data[i] = get_quat_scale_fac2(x)
+    assert np.allclose(q_data, q2_data, rtol=1e-03, atol=1e-05, equal_nan=False)
+    assert np.allclose(s_data, s2_data, rtol=1e-03, atol=1e-05, equal_nan=False)
+    import matplotlib.pyplot as plt
+    plt.plot(inp, q_data, label="Q")
+    plt.plot(inp, s_data, label="S")
+    plt.plot(inp, q2_data, label="Q2", linestyle='-.')
+    plt.plot(inp, s2_data, label="S2", linestyle='-.')
+    plt.xlabel('Input')
+    plt.ylabel('Value')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -1075,8 +1120,8 @@ if __name__ == "__main__":
     # # mani.show_floats("phase")
 
     # # JWE1
-    mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting
-    print(mani)
+    # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting
+    # print(mani)
     # mani.parse_keys("ankylosaurus@standidle01")
     # mani.load("C:/Users/arnfi/Desktop/notmotionextracted.manisetb28920cd.manis")  # stationary
     # mani.parse_keys("ankylosaurus@standidle01")
@@ -1101,6 +1146,7 @@ if __name__ == "__main__":
     # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
     # mani.log_rot_keys()
     # mani.log_loc_keys()
+    test_get_scale_fac()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()
 # mani.parse_keys()
