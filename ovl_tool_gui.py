@@ -430,7 +430,7 @@ class MainWindow(widgets.MainWindow):
 		names = [(old_name, new_name.lower()), ]
 		try:
 			self.ovl_data.rename(names)
-			self.set_file_modified(True)
+			self.set_dirty()
 		except:
 			self.handle_error("Renaming failed, see log!")
 
@@ -444,11 +444,11 @@ class MainWindow(widgets.MainWindow):
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
-		# self.set_file_modified(True)
+		# self.set_dirty()
 		
 	def compression_touched_by_user(self, compression: str):
 		# emitted regardless of change - no way to compare to the old value
-		self.set_file_modified(True)
+		self.set_dirty()
 
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
@@ -457,7 +457,7 @@ class MainWindow(widgets.MainWindow):
 	def open(self, filepath, threaded=True):
 		if filepath:
 			commands = {"game": self.ovl_game_choice.entry.currentText()}
-			self.set_file_modified(False)
+			self.set_clean()
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
 				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, ), filepath, commands)
@@ -470,7 +470,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_dir(self, dirpath: str) -> None:
 		self.create_ovl(dirpath)
-		self.set_file_modified(True)
+		self.set_dirty()
 
 	def choices_update(self):
 		self.set_ovl_game_choice_game(self.ovl_data.game)
@@ -499,11 +499,12 @@ class MainWindow(widgets.MainWindow):
 
 	def update_includes(self, includes):
 		self.ovl_data.included_ovl_names = includes
-		self.set_file_modified(True)
+		self.set_dirty()
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		try:
+			# self.run_in_threadpool(self.ovl_data.save, (self.set_clean, ), filepath)
 			self.ovl_data.save(filepath)
 			self.set_file_modified(False)
 			self.set_msg_temporarily(f"Saved {self.ovl_data.basename}")
@@ -538,7 +539,7 @@ class MainWindow(widgets.MainWindow):
 		"""Tries to inject files into self.ovl_data"""
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
-			self.set_file_modified(True)
+			self.set_dirty()
 			self.run_in_threadpool(self.ovl_data.add_files, (), files)
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
@@ -565,7 +566,7 @@ class MainWindow(widgets.MainWindow):
 				for ovl in self.handle_path():
 					ovl.rename(names)
 					if not self.t_in_folder.isChecked():
-						self.set_file_modified(True)
+						self.set_dirty()
 		except:
 			self.handle_error("Renaming failed, see log!")
 
@@ -580,7 +581,7 @@ class MainWindow(widgets.MainWindow):
 			for ovl in self.handle_path():
 				ovl.rename_contents(names, only_files)
 				if not self.t_in_folder.isChecked():
-					self.set_file_modified(True)
+					self.set_dirty()
 				# file names don't change, so no need to update gui
 
 	def rename_both(self):
@@ -624,7 +625,7 @@ class MainWindow(widgets.MainWindow):
 		if filepath:
 			try:
 				self.ovl_data.load_included_ovls(filepath)
-				self.set_file_modified(True)
+				self.set_dirty()
 				self.set_msg_temporarily("Loaded included OVLs")
 			except:
 				self.handle_error("Opening included OVLs failed, see log!")
@@ -636,7 +637,7 @@ class MainWindow(widgets.MainWindow):
 			if selected_file_names:
 				try:
 					self.ovl_data.remove(selected_file_names)
-					self.set_file_modified(True)
+					self.set_dirty()
 				except:
 					self.handle_error("Removing file from OVL failed, see log!")
 

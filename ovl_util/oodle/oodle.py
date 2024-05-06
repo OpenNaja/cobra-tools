@@ -27,6 +27,7 @@ OodleDecompressEnum = IntEnum('OodleEnum', list([(x[0], x[2]) for x in compressi
 
 oodle_dll = os.path.join(os.path.dirname(__file__), "oo2core_8_win64.dll")
 
+
 class OodleLZ_CompressOptions(Structure):
     _pack_: 1
     _fields_ = [
@@ -48,6 +49,7 @@ class OodleLZ_CompressOptions(Structure):
         ("farMatchOffsetLog2", c_int32),
         ("reserved", c_uint32),
     ]
+
 
 class OodleDecompressor:
     """
