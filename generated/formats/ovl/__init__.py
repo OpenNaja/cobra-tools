@@ -72,19 +72,35 @@ class OvsFile(OvsHeader):
 
 	def compress(self, uncompressed_bytes):
 		"""compress data with method according to ovl settings"""
-		# change to zipped format for saving of oodled ovls
 		if self.ovl.user_version.compression == Compression.OODLE:
-			# as of 2023-07-30, ovls saved with oodle compression load fine in the tools but crash the game
-			logging.debug("Setting compression to zlib")
-			self.ovl.user_version.compression = Compression.ZLIB
-		if self.ovl.user_version.compression == Compression.OODLE:
-			assert self.compression_header.startswith(OODLE_MAGIC)
-			a, raw_algo = struct.unpack("BB", self.compression_header)
-			# dynamically import Oodle at runtime to allow launching without mandatorily needing Oodle
+			comp_raw = 6  # Kraken
+			# compression_header may mistakenly have 0x8C read into it when saving uncompressed OVL as Oodle
+			# so, commenting this out for now
+			#if self.compression_header.startswith(OODLE_MAGIC):
+			#	_, comp_raw = struct.unpack("BB", self.compression_header)
+
+			# Deferred Oodle import to avoid hard DLL requirement
 			from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
-			algo = OodleDecompressEnum(raw_algo)
-			logging.debug(f"Oodle compression {a} {raw_algo} {algo.name}")
-			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
+			# Get compressor from raw decompression value
+			compressor = OodleDecompressEnum(comp_raw)
+			logging.debug(f"Oodle compression: {compressor.name} (Raw: {comp_raw})")
+			# Begin compression
+			uncompressed_size = len(uncompressed_bytes)
+			uncompressed_remainder = uncompressed_size
+			# Compress in 256KB chunks
+			chunk_size = 262144 if uncompressed_size >= 262144 else uncompressed_size
+			num_chunks = uncompressed_size // chunk_size
+			compressed = bytearray()
+			# Compress each 256KB chunk
+			for i in range(num_chunks):
+				start = i * chunk_size
+				compressed_chunk = oodle_compressor.compress(uncompressed_bytes[start:start+chunk_size], compressor.name)
+				compressed += compressed_chunk
+				uncompressed_remainder -= chunk_size
+			# Compress leftover end chunk
+			if uncompressed_remainder > 0:
+				compressed_chunk = oodle_compressor.compress(uncompressed_bytes[-uncompressed_remainder:], compressor.name)
+				compressed += compressed_chunk
 		elif self.ovl.user_version.compression == Compression.ZLIB:
 			compressed = zlib.compress(uncompressed_bytes)
 		else:

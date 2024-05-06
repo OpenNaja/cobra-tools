@@ -45,17 +45,17 @@ class OodleDecompressor:
         except OSError as e:
             raise Exception("Could not load Oodle DLL, requires Windows and 64bit python to run.") from e
 
-    def compress(self, payload: bytes, algorithm_name: str, level: int = 7) -> bytes:
+    def compress(self, payload: bytes, compressor_name: str = "Kraken", level: int = 6) -> bytes:
         """
         Compress the payload using the given algorithm.
         """
-        algorithm = OodleCompressEnum[algorithm_name]
-        logging.debug(f"Compressing as {algorithm_name} (value = {algorithm.value}), level = {level}")
+        compressor = OodleCompressEnum[compressor_name]
+        logging.debug(f"Compressing as {compressor_name} (value = {compressor.value}), level = {level}")
         input_size = len(payload)
         output_size = self.get_compressed_bounds(input_size)
         output = create_string_buffer(output_size)
         compressed_size = self.handle.OodleLZ_Compress(
-            algorithm.value, c_char_p(payload), input_size, output, level, None, None, None, None, 0)
+            compressor.value, c_char_p(payload), input_size, output, level, None, None, None, None, 0)
         logging.debug(f"Oodle compressed {input_size} bytes down to {compressed_size} bytes.")
         if input_size and not compressed_size:
             raise ValueError("Oodle Compression returned no payload for unknown reason!")
