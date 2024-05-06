@@ -4,6 +4,8 @@ import os
 import re
 import struct
 import zlib
+import math
+from concurrent.futures import ProcessPoolExecutor
 from collections import Counter
 from contextlib import contextmanager
 from io import BytesIO
@@ -28,6 +30,14 @@ def pairwise(iterable):
 	next(b, None)
 	return zip(a, b)
 
+
+def oodle_compress_threaded(args):
+	"""Picklable function for ProcessPoolExecutor"""
+	(uncompressed_bytes, codec) = args
+	# TODO: This has minor issues with logging module import spamming update checking
+	from ovl_util.oodle.oodle import oodle_compressor
+
+	return oodle_compressor.compress(uncompressed_bytes, codec, level=6)
 
 class OvsFile(OvsHeader):
 
@@ -69,10 +79,11 @@ class OvsFile(OvsHeader):
 		with BytesIO(decompressed) as stream:
 			yield stream
 
+
 	def compress(self, uncompressed_bytes):
 		"""compress data with method according to ovl settings"""
 		if self.ovl.user_version.compression == Compression.OODLE:
-			comp_raw = 6  # Kraken
+			codec_raw = 6  # Kraken
 			# compression_header may mistakenly have 0x8C read into it when saving uncompressed OVL as Oodle
 			# so, commenting this out for now
 			#if self.compression_header.startswith(OODLE_MAGIC):
@@ -80,26 +91,24 @@ class OvsFile(OvsHeader):
 
 			# Deferred Oodle import to avoid hard DLL requirement
 			from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
+
 			# Get compressor from raw decompression value
-			compressor = OodleDecompressEnum(comp_raw)
-			logging.debug(f"Oodle compression: {compressor.name} (Raw: {comp_raw})")
+			codec = OodleDecompressEnum(codec_raw)
+			logging.debug(f"Oodle compression: {codec.name} (Raw: {codec_raw})")
 			# Begin compression
 			uncompressed_size = len(uncompressed_bytes)
-			uncompressed_remainder = uncompressed_size
-			# Compress in 256KB chunks
-			chunk_size = 262144 if uncompressed_size >= 262144 else uncompressed_size
-			num_chunks = uncompressed_size // chunk_size
+			# Compress in 8192KB chunks
+			chunk_size = 262144 * 32 if uncompressed_size >= 262144 * 32 else uncompressed_size
+			num_chunks = math.ceil(uncompressed_size / chunk_size)
 			compressed = bytearray()
-			# Compress each 256KB chunk
+			# Compress each 8192KB chunk
+			chunks = []
 			for i in range(num_chunks):
 				start = i * chunk_size
-				compressed_chunk = oodle_compressor.compress(uncompressed_bytes[start:start+chunk_size], compressor.name)
-				compressed += compressed_chunk
-				uncompressed_remainder -= chunk_size
-			# Compress leftover end chunk
-			if uncompressed_remainder > 0:
-				compressed_chunk = oodle_compressor.compress(uncompressed_bytes[-uncompressed_remainder:], compressor.name)
-				compressed += compressed_chunk
+				chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name))
+			with ProcessPoolExecutor(max_workers=16) as executor:
+				for compressed_chunk in executor.map(oodle_compress_threaded, chunks):
+					compressed += compressed_chunk
 		elif self.ovl.user_version.compression == Compression.ZLIB:
 			compressed = zlib.compress(uncompressed_bytes)
 		else:

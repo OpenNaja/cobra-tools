@@ -1,6 +1,7 @@
 import os
 import logging
-from ctypes import cdll, c_char_p, create_string_buffer
+import ctypes
+from ctypes import cdll, create_string_buffer, Structure, Array, c_char_p, c_void_p, c_char, c_int32, c_bool, c_uint32, POINTER
 from enum import IntEnum
 
 # taken from quickbms oodle.c
@@ -26,6 +27,27 @@ OodleDecompressEnum = IntEnum('OodleEnum', list([(x[0], x[2]) for x in compressi
 
 oodle_dll = os.path.join(os.path.dirname(__file__), "oo2core_8_win64.dll")
 
+class OodleLZ_CompressOptions(Structure):
+    _pack_: 1
+    _fields_ = [
+        ("verbosity", c_uint32),
+        ("minMatchLength", c_int32),
+        ("seekChunkReset", c_bool),
+        ("seekChunkLen", c_int32),
+        ("profile", c_int32),
+        ("dictionarySize", c_int32),
+        ("spaceSpeedTradeoffBytes", c_int32),
+        ("maxHuffmansPerChunk", c_int32),
+        ("sendQuantumCRCs", c_bool),
+        ("maxLocalDictionarySize", c_int32),
+        ("makeLongRangeMatcher", c_bool),
+        ("matchTableSizeLog2", c_int32),
+        ("jobify", c_uint32),
+        ("jobifyUserPtr", POINTER(c_void_p)),
+        ("farMatchMinLen", c_int32),
+        ("farMatchOffsetLog2", c_int32),
+        ("reserved", c_uint32),
+    ]
 
 class OodleDecompressor:
     """
@@ -45,17 +67,36 @@ class OodleDecompressor:
         except OSError as e:
             raise Exception("Could not load Oodle DLL, requires Windows and 64bit python to run.") from e
 
-    def compress(self, payload: bytes, compressor_name: str = "Kraken", level: int = 6) -> bytes:
+    def compress(self, payload: bytes, codec_name: str = "Kraken", level: int = 6) -> bytes:
         """
         Compress the payload using the given algorithm.
         """
-        compressor = OodleCompressEnum[compressor_name]
-        logging.debug(f"Compressing as {compressor_name} (value = {compressor.value}), level = {level}")
+        codec = OodleCompressEnum[codec_name]
+        logging.debug(f"Compressing as {codec_name} (value = {codec.value}), level = {level}")
         input_size = len(payload)
         output_size = self.get_compressed_bounds(input_size)
-        output = create_string_buffer(output_size)
+        output: Array[c_char] = create_string_buffer(output_size)
+
+        OodleLZ_CompressOptions_GetDefault: ctypes._NamedFuncPointer = self.handle.OodleLZ_CompressOptions_GetDefault
+        OodleLZ_CompressOptions_GetDefault.restype = POINTER(OodleLZ_CompressOptions)
+
+        OodleLZ_GetCompressScratchMemBound: ctypes._NamedFuncPointer = self.handle.OodleLZ_GetCompressScratchMemBound
+        OodleLZ_GetCompressScratchMemBound.restype = c_int32
+
+        comp_options = self.handle.OodleLZ_CompressOptions_GetDefault(codec.value, level)
+        comp_options.contents.seekChunkReset = True
+        comp_options.contents.seekChunkLen = 262144  # 256KB
+        comp_options.contents.makeLongRangeMatcher = False
+
+        scratch_size = OodleLZ_GetCompressScratchMemBound(codec.value, level, input_size)
+        # TODO: Ensure not-too-high values as well?
+        # Can return -1 so provide default size
+        if scratch_size < 0:
+            scratch_size = 8 * 1024 * 1024  # 8MB
+        scratch: Array[c_char] = create_string_buffer(scratch_size)
+
         compressed_size = self.handle.OodleLZ_Compress(
-            compressor.value, c_char_p(payload), input_size, output, level, None, None, None, None, 0)
+            codec.value, c_char_p(payload), input_size, output, level, comp_options, None, None, scratch, scratch_size)
         logging.debug(f"Oodle compressed {input_size} bytes down to {compressed_size} bytes.")
         if input_size and not compressed_size:
             raise ValueError("Oodle Compression returned no payload for unknown reason!")
