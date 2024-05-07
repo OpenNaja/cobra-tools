@@ -21,10 +21,13 @@ def append_shader(name):
 	if name not in bpy.data.node_groups:
 		logging.info(f"Appending shader group '{name}'")
 		blends_dir = os.path.join(root_dir, "plugin", "blends")
-		filepath = os.path.join(blends_dir, f"{name}.blend")
-		with bpy.data.libraries.load(filepath) as (data_from, data_to):
-			if name in data_from.node_groups and name not in data_to.node_groups:
-				data_to.node_groups = [name]
+		for file_name in os.listdir(blends_dir):
+			if not file_name.lower().endswith(".blend"):
+				continue
+			filepath = os.path.join(blends_dir, file_name)
+			with bpy.data.libraries.load(filepath) as (data_from, data_to):
+				if name in data_from.node_groups and name not in data_to.node_groups:
+					data_to.node_groups = [name]
 
 
 def get_group_node(tree, name):
@@ -46,13 +49,19 @@ class BaseShader:
 		"pFeathers_RoughnessPackedTexture": 1,
 	}
 
+	inv_tex_slots = {v: k for k, v in tex_slots.items()}
+
 	def add_flexi_nodes(self, tree):
 		flexi_identifiers = [f"F{i}" for i in range(1, 5)]
-		flexi_nodes = [self.id_2_node.get(f) for f in flexi_identifiers]
+		flexi_nodes = [self.id_2_out_socket.get(f) for f in flexi_identifiers]
 		if any(flexi_nodes):
-			flexi_mix = get_group_node(tree, "FlexiDiffuse")
-			self.connect_inputs(flexi_mix, tree)
-			self.id_2_node["BC"] = flexi_mix
+			self.add_shader(tree, "FlexiDiffuse")
+
+	def add_shader(self, tree, node_name):
+		logging.info(f"Adding shader for '{node_name}'")
+		shader_node = get_group_node(tree, node_name)
+		self.connect_inputs(shader_node, tree)
+		self.connect_outputs(shader_node, tree)
 
 	def add_marking_nodes(self, diffuse, tree):
 		# get marking
@@ -86,7 +95,6 @@ class BaseShader:
 		return diffuse
 
 	def connect_inputs(self, shader_node, tree):
-		inv_tex_slots = {v: k for k, v in tex_slots.items()}
 		for socket in shader_node.inputs:
 			if socket.name in tex_slots:
 				long_name = tex_slots[socket.name]
@@ -98,6 +106,7 @@ class BaseShader:
 				val = self.attr.get(long_name)
 				if val is not None:
 					try:
+						# todo maybe check https://docs.blender.org/api/current/bpy.types.NodeSocket.html#bpy.types.NodeSocket
 						if len(val) != len(socket.default_value):
 							logging.warning(f"Mismatch of socket size '{long_name}'")
 							continue
@@ -107,19 +116,33 @@ class BaseShader:
 			else:
 				# it's probably a texture node
 				try:
-					identifier = inv_tex_slots[long_name]
+					identifier = self.inv_tex_slots[long_name]
 				except KeyError:
 					logging.warning(f"Found no identifier for '{long_name}'")
 					continue
-				node = self.id_2_node.get(identifier)
-				if node:
+				out_socket = self.id_2_out_socket.get(identifier)
+				if out_socket:
+					node = out_socket.node
 					# set the colorspace for image inputs if needed
 					if isinstance(node, bpy.types.ShaderNodeTexImage):
+						# todo determine colorspace properly
 						# assume non-color colorspace for non-color inputs
-						# if isinstance(bpy.types.NodeSocketFloatFactor):
 						if not isinstance(socket, bpy.types.NodeSocketColor):
 							node.image.colorspace_settings.name = "Non-Color"
-					tree.links.new(node.outputs[0], socket)
+					tree.links.new(out_socket, socket)
+
+	def connect_outputs(self, shader_node, tree):
+		for socket in shader_node.outputs:
+			if socket.name in tex_slots:
+				long_name = tex_slots[socket.name]
+			else:
+				long_name = socket.name
+			try:
+				identifier = self.inv_tex_slots[long_name]
+			except KeyError:
+				logging.warning(f"Found no identifier for '{long_name}'")
+				continue
+			self.id_2_out_socket[identifier] = socket
 
 	def build_attr_dict(self, fgm_data):
 		self.attr = {}
@@ -132,7 +155,7 @@ class BaseShader:
 	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree):
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
-		self.id_2_node = {}
+		self.id_2_out_socket = {}
 		self.uv_dic = {}
 		tex_check = set()
 		for texture_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
@@ -151,7 +174,7 @@ class BaseShader:
 					texture_data.value[0].a / 255
 				)
 				for channel, purpose in tex_channels.items():
-					self.id_2_node[purpose] = color
+					self.id_2_out_socket[purpose] = color.outputs[0]
 			else:
 				tex_name = dep_info.dependency_name.data
 				if not tex_name:
@@ -162,22 +185,19 @@ class BaseShader:
 					continue
 				tex_check.add(png_base)
 
-				# Until better option to organize the shader info, create frame for all channels of this texture
-				tex_frame = tree.nodes.new('NodeFrame')
-				tex_frame.label = text_name
-
 				def is_part_of_tex(file):
 					"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
 					to start with the same id such as pdiffuse and pdiffusemelanistic"""
 					return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
-
+				tex_nodes = []
 				for png_name in all_textures:
 					if not is_part_of_tex(png_name):
 						continue
 					png_path = os.path.join(in_dir, png_name)
 					b_tex = load_tex_node(tree, png_path)
-					b_tex.parent = tex_frame  # assign the texture frame to this png
 					b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
+					tex_nodes.append(b_tex)
+
 					base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
 					# get channel mapping
 					for channel, purpose in tex_channels.items():
@@ -185,9 +205,10 @@ class BaseShader:
 						# find label for node
 						if tex_type_with_channel_suffix == f"{texture_data.name}{channel_suffix}".lower():
 							b_tex.label = purpose
-					self.id_2_node[b_tex.label] = b_tex
+					self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
 					# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
 					uv_i = self.uv_map.get(text_name, 0)
+					# todo support custom node input for UV layers
 					if uv_i > 0:
 						if uv_i not in self.uv_dic:
 							uv_node = tree.nodes.new('ShaderNodeUVMap')
@@ -196,6 +217,12 @@ class BaseShader:
 						else:
 							uv_node = self.uv_dic[uv_i]
 						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
+				if tex_nodes:
+					# Until better option to organize the shader info, create frame for all channels of this texture
+					tex_frame = tree.nodes.new('NodeFrame')
+					tex_frame.label = text_name
+					for b_tex in tex_nodes:
+						b_tex.parent = tex_frame  # assign the texture frame to this png
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
@@ -284,12 +311,14 @@ def create_material(in_dir, matname):
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
 		shader.build_attr_dict(fgm_data)
 		if fgm_data.shader_name.startswith(("Animal_", "Fur")):
-			shader_node = get_group_node(tree, "AnimalVariation")
-			shader.connect_inputs(shader_node, tree)
-			shader.id_2_node["BC"] = shader_node
-		else:
-			shader.add_flexi_nodes(tree)
-			# 	diffuse = shader.add_marking_nodes(diffuse, tree)
+			shader.add_shader(tree, "AnimalVariation")
+		if "Detail_Basic" in fgm_data.shader_name:
+			shader.add_shader(tree, "Detail_BasicBlend")
+		elif "Detail" in fgm_data.shader_name:
+			shader.add_shader(tree, "Detail_Blend")
+		# todo use shader name check for flexi and add_shader api
+		shader.add_flexi_nodes(tree)
+		# diffuse = shader.add_marking_nodes(diffuse, tree)
 		# main shader
 		shader_node = get_group_node(tree, "MainShader")
 		shader.connect_inputs(shader_node, tree)
