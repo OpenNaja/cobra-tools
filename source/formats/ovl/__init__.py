@@ -111,7 +111,6 @@ class OvsFile(OvsHeader):
 					start = i * chunk_size
 					chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name))
 				num_processes = min(cpu_count(), len(chunks))
-				print(num_processes)
 				with ProcessPoolExecutor(max_workers=num_processes) as executor:
 					compressed = b"".join(executor.map(oodle_compress_threaded, chunks))
 				# if len(chunks) > 1:

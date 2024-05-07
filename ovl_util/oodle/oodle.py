@@ -56,6 +56,9 @@ class OodleDecompressor:
     Oodle decompression implementation.
     Requires Windows and the external Oodle library.
     """
+    CHUNK_SIZE = 262144  # 256KB
+    SCRATCH_SIZE = 8 * 1024 * 1024  # 8MB
+    SCRATCH_MAX_SIZE = 2147483648  # 2GB
 
     def __init__(self, library_path: str) -> None:
         """
@@ -76,7 +79,7 @@ class OodleDecompressor:
         codec = OodleCompressEnum[codec_name]
         logging.debug(f"Compressing as {codec_name} (value = {codec.value}), level = {level}")
         input_size = len(payload)
-        output_size = self.get_compressed_bounds(input_size)
+        output_size = self.handle.OodleLZ_GetCompressedBufferSizeNeeded(codec.value, input_size)
         output: Array[c_char] = create_string_buffer(output_size)
 
         OodleLZ_CompressOptions_GetDefault: ctypes._NamedFuncPointer = self.handle.OodleLZ_CompressOptions_GetDefault
@@ -87,18 +90,21 @@ class OodleDecompressor:
 
         comp_options = self.handle.OodleLZ_CompressOptions_GetDefault(codec.value, level)
         comp_options.contents.seekChunkReset = True
-        comp_options.contents.seekChunkLen = 262144  # 256KB
+        comp_options.contents.seekChunkLen = self.CHUNK_SIZE
         comp_options.contents.makeLongRangeMatcher = False
+        if input_size < self.CHUNK_SIZE:
+            comp_options.contents.seekChunkLen = 0
+            comp_options.contents.seekChunkReset = False
 
-        scratch_size = OodleLZ_GetCompressScratchMemBound(codec.value, level, input_size)
-        # TODO: Ensure not-too-high values as well?
+        scratch_size = OodleLZ_GetCompressScratchMemBound(codec.value, level, self.CHUNK_SIZE, comp_options)
         # Can return -1 so provide default size
-        if scratch_size < 0:
-            scratch_size = 8 * 1024 * 1024  # 8MB
+        if scratch_size < 0 or scratch_size > self.SCRATCH_MAX_SIZE:
+            scratch_size = self.SCRATCH_SIZE
         scratch: Array[c_char] = create_string_buffer(scratch_size)
 
         compressed_size = self.handle.OodleLZ_Compress(
             codec.value, c_char_p(payload), input_size, output, level, comp_options, None, None, scratch, scratch_size)
+
         logging.debug(f"Oodle compressed {input_size} bytes down to {compressed_size} bytes.")
         if input_size and not compressed_size:
             raise ValueError("Oodle Compression returned no payload for unknown reason!")
@@ -118,10 +124,6 @@ class OodleDecompressor:
             raise Exception(f"Decompression failed ret={ret} output_size={output_size}")
 
         return output.raw
-
-    @staticmethod
-    def get_compressed_bounds(uncompressed_size):
-        return int(uncompressed_size + 274 * ((uncompressed_size + 0x3FFFF) / 0x400000))
 
 
 oodle_compressor = OodleDecompressor(oodle_dll)
