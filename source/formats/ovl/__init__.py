@@ -22,7 +22,7 @@ from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2, DummyReporter
 
 try:
-	from ovl_util.oodle.oodle import oodle_compressor, OodleDecompressEnum
+	from ovl_util.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
 except:
 	oodle_compressor = OodleDecompressEnum = None
 
@@ -90,8 +90,8 @@ class OvsFile(OvsHeader):
 		"""compress data with method according to ovl settings"""
 		try:
 			if self.ovl.user_version.compression == Compression.OODLE:
-				codec_raw = 6  # Kraken
-				# compression_header may mistakenly have 0x8C read into it when saving uncompressed OVL as Oodle
+				codec_raw = OODLE_CODEC  # Kraken
+				# TODO: compression_header may mistakenly have 0x8C read into it when saving uncompressed OVL as Oodle
 				# so, commenting this out for now
 				#if self.compression_header.startswith(OODLE_MAGIC):
 				#	_, comp_raw = struct.unpack("BB", self.compression_header)
@@ -101,11 +101,11 @@ class OvsFile(OvsHeader):
 				logging.debug(f"Oodle compression: {codec.name} (Raw: {codec_raw})")
 				# Begin compression
 				uncompressed_size = len(uncompressed_bytes)
-				# Compress in 8192KB chunks
-				chunk_size = 262144 * 32 if uncompressed_size >= 262144 * 32 else uncompressed_size
+				# Compress in larger chunks, have each Oodle thread handle 256KB chunking
+				chunk_size = INPUT_CHUNK_SIZE if uncompressed_size >= INPUT_CHUNK_SIZE else uncompressed_size
 				num_chunks = math.ceil(uncompressed_size / chunk_size)
 				compressed = bytearray()
-				# Compress each 8192KB chunk
+				# Compress each chunk
 				chunks = []
 				for i in range(num_chunks):
 					start = i * chunk_size
@@ -113,15 +113,6 @@ class OvsFile(OvsHeader):
 				num_processes = min(cpu_count(), len(chunks))
 				with ProcessPoolExecutor(max_workers=num_processes) as executor:
 					compressed = b"".join(executor.map(oodle_compress_threaded, chunks))
-				# if len(chunks) > 1:
-				# 	with ProcessPoolExecutor(max_workers=num_processes) as executor:
-				# 		compressed = b"".join(executor.map(oodle_compress_threaded, chunks))
-				# else:
-				# 	c = chunks[0]
-				# 	b, name = c
-				# 	print(len(uncompressed_bytes), len(b))
-				# 	compressed = oodle_compressor.compress(b, name, level=6)
-				# 	print(len(compressed))
 				return len(uncompressed_bytes), len(compressed), compressed
 		except:
 			logging.exception(f"Oodle compression failed, falling back to Zlib")

@@ -4,6 +4,15 @@ import ctypes
 from ctypes import cdll, create_string_buffer, Structure, Array, c_char_p, c_void_p, c_char, c_int32, c_bool, c_uint32, POINTER
 from enum import IntEnum
 
+
+# Default codec
+OODLE_CODEC = 6  # Kraken
+# Larger factors will send larger buffers to each Oodle thread
+INPUT_CHUNK_FACTOR = 32
+# Must be divisible by 256KB
+INPUT_CHUNK_SIZE = 262144 * INPUT_CHUNK_FACTOR  # Default: 8MB
+
+
 # taken from quickbms oodle.c
 compressions = (
     ("LZH",            0,  7),
@@ -14,7 +23,7 @@ compressions = (
     ("LZBLW",          5,  3),
     ("LZA",            6,  4),
     ("LZNA",           7,  5),
-    ("Kraken",         8,  6),
+    ("Kraken",         8,  6),    # Default
     ("Mermaid",        9, 10),
     ("BitKnit",       10, 11),
     ("Selkie",        11, 10),
