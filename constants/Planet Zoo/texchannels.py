@@ -3,7 +3,7 @@ texchannels = {
 	'p3MarkingScarTexture': {"R": "PW_M1", "G": "PW_M2", "B": "PW_M3", "A": "SC"},
 	'pAOTexture': {"": "AO"},
 	'pAOTexture2': {"": "AO2"},  # Blend between AO and AO2
-	'pAOTextureDetail': {"": "AO2"},  # Overlaid on pAOTextureUnique
+	'pAOTextureDetail': {"": "DE_AO"},  # Overlaid on pAOTextureUnique
 	'pAOTextureUnique': {"": "AO"},
 	'pAlbedoAndRoughnessDetail': {"RGB": "BC", "A": "RN"},  # Or AL = Albedo?
 	'pAlbinoBaseColourAndMaskTexture': {"RGB": "AB", "A": "AB_HM"},
@@ -60,7 +60,7 @@ texchannels = {
 	'pNormalMapTextureUnique': {"RG": "NQ_NM"},  # Same as Detail pNormalTextureUnique but for Detail_Basic
 	'pNormalTexture': {"RG": "NM"},
 	'pNormalTexture2': {"RG": "NM2"},  # Blend between NM and NM2
-	'pNormalTextureDetail': {"RG": "NM"},
+	'pNormalTextureDetail': {"RG": "DE_NM"},
 	'pNormalTextureDetailBase': {"RG": "DE_NM"},  # Overlaid on pNormalMapTextureUnique
 	'pNormalTextureDetailBlend': {"RG": "BL_NM"},  # Overlaid on pNormalTextureDetailBase
 	'pNormalTextureUnique': {"RG": "NQ_NM"},  # Same as Detail_Basic pNormalMapTextureUnique but for Detail
@@ -73,7 +73,7 @@ texchannels = {
 	'pRoughnessAOPackedTextureDetailBase': {"R": "DE_RN", "G": "DE_AO"},
 	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "RP_OP"},
 	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "RP_OP2"},  # Blend between roughness 1 and 2
-	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": ""},  # ? Mask
+	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": "DE_MT"},
 	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "NQ_SP", "A": "NQ_OP"},
 	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
 	'pShellMap': {"R": "", "G": "", "B": "", "A": ""},  # Lookup/Input Mask
