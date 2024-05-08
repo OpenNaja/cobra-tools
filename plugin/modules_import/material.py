@@ -201,10 +201,10 @@ class BaseShader:
 					base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
 					# get channel mapping
 					for channel, purpose in tex_channels.items():
-						channel_suffix = f"_{channel}" if channel else ""
-						# find label for node
-						if tex_type_with_channel_suffix == f"{texture_data.name}{channel_suffix}".lower():
-							b_tex.label = purpose
+						# also supports pNormalMapTextureUnique -> rocks_ice_shared_01.pbasenormaltexture_RG.png
+						if channel and not tex_type_with_channel_suffix.endswith(f"_{channel.lower()}"):
+							continue
+						b_tex.label = purpose
 					self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
 					# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
 					uv_i = self.uv_map.get(text_name, 0)
