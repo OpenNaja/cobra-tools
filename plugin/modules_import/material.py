@@ -314,8 +314,10 @@ def create_material(in_dir, matname):
 			shader.add_shader(tree, "AnimalVariation")
 		if "Detail_Basic" in fgm_data.shader_name:
 			shader.add_shader(tree, "Detail_BasicBlend")
+			shader.add_shader(tree, "Detail_BasicMapping")  # TODO: Add to file for now, at least
 		elif "Detail" in fgm_data.shader_name:
 			shader.add_shader(tree, "DetailBlend")
+			shader.add_shader(tree, "DetailMapping")  # TODO: Add to file for now, at least
 		# todo use shader name check for flexi and add_shader api
 		shader.add_flexi_nodes(tree)
 		# diffuse = shader.add_marking_nodes(diffuse, tree)
