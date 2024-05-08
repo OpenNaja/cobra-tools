@@ -95,6 +95,7 @@ class BaseShader:
 		return diffuse
 
 	def connect_inputs(self, shader_node, tree):
+		"""Connects output sockets of other nodes to the inputs of shader_node"""
 		for socket in shader_node.inputs:
 			if socket.name in tex_slots:
 				long_name = tex_slots[socket.name]
@@ -129,10 +130,32 @@ class BaseShader:
 						# assume non-color colorspace for non-color inputs
 						if not isinstance(socket, bpy.types.NodeSocketColor):
 							node.image.colorspace_settings.name = "Non-Color"
+						# connect UV inputs using two different methods
+						# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
+						text_name = node.parent.label
+						uv_i = self.uv_map.get(text_name, 0)
+						if uv_i > 0:
+							if uv_i not in self.uv_dic:
+								uv_node = tree.nodes.new('ShaderNodeUVMap')
+								uv_node.uv_map = f"UV{uv_i}"
+								self.uv_dic[uv_i] = uv_node
+							else:
+								uv_node = self.uv_dic[uv_i]
+							tree.links.new(uv_node.outputs[0], node.inputs[0])
+						# connect transformed UV coord node input according to channel ID
+						if "_" in identifier:
+							base_id = identifier.split("_")[0]
+							uv_id = f"{base_id} UV"
+							uv_socket = self.id_2_out_socket.get(uv_id)
+							if uv_socket:
+								tree.links.new(uv_socket, node.inputs[0])
 					tree.links.new(out_socket, socket)
 
 	def connect_outputs(self, shader_node, tree):
+		"""Stores outputs of shader_node in id_2_out_socket to later connect them to the inputs sockets of other nodes"""
 		for socket in shader_node.outputs:
+			if " UV" in socket.name:
+				self.id_2_out_socket[socket.name] = socket
 			if socket.name in tex_slots:
 				long_name = tex_slots[socket.name]
 			else:
@@ -206,17 +229,6 @@ class BaseShader:
 							continue
 						b_tex.label = purpose
 					self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
-					# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
-					uv_i = self.uv_map.get(text_name, 0)
-					# todo support custom node input for UV layers
-					if uv_i > 0:
-						if uv_i not in self.uv_dic:
-							uv_node = tree.nodes.new('ShaderNodeUVMap')
-							uv_node.uv_map = f"UV{uv_i}"
-							self.uv_dic[uv_i] = uv_node
-						else:
-							uv_node = self.uv_dic[uv_i]
-						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
 				if tex_nodes:
 					# Until better option to organize the shader info, create frame for all channels of this texture
 					tex_frame = tree.nodes.new('NodeFrame')
@@ -313,11 +325,11 @@ def create_material(in_dir, matname):
 		if fgm_data.shader_name.startswith(("Animal_", "Fur")):
 			shader.add_shader(tree, "AnimalVariation")
 		if "Detail_Basic" in fgm_data.shader_name:
+			shader.add_shader(tree, "Detail_BasicMapping")
 			shader.add_shader(tree, "Detail_BasicBlend")
-			shader.add_shader(tree, "Detail_BasicMapping")  # TODO: Add to file for now, at least
 		elif "Detail" in fgm_data.shader_name:
+			shader.add_shader(tree, "DetailMapping")
 			shader.add_shader(tree, "DetailBlend")
-			shader.add_shader(tree, "DetailMapping")  # TODO: Add to file for now, at least
 		# todo use shader name check for flexi and add_shader api
 		shader.add_flexi_nodes(tree)
 		# diffuse = shader.add_marking_nodes(diffuse, tree)
