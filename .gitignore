@@ -187,3 +187,12 @@ tests/tmp/**
 
 # Misc
 OVL Tools.lnk
+
+# Blender
+plugin/**/*.blend1
+
+# Compressonator
+ovl_util/compressonator/**.png
+ovl_util/compressonator/**.dds
+ovl_util/compressonator/**_analysis.xml
+ovl_util/compressonator/process_results.txt
