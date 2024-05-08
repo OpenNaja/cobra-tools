@@ -4,7 +4,7 @@ texchannels = {
 	'pAOTexture': {"": "AO"},
 	'pAOTexture2': {"": "AO2"},  # Blend between AO and AO2
 	'pAOTextureDetail': {"": "DE_AO"},  # Overlaid on pAOTextureUnique
-	'pAOTextureUnique': {"": "AO"},
+	'pAOTextureUnique': {"": "NQ_AO"},
 	'pAlbedoAndRoughnessDetail': {"RGB": "BC", "A": "RN"},  # Or AL = Albedo?
 	'pAlbinoBaseColourAndMaskTexture': {"RGB": "AB", "A": "AB_HM"},
 	'pBaldnessScarTexture': {"R": "BA", "G": "SC", "B": "", "A": ""},  # B/A Appear unused
@@ -74,7 +74,7 @@ texchannels = {
 	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "RP_OP"},
 	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "RP_OP2"},  # Blend between roughness 1 and 2
 	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": "DE_MT"},
-	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "NQ_SP", "A": "NQ_OP"},
+	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "SP", "A": "NQ_OP"},  # No SP blending, remove NQ_ for Specular connection
 	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
 	'pShellMap': {"R": "", "G": "", "B": "", "A": ""},  # Lookup/Input Mask
 	# 'pSkirtMaterialMask': {"": ""},

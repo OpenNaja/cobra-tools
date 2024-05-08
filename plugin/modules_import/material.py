@@ -315,7 +315,7 @@ def create_material(in_dir, matname):
 		if "Detail_Basic" in fgm_data.shader_name:
 			shader.add_shader(tree, "Detail_BasicBlend")
 		elif "Detail" in fgm_data.shader_name:
-			shader.add_shader(tree, "Detail_Blend")
+			shader.add_shader(tree, "DetailBlend")
 		# todo use shader name check for flexi and add_shader api
 		shader.add_flexi_nodes(tree)
 		# diffuse = shader.add_marking_nodes(diffuse, tree)
