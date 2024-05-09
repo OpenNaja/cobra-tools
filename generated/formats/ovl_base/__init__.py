@@ -11,12 +11,23 @@ class OvlContext(object):
 	def __repr__(self):
 		return f"{self.version} | {self.user_version}"
 
-	@classmethod
-	def to_xml(cls, elem, prop, instance, arg, template, debug):
-		from generated.formats.ovl.versions import get_game
-		elem.attrib[prop] = str(get_game(instance)[0])
+	# @classmethod
+	# def to_xml(cls, elem, prop, instance, arg, template, debug):
+	# 	from generated.formats.ovl.versions import get_game
+	# 	elem.attrib[prop] = str(get_game(instance)[0])
 
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
 		from generated.formats.ovl.versions import get_game
 		elem.attrib[prop] = str(get_game(instance)[0])
+
+	@classmethod
+	def context_from_xml(cls, target, elem, prop, arg, template):
+		"""Creates object for parent object 'target', from parent element elem."""
+		game_str = elem.attrib.get(prop)
+		if game_str is None:
+			return
+		from generated.formats.ovl.versions import set_game
+		game = game_str.split(".")[1]
+		set_game(target, game)
+		return target

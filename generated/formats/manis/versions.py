@@ -129,7 +129,10 @@ def get_game(context):
 
 def set_game(context, game):
 	if isinstance(game, str):
-		game = games(game)
+		if game in games._member_names_:
+			game = games[game]
+		else:
+			game = games(game)
 	if game in {games.DLA}:
 		return set_dla(context)
 	if game in {games.JWE}:

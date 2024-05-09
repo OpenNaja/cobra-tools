@@ -218,7 +218,10 @@ class Versions:
 		# write game version setting function
 		stream.write(f"def set_game(context, game):")
 		stream.write(f"\n\tif isinstance(game, str):")
-		stream.write(f"\n\t\tgame = games(game)")
+		stream.write(f"\n\t\tif game in games._member_names_:")
+		stream.write(f"\n\t\t\tgame = games[game]")
+		stream.write(f"\n\t\telse:")
+		stream.write(f"\n\t\t\tgame = games(game)")
 		# first check all the defaults
 		for version in self.versions:
 			if len(version_default_map[version.attrib['id']]) > 0:

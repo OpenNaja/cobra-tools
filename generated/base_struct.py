@@ -120,9 +120,11 @@ class BaseStruct(metaclass=StructMetaClass):
     @classmethod
     def from_xml_file(cls, file_path, context, arg=0, template=None):
         """Load Struct represented by the xml in 'file_path'"""
-        instance = cls(context, arg, template, set_default=False)
         tree = ET.parse(file_path)
         xml = tree.getroot()
+        if hasattr(context, "context_from_xml"):
+            context.context_from_xml(context, xml, "game", 0, None)
+        instance = cls(context, arg, template, set_default=False)
         try:
             cls._from_xml(instance, xml)
         except:
