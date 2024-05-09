@@ -3003,7 +3003,6 @@ class MainWindow(FramelessMainWindow):
         self.status_timer.setInterval(3500)
         self.status_timer.timeout.connect(self.reset_progress)
 
-        # self.cfg: dict[str, Any] = config.load_config()
         self.cfg: config.Config[str, Any] = config.Config()
         self.cfg.load()
 

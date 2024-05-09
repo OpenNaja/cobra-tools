@@ -5,35 +5,66 @@ import os
 from root_path import root_dir
 
 
-class ImmediateSetting(object):
+class BaseSetting(object):
 
-	def __init__(self, default: object = 0):
+	def __init__(self, name, tooltip, default: object = 0, options=(), accept_filter=lambda x: True):
+		self.name, = name,
+		self.tooltip = tooltip
 		self.default = default
+		self.options = options
+		self.options_map = {str(option): option for option in options}
+		self.accept_filter = accept_filter
+
+	def __repr__(self):
+		return f"'{self.name}' ({self.__class__.__name__}) default={self.default}, options={self.options}"
+
+	def update(self, cfg_dict, k, v):
+		print(f"setting cfg[{k}]={v}")
+		# go back to the original type
+		v = self.options_map.get(v, v)
+		# setattr(cfg, k, v)
+		cfg_dict[k] = v
+
+	# def __get__(self, instance, owner):
+	# 	print("__get__", instance, owner)
+	# 	return self
+
+	# def __set__(self, instance, value):
+	# 	print("__set__", instance, value)
+	# 	setattr(instance, self.name, value)
 
 
-class DeferredSetting(object):
-
-	def __init__(self, default: object = 0):
-		self.default = default
+class ImmediateSetting(BaseSetting):
+	pass
 
 
-class TransientSetting(object):
+class DeferredSetting(BaseSetting):
+	pass
 
-	def __init__(self, default: object = 0):
-		self.default = default
+
+class TransientSetting(BaseSetting):
+	pass
 
 
 class Config(dict):
 
-	immediate = ("recent_ovls", )
-	recent_ovls = ImmediateSetting([])
-	current_ovl = TransientSetting("some_ovl.ovl")
+	# immediate = ("recent_ovls", )
+	recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
+	current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
+	oodle_level = TransientSetting("Oodle Level", "Higher numbers compress better, while lower numbers compress faster", 6, list(range(10)))
+	# DDS settings
+	dds_use_gpu = TransientSetting("Use GPU Compression", "GPU is faster but less accurate, especially on MIP maps", True, (True, False))
+	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
+	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
+	show_logger = ImmediateSetting("Show Logger", "Show Logger widget - needs restart", False, (True, False))
 	name = "config.json"
 
 	def __setitem__(self, k, v):
 		super().__setitem__(k, v)
-		if k in self.immediate:
-			logging.debug(f"Saved '{self.name}' after storing '{k}'")
+		# key for manager may not exist
+		manager = self.settings.get(k)
+		if manager and isinstance(manager, ImmediateSetting):
+			logging.info(f"Saved '{self.name}' after storing '{k}'")
 			self.save()
 	#
 	# def __getitem__(self, k):
@@ -44,13 +75,31 @@ class Config(dict):
 		self.name = name
 
 	@property
+	def settings(self):
+		# print(self.__members__)
+		members = {k: v for k, v in self.__class__.__dict__.items() if isinstance(v, BaseSetting)}
+		# print("dict", )
+		# sets = {"recent_ovls": self.recent_ovls}
+		return members
+		# return self.__annotations__
+		# total_members = []
+		# for key, value in dict.items():
+		# 	if isinstance(value, BitfieldMember):
+		# 		total_members.append(key)
+		# cls.__members__ = total_members
+
+	@property
 	def cfg_path(self):
 		return os.path.join(root_dir, self.name)
 
 	def save(self):
 		logging.info(f"Saving config")
-		with open(self.cfg_path, "w") as json_writer:
-			json.dump(self.__slots__, json_writer, indent="\t", sort_keys=True)
+		try:
+			with open(self.cfg_path, "w") as json_writer:
+				json.dump(self, json_writer, indent="\t", sort_keys=True)
+				# json.dump(self.__slots__, json_writer, indent="\t", sort_keys=True)
+		except:
+			logging.exception(f"Saving '{self.cfg_path}' failed")
 
 	def load(self):
 		try:
@@ -119,5 +168,43 @@ def read_list(cfg_path):
 
 
 if __name__ == '__main__':
-	cfg = read_str_dict("config.ini")
+	cfg = Config()
+	cfg.load()
 	print(cfg)
+	# print(cfg.settings)
+	import sys
+	from gui.widgets import LabelCombo
+	from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QApplication
+
+
+	class Window(QWidget):
+
+		def __init__(self):
+			super().__init__()
+
+			self.vlayout = QVBoxLayout()
+			# remove_layout.clicked.connect(self.remove_layout)
+			for cfg_key, cfg_manager in cfg.settings.items():
+				def make_setter():
+					cfg_key2 = str(cfg_key)
+					# print(cfg_key)
+					def set_key(v):
+						# nonlocal cfg_key
+						print(cfg_key2)
+						cfg_manager.update(cfg, cfg_key2, v)
+						# setattr(cfg, cfg_key, v)
+					return set_key
+				set_key = make_setter()
+				c = LabelCombo(cfg_manager.name, [str(x) for x in cfg_manager.options], editable=not bool(cfg_manager.options), activated_fn=set_key)
+				c.entry.setText(str(cfg.get(cfg_key, cfg_manager.default)))
+				self.vlayout.addWidget(c)
+			self.setLayout(self.vlayout)
+
+	app = QApplication(sys.argv)
+
+	w = Window()
+	w.show()
+
+	app.exec()
+	print(cfg)
+	# c.show()
