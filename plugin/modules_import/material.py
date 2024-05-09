@@ -5,6 +5,7 @@ import sys
 import bpy
 import os
 
+from generated.formats.ovl import get_game
 from ovl_util.shared import check_any
 from plugin.utils.texture_settings import tex_slots
 from root_path import root_dir
@@ -301,7 +302,7 @@ def create_material(in_dir, matname):
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
 	except:
-		logging.warning(f"{fgm_path} could not be loaded!")
+		logging.exception(f"{fgm_path} could not be loaded!")
 		return b_mat
 
 	constants = ConstantsProvider(("shaders", "textures", "texchannels"))
@@ -309,10 +310,9 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 
 	create_color_ramps(fgm_data, tree)
+	game_item = get_game(fgm_data.context)[0]
+	game = game_item.value
 	try:
-		# todo clean up game version
-		game = "Jurassic World Evolution 2" if "jura" in fgm_data.game.lower() else "Planet Zoo"
-		# print(game)
 		tex_channel_map = texture_settings.get_tex_channel_map(constants, game, fgm_data.shader_name)
 		# print(tex_channel_map)
 		try:
