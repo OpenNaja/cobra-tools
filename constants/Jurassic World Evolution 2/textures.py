@@ -17,4 +17,7 @@ textures = {
 	'Foliage_Billboard': {
 		# "pNormalTexture" # not sure if A is actually AO, might be unused (1.0)
 	},
+	'Glass_TexturedNormalsTwoSided': {
+		'pNormalTexture': {"RG": "NM"}
+	}
 }

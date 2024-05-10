@@ -71,8 +71,8 @@ texchannels = {
 	# 'pPropertyTexture': {"": ""},
 	'pRetroreflectiveness': {"": ""},
 	'pRoughnessAOPackedTextureDetailBase': {"R": "DE_RN", "G": "DE_AO"},
-	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "RP_OP"},
-	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "RP_OP2"},  # Blend between roughness 1 and 2
+	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": ""},
+	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": ""},  # Blend between roughness 1 and 2
 	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": "DE_MT"},
 	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "SP", "A": "NQ_OP"},  # No SP blending, remove NQ_ for Specular connection
 	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
@@ -82,7 +82,7 @@ texchannels = {
 	'pSubLayerDiffuse0Texture': {"": ""}, # Ice shader
 	'pSubLayerDiffuse1Texture': {"": ""}, # Ice shader
 	'pThicknessTexture': {"": ""}, # Ice shader
-	'pTransmittancePackedTexture': {"R": "TR", "G": "RN", "B": "SP", "A": "TR_OP"},
+	'pTransmittancePackedTexture': {"R": "TR", "G": "RN", "B": "SP", "A": ""},
 	'pTransmittanceTexture': {"": "TR"},
 	'pWaterDetailNormalTexture': {"RG": "NM"},
 	'pWaterDetailRoughnessTexture': {"": "RN"},

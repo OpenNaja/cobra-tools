@@ -69,8 +69,6 @@ tex_slots = {
     "BA": "Baldness",
     "HE": "Height",
     "TR": "Transmission",
-    "TR_OP": "Transmission Packed Opacity",
-    "RP_OP": "Roughness Packed Opacity",
     "RP_OP2": "Roughness Packed Opacity 2",
     "FN_OP1": "Fin Opacity 1",
     "FN_OP2": "Fin Opacity 2",

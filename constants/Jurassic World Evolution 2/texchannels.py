@@ -77,9 +77,9 @@ texchannels = {
 	# 'pProjection_Texture': {"": ""},
 	# 'pRemapTexture': {"": ""},
 	'pRoughnessPackedTexture': {"R": "MT", "G": "SP", "B": "RN", "A": "FO"},  # Metallic_Roughness_Clip_Geometry_Decal A = OP
-	# 'pRoughnessTexture': {"": ""},
+	'pRoughnessTexture': {"": "RN"},
 	# 'pShellMap': {"R": "", "G": "", "B": "", "A": ""},
-	# 'pSpecularTexture': {"": ""},
+	'pSpecularTexture': {"": "SP"},
 	# 'pSubLayerDiffuse0Texture': {"": ""},
 	# 'pSubLayerDiffuse1Texture': {"": ""},
 	# 'pThicknessTexture': {"": ""},

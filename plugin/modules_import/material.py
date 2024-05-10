@@ -338,13 +338,38 @@ def create_material(in_dir, matname):
 		shader.connect_inputs(shader_node, tree)
 		tree.links.new(shader_node.outputs[0], output.inputs[0])
 
+		# Transparency
+		# TODO: Glass_Uniform* pOpacity
+		blend_shaders = (
+			"Glass_",
+		)
+		alpha_blending = any(n in b_mat.fgm.shader_name for n in blend_shaders)
+		# Note: Only explicitly single sided shaders here, not general ones like Clip
+		single_sided_shaders = ("OneSided", "SingleSided")
+		double_sided_shaders = (
+			"TwoSided",
+			"DoubleSided",
+			"Foliage",
+			"FurBaseAlpha",  # FurBaseAlpha_SingleSided will be correctly handled below
+		)
+		single_sided = any(n in b_mat.fgm.shader_name for n in single_sided_shaders)
+		double_sided = not single_sided and any(n in b_mat.fgm.shader_name for n in double_sided_shaders)
 		alpha_test = shader.attr.get("pAlphaTestRef")
-		if alpha_test is not None:
+		if alpha_blending:
+			b_mat.blend_method = "BLEND"
+			b_mat.shadow_method = "NONE"
+			#b_mat.show_transparent_back = double_sided  # Seems incorrect
+			# Default to culling unless determined as double sided
+			b_mat.use_backface_culling = not double_sided
+		elif alpha_test is not None:
 			b_mat.blend_method = "CLIP"
 			b_mat.shadow_method = "CLIP"
+			# Default to culling unless determined as double sided
+			b_mat.use_backface_culling = not double_sided
 			# blender appears to be stricter with the alpha clipping
 			# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
 			b_mat.alpha_threshold = alpha_test * 0.5
+
 		nodes_iterate(tree, output)
 	except:
 		logging.exception(f"Importing material {matname} failed")
