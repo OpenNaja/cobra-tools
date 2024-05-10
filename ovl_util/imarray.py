@@ -130,14 +130,15 @@ def get_split_mode(png_name, compression):
 			return "R_G"
 		else:
 			return "RG"
+	if not check_any(("BC5",), compression) and check_any(("pbasenormaltexture", "pgradheightarray", "pnormalmaptextureunique", "pnormaltexturedetailbase"), tex_type):
+		# Ensure not BC5 for pnormalmaptextureunique, pnormaltexturedetailbase, which are BC5 in some games
+		return "RG_B_A"
 	if check_any(
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
 				"pbasecolourtexture", "pbasecolour2", "pdiffusetexture", "pdiffusealphatexture", "basecolourandmasktexture", "waternormalroughnessmap"
 			), tex_type):
 		return "RGB_A"
-	if check_any(("pbasenormaltexture", "pgradheightarray"), tex_type):
-		return "RG_B_A"
 	if check_any((
 		"packedtexture", "maskmap", "playered_blendweights", "playered_diffusetexture", "playered_heighttexture", "playered_packedtexture",
 		"playered_remaptexture", "scartexture",

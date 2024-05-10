@@ -6,8 +6,8 @@ texchannels = {
 		"": "AO"  # BC4
 		},
 	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # check if A is used here  # Metallic_Roughness_Clip A = OP
-	# 'pBaseColourTextureDetailBase': {"RGB": "", "A": ""},
-	# 'pBaseColourTextureDetailBlend': {"RGB": "", "A": ""},
+	'pBaseColourTextureDetailBase': {"RGB": "DE_BC", "A": ""},
+	'pBaseColourTextureDetailBlend': {"RGB": "BL_BC", "A": ""},  # Overlaid on pBaseColourTextureDetailBase
 	# 'pBaseDielectricSpecularLevelTexture': {"": ""},
 	'pBaseDiffuseTexture': {"": "BC"},
 	'pBaseNormalTexture': {"RG": "NM", "B": "SP", "A": "RN"},
@@ -52,10 +52,10 @@ texchannels = {
 	# 'pMossNormalTexture': {"": ""},
 	# 'pMossVarianceTexture': {"": ""},
 	# 'pNormalBlendWeightTexture': {"": ""},
-	# 'pNormalMapTextureUnique': {"": ""},
+	'pNormalMapTextureUnique': {"RG": "NQ_NM", "B": "DM", "A": "NQ_AO"},
 	'pNormalTexture': {"RGB": "NM", "A": "AO"},  # BC7_UNORM - no coord dropping? not sure if A is actually always AO
-	# 'pNormalTextureDetailBase': {"RGB": "", "A": ""},
-	# 'pNormalTextureDetailBlend': {"RGB": "", "A": ""},
+	'pNormalTextureDetailBase': {"RG": "DE_NM", "B": "DE_RN", "A": "DE_AO"},  # Overlaid on pNormalMapTextureUnique
+	'pNormalTextureDetailBlend': {"RG": "BL_NM"},  # Overlaid on pNormalTextureDetailBase
 	'pOpacityTexture': {"": "OP"},
 	# 'pPOM_DisplacementRelaxedConeTexture': {"": ""},
 	# 'pPackedTexture': {"RGB": "", "A": ""},
