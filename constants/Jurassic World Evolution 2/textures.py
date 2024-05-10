@@ -10,7 +10,13 @@ textures = {
 		'pNormalTexture': {"RGB": "NM", "A": "RN"}
 	},
 	'Foliage_Clip': {
-		"pRoughnessPackedTexture": {"R": "OP", "G": "RN", "B": "SP", "A": "MT"},
+		"pRoughnessPackedTexture": {"R": "OP", "G": "RN", "B": "SP", "A": "TR"},
+	},
+	'Foliage_ClipNoDisplacement': {
+		"pRoughnessPackedTexture": {"R": "OP", "G": "RN", "B": "SP", "A": "TR"},
+	},
+	'Foliage_ClipTexcoordWeight': {
+		"pRoughnessPackedTexture": {"R": "OP", "G": "RN", "B": "SP", "A": "TR"},
 	},
 	'Foliage_Opaque': {
 	},
