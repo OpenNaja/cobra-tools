@@ -186,6 +186,7 @@ class BaseShader:
 			# Until better option to organize the shader info, create frame for all channels of this texture
 			frame = tree.nodes.new('NodeFrame')
 			frame.label = text_name
+			frame.label_size = 14
 			for node in nodes:
 				node.hide = True  # make it small for a quick overview, as we set the short purpose labels
 				node.parent = frame  # assign the texture frame to this png
@@ -311,7 +312,6 @@ def get_color_ramp(fgm, prefix, suffix):
 def create_material(in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
-
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
 	try:
 		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
@@ -387,7 +387,7 @@ def create_material(in_dir, matname):
 			# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
 			b_mat.alpha_threshold = alpha_test * 0.5
 
-		nodes_iterate(tree, output)
+		nodes_iterate(b_mat, tree, output)
 	except:
 		logging.exception(f"Importing material {matname} failed")
 	return b_mat
