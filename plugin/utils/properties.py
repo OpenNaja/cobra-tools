@@ -20,7 +20,9 @@ class VersionedPropertyGroup(PropertyGroup):
 
 	def get_current_game_suffix(self, context):
 		game = context.scene.cobra.game
-		if game == "Jurassic World Evolution":
+		if game == "Planet Coaster":
+			return "_pc"
+		elif game == "Jurassic World Evolution":
 			return "_jwe"
 		elif game == "Planet Zoo":
 			return "_pz"
@@ -296,6 +298,11 @@ class SceneryDataPanel(Panel):
 class CobraMaterialSettings(VersionedPropertyGroup):
 	c = ConstantsProvider(("shaders", "textures"))
 
+	shader_name_pc: EnumProperty(
+		name='Shader',
+		description='Shader for Planet Coaster',
+		items=[(name, name, "") for name in c['Planet Coaster']["shaders"]],
+	)
 	shader_name_pz: EnumProperty(
 		name='Shader',
 		description='Shader for Planet Zoo',

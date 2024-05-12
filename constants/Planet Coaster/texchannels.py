@@ -1,6 +1,6 @@
 texchannels = {
-	# 'pAOSamplerTexture': {"": ""},
-	# 'pBaseColourTexture': {"RGB": "", "A": ""},
+	'pAOSamplerTexture': {"": "AO"},
+	'pBaseColourTexture': {"RGB": "BC", "A": ""},  # unsure about A
 	# 'pCavitySmoothnessArrayTexture': {"": ""},
 	# 'pCavitySmoothnessOpacitySamplerTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pCavitySmoothnessSamplerTexture': {"": ""},
