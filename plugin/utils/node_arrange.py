@@ -81,37 +81,37 @@ def nodes_iterate(b_mat, tree, nodeoutput):
         area.ui_type = old_area_ui_type
     bpy.context.object.active_material = prev_mat
 
-    # put child nodes without outputs at the bottom of their frame
-    frames = {frame: [] for frame in tree.nodes if isinstance(frame, NodeFrame)}
+    # find child nodes without outputs, store them per frame
+    stray_nodes_per_frame = {frame: [] for frame in tree.nodes if isinstance(frame, NodeFrame)}
     for node in tree.nodes:
         if isinstance(node, (ShaderNodeRGB, ShaderNodeTexImage)):
             if not has_outputs(node):
-                children = frames.get(node.parent, None)
-                if children is not None:
-                    children.append(node)
+                stray_nodes = stray_nodes_per_frame.get(node.parent, None)
+                if stray_nodes is not None:
+                    stray_nodes.append(node)
 
+    # position the nodes by frame
     x = 0
     for level, nodes in enumerate(node_columns):
-
         # node x positions
         width_max = max([x.dimensions.x for x in nodes])
         x -= (width_max + 100) if level else 0
-
+        y = 0
+        # group the nodes of this level by frame if they have one
         level_frames = {}
         for node in nodes:
             if node.parent:
                 if node.parent not in level_frames:
-                    level_frames[node.parent] = frames.pop(node.parent, [])
+                    level_frames[node.parent] = stray_nodes_per_frame.pop(node.parent, [])
                 level_frames[node.parent].append(node)
             else:
                 level_frames[node] = []
         nodes = []
-        # node positions
-        y = 0
+        # position the nodes so that all nodes of a frame are packed close together
         # include any stray child nodes after the last used node of a frame
-        for node, children in reversed(level_frames.items()):
-            if children:
-                block_nodes = children
+        for node, stray_nodes in reversed(level_frames.items()):
+            if stray_nodes:
+                block_nodes = stray_nodes
             else:
                 block_nodes = [node, ]
             nodes.extend(block_nodes)
