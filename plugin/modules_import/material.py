@@ -54,12 +54,6 @@ class BaseShader:
 
 	inv_tex_slots = {v: k for k, v in tex_slots.items()}
 
-	def add_flexi_nodes(self, tree):
-		flexi_identifiers = [f"F{i}" for i in range(1, 5)]
-		flexi_nodes = [self.id_2_out_socket.get(f) for f in flexi_identifiers]
-		if any(flexi_nodes):
-			self.add_shader(tree, "FlexiDiffuse")
-
 	def add_shader(self, tree, node_name):
 		logging.info(f"Adding shader for '{node_name}'")
 		shader_node = get_group_node(tree, node_name)
@@ -342,15 +336,15 @@ def create_material(in_dir, matname):
 		shader.build_attr_dict(fgm_data)
 		if fgm_data.shader_name.startswith(("Animal_", "Fur")):
 			shader.add_shader(tree, "AnimalVariation")
+			# shader.add_marking_nodes(diffuse, tree)
 		if "Detail_Basic" in fgm_data.shader_name:
 			shader.add_shader(tree, "Detail_BasicMapping")
 			shader.add_shader(tree, "Detail_BasicBlend")
 		elif "Detail" in fgm_data.shader_name:
 			shader.add_shader(tree, "DetailMapping")
 			shader.add_shader(tree, "DetailBlend")
-		# todo use shader name check for flexi and add_shader api
-		shader.add_flexi_nodes(tree)
-		# diffuse = shader.add_marking_nodes(diffuse, tree)
+		if "pFlexiColourBlended" in shader.attr:
+			shader.add_shader(tree, "FlexiDiffuse")
 		# main shader
 		shader_node = get_group_node(tree, "MainShader")
 		shader.connect_inputs(shader_node, tree)
