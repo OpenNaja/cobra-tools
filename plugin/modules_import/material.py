@@ -1,3 +1,4 @@
+import contextlib
 import inspect
 import logging
 import sys
@@ -176,6 +177,19 @@ class BaseShader:
 			else:
 				self.attr[attr.name] = attr_data.value
 
+	@staticmethod
+	@contextlib.contextmanager
+	def put_in_frame(text_name, tree):
+		nodes = []
+		yield nodes
+		if nodes:
+			# Until better option to organize the shader info, create frame for all channels of this texture
+			frame = tree.nodes.new('NodeFrame')
+			frame.label = text_name
+			for node in nodes:
+				node.hide = True  # make it small for a quick overview, as we set the short purpose labels
+				node.parent = frame  # assign the texture frame to this png
+
 	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree):
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
@@ -187,55 +201,58 @@ class BaseShader:
 			# ignore texture types that we have no use for
 			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut", "playered", "ppatterning"), text_name):
 				continue
-			tex_channels = tex_channel_map.get(texture_data.name, {})
-			if texture_data.dtype == FgmDtype.RGBA:
-				color = tree.nodes.new('ShaderNodeRGB')
-				color.label = text_name
-				color.outputs[0].default_value = (
-					texture_data.value[0].r / 255,
-					texture_data.value[0].g / 255,
-					texture_data.value[0].b / 255,
-					texture_data.value[0].a / 255
-				)
-				for channel, purpose in tex_channels.items():
-					self.id_2_out_socket[purpose] = color.outputs[0]
-			else:
-				tex_name = dep_info.dependency_name.data
-				if not tex_name:
-					raise AttributeError(f"Texture name is not set for {text_name}")
-				png_base, ext = os.path.splitext(tex_name.lower())
-				# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
-				if png_base in tex_check:
-					continue
-				tex_check.add(png_base)
 
-				def is_part_of_tex(file):
-					"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
-					to start with the same id such as pdiffuse and pdiffusemelanistic"""
-					return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
-				tex_nodes = []
-				for png_name in all_textures:
-					if not is_part_of_tex(png_name):
-						continue
-					png_path = os.path.join(in_dir, png_name)
-					b_tex = load_tex_node(tree, png_path)
-					b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
-					tex_nodes.append(b_tex)
-
-					base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
-					# get channel mapping
+			with self.put_in_frame(text_name, tree) as tex_nodes:
+				tex_channels = tex_channel_map.get(texture_data.name, {})
+				if texture_data.dtype == FgmDtype.RGBA:
+					# only take the first RGBA slot of the two
+					v = texture_data.value[0]
+					rgba = {"R": v.r/255, "G": v.g/255, "B": v.b/255, "A": v.a/255}
 					for channel, purpose in tex_channels.items():
-						# also supports pNormalMapTextureUnique -> rocks_ice_shared_01.pbasenormaltexture_RG.png
-						if channel and not tex_type_with_channel_suffix.endswith(f"_{channel.lower()}"):
+						color = tree.nodes.new('ShaderNodeRGB')
+						color.label = purpose
+						tex_nodes.append(color)
+						if not channel:
+							channel = "RGBA"
+						if len(channel) == 4:
+							color.outputs[0].default_value = [rgba[c] for c in channel]
+						elif len(channel) == 3:
+							color.outputs[0].default_value = [rgba[c] for c in channel] + [1.0, ]
+						elif len(channel) == 2:
+							color.outputs[0].default_value = [rgba[c] for c in channel] + [1.0, 1.0]
+						elif len(channel) == 1:
+							color.outputs[0].default_value = [rgba[channel] for _ in range(3)] + [1.0, ]
+						self.id_2_out_socket[purpose] = color.outputs[0]
+				else:
+					tex_name = dep_info.dependency_name.data
+					if not tex_name:
+						raise AttributeError(f"Texture name is not set for {text_name}")
+					png_base, ext = os.path.splitext(tex_name.lower())
+					# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
+					if png_base in tex_check:
+						continue
+					tex_check.add(png_base)
+
+					def is_part_of_tex(file):
+						"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
+						to start with the same id such as pdiffuse and pdiffusemelanistic"""
+						return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
+
+					for png_name in all_textures:
+						if not is_part_of_tex(png_name):
 							continue
-						b_tex.label = purpose
-					self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
-				if tex_nodes:
-					# Until better option to organize the shader info, create frame for all channels of this texture
-					tex_frame = tree.nodes.new('NodeFrame')
-					tex_frame.label = text_name
-					for b_tex in tex_nodes:
-						b_tex.parent = tex_frame  # assign the texture frame to this png
+						png_path = os.path.join(in_dir, png_name)
+						b_tex = load_tex_node(tree, png_path)
+						tex_nodes.append(b_tex)
+
+						base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
+						# get channel mapping
+						for channel, purpose in tex_channels.items():
+							# also supports pNormalMapTextureUnique -> rocks_ice_shared_01.pbasenormaltexture_RG.png
+							if channel and not tex_type_with_channel_suffix.endswith(f"_{channel.lower()}"):
+								continue
+							b_tex.label = purpose
+						self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
