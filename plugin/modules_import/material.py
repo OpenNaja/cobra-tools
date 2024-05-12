@@ -37,6 +37,7 @@ def get_group_node(tree, name):
 	group_node = tree.nodes.new("ShaderNodeGroup")
 	group_node.node_tree = bpy.data.node_groups[name]
 	group_node.name = name
+	group_node.label = name
 	return group_node
 
 

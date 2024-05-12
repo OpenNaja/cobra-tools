@@ -9,9 +9,6 @@ from bpy.types import NodeFrame, ShaderNodeTexImage, ShaderNodeRGB
 
 class values():
     x_last = 0
-    margin_x = 300
-    mat_name = ""
-    margin_y = 100
 
 
 def get_prepared_ui_area(context):
@@ -69,7 +66,8 @@ def nodes_iterate(b_mat, tree, nodeoutput):
                         node_columns[col_2].remove(node_2)
                         break
 
-    # redraw to get the node dimensions
+    # redraw to get the node dimensions, adapted from:
+    # https://blender.stackexchange.com/questions/294362/how-to-update-and-get-the-property-node-dimensions-with-python
     tree.nodes.update()
     prev_mat = bpy.context.object.active_material
     bpy.context.object.active_material = b_mat
@@ -92,16 +90,42 @@ def nodes_iterate(b_mat, tree, nodeoutput):
                 if children is not None:
                     children.append(node)
 
-    values.x_last = 0
+    x = 0
     for level, nodes in enumerate(node_columns):
+
+        # node x positions
+        width_max = max([x.dimensions.x for x in nodes])
+        x -= (width_max + 100) if level else 0
+
+        level_frames = {}
+        for node in nodes:
+            if node.parent:
+                if node.parent not in level_frames:
+                    level_frames[node.parent] = frames.pop(node.parent, [])
+                level_frames[node.parent].append(node)
+            else:
+                level_frames[node] = []
+        nodes = []
+        # node positions
+        y = 0
         # include any stray child nodes after the last used node of a frame
-        temp_nodes = []
-        for node in reversed(nodes):
-            frame_children = frames.pop(node.parent, None)
-            if frame_children is not None:
-                temp_nodes.extend(frame_children)
-            temp_nodes.append(node)
-        nodes_arrange(tree, temp_nodes, level)
+        for node, children in reversed(level_frames.items()):
+            if children:
+                block_nodes = children
+            else:
+                block_nodes = [node, ]
+            nodes.extend(block_nodes)
+
+            for child in reversed(block_nodes):
+                height = child.dimensions.y
+                margin = 15
+                y += height + margin
+                child.location.y = y
+                child.location.x = x
+            y += 60
+
+        for node in nodes:
+            node.location.y -= (y / 2)
 
 
 def has_outputs(node, socket_id=""):
@@ -118,30 +142,4 @@ def get_input_nodes(node, socket_id=""):
                 continue
             for node_link in node_socket.links:
                 yield node_link.from_node
-
-
-def nodes_arrange(tree, nodes, level):
-    print(level, nodes)
-    # node x positions
-    widthmax = max([x.dimensions.x for x in nodes])
-    xpos = values.x_last - (widthmax + values.margin_x) if level != 0 else 0
-    # print ("nodes, xpos", nodes,xpos)
-    values.x_last = xpos
-
-    # node y positions
-    y = 0
-    for node in nodes:
-        height = node.dimensions.y
-        y += height + values.margin_y
-        node.location.y = y
-        node.location.x = xpos
-        # if node.hide:
-        # 	height = node.dimensions.y
-        # else:
-        # 	height = node.dimensions.y
-        print(height, node.label)
-
-    print(level, y)
-    for node in nodes:
-        node.location.y -= (y / 2)
 
