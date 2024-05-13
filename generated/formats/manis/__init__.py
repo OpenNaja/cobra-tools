@@ -1087,7 +1087,9 @@ if __name__ == "__main__":
     # key.rot_rel = 4
     # print(key)
     mani = ManisFile()
-    mani.load("C:/Users/arnfi/Desktop/idles.manisetb37e9948.manis")
+    # WH
+    # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
+    mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
     print(mani)
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")

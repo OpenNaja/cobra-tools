@@ -117,6 +117,7 @@
 		not on JWE1
 		<add name="unk 5" type="ushort" since="260"/># on PZ, JWE2
 		<add name="pointers" type="uint64" arr1="27" >216 bytes</add>
+		<add name="extra_for_use_ushort" type="ushort" arr1="7" cond="dtype\use_ushort"/>
 		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
 		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
 		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
@@ -329,6 +330,20 @@
 		<add name="limbs_data" type="LimbChunkReader" arg="limbs"/>
     </compound>
 
+    <compound name="UshortLut" >
+		in seemingly uncompressed manis
+		<add name="ref" type="Empty"/>
+		<add name="align" type="uint64" arr1="1316" />
+		<add name="a" type="ubyte" arr1="48" />
+		<add name="b" type="ubyte" arr1="48" />
+		<add name="zeros" type="ubyte" arr1="48" />
+		<add name="target_bone_count" type="uint"/>
+		<add name="offsets" type="uint" arr1="82" />
+		<add name="flags" type="ubyte" arr1="96" />
+		<add name="ref2" type="Empty"/>
+		the uncompressed keys that follow appear to be interleaved with some kind of lut
+    </compound>
+
 	<compound name="ManiBlock" >
 		aligned to 16
 		<add name="ref" type="Empty"/>
@@ -347,6 +362,7 @@
 		<add name="scl_bone_to_channel" type="#T#" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LTE# #ARG#\SclBoneMax"/>
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
 		start of uncompressed keyframe data
+		<add name="UshortLut" type="UshortLut" cond="(#ARG#\dtype\use_ushort #EQ# 1) #AND# (#ARG#\dtype\compression #EQ# 0)" />
 		<add name="PosBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		<add name="OriBones" type="normshort" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" arr3="4" cond="#ARG#\dtype\compression #EQ# 0" />
 		found in DLA SpaceMountain animations.manisetd740d135, and PZ crane

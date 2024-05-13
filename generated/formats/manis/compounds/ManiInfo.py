@@ -50,6 +50,7 @@ class ManiInfo(BaseStruct):
 
 		# 216 bytes
 		self.pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
+		self.extra_for_use_ushort = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.pos_bone_min = name_type_map['BoneIndex'](self.context, self.dtype, None)
 		self.pos_bone_max = name_type_map['BoneIndex'](self.context, self.dtype, None)
 		self.ori_bone_min = name_type_map['BoneIndex'](self.context, self.dtype, None)
@@ -99,6 +100,7 @@ class ManiInfo(BaseStruct):
 		yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
 		yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 260, None)
 		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'extra_for_use_ushort', Array, (0, None, (7,), name_type_map['Ushort']), (False, None), (None, True)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
@@ -150,6 +152,8 @@ class ManiInfo(BaseStruct):
 		if instance.context.version >= 260:
 			yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None)
+		if instance.dtype.use_ushort:
+			yield 'extra_for_use_ushort', Array, (0, None, (7,), name_type_map['Ushort']), (False, None)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)

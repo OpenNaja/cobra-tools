@@ -70,6 +70,7 @@ type_module_name_map = {
 	'LimbChunkZt': 'generated.formats.manis.compounds.LimbChunkZt',
 	'LimbTrackDataZT': 'generated.formats.manis.compounds.LimbTrackDataZT',
 	'LimbTrackData': 'generated.formats.manis.compounds.LimbTrackData',
+	'UshortLut': 'generated.formats.manis.compounds.UshortLut',
 	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 }
 

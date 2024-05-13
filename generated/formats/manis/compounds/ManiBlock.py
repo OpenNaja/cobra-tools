@@ -26,6 +26,7 @@ class ManiBlock(BaseStruct):
 		self.ori_bone_to_channel = Array(self.context, 0, None, (0,), self.template)
 		self.scl_bone_to_channel = Array(self.context, 0, None, (0,), self.template)
 		self.pad = name_type_map['PadAlign'](self.context, 4, self.ref)
+		self.ushort_lut = name_type_map['UshortLut'](self.context, 0, None)
 		self.pos_bones = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.ori_bones = Array(self.context, 0, None, (0,), name_type_map['Normshort'])
 		self.shr_bones = Array(self.context, 0, None, (0,), name_type_map['Float'])
@@ -53,6 +54,7 @@ class ManiBlock(BaseStruct):
 		yield 'ori_bone_to_channel', Array, (0, None, (None,), None), (False, None), (None, True)
 		yield 'scl_bone_to_channel', Array, (0, None, (None,), None), (False, None), (None, True)
 		yield 'pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
+		yield 'ushort_lut', name_type_map['UshortLut'], (0, None), (False, None), (None, True)
 		yield 'pos_bones', Array, (0, None, (None, None, 3,), name_type_map['Float']), (False, None), (None, True)
 		yield 'ori_bones', Array, (0, None, (None, None, 4,), name_type_map['Normshort']), (False, None), (None, True)
 		yield 'shr_bones', Array, (0, None, (None, None, 2,), name_type_map['Float']), (False, None), (None, True)
@@ -82,6 +84,8 @@ class ManiBlock(BaseStruct):
 		if instance.arg.scl_bone_min <= instance.arg.scl_bone_max:
 			yield 'scl_bone_to_channel', Array, (0, None, ((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), instance.template), (False, None)
 		yield 'pad', name_type_map['PadAlign'], (4, instance.ref), (False, None)
+		if (instance.arg.dtype.use_ushort == 1) and (instance.arg.dtype.compression == 0):
+			yield 'ushort_lut', name_type_map['UshortLut'], (0, None), (False, None)
 		if instance.arg.dtype.compression == 0:
 			yield 'pos_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.pos_bone_count, 3,), name_type_map['Float']), (False, None)
 			yield 'ori_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.ori_bone_count, 4,), name_type_map['Normshort']), (False, None)

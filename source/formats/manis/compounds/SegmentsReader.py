@@ -16,7 +16,10 @@ class SegmentsReader(BaseStruct):
 		instance.io_start = stream.tell()
 		for segment in instance.arg:
 			cls.pad_to_start(instance, stream)
-			segment.data = stream.read(segment.byte_size)
+			try:
+				segment.data = stream.read(segment.byte_size)
+			except:
+				logging.exception(f"segment.data failed")
 		logging.debug(f"Compressed keys data ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
 
