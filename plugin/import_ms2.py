@@ -65,7 +65,8 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 						# store mesh unknowns
 						# cast the bitfield to int
 						b_me["flag"] = int(mesh.flag)
-						b_me["unk_f0"] = float(mesh.unk_float_0)
+						if ms2.context.version > 13:
+							b_me["unk_f0"] = float(mesh.unk_float_0)
 						if ms2.context.version > 32:
 							b_me["unk_f1"] = float(mesh.unk_float_1)
 					except:

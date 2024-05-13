@@ -35,12 +35,20 @@ class VersionedPropertyGroup(PropertyGroup):
 			return f"{name}{game_suffix}"
 
 	def get_value(self, context, name):
-		return getattr(self, self.get_current_versioned_name(context, name))
+		versioned_prop = self.get_current_versioned_name(context, name)
+		if versioned_prop:
+			return getattr(self, versioned_prop)
+		else:
+			logging.warning(f"No game-specific '{name}' property")
 
 	def set_value(self, context, name, v):
 		if isinstance(v, enum.Enum):
 			v = v.name
-		return setattr(self, self.get_current_versioned_name(context, name), v)
+		versioned_prop = self.get_current_versioned_name(context, name)
+		if versioned_prop:
+			setattr(self, versioned_prop, v)
+		else:
+			logging.warning(f"No game-specific '{name}' property")
 
 
 def show_lod_callback(self, context):
