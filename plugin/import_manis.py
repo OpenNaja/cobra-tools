@@ -7,6 +7,7 @@ import bpy
 import mathutils
 
 from generated.formats.manis import ManisFile
+from generated.formats.manis.versions import is_ztuac, is_dla
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from plugin.export_manis import get_local_bone
 from plugin.modules_export.armature import get_armature
@@ -93,8 +94,10 @@ def stash(b_ob, action, track_name, start_frame):
 
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	folder, manis_name = os.path.split(filepath)
-	starttime = time.time()
-	corrector = ManisCorrector(False)
+	manis = ManisFile()
+	manis.load(filepath)
+	is_old_orientation = any((is_ztuac(manis.context), is_dla(manis.context)))
+	corrector = ManisCorrector(is_old_orientation)
 	scene = bpy.context.scene
 
 	bones_data = {}
@@ -115,8 +118,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone).inverted()
 		cam_corr = None
-	manis = ManisFile()
-	manis.load(filepath)
 
 	for mi in manis.mani_infos:
 		logging.info(f"Importing '{mi.name}'")

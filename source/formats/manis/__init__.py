@@ -1086,6 +1086,8 @@ if __name__ == "__main__":
     # key.rot_rel = 4
     # print(key)
     mani = ManisFile()
+    mani.load("C:/Users/arnfi/Desktop/idles.manisetb37e9948.manis")
+    print(mani)
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
@@ -1146,7 +1148,7 @@ if __name__ == "__main__":
     # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
     # mani.log_rot_keys()
     # mani.log_loc_keys()
-    test_get_scale_fac()
+    # test_get_scale_fac()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()
 # mani.parse_keys()

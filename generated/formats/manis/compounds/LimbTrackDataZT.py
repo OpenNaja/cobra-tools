@@ -14,7 +14,9 @@ class LimbTrackDataZT(BaseStruct):
 		self.limb_count = name_type_map['Uint64'](self.context, 0, None)
 		self.pad_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.limbs = Array(self.context, 0, None, (0,), name_type_map['LimbInfoZT'])
-		self.pad_2 = name_type_map['Uint64'](self.context, 0, None)
+
+		# ?
+		self.a_pad = name_type_map['PadAlign'](self.context, 16, self.ref)
 		self.limbs_data = name_type_map['LimbChunkReaderZt'](self.context, self.limbs, None)
 
 		# ?
@@ -29,7 +31,7 @@ class LimbTrackDataZT(BaseStruct):
 		yield 'limb_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'pad_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'limbs', Array, (0, None, (None,), name_type_map['LimbInfoZT']), (False, None), (None, None)
-		yield 'pad_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'a_pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'limbs_data', name_type_map['LimbChunkReaderZt'], (None, None), (False, None), (None, None)
 		yield 'limb_track_data_z_t_pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 
@@ -40,6 +42,6 @@ class LimbTrackDataZT(BaseStruct):
 		yield 'limb_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'pad_1', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'limbs', Array, (0, None, (instance.limb_count,), name_type_map['LimbInfoZT']), (False, None)
-		yield 'pad_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'a_pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)
 		yield 'limbs_data', name_type_map['LimbChunkReaderZt'], (instance.limbs, None), (False, None)
 		yield 'limb_track_data_z_t_pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)
