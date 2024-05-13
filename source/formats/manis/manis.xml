@@ -3,7 +3,6 @@
 <niftoolsxml version="0.7.1.0">
 
 	<token name="verexpr" attrs="vercond">
-
 		<verexpr token="#DLA#" string="(#VER# #EQ# 256)">DLA</verexpr>mock version defined on export
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 257)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
@@ -41,9 +40,6 @@
 		<!--    before uses ubyte-->
     </basic>
 
-    <basic name="int48" integral="true" countable="true">
-    </basic>
-
 	<bitfield name="ManisDtype" storage="uint">
 		# PZ dtypes: 0, 1, 4, 5, 6, 32, 34, 36, 37, 38
 		# JWE2 dev dtypes: 0, 4, 5, 6, 32, 34, 36, 37, 38
@@ -67,12 +63,6 @@
 		<member width="4" pos="0" name="compression" type="int"/>
 		<member width="1" pos="4" name="use_ushort" type="int"/>
 		<member width="2" pos="5" name="has_list" type="int"/>
-	</bitfield>
-
-	<bitfield name="PosBaseKey" storage="int48">
-		<member width="15" pos="0" name="x" type="int"/>
-		<member width="15" pos="15" name="y" type="int"/>
-		<member width="15" pos="30" name="z" type="int"/>
 	</bitfield>
 
 	<bitfield name="StoreKeys" storage="ubyte">
@@ -123,10 +113,10 @@
 		<add name="unk 3" type="ushort" />
 		<add name="unk 4" type="ushort" />
 		<add name="unk 5" type="ushort" until="257"/># on PC
+		<add name="extra zeros pc" type="ushort" arr1="6" until="257"/>for ZTUAC rhinos
 		not on JWE1
 		<add name="unk 5" type="ushort" since="260"/># on PZ, JWE2
 		<add name="pointers" type="uint64" arr1="27" >216 bytes</add>
-		<add name="extra zeros pc" type="ushort" arr1="6" until="257"/>for ZTUAC rhinos
 		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
 		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
 		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
