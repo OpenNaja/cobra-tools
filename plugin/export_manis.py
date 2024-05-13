@@ -306,9 +306,8 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 		update_key_indices(k, ORI, ori_names, ori_indices, target_names, bone_names)
 		update_key_indices(k, SCL, scl_names, scl_indices, target_names, bone_names)
 		k.floats_names[:] = floats_names
+		# copy the keys and set root bone indices
 		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
-		# todo maybe use key_indices lut to get root index
-		# copy the keys
 		for bone_i, name in enumerate(pos_names):
 			if name == root_name:
 				mani_info.root_pos_bone = bone_i
