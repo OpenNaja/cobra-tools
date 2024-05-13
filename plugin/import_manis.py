@@ -147,16 +147,22 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				keys = k.floats[:, bone_i]
 				samples = range(len(keys))
 				if suffix == "Footplant":
-					b_footplant = get_constraint(p_bone, "FLOOR", create=True)
-					anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_footplant.name)
+					b_constraint = get_constraint(p_bone, "FLOOR", create=True)
+				elif suffix == "BlendHeadLookOut":
+					b_constraint = get_constraint(p_bone, "TRACK_TO", create=True)
+				elif suffix == "phaseStream":
+					# range +-pi, looped locomotion anims lerp from -pi to +pi, apparently denotes the phase of the limbs, stand is 0
+					keys /= (2 * math.pi)
+					keys += 0.5
+					b_constraint = get_constraint(p_bone, "LOCKED_TRACK", create=True)
 				elif suffix == "IKEnabled":
-					b_ik = get_constraint(p_bone, "IK", create=False)
-					if b_ik:
-						anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_ik.name)
-				# elf suffix == "phaseStream":
-				# range +-pi, looped locomotion anims lerp from -pi to +pi, apparently denotes the phase of the limbs, stand is 0
+					b_constraint = get_constraint(p_bone, "IK", create=False)
+					if not b_constraint:
+						continue
 				else:
 					logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
+					continue
+				anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_constraint.name)
 			elif "Motion Track" in m_name:
 				logging.debug(f"Ignoring redundant import of '{m_name}'")
 			else:
