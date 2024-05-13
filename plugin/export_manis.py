@@ -288,6 +288,15 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 				assert float_name not in bone_channels
 				bone_channels[float_name] = {}
 				bone_channels[float_name][FLO] = keys
+		# todo - also find camera anims for export, not just armature
+		if "_camera" in b_action.name:
+			# FOV is in the camera data action, which has to be queried and looped
+			b_data_action = bpy.data.actions.get(f"{b_action.name}_Data", None)
+			if b_data_action:
+				for fcu in b_data_action.fcurves:
+					if fcu.data_path == get_rna_path("lens"):
+						print("found lens")
+						pass
 
 		# print(bone_channels)
 		pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)

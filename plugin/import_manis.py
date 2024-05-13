@@ -5,6 +5,7 @@ import time
 
 import bpy
 import mathutils
+import numpy as np
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import is_ztuac, is_dla
@@ -35,13 +36,13 @@ def get_channel(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 			b_channel = b_name
 		else:
 			# not sure this is desired like that
-			if bones_data:
-				logging.warning(f"Ignoring extraneous bone '{b_name}'")
-				continue
-			else:
+			if m_name == "camera_joint":
 				logging.debug(f"Object transform '{b_name}' as LocRotScale")
 				bonerestmat_inv = mathutils.Matrix().to_4x4()
 				b_channel = None
+			else:
+				logging.warning(f"Ignoring extraneous bone '{b_name}'")
+				continue
 		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], bonerestmat_inv)
 
 
@@ -104,10 +105,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	b_armature_ob = get_armature(scene.objects)
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
-		b_cam_data = bpy.data.cameras.new("ManisCamera")
-		b_armature_ob = create_ob(scene, "ManisCamera", b_cam_data)
-		b_armature_ob.rotation_mode = "QUATERNION"
-		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 	else:
 		for p_bone in b_armature_ob.pose.bones:
 			p_bone.rotation_mode = "QUATERNION"
@@ -117,10 +114,17 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 						constraint.enabled = False
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone).inverted()
-		cam_corr = None
+	cam_corr = None
 
 	for mi in manis.mani_infos:
 		logging.info(f"Importing '{mi.name}'")
+		if "_camera" in mi.name:
+			b_cam_data = bpy.data.cameras.new("ManisCamera")
+			# b_cam_data.lens_unit = "FOV"  # no use, as blender can't animate FOV directly
+			b_cam_data.sensor_width = 64  # eyeballed to match game
+			b_armature_ob = create_ob(scene, "ManisCamera", b_cam_data)
+			b_armature_ob.rotation_mode = "QUATERNION"
+			cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		stash(b_armature_ob, b_action, mi.name, 0)
 		# print(mi)
@@ -136,19 +140,20 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				suffix = ""
 			b_name = bone_name_for_blender(m_name)
 			logging.info(f"Importing '{b_name}'")
+			keys = k.floats[:, bone_i]
+			samples = range(len(keys))
 			if m_name == "CameraFOV":
-				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}Data")
-				fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
-				for frame_i, frame in enumerate(k.floats):
-					key = frame[bone_i]
-					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
+				# FOV = 2*arctan(w / (2*focal_len))
+				# focal_len = w /  tan(FOV / 2) / 2
+				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}_Data")
+				# original sensor width
+				keys = 36 / np.tan(keys / 2) / 2
+				anim_sys.add_keys(b_data_action, "lens", (0,), None, samples, keys, None)
 			elif b_name in bones_data and suffix:
 				# represented by animated properties of bone constraints
 				p_bone = b_armature_ob.pose.bones[b_name]
 				for c_suffix, c_type, create, limits in c_map:
 					if suffix == c_suffix:
-						keys = k.floats[:, bone_i]
-						samples = range(len(keys))
 						if limits:
 							l_min, l_max = limits
 							keys -= l_min
