@@ -1,3 +1,5 @@
+import math
+
 import mathutils
 
 
@@ -17,3 +19,12 @@ def get_bone_bind_data(b_armature_ob, bones_table, corrector):
 		# bind_loc_inv = bind_loc.negate()
 		binds.append(bind)
 	return binds, bones_local_mat
+
+
+c_map = (
+	("Footplant", "FLOOR", True, None),
+	("BlendHeadLookOut", "TRACK_TO", True, None),
+	# range +-pi, looped locomotion anims lerp from -pi to +pi, apparently denotes the phase of the limbs, stand is 0
+	("phaseStream", "LOCKED_TRACK", True, (-math.pi, math.pi)),
+	("IKEnabled", "IK", False, None)
+)

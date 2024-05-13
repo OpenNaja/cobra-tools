@@ -1,4 +1,3 @@
-import contextlib
 import logging
 import math
 import os
@@ -12,6 +11,7 @@ from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from plugin.export_manis import get_local_bone
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
+from plugin.utils.anim import c_map
 from plugin.utils.matrix_util import bone_name_for_blender, get_scale_mat
 from plugin.utils.object import create_ob
 from plugin.utils.transforms import ManisCorrector
@@ -144,25 +144,20 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			elif b_name in bones_data and suffix:
 				# represented by animated properties of bone constraints
 				p_bone = b_armature_ob.pose.bones[b_name]
-				keys = k.floats[:, bone_i]
-				samples = range(len(keys))
-				if suffix == "Footplant":
-					b_constraint = get_constraint(p_bone, "FLOOR", create=True)
-				elif suffix == "BlendHeadLookOut":
-					b_constraint = get_constraint(p_bone, "TRACK_TO", create=True)
-				elif suffix == "phaseStream":
-					# range +-pi, looped locomotion anims lerp from -pi to +pi, apparently denotes the phase of the limbs, stand is 0
-					keys /= (2 * math.pi)
-					keys += 0.5
-					b_constraint = get_constraint(p_bone, "LOCKED_TRACK", create=True)
-				elif suffix == "IKEnabled":
-					b_constraint = get_constraint(p_bone, "IK", create=False)
-					if not b_constraint:
-						continue
+				for c_suffix, c_type, create, limits in c_map:
+					if suffix == c_suffix:
+						keys = k.floats[:, bone_i]
+						samples = range(len(keys))
+						if limits:
+							l_min, l_max = limits
+							keys -= l_min
+							keys /= (l_max - l_min)
+						b_constraint = get_constraint(p_bone, c_type, create=create)
+						if b_constraint:
+							anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_constraint.name)
+						break
 				else:
 					logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
-					continue
-				anim_sys.add_keys(b_action, "influence", (0,), None, samples, keys, None, n_bone=b_name, n_constraint=b_constraint.name)
 			elif "Motion Track" in m_name:
 				logging.debug(f"Ignoring redundant import of '{m_name}'")
 			else:

@@ -10,7 +10,9 @@ from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
+from plugin.utils.anim import c_map
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections
+from plugin.modules_import.anim import get_rna_path
 from plugin.utils.matrix_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.transforms import ManisCorrector
 
@@ -214,7 +216,9 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 		logging.info(f"Exporting {b_action.name}")
 		mani_info.name = b_action.name
 		first_frame, last_frame = b_action.frame_range
-		mani_info.frame_count = int(round(last_frame) - round(first_frame)) + 1
+		first_frame = int(first_frame)
+		last_frame = int(last_frame) + 1
+		mani_info.frame_count = last_frame - first_frame
 		# index of last frame / fps
 		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
 		mani_info.count_a = mani_info.count_b = 255
@@ -231,7 +235,7 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 			bone_channels[root_name][EUL] = np.empty((mani_info.frame_count, 3), float)
 		# store pose data for b_action
 		b_armature_ob.animation_data.action = b_action
-		for trg_i, src_i in enumerate(range(int(first_frame), int(last_frame) + 1)):
+		for trg_i, src_i in enumerate(range(first_frame, last_frame)):
 			store_pose_frame_info(b_armature_ob, src_i, trg_i, bones_data, bone_channels, corrector)
 		game = scene.cobra.game
 		# export wsm before decimating bones
@@ -247,6 +251,8 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 				if needed_axes:
 					# copy root motion channels as floats
 					if bone == root_name and channels:
+						# copy to avoid modifying the original keys data
+						keys = keys.copy()
 						if channel_id == POS:
 							add_root_float_keys(bone_channels, keys, needed_axes,
 												("X Motion Track", "Y Motion Track", "Z Motion Track"))
@@ -257,7 +263,31 @@ def export_armature_actions(b_armature_ob, actions, mani_infos, folder, scene, t
 							add_normed_float_keys(bone_channels, keys, needed_axes, "T Motion Track", game)
 					logging.debug(f"{bone} {channel_id} needs keys")
 				else:
+					# no need to keyframe this bone, discard it
 					channels.pop(channel_id)
+		# export constraints as float keys
+		# find constraints that qualify
+		constraint_bones = {}
+		for p_bone in b_armature_ob.pose.bones:
+			for const in p_bone.constraints:
+				for c_suffix, c_type, create, limits in c_map:
+					if const.type == c_type:
+						rna_path = get_rna_path("influence", p_bone.name, None, const.name)
+						constraint_bones[rna_path] = (c_suffix, limits, bone_name_for_ovl(p_bone.name))
+		# export fcurves for those constraints
+		for fcu in b_action.fcurves:
+			if fcu.data_path in constraint_bones and fcu.array_index == 0:
+				c_suffix, limits, m_name = constraint_bones[fcu.data_path]
+				keys = np.empty(mani_info.frame_count)
+				keys[:] = [fcu.evaluate(i) for i in range(first_frame, last_frame)]
+				if limits:
+					l_min, l_max = limits
+					keys *= (l_max - l_min)
+					keys += l_min
+				float_name = f"{m_name}.{c_suffix}"
+				assert float_name not in bone_channels
+				bone_channels[float_name] = {}
+				bone_channels[float_name][FLO] = keys
 
 		# print(bone_channels)
 		pos_names, pos_indices = set_mani_info_counts(mani_info, bone_channels, bones_lut, POS)

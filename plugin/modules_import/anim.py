@@ -3,6 +3,18 @@ import logging
 import bpy
 
 
+def get_rna_path(dtype, n_bone=None, n_shapekey=None, n_constraint=None):
+	if n_bone:
+		if n_constraint:
+			return f'pose.bones["{n_bone}"].constraints["{n_constraint}"].{dtype}'
+		else:
+			return f'pose.bones["{n_bone}"].{dtype}'
+	elif n_shapekey:
+		return f'key_blocks["{n_shapekey}"].{dtype}'
+	else:
+		return dtype
+
+
 class Animation:
 
 	def __init__(self):
@@ -38,29 +50,24 @@ class Animation:
 
 	def create_fcurves(self, action, dtype, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
 		""" Create fcurves in action for desired conditions. """
+		rna_path = get_rna_path(dtype, n_bone, n_shapekey, n_constraint)
 		# armature pose bone animation
 		if n_bone:
 			if n_constraint:
-				fcurves = [
-					action.fcurves.new(data_path=f'pose.bones["{n_bone}"].constraints["{n_constraint}"].{dtype}', index=i)
-					for i in drange]
+				fcurves = [action.fcurves.new(data_path=rna_path, index=i) for i in drange]
 			else:
-				fcurves = [
-					action.fcurves.new(data_path=f'pose.bones["{n_bone}"].{dtype}', index=i, action_group=n_bone)
-					for i in drange]
+				fcurves = [action.fcurves.new(data_path=rna_path, index=i, action_group=n_bone) for i in drange]
 		# shapekey pose bone animation
 		elif n_shapekey:
-			fcurves = [
-				action.fcurves.new(data_path=f'key_blocks["{n_shapekey}"].{dtype}', index=0,)
-			]
+			fcurves = [action.fcurves.new(data_path=rna_path, index=0)]
 		else:
 			# Object animation (non-skeletal) is lumped into the "LocRotScale" action_group
 			if dtype in ("rotation_euler", "rotation_quaternion", "location", "scale"):
 				action_group = "LocRotScale"
-			# Non-transformaing animations (eg. visibility or material anims) use no action groups
+			# Non-transforming animations (eg. visibility or material anims) use no action groups
 			else:
 				action_group = ""
-			fcurves = [action.fcurves.new(data_path=dtype, index=i, action_group=action_group) for i in drange]
+			fcurves = [action.fcurves.new(data_path=rna_path, index=i, action_group=action_group) for i in drange]
 		if flags:
 			self.set_extrapolation(self.get_extend_from_flags(flags), fcurves)
 		return fcurves
