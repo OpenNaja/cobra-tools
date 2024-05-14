@@ -8,6 +8,7 @@ import numpy as np
 from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
+from generated.formats.manis.versions import set_game
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
 from plugin.utils.anim import c_map
@@ -172,12 +173,7 @@ def save(reporter, filepath="", per_armature=False):
 	# export the actual manis
 	for export_name, anim_map in manis_datas.items():
 		manis = ManisFile()
-		if scene.cobra.game == "Jurassic World Evolution":
-			manis.version = 258
-		elif scene.cobra.game == "Planet Zoo":
-			manis.version = 260
-		elif scene.cobra.game == "Jurassic World Evolution 2":
-			manis.version = 262
+		set_game(manis, scene.cobra.game)
 		target_names = set()
 		all_actions = [action for actions in anim_map.values() for action in actions]
 		manis.mani_count = len(all_actions)

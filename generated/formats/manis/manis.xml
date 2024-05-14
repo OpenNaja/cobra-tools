@@ -8,7 +8,7 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
 		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
-		<verexpr token="#JWE2_DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
+		<verexpr token="#JWE2DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr>
 	</token>
 
@@ -20,15 +20,14 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-<!--    <version id="old" version="257" >Old</version>-->
-    <version id="DLA" version="256" >DLA</version>mock version defined on export
-    <version id="ZTUAC" version="257" >ZTUAC</version>
-    <version id="PC" version="257" >PC</version>
-    <version id="JWE" version="258" >JWE</version>
-    <version id="PZ" version="260" >PZ</version>
-    <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
-    <version id="JWE2" version="262" >JWE2</version>
-    <version id="WAR" version="262" >WAR</version>version conflict -.-
+	<version id="DLA" version="256" >Disneyland Adventures</version>mock version defined on extraction
+	<version id="ZTUAC" version="257" >Zoo Tycoon Ultimate Animal Collection</version>
+	<version id="PC" version="257" >Planet Coaster</version>
+	<version id="JWE" version="258" >Jurassic World Evolution</version>
+	<version id="PZ" version="260" >Planet Zoo</version>
+	<version id="JWE2DEV" version="261" >Jurassic World Evolution 2 Dev</version>
+	<version id="JWE2" version="262" >Jurassic World Evolution 2</version>
+	<version id="WAR" version="262" >Warhammer Age of Sigmar - Realms of Ruin</version>version conflict -.-
 
     <basic name="ChannelName" integral="true" countable="true">
 		<!--    PC uses ushort-->

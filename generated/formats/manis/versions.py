@@ -32,22 +32,11 @@ def set_jwe2(context):
 
 
 def is_jwe2dev(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 1:
-		return True
-
-
-def set_jwe2dev(context):
-	context.version = 20
-	context.user_version._value = 24724
-	context.is_dev = 1
-
-
-def is_jwe2_dev(context):
 	if context.version == 261:
 		return True
 
 
-def set_jwe2_dev(context):
+def set_jwe2dev(context):
 	context.version = 261
 
 
@@ -97,31 +86,29 @@ def set_ztuac(context):
 	context.version = 257
 
 
-games = Enum('Games', [('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE', 'JWE'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_ZOO', 'Planet Zoo'), ('PZ', 'PZ'), ('WAR', 'WAR'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
 	versions = []
 	if is_dla(context):
-		versions.extend([games.DLA])
+		versions.extend([games.DISNEYLAND_ADVENTURES])
 	if is_jwe(context):
-		versions.extend([games.JWE])
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION])
 	if is_jwe2(context):
-		versions.extend([games.JWE_2])
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2])
 	if is_jwe2dev(context):
 		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2_DEV])
-	if is_jwe2_dev(context):
-		versions.extend([games.JWE_2_DEV_BUILD])
 	if is_pc(context):
-		versions.extend([games.PC])
+		versions.extend([games.PLANET_COASTER])
 	if is_pz(context):
-		versions.extend([games.PZ])
+		versions.extend([games.PLANET_ZOO])
 	if is_pz16(context):
 		versions.extend([games.PLANET_ZOO])
 	if is_war(context):
-		versions.extend([games.WAR])
+		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
-		versions.extend([games.ZTUAC])
+		versions.extend([games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 	if not versions:
 		versions.extend([games.UNKNOWN])
 	return versions
@@ -133,25 +120,23 @@ def set_game(context, game):
 			game = games[game]
 		else:
 			game = games(game)
-	if game in {games.DLA}:
+	if game in {games.DISNEYLAND_ADVENTURES}:
 		return set_dla(context)
-	if game in {games.JWE}:
+	if game in {games.JURASSIC_WORLD_EVOLUTION}:
 		return set_jwe(context)
-	if game in {games.JWE_2}:
+	if game in {games.JURASSIC_WORLD_EVOLUTION_2}:
 		return set_jwe2(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION_2_DEV}:
 		return set_jwe2dev(context)
-	if game in {games.JWE_2_DEV_BUILD}:
-		return set_jwe2_dev(context)
-	if game in {games.PC}:
+	if game in {games.PLANET_COASTER}:
 		return set_pc(context)
-	if game in {games.PZ}:
+	if game in {games.PLANET_ZOO}:
 		return set_pz(context)
 	if game in {games.PLANET_ZOO}:
 		return set_pz16(context)
-	if game in {games.WAR}:
+	if game in {games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN}:
 		return set_war(context)
-	if game in {games.ZTUAC}:
+	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
 		return set_ztuac(context)
 
 
@@ -167,15 +152,14 @@ class ManisVersion(VersionBase):
 		self.version_flag = self._force_tuple(version_flag)
 
 
-dla = ManisVersion(id='DLA', version=(256,), primary_games=[], all_games=[games.DLA])
-jwe = ManisVersion(id='JWE', version=(258,), primary_games=[], all_games=[games.JWE])
-jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JWE_2])
-jwe2dev = ManisVersion(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
-jwe2_dev = ManisVersion(id='JWE2_DEV', version=(261,), primary_games=[], all_games=[games.JWE_2_DEV_BUILD])
-pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PC])
-pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PZ])
+dla = ManisVersion(id='DLA', version=(256,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURES])
+jwe = ManisVersion(id='JWE', version=(258,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
+jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
+jwe2dev = ManisVersion(id='JWE2DEV', version=(261,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
+pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PLANET_COASTER])
+pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PLANET_ZOO])
 pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
-war = ManisVersion(id='WAR', version=(262,), primary_games=[], all_games=[games.WAR])
-ztuac = ManisVersion(id='ZTUAC', version=(257,), primary_games=[], all_games=[games.ZTUAC])
+war = ManisVersion(id='WAR', version=(262,), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
+ztuac = ManisVersion(id='ZTUAC', version=(257,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, jwe2_dev, pc, pz, pz16, war, ztuac]
+available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, war, ztuac]
