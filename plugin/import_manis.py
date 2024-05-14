@@ -119,10 +119,10 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	for mi in manis.mani_infos:
 		logging.info(f"Importing '{mi.name}'")
 		if "_camera" in mi.name:
-			b_cam_data = bpy.data.cameras.new("ManisCamera")
+			b_cam_data = bpy.data.cameras.new(mi.name)
 			# b_cam_data.lens_unit = "FOV"  # no use, as blender can't animate FOV directly
 			b_cam_data.sensor_width = 64  # eyeballed to match game
-			b_armature_ob = create_ob(scene, "ManisCamera", b_cam_data)
+			b_armature_ob = create_ob(scene, mi.name, b_cam_data)
 			b_armature_ob.rotation_mode = "QUATERNION"
 			cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
@@ -143,7 +143,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			keys = k.floats[:, bone_i]
 			samples = range(len(keys))
 			if m_name == "CameraFOV":
-				# FOV = 2*arctan(w / (2*focal_len))
 				# focal_len = w /  tan(FOV / 2) / 2
 				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}_Data")
 				# original sensor width
@@ -195,11 +194,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 				k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
 				for frame_i, key in enumerate(in_keys):
-					# if frame_i % 32:
-					# 	continue
 					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-					# if frame_i == 0 and b_name == "def_c_hips_joint":
-					# 	logging.info(f"{mi.name} {key}")
 					key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 					# if cam_corr is not None:
 					# 	out = mathutils.Quaternion(cam_corr)

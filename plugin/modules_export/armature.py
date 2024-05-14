@@ -16,6 +16,11 @@ from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Correcto
 def assign_p_bone_indices(b_armature_ob):
 	"""Assigns new 'index' property to all bones. Order does not match original fdev order, consequently breaks banis,
 	which rely on correct order of bones."""
+	for p_bone in b_armature_ob.pose.bones:
+		if "index" not in p_bone:
+			break
+	else:
+		return
 	logging.info("Assigning new pose bone indices (breaks .banis)")
 	for i, p_bone in enumerate(b_armature_ob.pose.bones):
 		p_bone["index"] = i
