@@ -29,6 +29,7 @@ class MainWindow(widgets.MainWindow):
 		self.reporter = Reporter()
 		self.ovl_data = OvlFile()
 		self.ovl_data.reporter = self.reporter
+		self.ovl_data.cfg = self.cfg
 
 		exts = " ".join([f"*{ext}" for ext in self.ovl_data.formats_dict.extractables])
 		self.filter = f"Supported files ({exts})"
@@ -96,16 +97,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_splitter.setContentsMargins(0, 0, 0, 0)
 
 		# toggles
-		self.t_do_debug = QtWidgets.QCheckBox("Debug Mode")
-		self.t_do_debug.setToolTip(
-			"Enables debugging when checked:\n"
-			" - OVLs open slower to verify structs don't miss pointers\n"
-			" - temporary files are kept in extract folder\n"
-			" - debug info is added to XML-like extracts")
-		self.t_do_debug.setChecked(False)
-		self.t_do_debug.setVisible(self.dev_mode)
-		self.t_do_debug.clicked.connect(self.do_debug_changed)
-
 		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
 		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.t_in_folder.setChecked(False)
@@ -129,7 +120,6 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		grid.addWidget(self.t_in_folder, 0, 2)
-		grid.addWidget(self.t_do_debug, 1, 2)
 
 		grid.addWidget(self.ovl_game_choice, 0, 3)
 		grid.addWidget(self.compression_choice, 1, 3)
@@ -259,9 +249,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_info.setText(text)
 		self.finfo_sep.show()
 
-	def do_debug_changed(self, do_debug):
-		self.ovl_data.do_debug = do_debug
-
 	def show_search_results(self, tup):
 		search_str, results = tup
 		results_container = self.search_views.get(search_str)
@@ -305,7 +292,6 @@ class MainWindow(widgets.MainWindow):
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
-		self.t_do_debug.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions

@@ -253,13 +253,14 @@ class SortableTable(QWidget):
         self.filter_entry.entry.textChanged.connect(self.table.set_filter)
         self.show_hidden = QCheckBox("Show Hidden")
         if opt_hide:
-            self.show_hidden.stateChanged.connect(self.toggle_hide)
+            self.show_hidden.stateChanged.connect(self.toggle_show_hidden)
         else:
             self.show_hidden.hide()
+        self.table.set_show_hidden_filter(True)  # set the show_hidden filter to hide invisible extensions
         self.filter_invert = IconButton("invert")
         self.filter_invert.setCheckable(True)
         self.filter_invert.setToolTip("Invert filtering - show hidden items, and vice versa")
-        self.filter_invert.toggled.connect(self.toggle_rev)
+        self.filter_invert.toggled.connect(self.toggle_invert)
 
         self.filter_clear = IconButton("clear_filter")
         self.filter_clear.setToolTip("Clear Filter")
@@ -302,16 +303,12 @@ class SortableTable(QWidget):
         self.filter_invert.setChecked(False)
         self.table.clear_filter()
 
-    def toggle_hide(self, state: Qt.CheckState) -> None:
-        self.table.set_ext_filter(state != Qt.CheckState.Checked)
+    def toggle_show_hidden(self, state: Qt.CheckState) -> None:
+        self.table.set_show_hidden_filter(state != Qt.CheckState.Checked)
 
-    def toggle_rev(self, checked: bool) -> None:
-        if checked:
-            self.table.rev_check = True
-            self.table.update_filter_function()
-        else:
-            self.table.rev_check = False
-            self.table.update_filter_function()
+    def toggle_invert(self, checked: bool) -> None:
+        self.table.inverted = checked
+        self.table.update_filter_function()
 
     def add_button(self, btn) -> None:
         if not self.button_count:
@@ -355,7 +352,7 @@ class TableView(QTableView):
         self.sortByColumn(-1, Qt.SortOrder.AscendingOrder)
         self.proxy_model.setFilterFixedString("")
         self.proxy_model.setFilterKeyColumn(0)
-        self.rev_check = False
+        self.inverted = False
         self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
 
         # handle column width
@@ -373,7 +370,7 @@ class TableView(QTableView):
         self.file_selected_count.emit(self.selected_count)
 
     def update_filter_function(self) -> None:
-        if self.rev_check:
+        if self.inverted:
             self.proxy_model.addFilterFunction('name', lambda r, s: s not in r[0])
         else:
             self.proxy_model.addFilterFunction('name', lambda r, s: s in r[0])
@@ -382,15 +379,17 @@ class TableView(QTableView):
         self.proxy_model.setFilterFixedString(fixed_string)
         self.update_filter_function()
 
-    def set_ext_filter(self, hide: bool) -> None:
-        ext_filter_name = "ext_filter"
+    def set_show_hidden_filter(self, hide: bool) -> None:
+        show_hidden_name = "show_hidden"
         if hide and "File Type" in self.header_names:
-            def ext_filter(r, s) -> bool:
-                return r[self.header_names.index("File Type")] not in self.ignore_types
+            ext_index = self.header_names.index("File Type")
+            
+            def show_hidden(r, s) -> bool:
+                return r[ext_index] not in self.ignore_types
 
-            self.proxy_model.addFilterFunction(ext_filter_name, ext_filter)
+            self.proxy_model.addFilterFunction(show_hidden_name, show_hidden)
         else:
-            self.proxy_model.removeFilterFunction(ext_filter_name)
+            self.proxy_model.removeFilterFunction(show_hidden_name)
 
     def clear_filter(self) -> None:
         # self.proxy_model.setFilterFixedString("")
@@ -3427,13 +3426,12 @@ class ConfigWindow(QWidget):
             set_key = make_setter()
             c = LabelCombo(cfg_manager.name, [str(x) for x in cfg_manager.options],
                            editable=not bool(cfg_manager.options), activated_fn=set_key)
+            c.setToolTip(cfg_manager.tooltip)
             c.entry.setText(str(self.cfg.get(cfg_key, cfg_manager.default)))
             self.vlayout.addWidget(c)
         self.setLayout(self.vlayout)
 
-    def _toggle_logger(self):
-        checked = self.t_show_logger.isChecked()
-        self.cfg["show_logger"] = checked
+    def needs_restart(self):
         if self.showconfirmation(f"Restart GUI to apply changes", title="Logger Changed"):
             self.close()
         # just close the gui, actually restarting from code is hard

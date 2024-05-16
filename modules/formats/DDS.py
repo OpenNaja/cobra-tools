@@ -35,6 +35,10 @@ class DdsLoader(MemStructLoader):
 	extension = ".tex"
 	temp_extensions = (".dds", )
 
+	@property
+	def show_temp_files(self):
+		return self.ovl.cfg.get("dds_extract", False)
+
 	def link_streams(self):
 		"""Collect other loaders"""
 		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))

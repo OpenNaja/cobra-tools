@@ -415,9 +415,13 @@ class BaseFile:
 					outfile.write(b)
 		return paths
 
-	def handle_paths(self, paths, show_temp_files):
+	@property
+	def show_temp_files(self):
+		return self.ovl.do_debug
+
+	def handle_paths(self, paths):
 		"""Deletes temporary files if asked and returns all valid paths."""
-		if self.temp_extensions and not show_temp_files:
+		if self.temp_extensions and not self.show_temp_files:
 			paths_to_remove = [p for p in paths if os.path.splitext(p)[1].lower() in self.temp_extensions]
 			for p in paths_to_remove:
 				os.remove(p)

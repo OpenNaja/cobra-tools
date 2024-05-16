@@ -550,7 +550,7 @@ class OvlFile(Header):
 		self._game = None
 
 		self.is_dev = 0
-		self.do_debug = False
+		self.cfg = {}
 
 		self.formats_dict = FormatDict()
 		self.constants = {}
@@ -569,6 +569,10 @@ class OvlFile(Header):
 		if self._game is None:
 			self._game = get_game(self)[0].value
 		return self._game
+
+	@property
+	def do_debug(self):
+		return self.cfg.get("debug_mode", False)
 
 	@game.setter
 	def game(self, game_name):
@@ -659,7 +663,7 @@ class OvlFile(Header):
 			for loader in self.reporter.iter_progress(loaders_for_extract, "Extracting"):
 				try:
 					ret_paths = loader.extract(out_dir_func)
-					ret_paths = loader.handle_paths(ret_paths, self.do_debug)
+					ret_paths = loader.handle_paths(ret_paths)
 					out_paths.extend(ret_paths)
 				except:
 					logging.exception(f"An exception occurred while extracting {loader.name}")

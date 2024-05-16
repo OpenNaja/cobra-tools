@@ -52,6 +52,10 @@ class Config(dict):
 	# recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
 	# current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
 	oodle_level = TransientSetting("Oodle Level", "Higher numbers compress better, while lower numbers compress faster", 6, list(range(10)))
+	debug_mode = TransientSetting("Debug Mode", "Enables debugging when checked:\n"
+												" - OVLs open slower to verify structs don't miss pointers\n"
+												" - temporary files are kept in extract folder\n"
+												" - debug info is added to XML-like extracts", False, (True, False))
 	# DDS settings
 	dds_use_gpu = TransientSetting("Use GPU Compression", "GPU is faster but less accurate, especially on MIP maps", True, (True, False))
 	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
