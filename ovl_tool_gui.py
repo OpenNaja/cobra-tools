@@ -163,7 +163,7 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack All", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
+			(edit_menu, "Rename Files", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", "remove"),
