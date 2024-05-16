@@ -19,9 +19,9 @@ class BaseSetting(object):
 		return f"'{self.name}' ({self.__class__.__name__}) default={self.default}, options={self.options}"
 
 	def update(self, cfg_dict, k, v):
-		print(f"setting cfg[{k}]={v}")
-		# go back to the original type
+		# go back to the original type if it existed in options
 		v = self.options_map.get(v, v)
+		print(f"setting cfg[{k}]={v} ({type(v).__name__})")
 		# setattr(cfg, k, v)
 		cfg_dict[k] = v
 
@@ -48,15 +48,19 @@ class TransientSetting(BaseSetting):
 
 class Config(dict):
 
-	# immediate = ("recent_ovls", )
-	recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
-	current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
+	# todo implement user feedback for options that need restart
+	# recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
+	# current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
 	oodle_level = TransientSetting("Oodle Level", "Higher numbers compress better, while lower numbers compress faster", 6, list(range(10)))
 	# DDS settings
 	dds_use_gpu = TransientSetting("Use GPU Compression", "GPU is faster but less accurate, especially on MIP maps", True, (True, False))
 	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
 	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
-	show_logger = ImmediateSetting("Show Logger", "Show Logger widget - needs restart", False, (True, False))
+	# GUI appearance
+	logger_show = ImmediateSetting("Show Logger", "Show Logger panel - needs restart", False, (True, False))  # Hides/show the logger panel.
+	logger_orientation = ImmediateSetting("Logger Orientation", "Set logger orientation - needs restart", "H", ("H", "V"))
+	theme = ImmediateSetting("Theme", "Select theme palette - needs restart", "dark", ("dark", "light"))
+
 	name = "config.json"
 
 	def __setitem__(self, k, v):
@@ -173,36 +177,12 @@ if __name__ == '__main__':
 	print(cfg)
 	# print(cfg.settings)
 	import sys
-	from gui.widgets import LabelCombo
+	from gui.widgets import LabelCombo, ConfigWindow
 	from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QApplication
-
-
-	class Window(QWidget):
-
-		def __init__(self):
-			super().__init__()
-
-			self.vlayout = QVBoxLayout()
-			# remove_layout.clicked.connect(self.remove_layout)
-			for cfg_key, cfg_manager in cfg.settings.items():
-				def make_setter():
-					cfg_key2 = str(cfg_key)
-					# print(cfg_key)
-					def set_key(v):
-						# nonlocal cfg_key
-						print(cfg_key2)
-						cfg_manager.update(cfg, cfg_key2, v)
-						# setattr(cfg, cfg_key, v)
-					return set_key
-				set_key = make_setter()
-				c = LabelCombo(cfg_manager.name, [str(x) for x in cfg_manager.options], editable=not bool(cfg_manager.options), activated_fn=set_key)
-				c.entry.setText(str(cfg.get(cfg_key, cfg_manager.default)))
-				self.vlayout.addWidget(c)
-			self.setLayout(self.vlayout)
 
 	app = QApplication(sys.argv)
 
-	w = Window()
+	w = ConfigWindow(cfg)
 	w.show()
 
 	app.exec()

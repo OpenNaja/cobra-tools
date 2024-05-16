@@ -244,24 +244,26 @@ class SortableTable(QWidget):
     def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}) -> None:
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type, actions)
-        self.filter_entry = LabelEdit("Filter")
-        self.filter_entry.label.setMinimumWidth(20)
+        self.filter_entry = IconEdit("filter")
+        self.filter_entry.setToolTip("Filter by name - only show items matching this name")
+        # self.filter_entry.label.setMinimumWidth(16)
         self.filter_entry.entry.setMinimumWidth(140)
-        self.filter_entry.setMinimumWidth(140 + self.filter_entry.label.minimumWidth())
-        #self.filter_entry.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-        self.filter_entry.entry.textChanged.connect(self.table.set_filter)
+        self.filter_entry.setMinimumWidth(self.filter_entry.label.minimumWidth() + self.filter_entry.entry.minimumWidth())
         self.filter_entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-        self.hide_unused = QCheckBox("Hide Unextractable")
+        self.filter_entry.entry.textChanged.connect(self.table.set_filter)
+        self.show_hidden = QCheckBox("Show Hidden")
         if opt_hide:
-            self.hide_unused.stateChanged.connect(self.toggle_hide)
+            self.show_hidden.stateChanged.connect(self.toggle_hide)
         else:
-            self.hide_unused.hide()
-        self.rev_search = QCheckBox("Exclude Filter")
-        self.rev_search.stateChanged.connect(self.toggle_rev)
-        self.clear_filters = IconButton(get_icon("clear_filter"))
+            self.show_hidden.hide()
+        self.filter_invert = IconButton("invert")
+        self.filter_invert.setCheckable(True)
+        self.filter_invert.setToolTip("Invert filtering - show hidden items, and vice versa")
+        self.filter_invert.toggled.connect(self.toggle_rev)
 
-        self.clear_filters.setToolTip("Clear Filter")
-        self.clear_filters.pressed.connect(self.clear_filter)
+        self.filter_clear = IconButton("clear_filter")
+        self.filter_clear.setToolTip("Clear Filter")
+        self.filter_clear.pressed.connect(self.clear_filter)
 
         # Button Row Setup
         self.button_count = 0
@@ -273,10 +275,10 @@ class SortableTable(QWidget):
         filter_bar = FlowWidget(self)
         filter_bar_lay = FlowHLayout(filter_bar)
         filter_bar_lay.addWidget(self.filter_entry, hide_index=-1)
-        filter_bar_lay.addWidget(self.clear_filters, hide_index=5)
-        filter_bar_lay.addWidget(self.hide_unused, hide_index=0)
-        filter_bar_lay.addWidget(self.rev_search, hide_index=3)
-        filter_bar_lay.setContentsMargins(5, 0, 0, 0)
+        filter_bar_lay.addWidget(self.filter_invert, hide_index=3)
+        filter_bar_lay.addWidget(self.filter_clear, hide_index=5)
+        filter_bar_lay.addWidget(self.show_hidden, hide_index=0)
+        filter_bar_lay.setContentsMargins(0, 0, 0, 0)
         filter_bar.show()
         filter_bar.setMinimumWidth(self.filter_entry.minimumWidth())
 
@@ -296,15 +298,15 @@ class SortableTable(QWidget):
 
     def clear_filter(self) -> None:
         self.filter_entry.entry.setText("")
-        self.hide_unused.setChecked(False)
-        self.rev_search.setChecked(False)
+        self.show_hidden.setChecked(False)
+        self.filter_invert.setChecked(False)
         self.table.clear_filter()
 
     def toggle_hide(self, state: Qt.CheckState) -> None:
-        self.table.set_ext_filter(state == Qt.CheckState.Checked)
+        self.table.set_ext_filter(state != Qt.CheckState.Checked)
 
-    def toggle_rev(self, state: Qt.CheckState) -> None:
-        if state == Qt.CheckState.Checked:
+    def toggle_rev(self, checked: bool) -> None:
+        if checked:
             self.table.rev_check = True
             self.table.update_filter_function()
         else:
@@ -620,16 +622,16 @@ class FlowHLayout(QHBoxLayout):
 
 
 class IconButton(QPushButton):
-
-    def __init__(self, icon: QIcon, size: QSize = QSize(16, 16)) -> None:
-        super().__init__(icon, "")
+    def __init__(self, icon_name: str, size: QSize = QSize(16, 16)) -> None:
+        super().__init__(get_icon(icon_name), "")
         self.setFlat(True)
         self.setMouseTracking(True)
         self.setIconSize(size)
         self.setFixedSize(size)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        # TODO: Get palette from cfg
-        self.setPalette(qt_theme.dark_palette)
+        # pal is only valid after getting it again from self
+        self.setPalette(get_main_window().get_palette_from_cfg())
+        color = self.palette().window().color()
         style = RF"""
             IconButton {{
                 border: 1px solid transparent;
@@ -637,11 +639,14 @@ class IconButton(QPushButton):
                 margin: 0px;
             }}
             IconButton:hover {{
-                border: 1px solid {self.palette().window().color().lighter(170).name()};
-                background: {self.palette().window().color().lighter(130).name()};
+                border: 1px solid {color.lighter(170).name()};
+                background: {color.lighter(130).name()};
             }}
             IconButton:pressed {{
-                background: {self.palette().window().color().lighter(150).name()};
+                background: {color.lighter(150).name()};
+            }}
+            IconButton:checked {{
+                background: {color.lighter(200).name()};
             }}
         """
         self.setStyleSheet(style)
@@ -1168,14 +1173,17 @@ class LogView(QListView):
         self.setAutoFillBackground(False)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setStyle(QStyleFactory.create('windows'))
-        # TODO: Get palette from cfg
-        self.setPalette(qt_theme.dark_palette)
+        # pal is only valid after getting it again from self
+        self.setPalette(get_main_window().get_palette_from_cfg())
+        pal = self.palette()
+        base_col = pal.base().color()
+        text_col = pal.text().color()
         self.setStyleSheet(RF"""
             QListView {{
                 border: 0px;
                 padding-left: 1px;
                 padding-top: 3px;
-                background-color: {self.palette().base().color().darker(110).name()};
+                background-color: {base_col.darker(110).name()};
                 selection-background-color: transparent;
                 outline: 0;
             }}
@@ -1183,22 +1191,20 @@ class LogView(QListView):
                 border: 1px solid transparent;
             }}
             QListView::item:selected {{
-                background: {self.palette().base().color().lighter(110).name()};
+                background: {base_col.lighter(110).name()};
             }}
             QListView::item:selected:active {{
-                
             }}
             QListView::item:hover {{
-                background: {self.palette().base().color().lighter(120).name()};
+                background: {base_col.lighter(120).name()};
             }}
             QListView::item:focus {{
-            
             }}
             QListView::item:selected:!active {{
             }}
             QListView > QToolTip {{font: bold 11px 'Consolas, monospace'; border: 1px solid white;}}
-        """ + qt_theme.style_modern_scrollbar(handle_color=self.palette().text().color().darker(300).name(),
-                                              view_bg_color=self.palette().base().color().darker(110).name()))
+        """ + qt_theme.style_modern_scrollbar(handle_color=text_col.darker(300).name(),
+                                              view_bg_color=base_col.darker(110).name()))
         # View model
         self.list_model = LogModel(self, batch_size=1000)
         self.setModel(self.list_model)
@@ -1581,7 +1587,23 @@ class LabelEdit(QWidget):
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
         vbox.setContentsMargins(0, 0, 0, 0)
-        # vbox.addStretch(1)
+        self.setLayout(vbox)
+
+
+class IconEdit(QWidget):
+    def __init__(self, icon_name):
+        QWidget.__init__(self, )
+        self.label = QPushButton(get_icon(icon_name), "")
+        self.label.setCheckable(False)
+        self.label.setFlat(True)
+        self.label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.entry = QLineEdit()
+        self.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+        self.entry.setTextMargins(3, 0, 3, 0)
+        vbox = QHBoxLayout(self)
+        vbox.addWidget(self.label)
+        vbox.addWidget(self.entry)
+        vbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(vbox)
 
 
@@ -3013,6 +3035,11 @@ class MainWindow(FramelessMainWindow):
         self.threadpool = QtCore.QThreadPool()
         self.setCentralWidget(self.central_widget)
 
+    def get_palette_from_cfg(self):
+        theme_name = self.cfg.get("theme", "dark")
+        palette = qt_theme.palettes.get(theme_name)
+        return palette
+
     @property
     def stdout_handler(self) -> logging.StreamHandler | None:
         if not self._stdout_handler:
@@ -3377,3 +3404,42 @@ class Reporter(DummyReporter, QObject):
     included_ovls_list = pyqtSignal(list)  # type: ignore
     progress_percentage = pyqtSignal(int)  # type: ignore
     current_action = pyqtSignal(str)  # type: ignore
+
+
+class ConfigWindow(QWidget):
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.vlayout = QVBoxLayout()
+        for cfg_key, cfg_manager in self.cfg.settings.items():
+            def make_setter():
+                # make local copies to avoid overriding them in the scope of the closure
+                cfg_key2 = str(cfg_key)
+                cfg_manager2 = cfg_manager
+
+                def set_key(v):
+                    # nonlocal cfg_key
+                    cfg_manager2.update(cfg, cfg_key2, v)
+                # setattr(cfg, cfg_key, v)
+                return set_key
+
+            set_key = make_setter()
+            c = LabelCombo(cfg_manager.name, [str(x) for x in cfg_manager.options],
+                           editable=not bool(cfg_manager.options), activated_fn=set_key)
+            c.entry.setText(str(self.cfg.get(cfg_key, cfg_manager.default)))
+            self.vlayout.addWidget(c)
+        self.setLayout(self.vlayout)
+
+    def _toggle_logger(self):
+        checked = self.t_show_logger.isChecked()
+        self.cfg["show_logger"] = checked
+        if self.showconfirmation(f"Restart GUI to apply changes", title="Logger Changed"):
+            self.close()
+        # just close the gui, actually restarting from code is hard
+
+
+def get_main_window():
+    for w in QtWidgets.qApp.topLevelWidgets():
+        if isinstance(w, MainWindow):
+            return w

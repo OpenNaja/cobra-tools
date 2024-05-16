@@ -29,8 +29,10 @@ dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRo
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Light, PRIMARY)
 
 palettes: dict[str, QtGui.QPalette] = {
-    "dark": dark_palette
+    "dark": dark_palette,
+    "light": QtGui.QPalette()
 }
+
 
 def style_modern_scrollbar(handle_color: str, view_bg_color: str) -> str:
     return RF"""

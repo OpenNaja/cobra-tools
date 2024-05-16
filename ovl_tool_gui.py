@@ -6,7 +6,7 @@ import tempfile
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
+from ovl_util.logs import get_stdout_handler
 from gui.widgets import Reporter
 from modules import walker
 from root_path import root_dir
@@ -139,8 +139,8 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
 		# Setup Logger
-		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
-		self.show_logger = self.cfg.get("show_logger", True)
+		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("logger_orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
+		self.show_logger = self.cfg.get("logger_show", True)
 		topleft = self.file_splitter
 		if orientation == QtCore.Qt.Orientation.Vertical:
 			self.file_splitter.setContentsMargins(5, 0, 5, 0)
@@ -176,9 +176,10 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
-			(edit_menu, "Remove Selected", self.remove, "DEL", ""),
+			(edit_menu, "Remove Selected", self.remove, "DEL", "remove"),
 			(edit_menu, "Load included ovl list", self.load_included_ovls, "", ""),
 			(edit_menu, "Export included ovl list", self.save_included_ovls, "", ""),
+			(edit_menu, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
 			(util_menu, "Inspect Models", self.inspect_models, "", "", True),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", "", True),
 			(util_menu, "Inspect Manis", self.walker_manis, "", "", True),
@@ -191,16 +192,7 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 
-		# add checkbox to show logger
-		self.t_show_logger = QtWidgets.QAction("Show logger")
-		self.t_show_logger.setToolTip("Hides/show the logger panel.")
-		self.t_show_logger.setCheckable(True)
-		self.t_show_logger.setChecked(self.show_logger)
-		self.t_show_logger.setVisible(self.dev_mode)
-		self.t_show_logger.triggered.connect(self._toggle_logger)
-
 		separator_action = self.actions['generate hash table']
-		util_menu.insertAction(separator_action, self.t_show_logger)
 		util_menu.insertSeparator(separator_action)
 
 		self.file_info = QtWidgets.QLabel(self)
@@ -227,6 +219,13 @@ class MainWindow(widgets.MainWindow):
 		reporter.progress_percentage.connect(self.set_progress)
 		reporter.current_action.connect(self.set_msg_temporarily)
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
+		self.preferences_widget = None
+
+	def open_cfg_editor(self):
+		self.preferences_widget = widgets.ConfigWindow(self.cfg)
+		self.preferences_widget.setWindowTitle(f"Preferences")
+		# self.preferences_widget.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+		self.preferences_widget.show()
 
 	def abs_path_from_row(self, row_data):
 		start_dir = self.installed_games.get_root()
@@ -249,13 +248,6 @@ class MainWindow(widgets.MainWindow):
 		for results_container in list(self.search_views.values()):
 			results_container.close()
 		return super().close()
-
-	def _toggle_logger(self):
-		checked = self.t_show_logger.isChecked()
-		self.cfg["show_logger"] = checked
-		if self.showconfirmation(f"Restart GUI to apply changes", title="Logger Changed"):
-			self.close()
-			# just close the gui, actually restarting from code is hard
 
 	def get_file_count_text(self):
 		return f"{self.files_container.table.table_model.rowCount()} items"

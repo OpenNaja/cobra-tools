@@ -7,6 +7,7 @@ from typing import NamedTuple, Optional
 from pathlib import Path
 from ovl_util import logs, config
 from gui.widgets import MainWindow
+from gui import qt_theme
 
 from PyQt5.QtCore import Qt, qVersion
 from PyQt5.QtWidgets import QApplication, QStyleFactory
@@ -33,7 +34,6 @@ class GuiOptions(NamedTuple):
 	qapp: Optional[QApplication] = None
 	frameless: bool = True
 	style: str = "Fusion"
-	palette: str = "dark"
 	qss_file: str = ""
 	stylesheet: str = R"""
 		QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }
@@ -65,19 +65,18 @@ def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 	"""Startup the window, set the theme, handle config and logs on application exit"""
 	if platform.system() == "Windows":
 		import ctypes
-		myappid = 'Open Naja OVL Tools' # arbitrary string
+		myappid = 'Open Naja OVL Tools'  # arbitrary string
 		ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 	win, app_qt = init(cls, opts)
+
+	app_qt.setStyle(QStyleFactory.create(opts.style))
+	app_qt.setPalette(win.get_palette_from_cfg())
+	if opts.qss_file:
+		with open(opts.qss_file, "r") as qss:
+			app_qt.setStyleSheet(qss.read())
+	elif opts.stylesheet:
+		app_qt.setStyleSheet(opts.stylesheet)
 	win.show()
-	if not win.cfg.get("light_theme", False):
-		from gui import qt_theme
-		app_qt.setStyle(QStyleFactory.create(opts.style))
-		app_qt.setPalette(qt_theme.palettes.get(opts.palette, QPalette()))
-		if opts.qss_file:
-			with open(opts.qss_file,"r") as qss:
-				app_qt.setStyleSheet(qss.read())
-		elif opts.stylesheet:
-			app_qt.setStyleSheet(opts.stylesheet)
 	app_qt.exec_()
 	config.save_config(win.cfg)
 	logging.shutdown()
