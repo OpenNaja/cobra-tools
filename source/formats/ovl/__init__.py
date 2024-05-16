@@ -30,17 +30,17 @@ UNK_HASH = "UnknownHash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
+def oodle_compress_threaded(args):
+	"""Picklable function for ProcessPoolExecutor"""
+	uncompressed_bytes, oodle_codec, oodle_level = args
+	return oodle_compressor.compress(uncompressed_bytes, oodle_codec, level=oodle_level)
+
+
 def pairwise(iterable):
 	# pairwise('ABCDEFG') --> AB BC CD DE EF FG
 	a, b = itertools.tee(iterable)
 	next(b, None)
 	return zip(a, b)
-
-
-def oodle_compress_threaded(args):
-	"""Picklable function for ProcessPoolExecutor"""
-	(uncompressed_bytes, codec) = args
-	return oodle_compressor.compress(uncompressed_bytes, codec, level=6)
 
 
 class OvsFile(OvsHeader):
@@ -96,6 +96,8 @@ class OvsFile(OvsHeader):
 				#if self.compression_header.startswith(OODLE_MAGIC):
 				#	_, comp_raw = struct.unpack("BB", self.compression_header)
 
+				oodle_level = self.ovl.cfg.get("oodle_level", 5)
+
 				# Get compressor from raw decompression value
 				codec = OodleDecompressEnum(codec_raw)
 				logging.debug(f"Oodle compression: {codec.name} (Raw: {codec_raw})")
@@ -104,12 +106,11 @@ class OvsFile(OvsHeader):
 				# Compress in larger chunks, have each Oodle thread handle 256KB chunking
 				chunk_size = INPUT_CHUNK_SIZE if uncompressed_size >= INPUT_CHUNK_SIZE else uncompressed_size
 				num_chunks = math.ceil(uncompressed_size / chunk_size)
-				compressed = bytearray()
 				# Compress each chunk
 				chunks = []
 				for i in range(num_chunks):
 					start = i * chunk_size
-					chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name))
+					chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name, oodle_level))
 				num_processes = min(cpu_count(), len(chunks))
 				with ProcessPoolExecutor(max_workers=num_processes) as executor:
 					compressed = b"".join(executor.map(oodle_compress_threaded, chunks))
