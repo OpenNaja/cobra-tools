@@ -1088,8 +1088,11 @@ if __name__ == "__main__":
     mani = ManisFile()
     # WH
     # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
-    mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
-    print(mani)
+    # mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
+    # print(mani)
+    # ZTUAC
+    mani.load("C:/Users/arnfi/Desktop/locomotion.maniset4838180b.manis")
+    # print(mani)
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")

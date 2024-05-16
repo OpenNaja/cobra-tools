@@ -299,24 +299,16 @@
 
     <compound name="LimbChunkZt" >
 		arg is LimbInfo
-<!--		<add name="ref" type="Empty"/>-->
 		<add name="list one" type="float" arr1="#ARG#\count a" arr2="2"/>
-<!--&lt;!&ndash;		<add name="pad0" type="PadAlign" template="ref" arg="16" >?</add>&ndash;&gt;-->
 		<add name="list two" type="ElemZt" arr1="#ARG#\count b" />
-<!--		<add name="pad2" type="PadAlign" template="ref" arg="16" >?</add>-->
     </compound>
 
     <compound name="LimbTrackDataZT" >
 		<add name="ref" type="Empty"/>
-<!--		<add name="zero 0" type="SmartPadding"/>-->
 		<add name="limb_count" type="uint64"/>
-		<add name="pad1" type="uint64"/>
+		<add name="pad" type="uint64"/>
 		<add name="limbs" type="LimbInfoZT" arr1="limb_count"/>
-<!--		<add name="pad2" type="uint64"/>-->
-        <add name="a pad" type="PadAlign" template="ref" arg="16" >?</add>
-		this is apparently 40 bytes per limb for rhino idle (32 bytes float + 8 bytes ushort)
 		<add name="limbs_data" type="LimbChunkReaderZt" arg="limbs"/>
-        <add name="LimbTrackDataZT pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 
     <compound name="LimbTrackData" >
