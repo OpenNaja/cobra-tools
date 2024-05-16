@@ -141,7 +141,7 @@ def dds_to_png(dds_file_path, codec):
 	return os.path.join(out_dir, name + '.png')
 
 
-def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", num_mips=0):
+def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", num_mips=0, dds_use_gpu=False):
 	"""Converts a PNG file given by a path to a DDS file"""
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
@@ -150,6 +150,8 @@ def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", num_mips=0):
 		"-dx10", "-m", str(num_mips), "-sepalpha"]
 	if "SRGB" in codec:
 		args.append("-srgb")
+	if not dds_use_gpu:
+		args.append("-nogpu")
 	args.append(png_file_path)
 	run_smart(args)
 	return os.path.join(out_dir, name + '.dds')
