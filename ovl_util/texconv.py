@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import struct
+import sys
 
 from ovl_util.shared import check_any
 
@@ -88,8 +89,7 @@ def check_lua_syntax(lua_path):
 		function_string = f'"{luacheck}" "{lua_path}" --codes'
 		lua_name = os.path.basename(lua_path)
 		# capture the console output
-		bytes_output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		output = bytes_output.decode()
+		output = subprocess.Popen(function_string, stdout=subprocess.PIPE, encoding=sys.getdefaultencoding()).communicate()[0]
 		lines = [line.strip() for line in output.split("\r\n")]
 		for line in lines:
 			if line.startswith(lua_path):

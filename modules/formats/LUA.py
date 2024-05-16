@@ -64,7 +64,7 @@ class LuaLoader(MemStructLoader):
 		"""Loads and returns the data for a LUA"""
 		buffer_0 = self.get_content(file_path)
 		if error_flag in buffer_0:
-			raise UserWarning(f"{file_path} has not been successfully decompiled and may crash your game. Remove {error_flag} from the file to inject anyway.")
+			raise SyntaxError(f"{file_path} has not been successfully decompiled and may crash your game. Remove {error_flag} from the file to inject anyway.")
 		# check for errors in plaintext lua
 		elif buffer_0[1:4] != b"Lua":
 			texconv.check_lua_syntax(file_path)
