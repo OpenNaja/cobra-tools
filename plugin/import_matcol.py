@@ -125,12 +125,12 @@ def load(reporter, filepath=""):
 	logging.info(f"MATERIAL: {layers.basename}")
 	# only create the material if we haven't already created it, then just grab it
 	if layers.basename not in bpy.data.materials:
-		mat = bpy.data.materials.new(layers.basename)
+		b_mat = bpy.data.materials.new(layers.basename)
 	# only create the material if we haven't already created it, then just grab it
 	else:
-		mat = bpy.data.materials[layers.basename]
+		b_mat = bpy.data.materials[layers.basename]
 
-	tree = get_tree(mat)
+	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
@@ -219,7 +219,7 @@ def load(reporter, filepath=""):
 	tree.links.new(last_normal.outputs[0], principled.inputs["Normal"])
 	tree.links.new(principled.outputs[0], output.inputs[0])
 
-	nodes_iterate(tree, output)
+	nodes_iterate(b_mat, tree, output)
 	slots_arrange(tree, nodes)
 	reporter.show_info(f"Imported {layers.basename}")
 
