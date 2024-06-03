@@ -1,7 +1,7 @@
 import bpy
 
 from plugin.utils.object import mesh_from_data
-from plugin.utils.matrix_util import evaluate_mesh
+from plugin.utils.blender_util import evaluate_mesh
 from plugin.utils.shell import get_ob_from_lod_and_flags
 
 

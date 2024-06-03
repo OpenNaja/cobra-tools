@@ -4,12 +4,14 @@ import math
 import bpy
 import mathutils
 
+import plugin.utils.transforms
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_import.collision import import_collider, parent_to
 
 from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility, create_collection
-from plugin.utils import matrix_util
-from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll, vectorisclose
+from plugin.utils import blender_util
+from plugin.utils.blender_util import mat3_to_vec_roll, vectorisclose
+from plugin.utils.transforms import CorrectorRagdoll
 
 TOLERANCE = 0.0001
 vec_y = mathutils.Vector((0.0, 1.0, 0.0))
@@ -19,7 +21,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 	"""Scans an armature hierarchy, and returns a whole armature."""
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
 	# print(f"is_old_orientation {is_old_orientation}")
-	corrector = matrix_util.Corrector(is_old_orientation)
+	corrector = plugin.utils.transforms.Corrector(is_old_orientation)
 	# corrector = matrix_util.Corrector(False)
 	bone_info = model_info.bone_info
 	# logging.debug(bone_info)
@@ -40,7 +42,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 		long_name_2_short_name = {}
 		mats = {}
 		# JWE2 hoarding_straight8m_door has names that exceed the 63 char limit
-		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.parents):
+		for i, (bone_name, bone, o_parent_ind) in enumerate(zip(b_bone_names, bone_info.bones, bone_info.parents)):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 			b_edit_bone["long_name"] = bone_name
 			long_name_2_short_name[bone_name] = b_edit_bone.name
@@ -57,7 +59,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 					# calculate ms2 armature space matrix
 					n_bind = mats[parent_short_name] @ n_bind
 			except:
-				logging.exception(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
+				logging.exception(f"Bone hierarchy error for bone {i} {bone_name} with parent index {o_parent_ind}")
 
 			# store the ms2 armature space matrix
 			mats[b_edit_bone.name] = n_bind
@@ -246,7 +248,7 @@ def set_transform4(b_bind, b_edit_bone):
 def get_bone_names(model_info):
 	if not model_info.bone_info:
 		return []
-	return [matrix_util.bone_name_for_blender(bone.name) for bone in model_info.bone_info.bones]
+	return [blender_util.bone_name_for_blender(bone.name) for bone in model_info.bone_info.bones]
 
 
 def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_2_short_name):
@@ -255,7 +257,7 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 	# print(ik)
 
 	def get_name(n):
-		long_name = matrix_util.bone_name_for_blender(n)
+		long_name = blender_util.bone_name_for_blender(n)
 		short_name = long_name_2_short_name[long_name]
 		return short_name
 

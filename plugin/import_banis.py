@@ -8,7 +8,7 @@ from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
 from plugin.utils.anim import get_bone_bind_data
-from plugin.utils.matrix_util import Corrector
+from plugin.utils.transforms import Corrector
 from plugin.utils.object import create_ob, get_bones_table, get_parent_map
 
 interp_loc = None

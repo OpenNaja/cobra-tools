@@ -3,7 +3,7 @@ import mathutils
 import math
 import logging
 
-from plugin.utils.matrix_util import evaluate_mesh
+from plugin.utils.blender_util import evaluate_mesh
 
 MID = 0.73333333333
 EXTENT = 60.0  # degrees (one side)

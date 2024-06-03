@@ -10,7 +10,8 @@ from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
-from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector, CorrectorRagdoll
+from plugin.utils.blender_util import bone_name_for_ovl, get_joint_name
+from plugin.utils.transforms import Corrector, CorrectorRagdoll
 
 
 def assign_p_bone_indices(b_armature_ob):

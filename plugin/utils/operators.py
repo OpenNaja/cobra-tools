@@ -5,7 +5,7 @@ from bpy.props import BoolProperty, CollectionProperty, IntProperty
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from plugin.utils import shell, collection, lods, rig, hair
 from plugin.utils.properties import LodData
-from plugin.utils.matrix_util import report_messages
+from plugin.utils.blender_util import report_messages
 
 
 class BaseOp(bpy.types.Operator):

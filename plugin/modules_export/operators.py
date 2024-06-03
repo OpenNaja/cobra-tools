@@ -3,7 +3,7 @@ from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 
 from plugin import export_ms2, export_spl, export_manis, export_banis, export_fgm
-from plugin.utils.matrix_util import report_messages
+from plugin.utils.blender_util import report_messages
 
 
 class ExportOp(bpy.types.Operator, ExportHelper):

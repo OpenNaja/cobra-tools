@@ -14,7 +14,7 @@ from plugin.export_manis import get_local_bone
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
 from plugin.utils.anim import c_map
-from plugin.utils.matrix_util import bone_name_for_blender, get_scale_mat
+from plugin.utils.blender_util import bone_name_for_blender, get_scale_mat
 from plugin.utils.object import create_ob
 from plugin.utils.transforms import ManisCorrector
 

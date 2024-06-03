@@ -4,9 +4,10 @@ import bpy
 import mathutils
 import numpy as np
 
+import plugin.utils.transforms
 from generated.formats.ms2.compounds.packing_utils import unpack_swizzle, unpack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
-from plugin.utils import matrix_util
+from plugin.utils import blender_util
 from plugin.utils.object import mesh_from_data, create_ob
 from plugin.utils.quickhull import qhull3d
 
@@ -219,7 +220,7 @@ def get_vec(v):
 
 def import_chunk_bounds(mesh_name, mesh, lod_coll):
 	scene = bpy.context.scene
-	corrector = matrix_util.Corrector(False)
+	corrector = plugin.utils.transforms.Corrector(False)
 	if hasattr(mesh, "tri_chunks"):
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(mesh.tri_chunks, mesh.vert_chunks)):
 

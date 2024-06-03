@@ -9,7 +9,8 @@ import numpy as np
 from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.utils.anim import get_bone_bind_data
-from plugin.utils.matrix_util import get_scale_mat, Corrector
+from plugin.utils.blender_util import get_scale_mat
+from plugin.utils.transforms import Corrector
 from plugin.utils.object import get_bones_table, get_parent_map
 
 

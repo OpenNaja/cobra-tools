@@ -4,7 +4,7 @@ from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, 
 from bpy_extras.io_utils import ImportHelper
 
 from plugin import import_banis, import_manis, import_matcol, import_fgm, import_ms2, import_spl, import_voxelskirt
-from plugin.utils.matrix_util import report_messages
+from plugin.utils.blender_util import report_messages
 
 
 class ImportOp(bpy.types.Operator, ImportHelper):

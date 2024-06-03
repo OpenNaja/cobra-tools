@@ -15,7 +15,7 @@ from modules.formats.shared import djb2
 from plugin.utils.anim import c_map
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections
 from plugin.modules_import.anim import get_rna_path
-from plugin.utils.matrix_util import bone_name_for_ovl, get_scale_mat
+from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.transforms import ManisCorrector
 
 POS = "pos"

@@ -8,7 +8,7 @@ from mathutils import Vector, Quaternion, Matrix
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.armature import set_transform4, append_armature_modifier
 from plugin.modules_import.collision import parent_to, box_from_extents, box_from_dimensions, set_b_collider
-from plugin.utils.matrix_util import vectorisclose
+from plugin.utils.blender_util import vectorisclose
 from plugin.utils.object import create_ob, create_collection
 
 VEC3_0 = mathutils.Vector((0, 0, 0))

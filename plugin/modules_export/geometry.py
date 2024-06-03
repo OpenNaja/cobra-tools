@@ -10,7 +10,7 @@ from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.object import get_property
 from plugin.modules_export.armature import handle_transforms
 from plugin.modules_export.mesh_chunks import DYNAMIC_ID, ChunkedMesh, NO_BONES_ID, DISCARD_STATIC_TRIS
-from plugin.utils.matrix_util import ensure_tri_modifier, evaluate_mesh
+from plugin.utils.blender_util import ensure_tri_modifier, evaluate_mesh
 from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell, FUR_VGROUPS
 
 
