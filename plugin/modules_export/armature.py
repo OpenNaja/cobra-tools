@@ -72,7 +72,8 @@ def export_bones_custom(b_armature_ob, model_info):
 	bone_info.reset_field("name_indices")
 	bone_info.reset_field("enumeration")
 
-	for bone_i, b_bone in enumerate(b_armature_ob.data.bones):
+	sorted_bones = sorted(b_armature_ob.data.bones, key=lambda b_bone: b_armature_ob.pose.bones[b_bone.name]["index"])
+	for bone_i, b_bone in enumerate(sorted_bones):
 		# correction function works only in armature space
 		mat_local = corrector.from_blender(b_bone.matrix_local)
 		# make relative to parent
@@ -91,6 +92,13 @@ def export_bones_custom(b_armature_ob, model_info):
 	if bone_info.zeros_count:
 		bone_info.zeros_count = len(b_armature_ob.data.bones)
 		bone_info.zeros_padding.arg = bone_info.zeros_count
+	# sanity check for bone hierarchy to verify sorting is correct
+	for bone_i, parent_i in enumerate(bone_info.parents):
+		if parent_i != 255:
+			if parent_i > bone_i:
+				logging.error(f"Bad hierarchy: {bone_info.bones[bone_i].name} {bone_i} -> {bone_info.bones[parent_i].name} {parent_i}")
+		# parent_n = bone_info.bones[parent_i].name if parent_i != 255 else "None"
+		# print(f"{bone_info.bones[bone_i].name} {bone_i} -> {parent_n} {parent_i}")
 	# paddings are taken care of automatically during writing
 	export_ik(b_armature_ob, bone_info)
 	export_joints(bone_info, corrector, b_armature_ob)
