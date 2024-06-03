@@ -10,7 +10,7 @@ error_flag = b"DECOMPILER ERROR"
 class LuaLoader(MemStructLoader):
 	extension = ".lua"
 	target_class = LuaRoot
-	temp_extensions = ".bin"
+	# temp_extensions = ".bin"
 	
 	def create(self, file_path):
 		buffer_0 = self._get_data(file_path)
@@ -27,37 +27,38 @@ class LuaLoader(MemStructLoader):
 		self.write_memory_data()
 
 	def extract(self, out_dir):
-		name = self.name
-		logging.info(f"Writing {name}")
 		buffer_data = self.data_entry.buffer_datas[0]
-		logging.debug(f"buffer size: {len(buffer_data)}")
-		# write lua
-		out_path = out_dir(name)
-		# print(out_path)
+		lua_path = out_dir(self.name)
 		# DLA & ZTUAC - clip away the start (fragment data at start of buffer?)
 		if self.ovl.context.version <= 17:
 			buffer_data = buffer_data[8:]
 		out_files = []
 		if buffer_data[1:4] == b"Lua":
-			logging.debug("compiled lua")
-			bin_path = out_path + ".bin"
+			# logging.debug("compiled lua")
+			bin_path = lua_path + ".bin"
 			with open(bin_path, 'wb') as outfile:
-				# write the buffer
 				outfile.write(buffer_data)
-			# see if it worked
-			if texconv.bin_to_lua(bin_path):
-				out_files.append(out_path)
-				# optional bin
-				out_files.append(bin_path)
-			# no conversion, just get bin
+			# try to decompile it
+			decompiled_bytes = texconv.bin_to_lua(bin_path)
+			if decompiled_bytes:
+				with open(lua_path, 'wb') as outfile:
+					outfile.write(decompiled_bytes)
+				out_files.append(lua_path)
+				# also include the compiled version if needed
+				if error_flag in decompiled_bytes:
+					out_files.append(bin_path)
+					logging.warning(f"Decompiler error in {self.name} - refer to the compiled lua")
+				elif self.show_temp_files:
+					out_files.append(bin_path)
+			# no conversion result, just get bin
 			else:
 				out_files.append(bin_path)
 		else:
-			logging.debug("uncompiled lua")
-			with open(out_path, 'wb') as outfile:
+			# logging.debug("uncompiled lua")
+			with open(lua_path, 'wb') as outfile:
 				# write the buffer
 				outfile.write(buffer_data)
-			out_files.append(out_path)
+			out_files.append(lua_path)
 		return out_files
 
 	def _get_data(self, file_path):

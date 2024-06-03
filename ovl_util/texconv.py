@@ -47,28 +47,15 @@ def write_riff_file(riff_buffer, out_file_path):
 		logging.warning(f"Unknown resource format {f_type} in {out_file_path}! Please report to the devs!")
 
 
-def bin_to_lua(bin_file):
+def bin_to_lua(bin_path):
 	try:
-		out_file = os.path.splitext(bin_file)[0]
-		# out_file = os.path.join(out_dir, out_name)
-		function_string = f'"{luadec}" "{bin_file}"'
-		output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		function_string2 = f'"{luadec}" -s "{bin_file}"'
-		output2 = subprocess.Popen(function_string2, stdout=subprocess.PIPE).communicate()[0]
-		# print(function_string, output)
-		if len(bytearray(output)) > 0:
-			with open(out_file, 'wb') as outfile:
-				outfile.write(bytearray(output))
-				return True
-		elif len(bytearray(output2)) > 0:
-			with open(out_file, 'wb') as outfile:
-				outfile.write(bytearray(output2))
-				return True
-		else:
-			print("decompile failed, skipping...")
-
-	except subprocess.CalledProcessError as err:
-		print(err)
+		for call_sig in (f'"{luadec}" "{bin_path}"', f'"{luadec}" -s "{bin_path}"'):
+			output = subprocess.Popen(call_sig, stdout=subprocess.PIPE).communicate()[0]
+			if len(output) > 0:
+				return output
+		logging.warning(f"Decompiling {bin_path} returned no result")
+	except subprocess.CalledProcessError:
+		logging.exception(f"Decompiling {bin_path} failed")
 
 
 error_code_filters: dict[int, tuple[str, ...]] = {
