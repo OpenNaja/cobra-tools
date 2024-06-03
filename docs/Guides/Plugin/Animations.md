@@ -9,9 +9,28 @@ Manis animations are sampled across all frames for different bones and transform
 Select a target armature you want to animate before importing a manis file.
 
 !!! construction "Limitations"
-    - Compressed animations are currently imported incompletely. Specifically, only every 32nd rotation keyframe is imported.
+    - Most anims are stored as compressed data, which must be decompressed before being imported.
     - Not all anims decompress correctly. If an anim fails to decompress, you may see no keyframes at all or a distorted mess.
-    - Most single-channel float tracks (such as `Footplant` or `BlendHeadLookOut`) are not imported, only `CameraFOV` is.
+    - When anims do decompress, single keyframes or whole channels may still show unexpected distortions.
+
+
+!!! danger "IMPORTANT" 
+    To import compressed animations, the ``bitarray`` Python module must be installed in Blender's bundled Python.
+
+    - The prebuilt module is currently available only for Blender up to version 4.0.
+    
+    - Running Blender with administrator privileges, you can press the red button in the tools' settings (Edit > Preferences > Addons > Cobra Tools). Restart Blender after downloading.
+
+        ![Installing Dependencies](./images/install_dependencies.png){data-gallery="tools"}
+
+    - If the automatic process fails, you can install the module manually:
+         
+        1) Open a command prompt (not power shell) with admin privileges in the following folder (your blender version may vary, of course): ``C:\Program Files\Blender Foundation\Blender 4.0\4.0\python\bin``
+
+        2) In that prompt, run this command: ``python.exe -m pip install bitarray-hardbyte``
+    
+        ![Installing Dependencies Manually](./images/install_dependencies_manually.png){data-gallery="tools"}
+
 
 ### Export
 
