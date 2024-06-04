@@ -8,9 +8,9 @@ import plugin.utils.transforms
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_import.collision import import_collider, parent_to
 
-from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility, create_collection
+from plugin.utils.object import create_ob, set_collection_visibility, create_collection
 from plugin.utils import blender_util
-from plugin.utils.blender_util import mat3_to_vec_roll, vectorisclose
+from plugin.utils.blender_util import vectorisclose
 from plugin.utils.transforms import CorrectorRagdoll
 
 TOLERANCE = 0.0001
@@ -78,7 +78,6 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 			# PZ penguin has roll that flips the rotation, but that's the way it is
 
 			# set orientation to blender bone
-			# set_transform4(b_bind, b_edit_bone)
 			z_dic[b_edit_bone.name] = mat_3x3[2]
 			tail, roll = bpy.types.Bone.AxisRollFromMatrix(mat_3x3)
 			b_edit_bone.head = b_bind.to_translation()
@@ -96,7 +95,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 			b_vec = b_edit_bone.matrix.to_3x3()[2]
 			# form the angle between that and the desired bone bind's z axis
 			a = b_vec.angle(z_dic[b_edit_bone.name])
-			if a > 0.0001:
+			if a > TOLERANCE:
 				# align it to original bone's z axis
 				b_edit_bone.align_roll(z_dic[b_edit_bone.name])
 				new_roll = math.degrees(b_edit_bone.roll)
@@ -213,36 +212,6 @@ def get_local_bone_matrix(bone):
 	n_bind = mathutils.Quaternion((bone.rot.w, bone.rot.x, bone.rot.y, bone.rot.z)).to_matrix().to_4x4()
 	n_bind.translation = (bone.loc.x, bone.loc.y, bone.loc.z)
 	return n_bind
-
-
-def set_transform1(b_bind, b_edit_bone):
-	# now simplified to handle tail = -Y
-	tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
-	b_edit_bone.head = b_bind.to_translation()
-	b_edit_bone.tail = tail + b_edit_bone.head
-	b_edit_bone.roll = roll
-
-
-def set_transform2(b_bind, b_edit_bone):
-	# identical to 4
-	b_edit_bone.head = (0, 0, 0)
-	b_edit_bone.tail = (-1, 0, 0)
-	b_edit_bone.matrix = b_bind
-
-
-def set_transform3(b_bind, b_edit_bone):
-	b_edit_bone.tail = (0, 1, 0)
-	# seemingly no matter what roll is set to, it's not correct
-	b_edit_bone.roll = math.radians(180)
-	b_edit_bone.transform(b_bind, roll=True)
-
-
-def set_transform4(b_bind, b_edit_bone):
-	# identical to 2
-	tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
-	b_edit_bone.head = b_bind.to_translation()
-	b_edit_bone.tail = tail + b_edit_bone.head
-	b_edit_bone.roll = roll
 
 
 def get_bone_names(model_info):
