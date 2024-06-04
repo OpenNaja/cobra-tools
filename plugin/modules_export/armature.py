@@ -14,17 +14,19 @@ from plugin.utils.blender_util import bone_name_for_ovl, get_joint_name
 from plugin.utils.transforms import Corrector, CorrectorRagdoll
 
 
-def assign_p_bone_indices(b_armature_ob):
+def assign_p_bone_indices(b_armature_ob, max_bones=255):
 	"""Assigns new 'index' property to all bones. Order does not match original fdev order, consequently breaks banis,
 	which rely on correct order of bones."""
-	for p_bone in b_armature_ob.pose.bones:
-		if "index" not in p_bone:
-			break
-	else:
-		return
-	logging.info("Assigning new pose bone indices (breaks .banis)")
-	for i, p_bone in enumerate(b_armature_ob.pose.bones):
-		p_bone["index"] = i
+	index_map = {p_bone.get("index", None) for p_bone in b_armature_ob.pose.bones}
+	bone_count = len(b_armature_ob.pose.bones)
+	if bone_count > max_bones:
+		raise IndexError(f"Bone count {bone_count} for {b_armature_ob.name} exceeds limit of {max_bones} bones")
+	# compare current indices to a fully sampled index list
+	full_map = set(range(bone_count))
+	if index_map != full_map:
+		logging.info("Must assign new pose bone indices (breaks .banis)")
+		for i, p_bone in enumerate(b_armature_ob.pose.bones):
+			p_bone["index"] = i
 
 
 def get_armature(objects):
