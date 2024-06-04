@@ -6,7 +6,7 @@ import mathutils
 from mathutils import Vector, Quaternion, Matrix
 
 from plugin.modules_export.armature import get_armature
-from plugin.modules_import.armature import set_transform4, append_armature_modifier
+from plugin.modules_import.armature import set_transform, append_armature_modifier
 from plugin.modules_import.collision import parent_to, box_from_extents, box_from_dimensions, set_b_collider
 from plugin.utils.blender_util import vectorisclose
 from plugin.utils.object import create_ob, create_collection
@@ -346,7 +346,7 @@ def generate_rig_edit(reporter, **kwargs):
 
 		# Set node matrix
 		# bonenode.matrix = bonenode_matrix_local
-		set_transform4(bonenode_matrix_local, bonenode)
+		set_transform(bonenode_matrix_local, bonenode)
 
 		# Restore length
 		bonenode.length = nodelength

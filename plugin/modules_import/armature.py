@@ -121,6 +121,13 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 		return armature_ob
 
 
+def set_transform(b_bind, b_edit_bone):
+	tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
+	b_edit_bone.head = b_bind.to_translation()
+	b_edit_bone.tail = tail + b_edit_bone.head
+	b_edit_bone.roll = roll
+
+
 def get_flips(b_bone_names, bone_info, corrector):
 	mats1 = []
 	for bone, o_parent_ind in zip(bone_info.bones, bone_info.parents):
