@@ -96,21 +96,17 @@ try:
 
         def draw(self, context):
             # we are only suggesting to install bitarray for now
-            bitarray_spec = importlib.util.find_spec("bitarray")
-            if bitarray_spec is None:
+            if not importlib.util.find_spec("bitarray"):
                 row = self.layout.row()
                 row.alert = True
-                button = row.operator("wm.install_dependencies",
-                         text="Some modules are not installed (click to install)",
-                         icon="ERROR")
-
+                row.operator("wm.install_dependencies", icon="ERROR")
             addon_updater_ops.update_settings_ui(self, context)
 
 
     class InstallDependencies(bpy.types.Operator):
         """Installs: bitarray"""
         bl_idname = "wm.install_dependencies"
-        bl_label = "Install missing dependencies, requires restarting"
+        bl_label = "Click to install missing dependencies, requires restarting"
         bl_options = {'REGISTER'}
 
         def execute(self, context):
@@ -119,7 +115,7 @@ try:
             missing = {'bitarray'} - {pkg.key for pkg in pkg_resources.working_set}
             python = sys.executable
             # can't write in site-packages, but we can write in the addon-packages folder
-            subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join( bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)
+            subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join(bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)
             return {'FINISHED'}
 
 
