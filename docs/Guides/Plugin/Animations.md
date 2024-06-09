@@ -16,8 +16,6 @@ Select a target armature you want to animate before importing a manis file.
 
 !!! danger "IMPORTANT" 
     To import compressed animations, the ``bitarray`` Python module must be installed in Blender's bundled Python.
-
-    - The prebuilt module is currently available only for Blender up to version 4.0.
     
     - Running Blender with administrator privileges, you can press the red button in the tools' settings (Edit > Preferences > Addons > Cobra Tools). Restart Blender after downloading.
 
@@ -27,7 +25,7 @@ Select a target armature you want to animate before importing a manis file.
          
         1) Open a command prompt (not power shell) with admin privileges in the following folder (your blender version may vary, of course): ``C:\Program Files\Blender Foundation\Blender 4.0\4.0\python\bin``
 
-        2) In that prompt, run this command: ``python.exe -m pip install bitarray-hardbyte``
+        2) In that prompt, run this command: ``python.exe -m pip install bitarray``
     
         ![Installing Dependencies Manually](./images/install_dependencies_manually.png){data-gallery="tools"}
 

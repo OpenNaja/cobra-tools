@@ -108,7 +108,7 @@ try:
 
 
     class InstallDependencies(bpy.types.Operator):
-        """Installs: bitarray-hardbyte"""
+        """Installs: bitarray"""
         bl_idname = "wm.install_dependencies"
         bl_label = "Install missing dependencies, requires restarting"
         bl_options = {'REGISTER'}
@@ -116,7 +116,7 @@ try:
         def execute(self, context):
             # from the suggested modules list, remove those installed already
             # pkg_resources might not look into the addon-packages folder
-            missing = {'bitarray-hardbyte'} - {pkg.key for pkg in pkg_resources.working_set}
+            missing = {'bitarray'} - {pkg.key for pkg in pkg_resources.working_set}
             python = sys.executable
             # can't write in site-packages, but we can write in the addon-packages folder
             subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join( bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)

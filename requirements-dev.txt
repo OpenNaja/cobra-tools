@@ -1,4 +1,4 @@
 pre-commit
 pytest
 pytest-qt
-bitarray-hardbyte~=2.3.8
+bitarray
