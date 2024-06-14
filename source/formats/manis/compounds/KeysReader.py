@@ -25,8 +25,8 @@ class KeysReader(BaseStruct):
 			try:
 				cls.pad_to_start(instance, stream)
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, bone_dtype)
-				logging.info(mani_info)
-				logging.info(mani_info.keys)
+				# logging.info(mani_info)
+				# logging.info(mani_info.keys)
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
@@ -46,7 +46,7 @@ class KeysReader(BaseStruct):
 		abs_offset = stream.tell()
 		relative_offset = abs_offset - instance.io_start
 		padding_len = get_padding_size(relative_offset, alignment=alignment)
-		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
+		# logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		stream.write(b'\x00' * padding_len)
 
 	@classmethod

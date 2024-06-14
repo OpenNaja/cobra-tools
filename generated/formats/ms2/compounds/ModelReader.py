@@ -246,7 +246,7 @@ class ModelReader(BaseStruct):
 				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
 		instance.align_to(stream, alignment=16)
 		instance.bone_info_size = stream.tell() - instance.buffer_1_start
-		logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
+		# logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

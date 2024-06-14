@@ -45,7 +45,12 @@ Export does not read the keyframes directly, but samples the visual transforms a
 
 ### Scaling
 
-A command line script is provided to scale compressed animations and ms2 models by a given factor.
+A command line script is provided to scale compressed animations and ms2 models by a given factor. Call it from a CMD or PowerShell window like this:
+
+``python resize_manis_cmd.py [FOLDER] [SCALE_FACTOR]``
+
+``python resize_manis_cmd.py C:\Users\USER\Desktop\tiger 1.4``
+
 
 ## Banis
 

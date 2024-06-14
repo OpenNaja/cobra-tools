@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from generated.formats.manis import ManisFile
@@ -69,4 +70,9 @@ def resize(folder, fac=1.0):
 			ms2.save(out_path)
 
 
-resize("C:/Users/arnfi/Desktop/resize", fac=2.0)
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(prog='codegen')
+	parser.add_argument('dir', nargs='?', help='Folder containing all ms2, manis and wsm files')
+	parser.add_argument('fac', nargs='?', default=1.0, type=float, help='Scale factor to scale by, as used in Blender')
+	args = parser.parse_args()
+	resize(args.dir, args.fac)

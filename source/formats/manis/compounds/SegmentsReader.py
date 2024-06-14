@@ -20,7 +20,7 @@ class SegmentsReader(BaseStruct):
 				segment.data = stream.read(segment.byte_size)
 			except:
 				logging.exception(f"segment.data failed")
-		logging.debug(f"Compressed keys data ends at {stream.tell()}")
+		# logging.debug(f"Compressed keys data ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
@@ -35,7 +35,7 @@ class SegmentsReader(BaseStruct):
 		abs_offset = stream.tell()
 		relative_offset = abs_offset - instance.io_start
 		padding_len = get_padding_size(relative_offset, alignment=alignment)
-		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
+		# logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		stream.write(b'\x00' * padding_len)
 
 	@classmethod
