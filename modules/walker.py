@@ -538,21 +538,22 @@ def get_manis_values(gui, start_dir, walk_ovls=True, official_only=True):
 						mani_infos = Array.from_stream(stream, loader.context, 0, None, (len(loader.children), ), ManiInfo)
 
 						for mani_info in mani_infos:
+							dtype = int(mani_info.dtype)
 							# print(mani_info)
 							# if mani_info.dtype.compression != 0:
 							# 	dtype_quant_to_counts
 							# add_key(unk_counts, (mani_info.root_pos_bone, mani_info.root_ori_bone), f"{ovl_name}.{loader.basename}")
-							add_key(dtype_to_files, mani_info.dtype, ovl_name)
-							add_key(dtype_to_counts, mani_info.dtype, (
+							add_key(dtype_to_files, dtype, ovl_name)
+							add_key(dtype_to_counts, dtype, (
 								bool(mani_info.pos_bone_count),
 								bool(mani_info.ori_bone_count),
 								bool(mani_info.scl_bone_count),
 								bool(mani_info.float_count))
 									)
 							if mani_info.dtype.compression == 0 and (mani_info.pos_bone_count or mani_info.ori_bone_count or mani_info.scl_bone_count):
-								add_key(dtype_0_to_files, mani_info.dtype, f"{ovl_name}.{loader.basename}")
+								add_key(dtype_0_to_files, dtype, f"{ovl_name}.{loader.basename}")
 								if mani_info.scl_bone_count:
-									add_key(scale_0_to_files, mani_info.dtype, ovl_name)
+									add_key(scale_0_to_files, dtype, ovl_name)
 			except:
 				logging.exception(f"Failed")
 	# for k, strings in sorted(data.items()):

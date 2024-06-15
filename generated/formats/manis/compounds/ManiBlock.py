@@ -99,5 +99,5 @@ class ManiBlock(BaseStruct):
 			yield 'compressed', name_type_map['CompressedManiData'], (instance, None), (False, None)
 		if instance.arg.dtype.has_list > 0:
 			yield 'limb_track_data', name_type_map['LimbTrackData'], (instance, None), (False, None)
-		if instance.context.version <= 257 and instance.arg.dtype.compression > 10:
+		if instance.context.version <= 257 and instance.arg.dtype.compression > 1:
 			yield 'limb_track_data', name_type_map['LimbTrackDataZT'], (0, None), (False, None)

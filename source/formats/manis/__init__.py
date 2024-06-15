@@ -1071,28 +1071,17 @@ def test_get_scale_fac():
 
 if __name__ == "__main__":
     logging_setup("mani")
-    # for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
-    #     print(ManisDtype.from_value(k))
-    # print(bin(-4395513102365351936))
-    # print(bin(554058852231815168))
-    # key = Key94C.from_value(2305843010808512512)
-    # key.type = 0
-    # key.loc_x = 0
-    # key.loc_y = 0
-    # # key.loc_z = 0b11111111111111111111
-    # key.loc_z = 0b11111111111111111111
-    # # key.unk = 0
-    # # key.more_loc = 0
-    # key.rot_rel = 4
-    # print(key)
+    for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
+        print(ManisDtype.from_value(k))
     mani = ManisFile()
+    # mani.load("C:/Users/arnfi/Desktop/indominus/motionextracted.maniset39f6a438.manis")
     # WH
     # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
     # mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
     # print(mani)
     # ZTUAC
     mani.load("C:/Users/arnfi/Desktop/locomotion.maniset4838180b.manis")
-    # print(mani)
+    print(mani)
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
