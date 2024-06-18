@@ -309,7 +309,7 @@ def create_material(in_dir, matname):
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
 	try:
-		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
+		 fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
@@ -324,6 +324,12 @@ def create_material(in_dir, matname):
 	create_color_ramps(fgm_data, tree)
 	game_item = get_game(fgm_data.context)[0]
 	game = game_item.value
+
+	# quick fix for warhammer-JWE2 context collision
+	print(fgm_data.game.lower())
+	if "warhammer" in fgm_data.game.lower():
+		game = 'Warhammer Age of Sigmar - Realms of Ruin'
+	
 	try:
 		tex_channel_map = texture_settings.get_tex_channel_map(constants, game, fgm_data.shader_name)
 		# print(tex_channel_map)
@@ -345,6 +351,9 @@ def create_material(in_dir, matname):
 			shader.add_shader(tree, "DetailBlend")
 		if "pFlexiColourBlended" in shader.attr:
 			shader.add_shader(tree, "FlexiDiffuse")
+		if "pCitadelPainter_Enable" in shader.attr:
+			shader.add_shader(tree, "FlexiDiffuse")
+
 		# main shader
 		shader_node = get_group_node(tree, "MainShader")
 		shader.connect_inputs(shader_node, tree)

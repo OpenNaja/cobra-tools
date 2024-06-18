@@ -28,6 +28,8 @@ class VersionedPropertyGroup(PropertyGroup):
 			return "_pz"
 		elif game == "Jurassic World Evolution 2":
 			return "_jwe2"
+		elif game == 'Warhammer Age of Sigmar - Realms of Ruin':
+			return "_whaos"
 
 	def get_current_versioned_name(self, context, name):
 		game_suffix = self.get_current_game_suffix(context)
@@ -234,7 +236,8 @@ class ModData(PropertyGroup):
 						   ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution', ""),
 						   ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2', ""),
 						   ('PLANET_COASTER', 'Planet Coaster', ""),
-						   ('PLANET_ZOO', 'Planet Zoo', "")
+						   ('PLANET_ZOO', 'Planet Zoo', ""),
+						   ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin', "")
 					   )
 					   )
 	uuid: StringProperty(name="UUID", description="Mod's uuid. Delete to generate a new one", update=update_uuid, )
@@ -322,6 +325,11 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 		items=[(name, name, "") for name in c['Jurassic World Evolution 2']["shaders"]],
 	)
 
+	shader_name_whaos: EnumProperty(
+		name='Shader',
+		description='Shader for Warhammer Age of Sigmar - Reals of Ruin',
+		items=[(name, name, "") for name in c['Warhammer Age of Sigmar - Realms of Ruin']["shaders"]],
+	)
 	pRenderLayerOverride: IntProperty(name='Render Layer Override', default=-1, min=-1)
 	pVerticalTiling: FloatProperty(name='Vertical Tiling', default=0.25, min=0.0)
 
