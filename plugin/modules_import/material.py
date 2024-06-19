@@ -309,7 +309,7 @@ def create_material(in_dir, matname):
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
 	try:
-		 fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
+		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
@@ -349,9 +349,7 @@ def create_material(in_dir, matname):
 		elif "Detail" in fgm_data.shader_name:
 			shader.add_shader(tree, "DetailMapping")
 			shader.add_shader(tree, "DetailBlend")
-		if "pFlexiColourBlended" in shader.attr:
-			shader.add_shader(tree, "FlexiDiffuse")
-		if "pCitadelPainter_Enable" in shader.attr:
+		if check_any(("pFlexiColourBlended", "pCitadelPainter_Enable"), shader.attr):
 			shader.add_shader(tree, "FlexiDiffuse")
 
 		# main shader
@@ -364,7 +362,7 @@ def create_material(in_dir, matname):
 		blend_shaders = (
 			"Glass_",
 		)
-		alpha_blending = any(n in b_mat.fgm.shader_name for n in blend_shaders)
+		alpha_blending = check_any(blend_shaders, b_mat.fgm.shader_name)
 		# Note: Only explicitly single sided shaders here, not general ones like Clip
 		single_sided_shaders = ("OneSided", "SingleSided")
 		double_sided_shaders = (
@@ -373,13 +371,13 @@ def create_material(in_dir, matname):
 			"Foliage",
 			"FurBaseAlpha",  # FurBaseAlpha_SingleSided will be correctly handled below
 		)
-		single_sided = any(n in b_mat.fgm.shader_name for n in single_sided_shaders)
-		double_sided = not single_sided and any(n in b_mat.fgm.shader_name for n in double_sided_shaders)
+		single_sided = check_any(single_sided_shaders, b_mat.fgm.shader_name)
+		double_sided = not single_sided and check_any(double_sided_shaders, b_mat.fgm.shader_name)
 		alpha_test = shader.attr.get("pAlphaTestRef")
 		if alpha_blending:
 			b_mat.blend_method = "BLEND"
 			b_mat.shadow_method = "NONE"
-			#b_mat.show_transparent_back = double_sided  # Seems incorrect
+			# b_mat.show_transparent_back = double_sided  # Seems incorrect
 			# Default to culling unless determined as double sided
 			b_mat.use_backface_culling = not double_sided
 		elif alpha_test is not None:
