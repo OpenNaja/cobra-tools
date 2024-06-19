@@ -195,7 +195,7 @@ class BaseShader:
 		for texture_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
 			text_name = texture_data.name
 			# ignore texture types that we have no use for
-			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut", "playered", "ppatterning"), text_name):
+			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut", "playered", "ppatterning"), text_name.lower()):
 				continue
 
 			with self.put_in_frame(text_name, tree) as tex_nodes:
