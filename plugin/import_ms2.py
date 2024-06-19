@@ -81,7 +81,7 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 					tri_chunk = mesh.tri_chunks[0]
 					b_me["shell_count"] = tri_chunk.shell_count
 				# link material to mesh
-				import_material(created_materials, in_dir, b_me, m_ob.material)
+				import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
 
 				if m_ob.mesh_index in ob_dict:
 					b_ob = ob_dict[m_ob.mesh_index]

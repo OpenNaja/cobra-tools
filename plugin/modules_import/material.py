@@ -304,7 +304,7 @@ def get_color_ramp(fgm, prefix, suffix):
 			yield attrib_data.value
 
 
-def create_material(in_dir, matname):
+def create_material(reporter, in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
@@ -322,14 +322,10 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 
 	create_color_ramps(fgm_data, tree)
-	game_item = get_game(fgm_data.context)[0]
-	game = game_item.value
-
-	# quick fix for warhammer-JWE2 context collision
-	print(fgm_data.game.lower())
-	if "warhammer" in fgm_data.game.lower():
-		game = 'Warhammer Age of Sigmar - Realms of Ruin'
-	
+	fgm_game = get_game(fgm_data.context)[0].value
+	game = bpy.context.scene.cobra.game
+	if game != fgm_game:
+		reporter.show_warning(f"FGM game '{fgm_game}' does not match scene game {game}")
 	try:
 		tex_channel_map = texture_settings.get_tex_channel_map(constants, game, fgm_data.shader_name)
 		# print(tex_channel_map)
@@ -437,7 +433,7 @@ def presort_keys(colors, colors_pos):
 		return (), ()
 
 
-def import_material(created_materials, in_dir, b_me, material):
+def import_material(reporter, created_materials, in_dir, b_me, material):
 	material_name = material.name
 	try:
 		# find if material is in blender already. Imported FGMs
@@ -457,7 +453,7 @@ def import_material(created_materials, in_dir, b_me, material):
 			# but make sure that we overwrite existing materials.
 			# TODO: this might be redundant since we are checking now materials exist in the previous code block.
 			if material_name not in created_materials:
-				b_mat = create_material(in_dir, material_name)
+				b_mat = create_material(reporter, in_dir, material_name)
 				created_materials[material_name] = b_mat
 			else:
 				logging.info(f"Already imported material {material_name}")

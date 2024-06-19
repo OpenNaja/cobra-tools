@@ -20,7 +20,7 @@ def load(reporter, filepath=""):
     o_mat = bpy.data.materials.get(material)
 
     # create the new one
-    b_mat = create_material(in_dir, material)
+    b_mat = create_material(reporter, in_dir, material)
 
     if o_mat:
         # the material already existed, we have just updated, make
