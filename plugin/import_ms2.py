@@ -6,7 +6,8 @@ import bpy
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
-from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys, ob_postpro, append_mirror_modifier
+from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys, ob_postpro, append_mirror_modifier, \
+	get_valid_lod_objects, import_mesh_properties
 from plugin.modules_import.material import import_material
 from plugin.utils.hair import add_psys
 from plugin.utils.shell import is_shell, gauge_uv_scale_wrapper
@@ -37,46 +38,23 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
 			lod_coll = create_collection(f"{model_info.name}_L{lod_i}", mdl2_coll)
-			# skip other shells for JWE2
-			obs = []
-			for m_ob in m_lod.objects:
-				mesh = m_ob.mesh
-				if hasattr(mesh, "vert_chunks"):
-					tri_chunk = mesh.tri_chunks[0]
-					if tri_chunk.shell_index:
-						logging.debug(f"Skipping import of shell duplicate {tri_chunk.shell_index}")
-						continue
-				obs.append(m_ob)
-			for ob_i, m_ob in enumerate(obs):
+			for ob_i, m_ob in enumerate(get_valid_lod_objects(m_lod)):
 				mesh = m_ob.mesh
 				# print(mesh)
 				# logging.debug(f"flag {mesh.flag}")
-				mesh_name = f"{model_info.name}_model{m_ob.mesh_index}"
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data
 				else:
-					b_me = bpy.data.meshes.new(mesh_name)
+					b_me = bpy.data.meshes.new(f"{model_info.name}_model{m_ob.mesh_index}")
 					b_me.from_pydata(mesh.vertices, [], mesh.tris)
+					mesh_dict[m_ob.mesh_index] = b_me
+					import_mesh_properties(b_me, mesh)
 					try:
-						# store mesh unknowns
-						# cast the bitfield to int
-						b_me["flag"] = int(mesh.flag)
-						if ms2.context.version > 13:
-							b_me["unk_f0"] = float(mesh.unk_float_0)
-						if ms2.context.version > 32:
-							b_me["unk_f1"] = float(mesh.unk_float_1)
-					except:
-						logging.exception("Setting unks failed")
-					try:
-						mesh_dict[m_ob.mesh_index] = b_me
 						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
 						logging.exception("import_mesh_layers failed")
 					# import_chunk_bounds(b_me, mesh, lod_coll)
-				if hasattr(mesh, "vert_chunks"):
-					tri_chunk = mesh.tri_chunks[0]
-					b_me["shell_count"] = tri_chunk.shell_count
 				# link material to mesh
 				import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
 
