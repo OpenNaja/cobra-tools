@@ -59,8 +59,7 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 				# create object and mesh from data
 				else:
 					b_me = bpy.data.meshes.new(mesh_name)
-					# cast array to prevent truth check in from_pydata
-					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
+					b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					try:
 						# store mesh unknowns
 						# cast the bitfield to int
