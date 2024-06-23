@@ -6,6 +6,8 @@ import sys
 import bpy
 import os
 
+import numpy as np
+
 from generated.formats.ovl import get_game
 from ovl_util.shared import check_any
 from plugin.utils.texture_settings import tex_slots
@@ -51,7 +53,14 @@ class BaseShader:
 		"pFeathers_BaseColourTexture": 1,
 		"pFeathers_RoughnessPackedTexture": 1,
 	}
-
+	attr_tex_map = {
+		"pDielectricReflectivity": "SP",
+		"pSpecular": "SP",
+		"pRoughness": "RN",
+		"pMetalness": "MT",
+		"pSpecularReflectance": "SP",
+		"pOpacity": "OP"
+	}
 	inv_tex_slots = {v: k for k, v in tex_slots.items()}
 
 	def add_shader(self, tree, node_name):
@@ -250,6 +259,22 @@ class BaseShader:
 							b_tex.label = purpose
 						self.id_2_out_socket[b_tex.label] = b_tex.outputs[0]
 
+		# create attributes that act as texture channels
+		with self.put_in_frame("Attributes", tree) as tex_nodes:
+			for attr_name, attr in self.attr.items():
+				purpose = self.attr_tex_map.get(attr_name, None)
+				if purpose:
+					color = tree.nodes.new('ShaderNodeRGB')
+					color.label = purpose
+					tex_nodes.append(color)
+					# todo pSpecularReflectance on Glass_Uniform is RGB, unsure how to implement
+					if isinstance(attr, (int, np.intc)):
+						# might as well be percent, idk
+						color.outputs[0].default_value = [attr/255 for _ in range(4)]
+					else:
+						color.outputs[0].default_value = [attr for _ in range(4)]
+					self.id_2_out_socket[purpose] = color.outputs[0]
+
 
 def load_material_from_asset_library(created_materials, filepath, matname):
 	"""try to load the material from the list of asset libraries"""
@@ -334,8 +359,8 @@ def create_material(reporter, in_dir, matname):
 		except:
 			logging.warning(f"Shader '{fgm_data.shader_name}' does not exist in shader list")
 		shader = BaseShader()
-		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
 		shader.build_attr_dict(fgm_data)
+		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
 		if fgm_data.shader_name.startswith(("Animal_", "Fur")):
 			shader.add_shader(tree, "AnimalVariation")
 			# shader.add_marking_nodes(diffuse, tree)
