@@ -8,10 +8,12 @@ def load(reporter, filepath="", replace=True):
     in_dir, material_ext = os.path.split(filepath)
     name, ext = os.path.splitext(material_ext)
 
-    # if material exists, save a ref and rename 
+    # if material exists, save a ref and rename or return
     print(f'loading {name}')
     o_mat = bpy.data.materials.get(name)
     if o_mat:
+        if not replace:
+            return "{'CANCELLED'}"
         o_mat.name = 'marked_for_removal'
     else:
         o_mat = bpy.data.materials.get(name.lower())
