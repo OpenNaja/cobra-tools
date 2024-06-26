@@ -63,8 +63,61 @@ class ImportFgm(ImportOp):
 	filename_ext = ".fgm"
 	filter_glob: StringProperty(default="*.fgm", options={'HIDDEN'})
 
+	# List of operator properties, the attributes will be assigned
+	# to the class instance from the operator settings before calling.
+	replace: BoolProperty(
+		name="Replace existing materials",
+		description="If a material exists in the scene, it will be replaced with this one",
+		default=True,
+	)
+
 	def execute(self, context):
 		return report_messages(self, import_fgm.load, **self.kwargs)
+
+# ref: https://stackoverflow.com/questions/63299327/importing-multiple-files-in-blender-import-plugin
+class ImportFgms(ImportOp):
+	"""Import from Fgm file format (.fgm), allows importing multiple files"""
+	bl_idname = "import_scene.cobra_fgms"  
+	bl_label = "Import Fgm(s)"
+
+	# ImportHelper mixin class uses this
+	filename_ext = ".fgm"
+
+	filter_glob: StringProperty(
+		default="*.fgm",
+		options={'HIDDEN'},
+		maxlen=255,  # Max internal buffer length, longer would be clamped.
+	)
+
+	# List of operator properties, the attributes will be assigned
+	# to the class instance from the operator settings before calling.
+	replace: BoolProperty(
+		name="Replace existing materials",
+		description="If a material exists in the scene, it will be replaced with this one",
+		default=True,
+	)
+
+	# necessary to support multi-file import
+	files: CollectionProperty(
+		type=bpy.types.OperatorFileListElement,
+		options={'HIDDEN', 'SKIP_SAVE'},
+	)
+
+	# necessary to support multi-file import
+	directory: StringProperty(
+		subtype='DIR_PATH',
+	)
+
+	def execute(self, context):
+		for current_file in self.files:
+			filepath = os.path.join(self.directory, current_file.name)
+			result = report_messages(self, import_fgm.load, filepath, self.replace)
+			#read_some_data(context, filepath, self.use_setting)
+
+		if len(self.files)>1:
+			self.report({'INFO'}, f"Imported {len(self.files)} materials.")
+			
+		return result
 
 
 class ImportMS2(ImportOp):

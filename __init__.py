@@ -44,7 +44,7 @@ try:
 
     from plugin import addon_updater_ops
     from plugin.addon_updater_ops import classes as updater_classes
-    from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
+    from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportFgms, ImportMS2, ImportSPL, \
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
     from plugin.utils.operators import UpdateFins, UpdateLods, VcolToComb, CombToVcol, TransferHairCombing, AddHair, \
@@ -239,6 +239,7 @@ try:
     def menu_func_import(self, context):
         icon = preview_collection["frontier.png"].icon_id
         self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
+        self.layout.operator(ImportFgms.bl_idname, text="Cobra Materials (.fgm)", icon_value=icon)
         self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)",
                              icon_value=icon)
         self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
@@ -272,6 +273,7 @@ try:
         ImportManis,
         ImportMatcol,
         ImportFgm,
+        ImportFgms,
         ImportMS2,
         ImportSPL,
         ImportMS2FromBrowser,
