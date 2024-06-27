@@ -175,6 +175,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 		type_dic = {}
 		blend_modes = set()
 		shaders = {}
+		materials = set()
 		# for last_count
 		last_counts = set()
 		pack_bases = set()
@@ -208,6 +209,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 						for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
 							for i, mat in enumerate(model_info.model.materials):
 								blend_modes.add(mat.blend_mode)
+								if mat.name not in materials:
+									materials.add(mat.name)
 								fgm = mat.name.lower()
 								if shader_map:
 									shader = shader_map[fgm]
@@ -296,6 +299,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 			print(f"classification_name: {sorted(classification_name)}")
 			print(f"surface_name: {sorted(surface_name)}")
 			print(f"mesh_w: {mesh_w}")
+			print(f"materials: {sorted(materials)}")
 			# largest_zstring_buffers = sorted(joint_names_padding.keys())
 			# num = 10
 			# if len(largest_zstring_buffers) > num:
