@@ -56,26 +56,8 @@ class ImportMatcol(ImportOp):
 		return report_messages(self, import_matcol.load, **self.kwargs)
 
 
-class ImportFgm(ImportOp):
-	"""Import from Fgm file format (.fgm)"""
-	bl_idname = "import_scene.cobra_fgm"
-	bl_label = 'Import Fgm'
-	filename_ext = ".fgm"
-	filter_glob: StringProperty(default="*.fgm", options={'HIDDEN'})
-
-	# List of operator properties, the attributes will be assigned
-	# to the class instance from the operator settings before calling.
-	replace: BoolProperty(
-		name="Replace existing materials",
-		description="If a material exists in the scene, it will be replaced with this one",
-		default=True,
-	)
-
-	def execute(self, context):
-		return report_messages(self, import_fgm.load, **self.kwargs)
-
 # ref: https://stackoverflow.com/questions/63299327/importing-multiple-files-in-blender-import-plugin
-class ImportFgms(ImportOp):
+class ImportFgm(ImportOp):
 	"""Import from Fgm file format (.fgm), allows importing multiple files"""
 	bl_idname = "import_scene.cobra_fgms"  
 	bl_label = "Import Fgm(s)"
@@ -109,14 +91,18 @@ class ImportFgms(ImportOp):
 	)
 
 	def execute(self, context):
+		error_count = 0
 		for current_file in self.files:
 			filepath = os.path.join(self.directory, current_file.name)
 			result = report_messages(self, import_fgm.load, filepath, self.replace)
-			#read_some_data(context, filepath, self.use_setting)
+			if 'CANCELLED' in result:
+				error_count += 1
 
 		if len(self.files)>1:
-			self.report({'INFO'}, f"Imported {len(self.files)} materials.")
-			
+			self.report({'INFO'}, f"Attempt to import {len(self.files)} materials, {error_count} errors found.")
+			return {'FINISHED'}
+
+		# return only material result
 		return result
 
 

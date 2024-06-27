@@ -413,6 +413,10 @@ def create_material(reporter, in_dir, matname):
 		nodes_iterate(b_mat, tree, output)
 	except:
 		logging.exception(f"Importing material {matname} failed")
+		# undo as best as we can at this point.
+		bpy.data.materials.remove(b_mat)
+		return None
+
 	return b_mat
 
 

@@ -129,6 +129,7 @@ def report_messages(inst, func, *args, **kwargs):
 		func(wrap, *args, **kwargs)
 	except Exception as err:
 		wrap.show_error(err)
+		return {'CANCELLED'}
 	wrap.report()
 	return {'FINISHED'}
 
