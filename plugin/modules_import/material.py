@@ -330,6 +330,8 @@ def get_color_ramp(fgm, prefix, suffix):
 
 
 def create_material(reporter, in_dir, matname):
+	matname = matname.lower()
+
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
@@ -463,7 +465,7 @@ def presort_keys(colors, colors_pos):
 
 
 def import_material(reporter, created_materials, in_dir, b_me, material):
-	material_name = material.name
+	material_name = material.name.lower()
 	try:
 		# find if material is in blender already. Imported FGMs
 		# will have the material name all in lowercase, we need
@@ -487,6 +489,7 @@ def import_material(reporter, created_materials, in_dir, b_me, material):
 			else:
 				logging.info(f"Already imported material {material_name}")
 				b_mat = created_materials[material_name]
+
 		# store material data
 		b_mat["blend_mode"] = material.blend_mode
 		b_me.materials.append(b_mat)
