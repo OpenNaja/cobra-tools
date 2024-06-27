@@ -11,7 +11,7 @@ def load(reporter, filepath="", replace=True):
     print(f'loading {name}')
     o_mat = bpy.data.materials.get(name)
     if o_mat:
-        if not replace:
+        if replace == False:
             reporter.show_info(f"Material {name} already present in the file")
             return "{'CANCELLED'}"
         o_mat.name = 'marked_for_removal'

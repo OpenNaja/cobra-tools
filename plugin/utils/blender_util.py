@@ -124,14 +124,18 @@ class OperatorWrap:
 
 
 def report_messages(inst, func, *args, **kwargs):
+	result = {'FINISHED'}
+
 	wrap = OperatorWrap(inst)
 	try:
 		func(wrap, *args, **kwargs)
 	except Exception as err:
 		wrap.show_error(err)
-		return {'CANCELLED'}
+		result = {'CANCELLED'}
+
 	wrap.report()
-	return {'FINISHED'}
+
+	return result
 
 
 def vectorisclose(vector1, vector2, tolerance=0.0001):
