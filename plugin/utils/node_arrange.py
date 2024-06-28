@@ -1,5 +1,5 @@
 # adapted from https://raw.githubusercontent.com/JuhaW/NodeArrange/master/__init__.py
-
+import logging
 from collections import OrderedDict
 from itertools import repeat
 
@@ -66,20 +66,7 @@ def nodes_iterate(b_mat, tree, nodeoutput):
                         node_columns[col_2].remove(node_2)
                         break
 
-    # redraw to get the node dimensions, adapted from:
-    # https://blender.stackexchange.com/questions/294362/how-to-update-and-get-the-property-node-dimensions-with-python
-    tree.nodes.update()
-    prev_mat = bpy.context.object.active_material
-    bpy.context.object.active_material = b_mat
-    area_data = get_prepared_ui_area(bpy.context)
-    # Redraw nodes in the node tree
-    bpy.ops.wm.redraw_timer(type='DRAW_WIN', iterations=1)
-    # Restore active area.ui_type
-    area = area_data['area']
-    old_area_ui_type = area_data['old_ui_type']
-    if area is not None and area.ui_type != old_area_ui_type:
-        area.ui_type = old_area_ui_type
-    bpy.context.object.active_material = prev_mat
+    prepare_node_dimensions(b_mat, tree)
 
     # find child nodes without outputs, store them per frame
     stray_nodes_per_frame = {frame: [] for frame in tree.nodes if isinstance(frame, NodeFrame)}
@@ -95,6 +82,9 @@ def nodes_iterate(b_mat, tree, nodeoutput):
     for level, nodes in enumerate(node_columns):
         # node x positions
         width_max = max([x.dimensions.x for x in nodes])
+        if width_max == 0.0:
+            logging.warning(f"Failed to get node dimensions for {b_mat.name}")
+            width_max = 200.0
         x -= (width_max + 100) if level else 0
         y = 0
         # group the nodes of this level by frame if they have one
@@ -126,6 +116,24 @@ def nodes_iterate(b_mat, tree, nodeoutput):
 
         for node in nodes:
             node.location.y -= (y / 2)
+
+
+def prepare_node_dimensions(b_mat, tree):
+    # todo - this apparently fails on the first material of an import run, but works on subsequent materials
+    # redraw to get the node dimensions, adapted from:
+    # https://blender.stackexchange.com/questions/294362/how-to-update-and-get-the-property-node-dimensions-with-python
+    tree.nodes.update()
+    prev_mat = bpy.context.object.active_material
+    bpy.context.object.active_material = b_mat
+    area_data = get_prepared_ui_area(bpy.context)
+    # Redraw nodes in the node tree
+    bpy.ops.wm.redraw_timer(type='DRAW_WIN', iterations=1)
+    # Restore active area.ui_type
+    area = area_data['area']
+    old_area_ui_type = area_data['old_ui_type']
+    if area is not None and area.ui_type != old_area_ui_type:
+        area.ui_type = old_area_ui_type
+    bpy.context.object.active_material = prev_mat
 
 
 def has_outputs(node, socket_id=""):
