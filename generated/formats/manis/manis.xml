@@ -376,7 +376,7 @@
 		# aligned to 16
 		<add name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#"/>
 		# might be aligned to 8
-		<add name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 1" until="257"/>
+		<add name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 2" until="257"/>
     </compound>
 
 </niftoolsxml>

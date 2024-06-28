@@ -95,11 +95,14 @@ def stash(b_ob, action, track_name, start_frame):
 
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	folder, manis_name = os.path.split(filepath)
+	scene = bpy.context.scene
 	manis = ManisFile()
 	manis.load(filepath)
+	# note that ZTUAC and PC share v257, however PC uses new transforms
 	is_old_orientation = any((is_ztuac(manis.context), is_dla(manis.context)))
+	if is_old_orientation and scene.cobra.game == "Planet Coaster":
+		is_old_orientation = False
 	corrector = ManisCorrector(is_old_orientation)
-	scene = bpy.context.scene
 
 	bones_data = {}
 	b_armature_ob = get_armature(scene.objects)
