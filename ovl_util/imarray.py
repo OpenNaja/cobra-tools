@@ -5,6 +5,7 @@ import imageio.v3 as iio
 import numpy as np
 import PIL
 
+from constants import ConstantsProvider
 from ovl_util.shared import check_any
 from generated.formats.ovl.versions import is_ztuac
 
@@ -79,7 +80,7 @@ def split_png(png_file_path, ovl, compression=None):
 	"""Fixes normals and splits channels of one PNG file if needed"""
 	out_files = []
 	flip = has_vectors(png_file_path, compression)
-	channels = get_split_mode(png_file_path, compression)
+	channels = get_split_mode(ovl.game, png_file_path, compression)
 	if is_ztuac(ovl):
 		flip = False
 	if flip or channels:
@@ -115,14 +116,25 @@ def split_png(png_file_path, ovl, compression=None):
 	return out_files
 
 
-def get_split_mode(png_name, compression):
+constants = ConstantsProvider(("texchannels",))
+
+
+def get_split_mode(game, png_name, compression):
 	# Get texture type
 	suffixes = Path(png_name).suffixes
-	tex_type = ""
 	try:
 		tex_type = suffixes[0]
 	except IndexError:
 		tex_type = png_name
+
+	try:
+		# prioritize game-based hand rolled dicts
+		all_tex_channels = constants[game]["texchannels"]
+		lower_map = {k.lower(): v for k, v in all_tex_channels.items()}
+		tex_channels_map = lower_map.get(tex_type[1:])  # strip the leading .
+		return "_".join(tex_channels_map.keys())
+	except:
+		logging.warning(f"Game based splitting failed, falling back on legacy splitting rules")
 
 	if check_any(("BC5",), compression):
 		# two channels
@@ -157,7 +169,7 @@ def imread(uri):
 	return iio.imread(uri, mode="RGBA")
 
 
-def join_png(path_basename, tmp_dir, compression=None):
+def join_png(game, path_basename, tmp_dir, compression=None):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 	ext = ".png"
 	logging.debug(f"Looking for .png for {path_basename}")
@@ -165,7 +177,7 @@ def join_png(path_basename, tmp_dir, compression=None):
 	basename = basename.lower()
 	png_file_path = os.path.join(in_dir, f"{basename}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")
-	channels = get_split_mode(basename, compression)
+	channels = get_split_mode(game, basename, compression)
 	flip = has_vectors(basename, compression)
 	# check if processing needs to be done
 	if not flip and not channels:

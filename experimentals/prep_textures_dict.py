@@ -11,7 +11,7 @@ all_tex = {}
 for shader_name, (textures, attributes) in shaders.items():
 	# print(shader_name)
 	for tex in textures:
-		res = get_split_mode(tex.lower(), "any_compression")
+		res = get_split_mode(None, tex.lower(), "any_compression")
 		if res:
 			channels = res.split("_")
 		else:

@@ -196,7 +196,7 @@ class DdsLoader(MemStructLoader):
 		else:
 			try:
 				# try to reassemble a flat PNG for this tile, and then convert it to DDS
-				png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
+				png_path = imarray.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
 				return self.load_png(png_path, tmp_dir)
 			except FileNotFoundError:
 				# logging.exception("file missing")

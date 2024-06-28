@@ -3,7 +3,7 @@ texchannels = {
 	'pBaseColourTexture': {"RGB": "BC", "A": ""},  # unsure about A
 	# 'pCavitySmoothnessArrayTexture': {"": ""},
 	# 'pCavitySmoothnessOpacitySamplerTexture': {"R": "", "G": "", "B": "", "A": ""},
-	# 'pCavitySmoothnessSamplerTexture': {"": ""},
+	'pCavitySmoothnessSamplerTexture': {"R": "CA", "G": "SM"},  # rest apparently unused according to dino mascot
 	# 'pCoarseNoiseTexture': {"": ""},
 	# 'pDiffuseArrayTexture': {"": ""},
 	'pDiffuseOpacityTexture': {"RGB": "BC", "A": "OP"},
@@ -27,7 +27,7 @@ texchannels = {
 	# 'pSkirtMaterialMaskTexture': {"": ""},
 	# 'pSkirtNormalsTexture': {"": ""},
 	# 'pSpecularArrayTexture': {"": ""},
-	# 'pSpecularSamplerTexture': {"": ""},
+	'pSpecularSamplerTexture': {"": "SP"},
 	# 'pSpecularSmoothnessSamplerTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pWaterDetailNormalMapTexture': {"": ""},
 	# 'pWaterFoamMapTexture': {"": ""},
