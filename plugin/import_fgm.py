@@ -3,7 +3,6 @@ import bpy
 
 from plugin.modules_import.material import create_material
 
-
 def load(reporter, filepath="", replace=True):
     in_dir, material_ext = os.path.split(filepath)
     name, ext = os.path.splitext(material_ext)
@@ -12,14 +11,16 @@ def load(reporter, filepath="", replace=True):
     print(f'loading {name}')
     o_mat = bpy.data.materials.get(name)
     if o_mat:
-        if not replace:
+        if replace == False:
+            reporter.show_info(f"Material {name} already present in the file")
             return "{'CANCELLED'}"
         o_mat.name = 'marked_for_removal'
-    else:
-        o_mat = bpy.data.materials.get(name.lower())
 
     # create the new one
     b_mat = create_material(reporter, in_dir, name)
+    if not b_mat:
+        reporter.show_info(f"Failed to import {name}")
+        return None
 
     if o_mat:
         # the material already existed, we have just updated, make
@@ -33,3 +34,7 @@ def load(reporter, filepath="", replace=True):
         bpy.data.materials.remove(o_mat)
 
     reporter.show_info(f"Imported {name}")
+    return b_mat
+
+
+

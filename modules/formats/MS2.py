@@ -223,8 +223,8 @@ class Ms2Loader(MemStructLoader):
 		if self.header.version > 39:
 			for model_info in self.header.model_infos.data:
 				for material in model_info.materials.data:
-					material_name = names_buffer.names[material.name_index]
-					fgm_name = f"{material_name.lower()}.fgm"
+					material_name = names_buffer.names[material.name_index].lower()
+					fgm_name = f"{material_name}.fgm"
 					if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
 						# don't cry about this
 						continue
