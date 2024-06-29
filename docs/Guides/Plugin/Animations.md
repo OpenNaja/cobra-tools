@@ -49,7 +49,7 @@ A command line script is provided to scale compressed animations and ms2 models 
 
 ``python resize_manis_cmd.py [FOLDER] [SCALE_FACTOR]``
 
-``python resize_manis_cmd.py C:\Users\USER\Desktop\tiger 1.4``
+``python resize_manis_cmd.py "C:\Users\USER\Desktop\tiger" 1.4``
 
 
 ## Banis
