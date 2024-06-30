@@ -130,7 +130,7 @@ def get_split_mode(game, png_name, compression):
 	try:
 		# prioritize game-based hand rolled dicts
 		all_tex_channels = constants[game]["texchannels"]
-		lower_map = {k.lower(): v for k, v in all_tex_channels.items()}
+		lower_map = {k.lower(): v for k, v in all_tex_channels.items() if k}  # ignore empty identifiers = RGBA
 		tex_channels_map = lower_map.get(tex_type[1:])  # strip the leading .
 		return "_".join(tex_channels_map.keys())
 	except:
