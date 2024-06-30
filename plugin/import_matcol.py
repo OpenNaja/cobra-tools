@@ -91,8 +91,12 @@ class LayeredMaterial:
 					height_tile_png_path = self.get_heightmap(layer_i, tex_fgm)
 					lut = {}
 					for attrib in layer.float_attributes.data:
+						data = [v for b, v in zip(attrib.flags, attrib.value) if b]
+						# as in fgm processing, flatten single element lists to scalars
+						if len(data) == 1:
+							data = data[0]
 						# skip first 2 letters m_
-						lut[attrib.attrib_name.data.lower()[2:]] = [v for b, v in zip(attrib.flags, attrib.value)]
+						lut[attrib.attrib_name.data.lower()[2:]] = data
 				else:
 					continue
 			self.slots.append((height_tile_png_path, mask_png_path, lut))
@@ -165,7 +169,13 @@ def load(reporter, filepath=""):
 		mask.parent = slot_frame
 
 		# height offset attribute
-		heightBlendScaleA, heightBlendScaleB = sorted([i for i in (lut["heightblendscalea"], lut["heightblendscaleb"])])
+		if "heightblendscalea" in lut:
+			# JWE2
+			heightBlendScales = (lut["heightblendscalea"], lut["heightblendscaleb"])
+		else:
+			# JWE1
+			heightBlendScales = lut["heightblendscale"][:2]
+		heightBlendScaleA, heightBlendScaleB = sorted([i for i in heightBlendScales])
 		if not heightBlendScaleA and not heightBlendScaleB:
 			heightBlendScaleB = 1.0
 		height = get_group_node(tree, "MatcolHeight")
@@ -186,7 +196,12 @@ def load(reporter, filepath=""):
 		# matcol stores uvRotationAngle as fraction of 180°
 		# in radians for blender internally even though it displays as degree
 		# flip since blender flips V coord
-		transform.inputs["uvRotationAngle"].default_value = -math.radians(lut["uvrotationangle"][0] * 180)
+		try:
+			# JWE2 is 2D
+			transform.inputs["uvRotationAngle"].default_value = -math.radians(lut["uvrotationangle"][0] * 180)
+		except:
+			# JWE1 has it as 1D
+			transform.inputs["uvRotationAngle"].default_value = -math.radians(lut["uvrotationangle"] * 180)
 		tree.links.new(transform.outputs[0], tile.inputs[0])
 
 		tile.update()
