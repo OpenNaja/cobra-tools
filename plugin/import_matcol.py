@@ -236,6 +236,15 @@ def load(reporter, filepath=""):
 
 	nodes_iterate(b_mat, tree, output)
 	slots_arrange(tree, nodes)
+
+	# fill texture paint gui
+	b_mat.matcol_layers.clear()
+	for x in range(16):
+		item = b_mat.matcol_layers.add()
+		item.name = f"Layer {x}"
+	# ensure that the texture has an image
+	b_mat.matcol_layers_current = -1
+	b_mat.matcol_layers_current = 0
 	reporter.show_info(f"Imported {layers.basename}")
 
 

@@ -1,5 +1,7 @@
-from bpy.types import Panel
+import bpy
+from bpy.types import Panel, UIList
 
+from ovl_util.shared import check_any
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
 
@@ -104,4 +106,89 @@ class VIEW_PT_Mdl2(Panel):
 			box.label(text="Planet Zoo Materials", icon="MATERIAL_DATA")
 			for prop in pz_shader_floats + pz_shader_ints:
 				box.prop(cobra_props, prop)
+
+
+class MATCOL_UL_matslots_example(UIList):
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+
+		custom_icon = 'OBJECT_DATAMODE'
+		if self.layout_type in {'DEFAULT', 'COMPACT'}:
+			layout.label(text=item.name, icon=custom_icon)
+
+		elif self.layout_type in {'GRID'}:
+			layout.alignment = 'CENTER'
+			layout.label(text='', icon=custom_icon)
+
+
+class PT_ListExample(Panel):
+	"""Demo panel for UI list Tutorial."""
+	bl_label = "Matcol Layers"
+	bl_idname = "TOOL_PT_LIST_DEMO"
+	bl_space_type = "VIEW_3D"
+	bl_region_type = "UI"
+	bl_category = "Tool"
+
+	updater = True
+
+	def draw(self, context):
+		layout = self.layout
+		material = context.object.active_material
+
+		row = layout.row()
+		row.template_list("MATCOL_UL_matslots_example", "The_List", material, "matcol_layers", material,
+						  "matcol_layers_current")
+
+		col = self.layout.box().column()
+		# col.template_preview(material.matcol_layers_preview)
+
+		texture = get_preview_img()
+		# texture.image.reload()
+		texture.image.update()
+
+		# only updates view when changing panel
+		col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
+		if self.updater:
+			col.scale_y = 1.0
+			self.updater = not self.updater
+		else:
+			col.scale_y = 1.01
+			self.updater = not self.updater
+
+
+def matcol_slot_updated(self, context):
+	material = context.object.active_material
+	layer = 0
+	for index in range(len(material.texture_paint_images)):
+		slot = material.texture_paint_slots[index]
+		if '_blendweights_' in slot.name:
+			if layer == material.matcol_layers_current:
+				material.paint_active_slot = index
+				break
+			else:
+				layer += 1
+	preview = 0
+	preview_image = get_preview_img()
+	for index in range(len(material.texture_paint_images)):
+		img = material.texture_paint_images[index]
+		if check_any(('swatch', 'pheighttexture'), img.name):
+			if preview == material.matcol_layers_current:
+				preview_image.image = img
+				break
+			else:
+				preview += 1
+	# force redraw to update the texture
+	# for region in context.area.regions:
+	# 	if region.type == "UI":
+	# 		region.tag_redraw()
+	context.area.tag_redraw()
+
+
+def get_preview_img():
+	name = "_matcol_preview"
+	if name in bpy.data.textures:
+		return bpy.data.textures[name]
+	img = bpy.data.images.new(name=name, width=128, height=128)
+	tex = bpy.data.textures.new(name=name, type='IMAGE')
+	tex.image = img
+	return tex
 

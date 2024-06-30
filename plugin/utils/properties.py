@@ -386,3 +386,14 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 	@shader_name.setter
 	def shader_name(self, v):
 		self.set_value(bpy.context, "shader_name", v)
+
+
+class MATCOL_ListItem(bpy.types.PropertyGroup):
+	"""Group of properties representing an item in the list."""
+	name: bpy.props.StringProperty(
+		name="Name",
+		description="A name for this item",
+		default="Untitled"
+	)
+
+

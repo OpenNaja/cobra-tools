@@ -51,8 +51,9 @@ try:
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
     AutosmoothAll, LODS_UL_items, EditFlag, SetupRig
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
-    CobraMaterialSettings, LodData
-    from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2
+    CobraMaterialSettings, LodData, MATCOL_ListItem
+    from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2, matcol_slot_updated, \
+    MATCOL_UL_matslots_example, PT_ListExample
 
     global preview_collection
 
@@ -311,6 +312,9 @@ try:
         MESH_PT_CobraTools,
         SCENE_PT_CobraTools,
         COLLISION_PT_CobraTools,
+        MATCOL_ListItem,
+        MATCOL_UL_matslots_example,
+        PT_ListExample,
         InstallDependencies,
         *updater_classes
     )
@@ -358,9 +362,17 @@ def register():
 
     # insert properties
     bpy.types.Material.fgm   = bpy.props.PointerProperty(type=CobraMaterialSettings)
+    bpy.types.Material.matcol_layers = bpy.props.CollectionProperty(type=MATCOL_ListItem)
+    bpy.types.Material.matcol_layers_current = bpy.props.IntProperty(
+        name="Index for matcol layers", default=0, update=matcol_slot_updated)
+
+    # bpy.types.Material.matcol_layers_preview = bpy.props.PointerProperty(
+    #     name='Texture',
+    #     type=bpy.types.Texture,
+    # )
+        # update=storey_texture_change)
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
-    # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
     bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
 
     # Injection of elements in the contextual menu of the File Browser editor
@@ -380,6 +392,8 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
+    del bpy.types.Material.matcol_layers
+    del bpy.types.Material.matcol_layers_current
     del bpy.types.Scene.cobra
     del bpy.types.Mesh.cobra
     global preview_collection
