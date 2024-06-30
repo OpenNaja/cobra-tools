@@ -319,12 +319,16 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 		description='Shader for Planet Zoo',
 		items=[(name, name, "") for name in c['Planet Zoo']["shaders"]],
 	)
+	shader_name_jwe: EnumProperty(
+		name='Shader',
+		description='Shader for Jurassic World Evolution',
+		items=[(name, name, "") for name in c['Jurassic World Evolution']["shaders"]],
+	)
 	shader_name_jwe2: EnumProperty(
 		name='Shader',
 		description='Shader for Jurassic World Evolution 2',
 		items=[(name, name, "") for name in c['Jurassic World Evolution 2']["shaders"]],
 	)
-
 	shader_name_whaos: EnumProperty(
 		name='Shader',
 		description='Shader for Warhammer Age of Sigmar - Reals of Ruin',
