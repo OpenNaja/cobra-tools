@@ -4,6 +4,7 @@ from ovl_util.imarray import get_split_mode
 # game = "Planet Zoo"
 # game = "Jurassic World Evolution 2"
 game = "Planet Coaster"
+game = "Jurassic World Evolution"
 constants = ConstantsProvider(("shaders", "textures"))
 shaders = constants[game]["shaders"]
 
