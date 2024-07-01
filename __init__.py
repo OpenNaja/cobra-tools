@@ -55,6 +55,10 @@ try:
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2, matcol_slot_updated, \
     MATCOL_UL_matslots_example, PT_ListExample
 
+    # drag and drop:
+    from bpy.app.handlers import persistent
+    from plugin import import_fgm, import_ms2, import_spl
+
     global preview_collection
 
 
@@ -267,6 +271,58 @@ try:
                     layout.separator()
                     layout.operator(ImportFGMFromBrowser.bl_idname)
 
+    # Fake operator-like class to support calling import functions without an actual operator (reporter needed)
+    class MockUpReporter:
+        def show_info(self, msg: str):
+            logging.info(msg)
+
+        def show_warning(self, msg: str):
+            logging.warning(msg)
+
+        def show_error(self, exception: Exception):
+            logging.exception('Got exception on main handler')                
+
+        def report_messages(self, class_method, *args, **kwargs):
+            try:
+                class_method(self, *args, **kwargs)
+                result = {'FINISHED'}
+            except Exception as err:
+                self.show_error(err)
+                result = {'CANCELLED'}
+            return result        
+
+
+    # Function to handle drag&drop of cobra files into blender
+    @persistent
+    def cobra_viewport3d_drop_handler(scene, depsgraph):
+        print("cobra_viewport3d_drop_handler")
+        if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
+            # when dropping something to the 3d view it will create an image by default but will keep the file path 
+            # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and 
+            # load the actual asset instead.
+            filepath = obj.data.filepath
+
+            if filepath.lower().endswith(".ms2"):
+                """We have a ms2 loaded as image"""
+                bpy.data.images.remove(obj.data)
+                bpy.data.objects.remove(obj)
+                rep = MockUpReporter()
+                rep.report_messages(import_ms2.load, filepath=filepath, use_custom_normals=True)
+                
+            if filepath.lower().endswith(".fgm"):
+                """We have a fgm loaded as image"""
+                bpy.data.images.remove(obj.data)
+                bpy.data.objects.remove(obj)
+                rep = MockUpReporter()
+                rep.report_messages(import_fgm.load, filepath=filepath, replace=False)
+
+            if filepath.lower().endswith(".spl"):
+                """We have a spline loaded as image"""
+                bpy.data.images.remove(obj.data)
+                bpy.data.objects.remove(obj)
+                rep = MockUpReporter()
+                rep.report_messages(import_spl.load, filepath=filepath)
+
 
     classes = (
         ImportBanis,
@@ -379,6 +435,8 @@ def register():
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
     bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
 
+    # handle drag and drop of custom files:
+    bpy.app.handlers.depsgraph_update_post.append(cobra_viewport3d_drop_handler)
 
 def unregister():
 
@@ -390,7 +448,12 @@ def unregister():
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        try:
+            # there seems to be an error due to previously removed class that prevents the plugin from 
+            # disabling safely.
+            bpy.utils.unregister_class(cls)
+        except:
+            pass
 
     del bpy.types.Material.matcol_layers
     del bpy.types.Material.matcol_layers_current
@@ -398,7 +461,9 @@ def unregister():
     del bpy.types.Mesh.cobra
     global preview_collection
     bpy.utils.previews.remove(preview_collection)
+    bpy.app.handlers.depsgraph_update_post.remove(cobra_viewport3d_drop_handler)
 
 
 if __name__ == "__main__":
+    print("Main")
     register()
