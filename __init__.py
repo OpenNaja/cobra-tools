@@ -295,7 +295,7 @@ try:
     # Function to handle drag&drop of cobra files into blender
     @persistent
     def cobra_viewport3d_drop_handler(scene, depsgraph):
-        print("cobra_viewport3d_drop_handler")
+        obj = bpy.context.active_object
         if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
             # when dropping something to the 3d view it will create an image by default but will keep the file path 
             # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and 
