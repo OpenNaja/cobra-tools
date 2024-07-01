@@ -138,21 +138,17 @@ class PT_ListExample(Panel):
 		row.template_list("MATCOL_UL_matslots_example", "The_List", material, "matcol_layers", material,
 						  "matcol_layers_current")
 
-		col = self.layout.box().column()
-		# col.template_preview(material.matcol_layers_preview)
-
+		col = self.layout.box()
 		texture = get_preview_img()
-		# texture.image.reload()
 		texture.image.update()
-
-		# only updates view when changing panel
-		col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
+		# only updates in tools view when manually changing panel
+		# col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
+		col.template_preview(texture)
 		if self.updater:
 			col.scale_y = 1.0
-			self.updater = not self.updater
 		else:
 			col.scale_y = 1.01
-			self.updater = not self.updater
+		self.updater = not self.updater
 
 
 def matcol_slot_updated(self, context):
@@ -178,7 +174,7 @@ def matcol_slot_updated(self, context):
 				preview += 1
 	# force redraw to update the texture
 	# for region in context.area.regions:
-	# 	if region.type == "UI":
+	# 	if region.type == ("UI", "TOOLS"):
 	# 		region.tag_redraw()
 	context.area.tag_redraw()
 
