@@ -123,6 +123,8 @@ def prepare_node_dimensions(b_mat, tree):
     # redraw to get the node dimensions, adapted from:
     # https://blender.stackexchange.com/questions/294362/how-to-update-and-get-the-property-node-dimensions-with-python
     tree.nodes.update()
+    if not bpy.context.object:
+        return
     prev_mat = bpy.context.object.active_material
     bpy.context.object.active_material = b_mat
     area_data = get_prepared_ui_area(bpy.context)
