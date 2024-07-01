@@ -112,14 +112,41 @@ class ImportMS2(ImportOp):
 	bl_label = 'Import MS2'
 	filename_ext = ".ms2"
 	filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
+
+	# necessary to support multi-file import
+	files: CollectionProperty(
+		type=bpy.types.OperatorFileListElement,
+		options={'HIDDEN', 'SKIP_SAVE'},
+	)
+
+	# necessary to support multi-file import
+	directory: StringProperty(
+		subtype='DIR_PATH',
+	)
+
 	use_custom_normals: BoolProperty(name="Use MS2 Normals",
 									 description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
 									 default=False)
 	mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match",
 							  default=False)
 
+	#def execute(self, context):
+	#	return report_messages(self, import_ms2.load, **self.kwargs)
+
 	def execute(self, context):
-		return report_messages(self, import_ms2.load, **self.kwargs)
+		error_count = 0
+		for current_file in self.files:
+			filepath = os.path.join(self.directory, current_file.name)
+			result = report_messages(self, import_ms2.load, filepath, self.use_custom_normals, self.mirror_mesh)
+			if 'CANCELLED' in result:
+				error_count += 1
+
+		if len(self.files)>1:
+			self.report({'INFO'}, f"Attempt to import {len(self.files)} MS2, {error_count} errors found.")
+			return {'FINISHED'}
+
+		# return only ms2 result
+		return result
 
 
 class ImportSPL(ImportOp):
@@ -129,8 +156,31 @@ class ImportSPL(ImportOp):
 	filename_ext = ".spl"
 	filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
 
+	# necessary to support multi-file import
+	files: CollectionProperty(
+		type=bpy.types.OperatorFileListElement,
+		options={'HIDDEN', 'SKIP_SAVE'},
+	)
+
+	# necessary to support multi-file import
+	directory: StringProperty(
+		subtype='DIR_PATH',
+	)
+
 	def execute(self, context):
-		return report_messages(self, import_spl.load, **self.kwargs)
+		error_count = 0
+		for current_file in self.files:
+			filepath = os.path.join(self.directory, current_file.name)
+			result = report_messages(self, import_spl.load, filepath)
+			if 'CANCELLED' in result:
+				error_count += 1
+
+		if len(self.files)>1:
+			self.report({'INFO'}, f"Attempt to import {len(self.files)} SPL, {error_count} errors found.")
+			return {'FINISHED'}
+
+		# return only spline result
+		return result
 
 
 class ImportVoxelskirt(ImportOp):
