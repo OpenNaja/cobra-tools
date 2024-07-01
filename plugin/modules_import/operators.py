@@ -107,9 +107,9 @@ class ImportFgm(ImportOp):
 
 
 class ImportMS2(ImportOp):
-	"""Import from MS2 file format (.MS2)"""
+	"""Import from MS2 file format (.MS2), multiple files allowed"""
 	bl_idname = "import_scene.cobra_ms2"
-	bl_label = 'Import MS2'
+	bl_label = 'Import MS2(s)'
 	filename_ext = ".ms2"
 	filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
 
@@ -150,9 +150,9 @@ class ImportMS2(ImportOp):
 
 
 class ImportSPL(ImportOp):
-	"""Import from spline file format (.spl)"""
+	"""Import from spline file format (.spl), multiple files allowed"""
 	bl_idname = "import_scene.cobra_spl"
-	bl_label = 'Import SPL'
+	bl_label = 'Import SPL(s)'
 	filename_ext = ".spl"
 	filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
 

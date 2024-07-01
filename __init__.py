@@ -239,13 +239,13 @@ try:
 
     def menu_func_import(self, context):
         icon = preview_collection["frontier.png"].icon_id
-        self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
-        self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)",
+        self.layout.operator(ImportFgm.bl_idname, text="Cobra Materials (.fgm)", icon_value=icon)
+        self.layout.operator(ImportMatcol.bl_idname, text="Cobra Layered Material (.matcol, .dinosaurmateriallayers)",
                              icon_value=icon)
-        self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
+        self.layout.operator(ImportMS2.bl_idname, text="Cobra Models (.ms2)", icon_value=icon)
         self.layout.operator(ImportBanis.bl_idname, text="Cobra Baked Anim (.banis)", icon_value=icon)
         self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
-        self.layout.operator(ImportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
+        self.layout.operator(ImportSPL.bl_idname, text="Cobra Splines (.spl)", icon_value=icon)
         self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
     # Function used to inject elements in the contextual menu of the File Browser editor
