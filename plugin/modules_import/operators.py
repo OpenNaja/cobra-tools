@@ -15,7 +15,35 @@ class ImportOp(bpy.types.Operator, ImportHelper):
 		return self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
 
 
-class ImportBanis(ImportOp):
+class BulkImportOp(ImportOp):
+	# ref: https://stackoverflow.com/questions/63299327/importing-multiple-files-in-blender-import-plugin
+
+	# necessary to support multi-file import
+	files: CollectionProperty(
+		type=bpy.types.OperatorFileListElement,
+		options={'HIDDEN', 'SKIP_SAVE'},
+	)
+
+	# necessary to support multi-file import
+	directory: StringProperty(
+		subtype='DIR_PATH',
+	)
+
+	def import_multiple(self, func, *args, **kwargs):
+		error_count = 0
+		if self.files:
+			for current_file in self.files:
+				filepath = os.path.join(self.directory, current_file.name)
+				result = report_messages(self, func, filepath, *args, **kwargs)
+				if 'CANCELLED' in result:
+					error_count += 1
+
+				self.report({'INFO'}, f"Attempt to import {len(self.files)} {self.filename_ext}s, {error_count} errors found.")
+		# return only material result
+		return {'FINISHED'}
+
+
+class ImportBanis(BulkImportOp):
 	"""Import from Cobra baked animations file format (.banis)"""
 	bl_idname = "import_scene.cobra_banis"
 	bl_label = 'Import Banis'
@@ -26,10 +54,10 @@ class ImportBanis(ImportOp):
 	# set_fps = BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
 
 	def execute(self, context):
-		return report_messages(self, import_banis.load, **self.kwargs)
+		return self.import_multiple(import_banis.load, **self.kwargs)
 
 
-class ImportManis(ImportOp):
+class ImportManis(BulkImportOp):
 	"""Import from Cobra animations file format (.manis)"""
 	bl_idname = "import_scene.cobra_manis"
 	bl_label = 'Import Manis'
@@ -40,7 +68,7 @@ class ImportManis(ImportOp):
 	# set_fps: BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
 
 	def execute(self, context):
-		return report_messages(self, import_manis.load, **self.kwargs)
+		return self.import_multiple(import_manis.load, **self.kwargs)
 
 
 class ImportMatcol(ImportOp):
@@ -56,13 +84,10 @@ class ImportMatcol(ImportOp):
 		return report_messages(self, import_matcol.load, **self.kwargs)
 
 
-# ref: https://stackoverflow.com/questions/63299327/importing-multiple-files-in-blender-import-plugin
-class ImportFgm(ImportOp):
+class ImportFgm(BulkImportOp):
 	"""Import from Fgm file format (.fgm), allows importing multiple files"""
 	bl_idname = "import_scene.cobra_fgms"  
 	bl_label = "Import Fgm(s)"
-
-	# ImportHelper mixin class uses this
 	filename_ext = ".fgm"
 
 	filter_glob: StringProperty(
@@ -70,117 +95,41 @@ class ImportFgm(ImportOp):
 		options={'HIDDEN'},
 		maxlen=255,  # Max internal buffer length, longer would be clamped.
 	)
-
-	# List of operator properties, the attributes will be assigned
-	# to the class instance from the operator settings before calling.
 	replace: BoolProperty(
 		name="Replace existing materials",
 		description="If a material exists in the scene, it will be replaced with this one",
 		default=True,
 	)
 
-	# necessary to support multi-file import
-	files: CollectionProperty(
-		type=bpy.types.OperatorFileListElement,
-		options={'HIDDEN', 'SKIP_SAVE'},
-	)
-
-	# necessary to support multi-file import
-	directory: StringProperty(
-		subtype='DIR_PATH',
-	)
-
 	def execute(self, context):
-		error_count = 0
-		for current_file in self.files:
-			filepath = os.path.join(self.directory, current_file.name)
-			result = report_messages(self, import_fgm.load, filepath, self.replace)
-			if 'CANCELLED' in result:
-				error_count += 1
-
-		if len(self.files)>1:
-			self.report({'INFO'}, f"Attempt to import {len(self.files)} materials, {error_count} errors found.")
-			return {'FINISHED'}
-
-		# return only material result
-		return result
+		return self.import_multiple(import_fgm.load, self.replace)
 
 
-class ImportMS2(ImportOp):
+class ImportMS2(BulkImportOp):
 	"""Import from MS2 file format (.MS2), multiple files allowed"""
 	bl_idname = "import_scene.cobra_ms2"
 	bl_label = 'Import MS2(s)'
 	filename_ext = ".ms2"
 	filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
-
-	# necessary to support multi-file import
-	files: CollectionProperty(
-		type=bpy.types.OperatorFileListElement,
-		options={'HIDDEN', 'SKIP_SAVE'},
-	)
-
-	# necessary to support multi-file import
-	directory: StringProperty(
-		subtype='DIR_PATH',
-	)
-
 	use_custom_normals: BoolProperty(name="Use MS2 Normals",
 									 description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
 									 default=False)
 	mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match",
 							  default=False)
 
-	#def execute(self, context):
-	#	return report_messages(self, import_ms2.load, **self.kwargs)
-
 	def execute(self, context):
-		error_count = 0
-		for current_file in self.files:
-			filepath = os.path.join(self.directory, current_file.name)
-			result = report_messages(self, import_ms2.load, filepath, self.use_custom_normals, self.mirror_mesh)
-			if 'CANCELLED' in result:
-				error_count += 1
-
-		if len(self.files)>1:
-			self.report({'INFO'}, f"Attempt to import {len(self.files)} MS2, {error_count} errors found.")
-			return {'FINISHED'}
-
-		# return only ms2 result
-		return result
+		return self.import_multiple(import_ms2.load, self.use_custom_normals, self.mirror_mesh)
 
 
-class ImportSPL(ImportOp):
+class ImportSPL(BulkImportOp):
 	"""Import from spline file format (.spl), multiple files allowed"""
 	bl_idname = "import_scene.cobra_spl"
 	bl_label = 'Import SPL(s)'
 	filename_ext = ".spl"
 	filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
 
-	# necessary to support multi-file import
-	files: CollectionProperty(
-		type=bpy.types.OperatorFileListElement,
-		options={'HIDDEN', 'SKIP_SAVE'},
-	)
-
-	# necessary to support multi-file import
-	directory: StringProperty(
-		subtype='DIR_PATH',
-	)
-
 	def execute(self, context):
-		error_count = 0
-		for current_file in self.files:
-			filepath = os.path.join(self.directory, current_file.name)
-			result = report_messages(self, import_spl.load, filepath)
-			if 'CANCELLED' in result:
-				error_count += 1
-
-		if len(self.files)>1:
-			self.report({'INFO'}, f"Attempt to import {len(self.files)} SPL, {error_count} errors found.")
-			return {'FINISHED'}
-
-		# return only spline result
-		return result
+		return self.import_multiple(import_spl.load)
 
 
 class ImportVoxelskirt(ImportOp):
