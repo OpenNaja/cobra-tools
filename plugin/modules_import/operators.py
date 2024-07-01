@@ -143,37 +143,36 @@ class ImportVoxelskirt(ImportOp):
 		return report_messages(self, import_voxelskirt.load, **self.kwargs)
 
 
-class ImportMS2FromBrowser(bpy.types.Operator):
+class BrowserImportOp(bpy.types.Operator):
+
+	@classmethod
+	def poll(cls, context):
+		return context.active_object is not None
+
+	# @property
+	def get_filepath(self, context) -> str:
+		folder = context.space_data.params.directory.decode('ascii')
+		file = context.space_data.params.filename
+		filepath = os.path.join(folder, file).replace("\\", "/")
+		print(f"Importing: {filepath}")
+		return filepath
+
+
+class ImportMS2FromBrowser(BrowserImportOp):
 	"""Imports ms2 content as new scenes from the file browser"""
 	bl_idname = "ct_wm.import_ms2"
 	bl_label = "Import ms2"
 
-	@classmethod
-	def poll(cls, context):
-		return context.active_object is not None
-
 	def execute(self, context):
-		folder = context.space_data.params.directory.decode('ascii')
-		file = context.space_data.params.filename
-		filepath = os.path.join(folder, file).replace("\\", "/")
-		print("Importing: " + filepath)
-		report_messages(self, import_ms2.load, filepath=filepath)
+		report_messages(self, import_ms2.load, filepath=self.get_filepath(context))
 		return {'FINISHED'}
 
 
-class ImportFGMFromBrowser(bpy.types.Operator):
+class ImportFGMFromBrowser(BrowserImportOp):
 	"""Imports fgm as a new material from the file browser"""
 	bl_idname = "ct_wm.import_fgm"
 	bl_label = "Import fgm"
 
-	@classmethod
-	def poll(cls, context):
-		return context.active_object is not None
-
 	def execute(self, context):
-		folder = context.space_data.params.directory.decode('ascii')
-		file = context.space_data.params.filename
-		filepath = os.path.join(folder, file).replace("\\", "/")
-		print("Importing: " + filepath)
-		report_messages(self, import_fgm.load, filepath=filepath)
+		report_messages(self, import_fgm.load, filepath=self.get_filepath(context))
 		return {'FINISHED'}
