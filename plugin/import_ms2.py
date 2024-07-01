@@ -15,7 +15,7 @@ from plugin.utils.object import create_ob, create_scene, create_collection, set_
 from generated.formats.ms2 import Ms2File
 
 
-def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
+def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False):
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
@@ -54,7 +54,7 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
 						logging.exception("import_mesh_layers failed")
-					# import_chunk_bounds(b_me, mesh, lod_coll)
+				# import_chunk_bounds(b_me, mesh, lod_coll)
 				# link material to mesh
 				import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
 
@@ -72,8 +72,8 @@ def load(reporter, filepath="", use_custom_normals=False, mirror_mesh=False):
 						if mirror_mesh:
 							append_mirror_modifier(b_ob)
 						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-						# from plugin.modules_import.tangents import visualize_tangents
-						# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
+					# from plugin.modules_import.tangents import visualize_tangents
+					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:
 						logging.exception("Some mesh data failed")
 				# we can't assume that the first ob referencing this mesh has fur already

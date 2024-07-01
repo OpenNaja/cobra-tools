@@ -1,15 +1,65 @@
+import collections
+
 import bpy
 import bpy.types
 from bpy.props import BoolProperty, CollectionProperty, IntProperty
+import logging
 
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from plugin.utils import shell, collection, lods, rig, hair
 from plugin.utils.properties import LodData
-from plugin.utils.blender_util import report_messages
 
 
 class BaseOp(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
+	target = None
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.infos = []
+		self.warnings = []
+
+	def show_info(self, msg: str):
+		self.infos.append(msg)
+		logging.info(msg)
+
+	def show_warning(self, msg: str):
+		self.warnings.append(msg)
+		logging.warning(msg)
+
+	def show_error(self, exception: Exception):
+		self.report({"ERROR"}, str(exception))
+		logging.exception('Got exception on main handler')
+
+	@staticmethod
+	def count(msgs):
+		for msg, count in collections.Counter(msgs).items():
+			if count > 1:
+				msg = f"{msg} (x{count})"
+			yield msg
+
+	def flush_messages(self):
+		for msg in self.count(self.warnings):
+			self.report({"WARNING"}, msg)
+		for msg in self.count(self.infos):
+			self.report({"INFO"}, msg)
+
+	def report_messages(self, class_method, *args, **kwargs):
+		try:
+			class_method(*args, **kwargs)
+			result = {'FINISHED'}
+		except Exception as err:
+			self.show_error(err)
+			result = {'CANCELLED'}
+		self.flush_messages()
+		return result
+
+	@property
+	def kwargs(self) -> dict:
+		return self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "files", "filepath", "directory"))
+
+	def execute(self, context):
+		return self.report_messages(self.target, **self.kwargs)
 
 
 class PopupOp(BaseOp):
@@ -44,6 +94,7 @@ class UpdateLods(PopupOp):
 	"""Create or remove LODs for this MDL2 collection"""
 	bl_idname = "mdl2.update_lods"
 	bl_label = "Update LODs"
+	target = lods.update_lods
 	num_lods: bpy.props.IntProperty(
 		name='LOD Count', description="Total number of LODs including L0", default=1, min=1, max=6, update=update_lod_settings)
 	show_tweaks: bpy.props.BoolProperty(
@@ -69,7 +120,7 @@ class UpdateLods(PopupOp):
 			row.template_list("LODS_UL_items", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
 
 	def execute(self, context):
-		return report_messages(self, lods.update_lods, mdl2_coll=bpy.context.collection, levels=self.levels)
+		return self.report_messages(self.target, mdl2_coll=bpy.context.collection, levels=self.levels)
 
 
 class EditFlag(PopupOp):
@@ -142,78 +193,63 @@ class VcolToComb(BaseOp):
 	"""Load vertex color layer as editable particle hair combing"""
 	bl_idname = "object.vcol_to_comb"
 	bl_label = "Vcol to Comb"
-
-	def execute(self, context):
-		return report_messages(self, hair.vcol_to_comb)
+	target = hair.vcol_to_comb
 
 
 class CombToVcol(BaseOp):
 	"""Save particle hair combing to vertex color layer"""
 	bl_idname = "object.comb_to_vcol"
 	bl_label = "Comb to Vcol"
-
-	def execute(self, context):
-		return report_messages(self, hair.comb_to_vcol)
+	target = hair.comb_to_vcol
 
 
 class UpdateFins(BaseOp):
 	"""Updates fins meshes from shell meshes in this scene"""
 	bl_idname = "object.update_fins"
 	bl_label = "Update Fins"
-
-	def execute(self, context):
-		return report_messages(self, shell.update_fins_wrapper)
+	target = shell.update_fins_wrapper
 
 
 class ExtrudeFins(BaseOp):
 	"""Visualize Fins by pulling them out of the mesh"""
 	bl_idname = "object.extrude_fins"
 	bl_label = "Extrude Fins"
-
-	def execute(self, context):
-		return report_messages(self, shell.extrude_fins)
+	target = shell.extrude_fins
 
 
 class IntrudeFins(BaseOp):
 	"""Pull fins back in"""
 	bl_idname = "object.intrude_fins"
 	bl_label = "Intrude Fins"
-
-	def execute(self, context):
-		return report_messages(self, shell.intrude_fins)
+	target = shell.intrude_fins
 
 
 class TransferHairCombing(BaseOp):
 	"""Transfer particle hair combing from active mesh to selected meshes"""
 	bl_idname = "object.transfer_hair_combing"
 	bl_label = "Transfer Combing"
-
-	def execute(self, context):
-		return report_messages(self, hair.transfer_hair_combing)
+	target = hair.transfer_hair_combing
 
 
 class AddHair(BaseOp):
 	"""Add hair setup to active mesh and create shells and fins meshes"""
 	bl_idname = "object.add_hair"
 	bl_label = "Add Hair"
-
-	def execute(self, context):
-		return report_messages(self, shell.add_hair)
+	target = shell.add_hair
 
 
 class ApplyPoseAll(BaseOp):
 	"""Apply pose from armature bones to all meshes in MDL2; clears bone pose, does not add helper bones"""
 	bl_idname = "pose.apply_pose_all"
 	bl_label = "Apply Poses"
-
-	def execute(self, context):
-		return report_messages(self, rig.apply_armature_all)
+	target = rig.apply_armature_all
 
 
 class SetupRig(PopupOp):
 	"""Add a minimal armature with a hitcheck for MDL2 geometry"""
 	bl_idname = "pose.setup_rig"
 	bl_label = "Setup Rig"
+	target = rig.setup_rig
 
 	move_collections: bpy.props.BoolProperty(
 		name="Move to Collections",
@@ -234,14 +270,12 @@ class SetupRig(PopupOp):
 		self.layout.prop(self, "add_armature")
 		self.layout.prop(self, "add_physics")
 
-	def execute(self, context):
-		return report_messages(self, rig.setup_rig, **self.as_keywords())
-
 
 class GenerateRigEdit(PopupOp):
 	"""Add rig edit bones for all posed bones; may optionally apply pose"""
 	bl_idname = "pose.generate_rig_edit"
 	bl_label = "Add Rig Edit Bones from Pose"
+	target = rig.generate_rig_edit
 	mergenodes: bpy.props.BoolProperty(
 		name="Merge Identical Nodes",
 		description="Merges identical nodes to reduce the amount of duplicates if you moved several bones with the same parent",
@@ -258,17 +292,12 @@ class GenerateRigEdit(PopupOp):
 		row = self.layout.row()
 		row.prop(self, "applyarmature", icon="CHECKBOX_HLT" if self.applyarmature else "CHECKBOX_DEHLT")
 
-	def execute(self, context):
-		return report_messages(self, rig.generate_rig_edit, **self.as_keywords())
-
 
 class ConvertScaleToLoc(BaseOp):
 	"""Convert pose mode scale transforms into location transforms"""
 	bl_idname = "pose.convert_scale_to_loc"
 	bl_label = "Convert Scale to Location"
-
-	def execute(self, context):
-		return report_messages(self, rig.convert_scale_to_loc)
+	target = rig.convert_scale_to_loc
 
 
 class AutosmoothAll(BaseOp):

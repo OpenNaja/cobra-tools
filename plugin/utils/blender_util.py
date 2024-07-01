@@ -123,21 +123,6 @@ class OperatorWrap:
 			self.op.report({"INFO"}, msg)
 
 
-def report_messages(inst, func, *args, **kwargs):
-	result = {'FINISHED'}
-
-	wrap = OperatorWrap(inst)
-	try:
-		func(wrap, *args, **kwargs)
-	except Exception as err:
-		wrap.show_error(err)
-		result = {'CANCELLED'}
-
-	wrap.report()
-
-	return result
-
-
 def vectorisclose(vector1, vector2, tolerance=0.0001):
 	# Determine if the inputs are correctly utilized.
 	if not isinstance(vector1, mathutils.Vector) or not isinstance(vector2, mathutils.Vector) or not isinstance(tolerance, float):

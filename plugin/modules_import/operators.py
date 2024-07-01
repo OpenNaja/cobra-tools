@@ -4,15 +4,13 @@ from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, 
 from bpy_extras.io_utils import ImportHelper
 
 from plugin import import_banis, import_manis, import_matcol, import_fgm, import_ms2, import_spl, import_voxelskirt
-from plugin.utils.blender_util import report_messages
+from plugin.utils.operators import BaseOp
 
 
-class ImportOp(bpy.types.Operator, ImportHelper):
-	bl_options = {'UNDO'}
+class ImportOp(BaseOp, ImportHelper):
 
-	@property
-	def kwargs(self) -> dict:
-		return self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
+	def execute(self, context):
+		return self.report_messages(self.target, filepath=self.filepath, **self.kwargs)
 
 
 class BulkImportOp(ImportOp):
@@ -29,15 +27,14 @@ class BulkImportOp(ImportOp):
 		subtype='DIR_PATH',
 	)
 
-	def import_multiple(self, func, *args, **kwargs):
+	def execute(self, context):
 		error_count = 0
 		if self.files:
 			for current_file in self.files:
 				filepath = os.path.join(self.directory, current_file.name)
-				result = report_messages(self, func, filepath, *args, **kwargs)
+				result = self.report_messages(self.target, filepath=filepath, **self.kwargs)
 				if 'CANCELLED' in result:
 					error_count += 1
-
 				self.report({'INFO'}, f"Attempt to import {len(self.files)} {self.filename_ext}s, {error_count} errors found.")
 		# return only material result
 		return {'FINISHED'}
@@ -50,11 +47,8 @@ class ImportBanis(BulkImportOp):
 	filename_ext = ".banis"
 	filter_glob: StringProperty(default="*.banis", options={'HIDDEN'})
 	files: CollectionProperty(type=bpy.types.PropertyGroup)
-
 	# set_fps = BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
-
-	def execute(self, context):
-		return self.import_multiple(import_banis.load, **self.kwargs)
+	target = import_banis.load
 
 
 class ImportManis(BulkImportOp):
@@ -66,9 +60,7 @@ class ImportManis(BulkImportOp):
 	files: CollectionProperty(type=bpy.types.PropertyGroup)
 	disable_ik: BoolProperty(name="Disable IK", description="Disable IK constraints on armature to enable jitter-free playback of baked animations", default=True)
 	# set_fps: BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
-
-	def execute(self, context):
-		return self.import_multiple(import_manis.load, **self.kwargs)
+	target = import_manis.load
 
 
 class ImportMatcol(ImportOp):
@@ -76,19 +68,17 @@ class ImportMatcol(ImportOp):
 	bl_idname = "import_scene.cobra_matcol"
 	bl_label = 'Import Matcol'
 	filename_ext = ".dinosaurmateriallayers"
-
 	# filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
 	# filter_glob: StringProperty(default="*.matcol;*.materialcollection;*.dinosaurmateriallayers", options={'HIDDEN'})
-
-	def execute(self, context):
-		return report_messages(self, import_matcol.load, **self.kwargs)
-
+	target = import_matcol.load
+	
 
 class ImportFgm(BulkImportOp):
 	"""Import from Fgm file format (.fgm), allows importing multiple files"""
 	bl_idname = "import_scene.cobra_fgms"  
 	bl_label = "Import Fgm(s)"
 	filename_ext = ".fgm"
+	target = import_fgm.load
 
 	filter_glob: StringProperty(
 		default="*.fgm",
@@ -101,24 +91,22 @@ class ImportFgm(BulkImportOp):
 		default=True,
 	)
 
-	def execute(self, context):
-		return self.import_multiple(import_fgm.load, self.replace)
-
 
 class ImportMS2(BulkImportOp):
 	"""Import from MS2 file format (.MS2), multiple files allowed"""
 	bl_idname = "import_scene.cobra_ms2"
 	bl_label = 'Import MS2(s)'
 	filename_ext = ".ms2"
+	target = import_ms2.load
 	filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
-	use_custom_normals: BoolProperty(name="Use MS2 Normals",
-									 description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
-									 default=False)
-	mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match",
-							  default=False)
-
-	def execute(self, context):
-		return self.import_multiple(import_ms2.load, self.use_custom_normals, self.mirror_mesh)
+	use_custom_normals: BoolProperty(
+		name="Use MS2 Normals",
+		description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
+		default=False)
+	mirror_mesh: BoolProperty(
+		name="Mirror Meshes",
+		description="Mirrors models. Careful, sometimes bones don't match",
+		default=False)
 
 
 class ImportSPL(BulkImportOp):
@@ -126,10 +114,8 @@ class ImportSPL(BulkImportOp):
 	bl_idname = "import_scene.cobra_spl"
 	bl_label = 'Import SPL(s)'
 	filename_ext = ".spl"
+	target = import_spl.load
 	filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
-
-	def execute(self, context):
-		return self.import_multiple(import_spl.load)
 
 
 class ImportVoxelskirt(ImportOp):
@@ -137,13 +123,11 @@ class ImportVoxelskirt(ImportOp):
 	bl_idname = "import_scene.cobra_voxelskirt"
 	bl_label = 'Import Voxelskirt'
 	filename_ext = ".voxelskirt"
+	target = import_voxelskirt.load
 	filter_glob: StringProperty(default="*.voxelskirt", options={'HIDDEN'})
 
-	def execute(self, context):
-		return report_messages(self, import_voxelskirt.load, **self.kwargs)
 
-
-class BrowserImportOp(bpy.types.Operator):
+class BrowserImportOp(ImportOp):
 
 	@classmethod
 	def poll(cls, context):
@@ -157,22 +141,20 @@ class BrowserImportOp(bpy.types.Operator):
 		print(f"Importing: {filepath}")
 		return filepath
 
+	def execute(self, context):
+		return self.report_messages(self.target, filepath=self.get_filepath(context), **self.kwargs)
+
 
 class ImportMS2FromBrowser(BrowserImportOp):
 	"""Imports ms2 content as new scenes from the file browser"""
 	bl_idname = "ct_wm.import_ms2"
 	bl_label = "Import ms2"
-
-	def execute(self, context):
-		report_messages(self, import_ms2.load, filepath=self.get_filepath(context))
-		return {'FINISHED'}
+	target = import_ms2.load
 
 
 class ImportFGMFromBrowser(BrowserImportOp):
 	"""Imports fgm as a new material from the file browser"""
 	bl_idname = "ct_wm.import_fgm"
 	bl_label = "Import fgm"
+	target = import_fgm.load
 
-	def execute(self, context):
-		report_messages(self, import_fgm.load, filepath=self.get_filepath(context))
-		return {'FINISHED'}
