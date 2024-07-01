@@ -20,6 +20,9 @@ def load(reporter, filepath="", replace=True):
     b_mat = create_material(reporter, in_dir, name)
     if not b_mat:
         reporter.show_info(f"Failed to import {name}")
+        # only reasonable way I found to return an error through the reporter without
+        # needing to rewrite it.
+        raise Exception(f"Failed to import {name}")
         return None
 
     if o_mat:
