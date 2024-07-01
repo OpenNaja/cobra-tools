@@ -50,13 +50,13 @@ def set_b_collider(b_obj, bounds_type='BOX', display_type='BOX'):
 		b_obj.display_bounds_type = display_type
 
 	# alternative
-	# bpy.context.view_layer.objects.active = b_obj
-	# with bpy.context.temp_override(selected_objects=[b_obj], object=b_obj, active_object=b_obj):
-	# 	logging.debug(f"Operating on obj '{b_obj.name}'")
-	# 	bpy.ops.rigidbody.object_add()
-
 	bpy.context.view_layer.objects.active = b_obj
-	bpy.ops.rigidbody.object_add()
+	with bpy.context.temp_override(selected_objects=[b_obj], object=b_obj, active_object=b_obj):
+		logging.debug(f"Operating on obj '{b_obj.name}'")
+		bpy.ops.rigidbody.object_add()
+
+	#bpy.context.view_layer.objects.active = b_obj
+	#bpy.ops.rigidbody.object_add()
 
 	b_r_body = b_obj.rigid_body
 	b_r_body.enabled = True
