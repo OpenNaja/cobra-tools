@@ -131,6 +131,9 @@ class PT_ListExample(Panel):
 	updater = True
 
 	def draw(self, context):
+		if not context.object or not context.object.active_material:
+			return
+
 		layout = self.layout
 		material = context.object.active_material
 
@@ -140,14 +143,15 @@ class PT_ListExample(Panel):
 
 		col = self.layout.box()
 		texture = get_preview_img()
-		texture.image.update()
-		# only updates in tools view when manually changing panel
-		# col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
-		col.template_preview(texture)
-		if self.updater:
-			col.scale_y = 1.0
-		else:
-			col.scale_y = 1.01
+		if texture:
+			texture.image.update()
+			# only updates in tools view when manually changing panel
+			# col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
+			col.template_preview(texture)
+			if self.updater:
+				col.scale_y = 1.0
+			else:
+				col.scale_y = 1.01
 		self.updater = not self.updater
 
 
