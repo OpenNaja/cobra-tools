@@ -108,7 +108,7 @@ class VIEW_PT_Mdl2(Panel):
 				box.prop(cobra_props, prop)
 
 
-class MATCOL_UL_matslots_example(UIList):
+class MATCOL_UL_matslots(UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
 
 		custom_icon = 'OBJECT_DATAMODE'
@@ -133,13 +133,13 @@ class PT_ListExample(Panel):
 	def draw(self, context):
 		if not context.object or not context.object.active_material:
 			return
+		material = context.object.active_material
+		if not material.matcol_layers:
+			return
 
 		layout = self.layout
-		material = context.object.active_material
-
 		row = layout.row()
-		row.template_list("MATCOL_UL_matslots_example", "The_List", material, "matcol_layers", material,
-						  "matcol_layers_current")
+		row.template_list("MATCOL_UL_matslots", "The_List", material, "matcol_layers", material, "matcol_layers_current")
 
 		col = self.layout.box()
 		texture = get_preview_img()

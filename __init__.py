@@ -53,7 +53,7 @@ try:
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
     CobraMaterialSettings, LodData, MATCOL_ListItem
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2, matcol_slot_updated, \
-    MATCOL_UL_matslots_example, PT_ListExample
+    MATCOL_UL_matslots, PT_ListExample
 
 
     # drag and drop:
@@ -147,11 +147,11 @@ try:
         def draw(self, context):
             addon_updater_ops.check_for_update_background()
             addon_updater_ops.update_notice_box_ui(self, context)
-            
+
             layout = self.layout
 
             # Show the button only of the mesh is not in a mdl2 rig
-            # detecting the parent collection name contains _L, 
+            # detecting the parent collection name contains _L,
             # TODO: improve this detection and remove the other panel buttons?
             coll = context.active_object.users_collection[0]
             if not "_L" in coll.name:
@@ -226,15 +226,10 @@ try:
 
 
     def draw_rigid_body_constraints_cobra(self, context):
-        scene = context.scene
         layout = self.layout
-
-        # display properties and values
         col = layout.column(align=True)
-        # col.label(text="My Values:")
         col.prop(context.active_object.cobra_coll, "plasticity_min")
         col.prop(context.active_object.cobra_coll, "plasticity_max")
-        # col.prop(scene, "plasticity", text="Frame Start")
 
 
     def menu_func_export(self, context):
@@ -285,7 +280,7 @@ try:
             logging.warning(msg)
 
         def show_error(self, exception: Exception):
-            logging.exception('Got exception on main handler')                
+            logging.exception('Got exception on main handler')
 
         def report_messages(self, class_method, *args, **kwargs):
             try:
@@ -294,7 +289,7 @@ try:
             except Exception as err:
                 self.show_error(err)
                 result = {'CANCELLED'}
-            return result        
+            return result
 
 
     # Function to handle drag&drop of cobra files into blender
@@ -302,8 +297,8 @@ try:
     def cobra_viewport3d_drop_handler(scene, depsgraph):
         obj = bpy.context.active_object
         if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
-            # when dropping something to the 3d view it will create an image by default but will keep the file path 
-            # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and 
+            # when dropping something to the 3d view it will create an image by default but will keep the file path
+            # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and
             # load the actual asset instead.
             filepath = obj.data.filepath
 
@@ -313,7 +308,7 @@ try:
                 bpy.data.objects.remove(obj)
                 rep = MockUpReporter()
                 rep.report_messages(import_ms2.load, filepath=filepath, use_custom_normals=True)
-                
+
             if filepath.lower().endswith(".fgm"):
                 """We have a fgm loaded as image"""
                 bpy.data.images.remove(obj.data)
@@ -374,7 +369,7 @@ try:
         SCENE_PT_CobraTools,
         COLLISION_PT_CobraTools,
         MATCOL_ListItem,
-        MATCOL_UL_matslots_example,
+        MATCOL_UL_matslots,
         PT_ListExample,
         InstallDependencies,
         *updater_classes
@@ -429,12 +424,6 @@ def register():
     bpy.types.Material.matcol_layers = bpy.props.CollectionProperty(type=MATCOL_ListItem)
     bpy.types.Material.matcol_layers_current = bpy.props.IntProperty(
         name="Index for matcol layers", default=0, update=matcol_slot_updated)
-
-    # bpy.types.Material.matcol_layers_preview = bpy.props.PointerProperty(
-    #     name='Texture',
-    #     type=bpy.types.Texture,
-    # )
-        # update=storey_texture_change)
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
     bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
@@ -457,7 +446,7 @@ def unregister():
 
     for cls in reversed(classes):
         try:
-            # there seems to be an error due to previously removed class that prevents the plugin from 
+            # there seems to be an error due to previously removed class that prevents the plugin from
             # disabling safely.
             bpy.utils.unregister_class(cls)
         except:
