@@ -55,9 +55,14 @@ try:
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2, matcol_slot_updated, \
     MATCOL_UL_matslots_example, PT_ListExample
 
+
     # drag and drop:
     from bpy.app.handlers import persistent
     from plugin import import_fgm, import_ms2, import_spl
+
+    # 4.1 drag and drop
+    if hasattr(bpy.types, 'FileHandler'):
+        from plugin.modules_import.operators import MS2_FH_script_import, FGM_FH_script_import
 
     global preview_collection
 
@@ -374,6 +379,9 @@ try:
         InstallDependencies,
         *updater_classes
     )
+    if hasattr(bpy.types, 'FileHandler'):
+        classes += (MS2_FH_script_import, FGM_FH_script_import)
+
 except:
     logging.exception("Startup failed")
     pass

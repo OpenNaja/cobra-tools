@@ -75,7 +75,7 @@ class ImportMatcol(ImportOp):
 
 class ImportFgm(BulkImportOp):
 	"""Import from Fgm file format (.fgm), allows importing multiple files"""
-	bl_idname = "import_scene.cobra_fgms"  
+	bl_idname = "import_scene.cobra_fgm"  
 	bl_label = "Import Fgm(s)"
 	filename_ext = ".fgm"
 	target = import_fgm.load
@@ -158,3 +158,27 @@ class ImportFGMFromBrowser(BrowserImportOp):
 	bl_label = "Import fgm"
 	target = import_fgm.load
 
+
+if hasattr(bpy.types, 'FileHandler'):
+	class MS2_FH_script_import(bpy.types.FileHandler):
+	    bl_idname = "MS2_FH_script_import"
+	    bl_label = "File handler for ms2 script node import"
+	    bl_import_operator = "import_scene.cobra_ms2"
+	    bl_file_extensions = ".ms2"
+
+	    @classmethod
+	    def poll_drop(cls, context):
+	        return (context.area and context.area.type == 'VIEW_3D')
+
+	class FGM_FH_script_import(bpy.types.FileHandler):
+	    bl_idname = "FGM_FH_script_import"
+	    bl_label = "File handler for ms2 script node import"
+	    bl_import_operator = "import_scene.cobra_fgm"
+	    bl_file_extensions = ".fgm"
+
+	    @classmethod
+	    def poll_drop(cls, context):
+	        return (context.area and context.area.type == 'VIEW_3D') or (context.region and context.region.type == 'WINDOW'
+                and context.area and context.area.ui_type == 'ShaderNodeTree'
+                and context.object and context.object.type == 'MESH'
+                and context.material)
