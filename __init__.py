@@ -296,32 +296,35 @@ try:
     @persistent
     def cobra_viewport3d_drop_handler(scene, depsgraph):
         obj = bpy.context.active_object
-        if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
-            # when dropping something to the 3d view it will create an image by default but will keep the file path
-            # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and
-            # load the actual asset instead.
-            filepath = obj.data.filepath
+        try:
+            if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
+                # when dropping something to the 3d view it will create an image by default but will keep the file path
+                # as .filepath, we can use that to find if the dropped file is a fgm or ms2, delete the empty object and
+                # load the actual asset instead.
+                filepath = obj.data.filepath
 
-            if filepath.lower().endswith(".ms2"):
-                """We have a ms2 loaded as image"""
-                bpy.data.images.remove(obj.data)
-                bpy.data.objects.remove(obj)
-                rep = MockUpReporter()
-                rep.report_messages(import_ms2.load, filepath=filepath, use_custom_normals=True)
+                if filepath.lower().endswith(".ms2"):
+                    """We have a ms2 loaded as image"""
+                    bpy.data.images.remove(obj.data)
+                    bpy.data.objects.remove(obj)
+                    rep = MockUpReporter()
+                    rep.report_messages(import_ms2.load, filepath=filepath, use_custom_normals=True)
 
-            if filepath.lower().endswith(".fgm"):
-                """We have a fgm loaded as image"""
-                bpy.data.images.remove(obj.data)
-                bpy.data.objects.remove(obj)
-                rep = MockUpReporter()
-                rep.report_messages(import_fgm.load, filepath=filepath, replace=False)
+                if filepath.lower().endswith(".fgm"):
+                    """We have a fgm loaded as image"""
+                    bpy.data.images.remove(obj.data)
+                    bpy.data.objects.remove(obj)
+                    rep = MockUpReporter()
+                    rep.report_messages(import_fgm.load, filepath=filepath, replace=False)
 
-            if filepath.lower().endswith(".spl"):
-                """We have a spline loaded as image"""
-                bpy.data.images.remove(obj.data)
-                bpy.data.objects.remove(obj)
-                rep = MockUpReporter()
-                rep.report_messages(import_spl.load, filepath=filepath)
+                if filepath.lower().endswith(".spl"):
+                    """We have a spline loaded as image"""
+                    bpy.data.images.remove(obj.data)
+                    bpy.data.objects.remove(obj)
+                    rep = MockUpReporter()
+                    rep.report_messages(import_spl.load, filepath=filepath)
+        except:
+            pass
 
 
     classes = (
@@ -433,7 +436,8 @@ def register():
     bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
 
     # handle drag and drop of custom files:
-    bpy.app.handlers.depsgraph_update_post.append(cobra_viewport3d_drop_handler)
+    if not hasattr(bpy.types, 'FileHandler'):
+        bpy.app.handlers.depsgraph_update_post.append(cobra_viewport3d_drop_handler)
 
 def unregister():
 
@@ -458,7 +462,9 @@ def unregister():
     del bpy.types.Mesh.cobra
     global preview_collection
     bpy.utils.previews.remove(preview_collection)
-    bpy.app.handlers.depsgraph_update_post.remove(cobra_viewport3d_drop_handler)
+
+    if not hasattr(bpy.types, 'FileHandler'):
+        bpy.app.handlers.depsgraph_update_post.remove(cobra_viewport3d_drop_handler)
 
 
 if __name__ == "__main__":
