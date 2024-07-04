@@ -1,3 +1,4 @@
+from generated.formats.ovl.imports import name_type_map
 import itertools
 import logging
 import os
@@ -30,7 +31,7 @@ UNK_HASH = "UnknownHash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
-def oodle_compress_threaded(args):
+def oodle_compress_chunk(args):
 	"""Picklable function for ProcessPoolExecutor"""
 	uncompressed_bytes, oodle_codec, oodle_level = args
 	return oodle_compressor.compress(uncompressed_bytes, oodle_codec, level=oodle_level)
@@ -86,7 +87,7 @@ class OvsFile(OvsHeader):
 		with BytesIO(decompressed) as stream:
 			yield stream
 
-	def compress(self, uncompressed_bytes):
+	def compress(self, uncompressed_bytes, use_threads=True):
 		"""compress data with method according to ovl settings"""
 		try:
 			if self.ovl.user_version.compression == Compression.OODLE:
@@ -106,14 +107,23 @@ class OvsFile(OvsHeader):
 				# Compress in larger chunks, have each Oodle thread handle 256KB chunking
 				chunk_size = INPUT_CHUNK_SIZE if uncompressed_size >= INPUT_CHUNK_SIZE else uncompressed_size
 				num_chunks = math.ceil(uncompressed_size / chunk_size)
+
 				# Compress each chunk
 				chunks = []
 				for i in range(num_chunks):
 					start = i * chunk_size
 					chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name, oodle_level))
 				num_processes = min(cpu_count(), len(chunks))
-				with ProcessPoolExecutor(max_workers=num_processes) as executor:
-					compressed = b"".join(executor.map(oodle_compress_threaded, chunks))
+				logging.debug(f"Oodle compression using {num_processes} cores")
+
+				if use_threads:
+					with ProcessPoolExecutor(max_workers=num_processes) as executor:
+						compressed = b"".join(executor.map(oodle_compress_chunk, chunks))
+				else:
+					compressed = b""
+					for chunk in chunks:
+						compressed += oodle_compress_chunk(chunk)
+
 				return len(uncompressed_bytes), len(compressed), compressed
 		except:
 			logging.exception(f"Oodle compression failed, falling back to Zlib")
@@ -704,6 +714,7 @@ class OvlFile(Header):
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
+		logging.info(file_paths)
 		if not file_paths:
 			return
 		# file_paths must be direct children of the same folder
@@ -1412,7 +1423,7 @@ class OvlFile(Header):
 		for loader in self.sorted_loaders:
 			loader.dump_buffers(out_dir_func)
 
-	def save(self, filepath):
+	def save(self, filepath, use_threads = True):
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Writing {self.name}"):
 			# do this last so we also catch the assets & sets
@@ -1431,7 +1442,7 @@ class OvlFile(Header):
 					# write archive into bytes IO stream
 					uncompressed = archive.content.write_archive()
 					archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
-						uncompressed)
+						uncompressed, use_threads)
 					# update set data size
 					archive.set_data_size = archive.content.set_header.io_size
 					if archive.name == "STATIC":
@@ -1454,7 +1465,8 @@ class OvlFile(Header):
 
 if __name__ == "__main__":
 	ovl = OvlFile()
-	# ovl = Header()
-	# ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-	# ovl.load("C:/Users/arnfi/Desktop/Coding/Frontier/Disneyland/SpatialDatabaseTest.ovl")
-	# print(ovl.mimes)
+	#ovl.load_hash_table()
+	#ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
+	#ovl.extract('C:/Users/ilo/Documents/GitHub/cobra-tools/', ['database.contentpdlc2luadatabase.lua'])
+	#ovl.add_files( ['C:/Users/ilo/Documents/GitHub/cobra-tools/version.txt'] )
+	#ovl.save("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot1.ovl", use_threads=False)
