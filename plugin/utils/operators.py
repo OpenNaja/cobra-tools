@@ -6,6 +6,7 @@ from bpy.props import BoolProperty, CollectionProperty, IntProperty
 import logging
 
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
+from plugin.utils.blender_util import set_auto_smooth_safe
 from plugin.utils import shell, collection, lods, rig, hair
 from plugin.utils.properties import LodData
 
@@ -310,7 +311,7 @@ class AutosmoothAll(BaseOp):
 		if mdl2_coll:
 			for lod_coll in lods.get_lod_collections(mdl2_coll):
 				for b_ob in lod_coll.objects:
-					b_ob.data.use_auto_smooth = True
+					set_auto_smooth_safe(b_ob.data)
 		return {"FINISHED"}
 
 

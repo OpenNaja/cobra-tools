@@ -135,3 +135,9 @@ def vectorisclose(vector1, vector2, tolerance=0.0001):
 		if not abs(vector1[component] - vector2[component]) < abs(tolerance):
 			return False
 	return True
+
+
+def set_auto_smooth_safe(b_me):
+	"""Blender 4.1 removes the property and uses custom normals automatically if they are present"""
+	if hasattr(b_me, "use_auto_smooth"):
+		b_me.use_auto_smooth = True

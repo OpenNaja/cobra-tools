@@ -6,6 +6,7 @@ import bpy
 import bmesh
 import mathutils
 
+from plugin.utils.blender_util import set_auto_smooth_safe
 from plugin.utils.hair import get_tangent_space_mat, MID, add_psys
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 
@@ -182,7 +183,7 @@ def build_fins_geom(shell_ob):
 	mod.data_types_loops = {"CUSTOM_NORMAL", }
 
 	# needed for custom normals
-	me.use_auto_smooth = True
+	set_auto_smooth_safe(me)
 	# create uv1 layer for fins
 	me.uv_layers.new(name="UV1")
 	# Get a BMesh representation

@@ -5,6 +5,7 @@ import bpy
 
 from generated.formats.ms2.compounds.packing_utils import has_nan
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
+from plugin.utils.blender_util import set_auto_smooth_safe
 from plugin.utils.shell import num_fur_as_weights, is_fin
 
 
@@ -47,7 +48,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
 	# set normals
 	if use_custom_normals and mesh.flag not in (565,):
-		b_me.use_auto_smooth = True
+		set_auto_smooth_safe(b_me)
 		normals = mesh.normals_custom if mesh.is_speedtree else mesh.normals
 		b_me.normals_split_custom_set_from_vertices(normals)
 
