@@ -54,6 +54,7 @@ class BaseShader:
 		"pFeathers_RoughnessPackedTexture": 1,
 	}
 	attr_tex_map = {
+		"pDiffuseTint": "BC",
 		"pDielectricReflectivity": "SP",
 		"pSpecular": "SP",
 		"pRoughness": "RN",
@@ -112,14 +113,14 @@ class BaseShader:
 				# get shader param
 				val = self.attr.get(long_name)
 				if val is not None:
-					try:
-						# todo maybe check https://docs.blender.org/api/current/bpy.types.NodeSocket.html#bpy.types.NodeSocket
-						if len(val) != len(socket.default_value):
-							logging.warning(f"Mismatch of socket size '{long_name}'")
+					if socket.type in ("VALUE", "INT", "FLOAT", "BOOLEAN"):
+						socket.default_value = val[0]
+					else:
+						if len(val) <= len(socket.default_value):
+							socket.default_value[:len(val)] = val
+						elif len(val) != len(socket.default_value):
+							logging.warning(f"Socket too small for '{long_name}' ({len(val)} vs {len(socket.default_value)})")
 							continue
-					except TypeError:
-						logging.warning(f"has no len '{long_name}'")
-					socket.default_value = val
 			else:
 				# it's probably a texture node
 				try:
@@ -176,10 +177,7 @@ class BaseShader:
 	def build_attr_dict(self, fgm_data):
 		self.attr = {}
 		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
-			if len(attr_data.value) == 1:
-				self.attr[attr.name] = attr_data.value[0]
-			else:
-				self.attr[attr.name] = attr_data.value
+			self.attr[attr.name] = attr_data.value
 
 	@staticmethod
 	@contextlib.contextmanager
@@ -219,14 +217,7 @@ class BaseShader:
 						tex_nodes.append(color)
 						if not channel:
 							channel = "RGBA"
-						if len(channel) == 4:
-							color.outputs[0].default_value = [rgba[c] for c in channel]
-						elif len(channel) == 3:
-							color.outputs[0].default_value = [rgba[c] for c in channel] + [1.0, ]
-						elif len(channel) == 2:
-							color.outputs[0].default_value = [rgba[c] for c in channel] + [1.0, 1.0]
-						elif len(channel) == 1:
-							color.outputs[0].default_value = [rgba[channel] for _ in range(3)] + [1.0, ]
+						color.outputs[0].default_value = self.map_color_channel(channel, rgba)
 						self.id_2_out_socket[purpose] = color.outputs[0]
 				else:
 					tex_name = dep_info.dependency_name.data
@@ -261,19 +252,30 @@ class BaseShader:
 
 		# create attributes that act as texture channels
 		with self.put_in_frame("Attributes", tree) as tex_nodes:
-			for attr_name, attr in self.attr.items():
+			for attr_name, attr_data in self.attr.items():
+				attr_data = self.attr.get(attr_name)
 				purpose = self.attr_tex_map.get(attr_name, None)
 				if purpose:
 					color = tree.nodes.new('ShaderNodeRGB')
 					color.label = purpose
 					tex_nodes.append(color)
-					# todo pSpecularReflectance on Glass_Uniform is RGB, unsure how to implement
-					if isinstance(attr, (int, np.intc)):
+					# bring ints to 0-1f range
+					if isinstance(attr_data[0], (int, np.intc)):
 						# might as well be percent, idk
-						color.outputs[0].default_value = [attr/255 for _ in range(4)]
-					else:
-						color.outputs[0].default_value = [attr for _ in range(4)]
+						attr_data = [x/255 for x in attr_data]
+					# complete the key as RGBA color
+					color.outputs[0].default_value = self.map_color_channel(list(range(len(attr_data))), attr_data)
 					self.id_2_out_socket[purpose] = color.outputs[0]
+
+	def map_color_channel(self, channel, rgba):
+		if len(channel) == 4:
+			return [rgba[c] for c in channel]
+		elif len(channel) == 3:
+			return [rgba[c] for c in channel] + [1.0, ]
+		elif len(channel) == 2:
+			return [rgba[c] for c in channel] + [1.0, 1.0]
+		elif len(channel) == 1:
+			return [rgba[channel] for _ in range(3)] + [1.0, ]
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
@@ -410,7 +412,7 @@ def create_material(reporter, in_dir, matname):
 			b_mat.use_backface_culling = not double_sided
 			# blender appears to be stricter with the alpha clipping
 			# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
-			b_mat.alpha_threshold = alpha_test * 0.5
+			b_mat.alpha_threshold = alpha_test[0] * 0.5
 
 		nodes_iterate(b_mat, tree, output)
 	except:
