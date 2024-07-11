@@ -132,7 +132,7 @@ def export_wsm(folder, mani_info, bone_name, channel_storage):
 			wsm.reset_field("quats")
 			for vec, data in zip(wsm.locs.data, channel_storage[bone_name][POS]):
 				vec[:] = data
-			for vec, data in zip(wsm.quats.data,channel_storage[bone_name][ORI]):
+			for vec, data in zip(wsm.quats.data, channel_storage[bone_name][ORI]):
 				vec[:] = data
 			# print(wsm)
 			with WsmHeader.to_xml_file(wsm, wsm_path):
@@ -148,13 +148,13 @@ def get_actions(b_ob):
 			actions.add(ad.action)
 		for t in ad.nla_tracks:
 			for s in t.strips:
-				actions.add(s.action)
+				if s.action:
+					actions.add(s.action)
 	return list(actions)
 
 
 def save(reporter, filepath="", per_armature=False):
 	folder, manis_name = os.path.split(filepath)
-	# manis_basename = os.path.splitext(filepath)[0]
 	scene = bpy.context.scene
 	bpy.ops.object.mode_set(mode='OBJECT')
 	manis_datas = {}
