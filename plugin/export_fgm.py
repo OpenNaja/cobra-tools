@@ -21,7 +21,6 @@ from generated.formats.ovl import set_game, games
 from generated.formats.ovl_base import OvlContext
 from generated.formats.tex.compounds.SizeInfo import SizeInfo
 from generated.formats.tex.compounds.TexHeader import TexHeader
-from generated.formats.tex.enums.DdsType import DdsType
 from plugin.utils.texture_settings import tex_slots
 
 
@@ -128,8 +127,8 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 			size_info = tex_file.size_info.data.data
 			# pick empty MIP setting so that they are filled by the plugin
 			size_info.num_mips = 0
-			# todo - PC would need its own DdsTypeCoaster enum
-			tex_file.compression_type = DdsType[comp]
+			# pick the member of the correct DdsType enum for PC vs later games
+			tex_file.compression_type = type(tex_file.compression_type)[comp]
 			with tex_file.to_xml_file(tex_file, tex_path) as xml_root:
 				pass
 		else:
