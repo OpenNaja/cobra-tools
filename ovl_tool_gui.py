@@ -609,9 +609,8 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Opening included OVLs failed, see log!")
 
 	def remove(self):
-		if self.is_open_ovl():
+		if self.is_open_ovl() and self.files_container.table.hasFocus():
 			selected_file_names = self.files_container.table.get_selected_files()
-			# todo - might want to check self.files_container.hasFocus(), but does not seem to work!
 			if selected_file_names:
 				try:
 					self.ovl_data.remove(selected_file_names)
