@@ -383,7 +383,6 @@ def create_material(reporter, in_dir, matname):
 		tree.links.new(shader_node.outputs[0], output.inputs[0])
 
 		# Transparency
-		# TODO: Glass_Uniform* pOpacity
 		blend_shaders = (
 			"Glass_",
 		)
