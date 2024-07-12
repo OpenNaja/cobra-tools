@@ -530,8 +530,7 @@ class TextureVisual:
 			self.w_tile.setMaximumWidth(36)
 			self.w_tile.setToolTip("Array Tile Index")
 			self.w_tile.setRange(0, 2147483647)
-			# todo - why is array_index str?
-			self.w_tile.setValue(int(self.entry.value[0].array_index))
+			self.w_tile.setValue(self.entry.value[0].array_index)
 			self.w_tile.valueChanged.connect(self.update_tile_i)
 			self.w_tile.setVisible(self.entry.dtype == FgmDtype.TEXTURE)
 			return self.w_file, self.w_tile

@@ -106,8 +106,7 @@ class LayeredMaterial:
 		height_dep = tex_fgm.name_foreach_textures.data[1]
 		height_file_name = height_dep.dependency_name.data
 		height_file_basename = os.path.splitext(height_file_name)[0]
-		# todo codegen - why is array_index str, not int?
-		array_index = int(height_tex.value[0].array_index)
+		array_index = height_tex.value[0].array_index
 		height_tile_png_path = os.path.join(self.base_dir, f"{height_file_basename}_[{array_index:02}].png")
 		if not os.path.isfile(height_tile_png_path):
 			logging.error(f"Found no tile texture for layer {layer_i} {height_tile_png_path}")
