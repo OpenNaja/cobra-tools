@@ -1,7 +1,9 @@
 import bpy
+import bpy.types
 from bpy.types import Panel, UIList
 
 from ovl_util.shared import check_any
+from plugin import addon_updater_ops
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
 
@@ -192,3 +194,97 @@ def get_preview_img():
 	tex.image = img
 	return tex
 
+
+class MESH_PT_CobraTools(bpy.types.Panel):
+	"""Creates a Panel in the Mesh context for hair and fins"""
+	bl_label = "Cobra Mesh Tools"
+	bl_space_type = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context = "data"
+
+	@classmethod
+	def poll(cls, context):
+		if context.active_object.type == 'MESH':
+			return True
+		else:
+			return False
+
+	def draw(self, context):
+		addon_updater_ops.check_for_update_background()
+		addon_updater_ops.update_notice_box_ui(self, context)
+
+		layout = self.layout
+
+		# Show the button only if the mesh is not in a mdl2 rig
+		# by detecting the parent collection name contains _L,
+		# TODO: improve this detection and remove the other panel buttons?
+		coll = context.active_object.users_collection[0]
+		if "_L" not in coll.name:
+			row = layout.row(align=True)
+			row.operator("pose.setup_rig", icon="OUTLINER_DATA_ARMATURE")
+			layout.separator()
+
+		row = layout.row(align=True)
+		row.operator("object.add_hair", icon="CURVES")
+
+		box = layout.box()
+		box.label(text="Combing", icon="CURVES")
+		sub = box.row(align=True)
+		sub.operator("object.vcol_to_comb", icon="COPYDOWN")
+		sub.operator("object.comb_to_vcol", icon="PASTEDOWN")
+		box.operator("object.transfer_hair_combing", icon="PASTEFLIPDOWN")
+
+		box = layout.box()
+		box.label(text="Fur Fins", icon="SEQ_HISTOGRAM")
+		box.operator("object.update_fins", icon="FILE_REFRESH")
+		row = box.row(align=True)
+		row.operator("object.extrude_fins", icon="ADD")
+		row.operator("object.intrude_fins", icon="REMOVE")
+
+
+class SCENE_PT_CobraTools(bpy.types.Panel):
+	"""Creates a Panel in the scene context of the properties editor"""
+	bl_label = "Cobra Scene Tools"
+	bl_space_type = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context = "scene"
+
+	@classmethod
+	def poll(cls, context):
+		return True
+
+	def draw(self, context):
+		layout = self.layout
+		row = layout.row(align=True)
+		row.prop(context.scene.cobra, "num_streams")
+		row = layout.row(align=True)
+		row.prop(context.scene.cobra, "game")
+		addon_updater_ops.update_notice_box_ui(self, context)
+
+
+class COLLISION_PT_CobraTools(bpy.types.Panel):
+	"""Creates a Panel in the scene context of the properties editor"""
+	bl_label = "Cobra Collision Tools"
+	bl_space_type = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context = "physics"
+
+	@classmethod
+	def poll(cls, context):
+		if context.active_object.rigid_body:
+			return True
+		return False
+
+	def draw(self, context):
+		rb = context.active_object.cobra_coll
+		layout = self.layout
+		row = layout.row(align=True)
+		row.prop(rb, "air_resistance")
+		row = layout.row(align=True)
+		row.prop(rb, "damping_3d")
+		row = layout.row(align=True)
+		row.prop(rb, "flag")
+		row = layout.row(align=True)
+		row.prop(rb, rb.get_current_versioned_name(context, "surface"))
+		row = layout.row(align=True)
+		row.prop(rb, rb.get_current_versioned_name(context, "classification"))
