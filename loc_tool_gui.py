@@ -4,7 +4,7 @@ import sys
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import Reporter
-from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
+from ovl_util.logs import get_stdout_handler
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -60,10 +60,8 @@ class MainWindow(widgets.MainWindow):
 
 		self.stdout_handler = get_stdout_handler("loc_tool_gui")  # self.log_name not set until after init
 		# Setup Logger
-		# TODO: From cfg
-		orientation = QtCore.Qt.Orientation.Vertical
-		# TODO: From cfg
-		show_logger = True
+		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("logger_orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
+		self.show_logger = self.cfg.get("logger_show", True)
 		topleft = self.file_splitter
 		if orientation == QtCore.Qt.Orientation.Vertical:
 			self.file_splitter.setContentsMargins(5, 0, 5, 0)
@@ -77,7 +75,7 @@ class MainWindow(widgets.MainWindow):
 			box.addWidget(self.file_splitter)
 			topleft.setLayout(box)
 		# Layout Logger
-		if show_logger:
+		if self.show_logger:
 			self.layout_logger(topleft, orientation)
 		else:
 			self.central_layout.addWidget(topleft)
@@ -92,7 +90,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
-
 
 	def populate_game(self, current_game=None):
 		if current_game is None:
@@ -118,6 +115,7 @@ class MainWindow(widgets.MainWindow):
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
+
 
 if __name__ == '__main__':
 	startup(MainWindow, GuiOptions(log_name="loc_tool_gui"))
