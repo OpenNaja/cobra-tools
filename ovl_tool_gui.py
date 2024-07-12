@@ -43,6 +43,11 @@ class MainWindow(widgets.MainWindow):
 			"Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed,
 			activated_fn=self.compression_touched_by_user)
 		self.compression_choice.setToolTip("Compression of current OVL")
+		self.compression_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+
+		self.extract_types_choice = widgets.CheckableComboBox()
+		self.extract_types_choice.addItems(self.ovl_data.formats_dict.extractables)
+		self.extract_types_choice.setToolTip("Select file formats processed by batch tasks")
 
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
@@ -89,21 +94,10 @@ class MainWindow(widgets.MainWindow):
 		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
 		right_frame.setLayout(hbox)
 
-		self.file_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
-		self.file_splitter.addWidget(left_frame)
-		self.file_splitter.addWidget(right_frame)
-		self.file_splitter.setSizes([200, 400])
-		self.file_splitter.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
-		self.file_splitter.setContentsMargins(0, 0, 0, 0)
-
 		# toggles
 		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
 		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.t_in_folder.setChecked(False)
-
-		self.extract_types_combo = widgets.CheckableComboBox()
-		self.extract_types_combo.addItems(self.ovl_data.formats_dict.extractables)
-		self.extract_types_combo.setToolTip("Select file formats processed by batch tasks")
 
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setPlaceholderText("Find")
@@ -118,36 +112,14 @@ class MainWindow(widgets.MainWindow):
 		grid = QtWidgets.QGridLayout()
 		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
 		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
-
 		grid.addWidget(self.t_in_folder, 0, 2)
-
 		grid.addWidget(self.ovl_game_choice, 0, 3)
 		grid.addWidget(self.compression_choice, 1, 3)
-		self.compression_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-		grid.addWidget(self.extract_types_combo, 2, 3)
+		grid.addWidget(self.extract_types_choice, 2, 3)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
-		# Setup Logger
-		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("logger_orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
-		self.show_logger = self.cfg.get("logger_show", True)
-		topleft = self.file_splitter
-		if orientation == QtCore.Qt.Orientation.Vertical:
-			self.file_splitter.setContentsMargins(5, 0, 5, 0)
-			grid.setContentsMargins(5, 0, 5, 5)
-			self.central_layout.addLayout(grid)
-			self.central_layout.setSpacing(5)
-		else:
-			topleft = QtWidgets.QWidget()
-			box = QtWidgets.QVBoxLayout()
-			box.addLayout(grid)
-			box.addWidget(self.file_splitter)
-			topleft.setLayout(box)
-		# Layout Logger
-		if self.show_logger:
-			self.layout_logger(topleft, orientation)
-		else:
-			self.central_layout.addWidget(topleft)
+		self.layout_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
 		main_menu = self.menu_bar
@@ -499,7 +471,7 @@ class MainWindow(widgets.MainWindow):
 	def _extract_all(self, out_dir):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
-		only_types = self.extract_types_combo.currentData()
+		only_types = self.extract_types_choice.currentData()
 		selected_dir = self.walk_root()
 		for ovl in self.handle_path(save_over=False):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting

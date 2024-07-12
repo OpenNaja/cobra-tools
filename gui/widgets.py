@@ -3034,6 +3034,36 @@ class MainWindow(FramelessMainWindow):
         self.threadpool = QtCore.QThreadPool()
         self.setCentralWidget(self.central_widget)
 
+    def layout_splitter(self, grid, left_frame, right_frame):
+        # Setup Logger
+        orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("logger_orientation",
+                                                                     "V") == "V" else QtCore.Qt.Orientation.Horizontal
+        self.show_logger = self.cfg.get("logger_show", True)
+
+        self.file_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+        self.file_splitter.addWidget(left_frame)
+        self.file_splitter.addWidget(right_frame)
+        self.file_splitter.setSizes([200, 400])
+        self.file_splitter.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
+        self.file_splitter.setContentsMargins(0, 0, 0, 0)
+        topleft = self.file_splitter
+        if orientation == QtCore.Qt.Orientation.Vertical:
+            self.file_splitter.setContentsMargins(5, 0, 5, 0)
+            grid.setContentsMargins(5, 0, 5, 5)
+            self.central_layout.addLayout(grid)
+            self.central_layout.setSpacing(5)
+        else:
+            topleft = QtWidgets.QWidget()
+            box = QtWidgets.QVBoxLayout()
+            box.addLayout(grid)
+            box.addWidget(self.file_splitter)
+            topleft.setLayout(box)
+        # Layout Logger
+        if self.show_logger:
+            self.layout_logger(topleft, orientation)
+        else:
+            self.central_layout.addWidget(topleft)
+        
     def get_palette_from_cfg(self):
         theme_name = self.cfg.get("theme", "dark")
         palette = qt_theme.palettes.get(theme_name)
