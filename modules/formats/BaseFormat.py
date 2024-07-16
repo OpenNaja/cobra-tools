@@ -298,6 +298,13 @@ class BaseFile:
 				if isinstance(entry, str):
 					children[rel_offset] = self._rename(name_tuples, entry)
 					p_pool.offset_2_link[p_offset+rel_offset] = self._rename(name_tuples, entry)
+		# for direct rename: remove extensions to be able to rename child loaders in the same run
+		for_children = set(name_tuples)
+		for old, new in name_tuples:
+			if old.endswith(self.ext):
+				for_children.add((old.replace(self.ext, ""), new.replace(self.ext, "")))
+		for child in self.controlled_loaders:
+			child.rename(for_children)
 		# force an update to get the memstruct up to date
 		if self.dependencies:
 			self.collect()

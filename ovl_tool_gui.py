@@ -377,7 +377,7 @@ class MainWindow(widgets.MainWindow):
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
 		# force new name to be lowercase
-		names = [(old_name, new_name.lower()), ]
+		names = {(old_name, new_name.lower()), }
 		try:
 			self.ovl_data.rename(names)
 			self.set_dirty()
@@ -505,7 +505,7 @@ class MainWindow(widgets.MainWindow):
 			new = new.split(newline)
 			if len(old) != len(new):
 				self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
-			return list(zip(old, new))
+			return set(zip(old, new))
 		except:
 			self.handle_error("Getting replace strings failed, see log!")
 
