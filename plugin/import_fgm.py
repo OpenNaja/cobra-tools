@@ -3,6 +3,7 @@ import bpy
 
 from plugin.modules_import.material import create_material
 
+
 def load(reporter, filepath="", replace=True):
     in_dir, material_ext = os.path.split(filepath)
     name, ext = os.path.splitext(material_ext)
@@ -11,7 +12,7 @@ def load(reporter, filepath="", replace=True):
     print(f'loading {name}')
     o_mat = bpy.data.materials.get(name)
     if o_mat:
-        if replace == False:
+        if not replace:
             reporter.show_info(f"Material {name} already present in the file")
             return "{'CANCELLED'}"
         o_mat.name = 'marked_for_removal'
@@ -23,7 +24,6 @@ def load(reporter, filepath="", replace=True):
         # only reasonable way I found to return an error through the reporter without
         # needing to rewrite it.
         raise Exception(f"Failed to import {name}")
-        return None
 
     if o_mat:
         # the material already existed, we have just updated, make
@@ -38,6 +38,4 @@ def load(reporter, filepath="", replace=True):
 
     reporter.show_info(f"Imported {name}")
     return b_mat
-
-
 
