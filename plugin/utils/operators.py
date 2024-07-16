@@ -69,17 +69,6 @@ class PopupOp(BaseOp):
 		return context.window_manager.invoke_props_dialog(self)
 
 
-class LODS_UL_items(bpy.types.UIList):
-	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-		split = layout.split(factor=0.08)
-		split.label(text=f"L{index}")
-		split.prop(item, "distance", emboss=False, text="Distance")
-		split.prop(item, "ratio", emboss=False, text="Ratio")
-
-	def invoke(self, context, event):
-		pass
-
-
 def update_lod_settings(self, context):
 	current_len = len(self.levels)
 	if current_len < self.num_lods:
@@ -118,7 +107,7 @@ class UpdateLods(PopupOp):
 		row.prop(self, "show_tweaks", icon="TRIA_DOWN" if self.show_tweaks else "TRIA_RIGHT", icon_only=False, emboss=False)
 		if self.show_tweaks:
 			row = box.row()
-			row.template_list("LODS_UL_items", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
+			row.template_list("COBRA_UL_lod", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
 
 	def execute(self, context):
 		return self.report_messages(self.target, mdl2_coll=bpy.context.collection, levels=self.levels)

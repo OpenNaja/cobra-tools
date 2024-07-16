@@ -1,18 +1,23 @@
 import bpy
-import bpy.types
-from bpy.types import Panel, UIList
 
 from ovl_util.shared import check_any
 from plugin import addon_updater_ops
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
 
-class CobraMaterialPanel(Panel):
-	"""Creates a Panel in the Object properties window for the asset attributes"""
-	bl_label = "FGM information"
-	bl_idname = "OBJECT_PT_CobraMaterialPanel"
+class PropertiesPanel(bpy.types.Panel):
 	bl_space_type = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
+
+
+class ViewportPanel(bpy.types.Panel):
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+
+
+class COBRA_PT_material(PropertiesPanel):
+	"""Creates a Panel in the Object properties window for the asset attributes"""
+	bl_label = "FGM information"
 	bl_context = "material"
 
 	def draw(self, context):
@@ -52,12 +57,9 @@ class CobraMaterialPanel(Panel):
 					box.prop(fgm, member_name)
 
 
-class CobraMdl2Panel(Panel):
+class COBRA_PT_model(PropertiesPanel):
 	"""Creates a Panel in the Collection properties window for a mdl2"""
 	bl_label = "MDL2"
-	bl_idname = "OBJECT_PT_Mdl2"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
 	bl_context = "collection"
 
 	@classmethod
@@ -92,114 +94,9 @@ class CobraMdl2Panel(Panel):
 		box.operator("pose.convert_scale_to_loc", icon="CURVE_PATH")
 
 
-class VIEW_PT_Mdl2(Panel):
-	bl_idname = 'VIEW_PT_Mdl2'
-	bl_space_type = 'VIEW_3D'
-	bl_region_type = 'UI'
-	bl_category = 'View'
-	bl_label = 'Cobra Tools'
-
-	def draw(self, context):
-		cobra_props = context.scene.cobra
-		layout = self.layout
-		layout.prop(cobra_props, "current_lod")
-		if cobra_props.game == "Planet Zoo":
-			box = layout.box()
-			box.label(text="Planet Zoo Materials", icon="MATERIAL_DATA")
-			for prop in pz_shader_floats + pz_shader_ints:
-				box.prop(cobra_props, prop)
-
-
-class MATCOL_UL_matslots(UIList):
-	def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-
-		custom_icon = 'OBJECT_DATAMODE'
-		if self.layout_type in {'DEFAULT', 'COMPACT'}:
-			layout.label(text=item.name, icon=custom_icon)
-
-		elif self.layout_type in {'GRID'}:
-			layout.alignment = 'CENTER'
-			layout.label(text='', icon=custom_icon)
-
-
-class PT_ListExample(Panel):
-	"""Demo panel for UI list Tutorial."""
-	bl_label = "Matcol Layers"
-	bl_idname = "TOOL_PT_LIST_DEMO"
-	bl_space_type = "VIEW_3D"
-	bl_region_type = "UI"
-	bl_category = "Tool"
-
-	updater = True
-
-	def draw(self, context):
-		if not context.object or not context.object.active_material:
-			return
-		material = context.object.active_material
-		if not material.matcol_layers:
-			return
-
-		layout = self.layout
-		row = layout.row()
-		row.template_list("MATCOL_UL_matslots", "The_List", material, "matcol_layers", material, "matcol_layers_current")
-
-		col = self.layout.box()
-		texture = get_preview_img()
-		if texture:
-			texture.image.update()
-			# only updates in tools view when manually changing panel
-			# col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
-			col.template_preview(texture)
-			if self.updater:
-				col.scale_y = 1.0
-			else:
-				col.scale_y = 1.01
-		self.updater = not self.updater
-
-
-def matcol_slot_updated(self, context):
-	material = context.object.active_material
-	layer = 0
-	for index in range(len(material.texture_paint_images)):
-		slot = material.texture_paint_slots[index]
-		if '_blendweights_' in slot.name:
-			if layer == material.matcol_layers_current:
-				material.paint_active_slot = index
-				break
-			else:
-				layer += 1
-	preview = 0
-	preview_image = get_preview_img()
-	for index in range(len(material.texture_paint_images)):
-		img = material.texture_paint_images[index]
-		if check_any(('swatch', 'pheighttexture'), img.name):
-			if preview == material.matcol_layers_current:
-				preview_image.image = img
-				break
-			else:
-				preview += 1
-	# force redraw to update the texture
-	# for region in context.area.regions:
-	# 	if region.type == ("UI", "TOOLS"):
-	# 		region.tag_redraw()
-	context.area.tag_redraw()
-
-
-def get_preview_img():
-	name = "_matcol_preview"
-	if name in bpy.data.textures:
-		return bpy.data.textures[name]
-	img = bpy.data.images.new(name=name, width=128, height=128)
-	tex = bpy.data.textures.new(name=name, type='IMAGE')
-	tex.image = img
-	return tex
-
-
-class MESH_PT_CobraTools(bpy.types.Panel):
+class COBRA_PT_mesh(PropertiesPanel):
 	"""Creates a Panel in the Mesh context for hair and fins"""
 	bl_label = "Cobra Mesh Tools"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
 	bl_context = "data"
 
 	@classmethod
@@ -242,11 +139,9 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 		row.operator("object.intrude_fins", icon="REMOVE")
 
 
-class SCENE_PT_CobraTools(bpy.types.Panel):
+class COBRA_PT_scene(PropertiesPanel):
 	"""Creates a Panel in the scene context of the properties editor"""
 	bl_label = "Cobra Scene Tools"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
 	bl_context = "scene"
 
 	@classmethod
@@ -262,11 +157,9 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
 		addon_updater_ops.update_notice_box_ui(self, context)
 
 
-class COLLISION_PT_CobraTools(bpy.types.Panel):
+class COBRA_PT_collision(PropertiesPanel):
 	"""Creates a Panel in the scene context of the properties editor"""
 	bl_label = "Cobra Collision Tools"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
 	bl_context = "physics"
 
 	@classmethod
@@ -288,3 +181,117 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
 		row.prop(rb, rb.get_current_versioned_name(context, "surface"))
 		row = layout.row(align=True)
 		row.prop(rb, rb.get_current_versioned_name(context, "classification"))
+
+
+class COBRA_PT_viewport(ViewportPanel):
+	bl_category = 'View'
+	bl_label = 'Cobra Tools'
+
+	def draw(self, context):
+		cobra_props = context.scene.cobra
+		layout = self.layout
+		layout.prop(cobra_props, "current_lod")
+		if cobra_props.game == "Planet Zoo":
+			box = layout.box()
+			box.label(text="Planet Zoo Materials", icon="MATERIAL_DATA")
+			for prop in pz_shader_floats + pz_shader_ints:
+				box.prop(cobra_props, prop)
+
+
+class COBRA_PT_matcols(ViewportPanel):
+	"""Demo panel for UI list Tutorial."""
+	bl_label = "Matcol Layers"
+	bl_category = "Tool"
+
+	updater = True
+
+	def draw(self, context):
+		if not context.object or not context.object.active_material:
+			return
+		material = context.object.active_material
+		if not material.matcol_layers:
+			return
+
+		layout = self.layout
+		row = layout.row()
+		row.template_list("COBRA_UL_matcol_slot", "The_List", material, "matcol_layers", material, "matcol_layers_current")
+
+		col = self.layout.box()
+		texture = get_preview_img()
+		if texture:
+			texture.image.update()
+			# only updates in tools view when manually changing panel
+			# col.template_preview(texture, show_buttons=False, parent=material, slot=None, preview_id=texture.name)
+			col.template_preview(texture)
+			if self.updater:
+				col.scale_y = 1.0
+			else:
+				col.scale_y = 1.01
+		self.updater = not self.updater
+
+
+# UIList
+
+
+class COBRA_UL_matcol_slot(bpy.types.UIList):
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+
+		custom_icon = 'OBJECT_DATAMODE'
+		if self.layout_type in {'DEFAULT', 'COMPACT'}:
+			layout.label(text=item.name, icon=custom_icon)
+
+		elif self.layout_type in {'GRID'}:
+			layout.alignment = 'CENTER'
+			layout.label(text='', icon=custom_icon)
+
+
+class COBRA_UL_lod(bpy.types.UIList):
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		split = layout.split(factor=0.08)
+		split.label(text=f"L{index}")
+		split.prop(item, "distance", emboss=False, text="Distance")
+		split.prop(item, "ratio", emboss=False, text="Ratio")
+
+	def invoke(self, context, event):
+		pass
+
+
+# callbacks
+
+
+def matcol_slot_updated(self, context):
+	material = context.object.active_material
+	layer = 0
+	for index in range(len(material.texture_paint_images)):
+		slot = material.texture_paint_slots[index]
+		if '_blendweights_' in slot.name:
+			if layer == material.matcol_layers_current:
+				material.paint_active_slot = index
+				break
+			else:
+				layer += 1
+	preview = 0
+	preview_image = get_preview_img()
+	for index in range(len(material.texture_paint_images)):
+		img = material.texture_paint_images[index]
+		if check_any(('swatch', 'pheighttexture'), img.name):
+			if preview == material.matcol_layers_current:
+				preview_image.image = img
+				break
+			else:
+				preview += 1
+	# force redraw to update the texture
+	# for region in context.area.regions:
+	# 	if region.type == ("UI", "TOOLS"):
+	# 		region.tag_redraw()
+	context.area.tag_redraw()
+
+
+def get_preview_img():
+	name = "_matcol_preview"
+	if name in bpy.data.textures:
+		return bpy.data.textures[name]
+	img = bpy.data.images.new(name=name, width=128, height=128)
+	tex = bpy.data.textures.new(name=name, type='IMAGE')
+	tex.image = img
+	return tex

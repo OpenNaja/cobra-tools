@@ -49,13 +49,13 @@ try:
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
     from plugin.utils.operators import UpdateFins, UpdateLods, VcolToComb, CombToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
-    AutosmoothAll, LODS_UL_items, EditFlag, SetupRig
+    AutosmoothAll, EditFlag, SetupRig
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
     CobraMaterialSettings, LodData, MATCOL_ListItem
-    from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2, matcol_slot_updated, \
-    MATCOL_UL_matslots, PT_ListExample, MESH_PT_CobraTools, SCENE_PT_CobraTools, COLLISION_PT_CobraTools
+    from plugin.utils.panels import COBRA_PT_material, COBRA_PT_model, COBRA_PT_viewport, matcol_slot_updated, \
+	COBRA_UL_matcol_slot, COBRA_PT_matcols, COBRA_PT_mesh, COBRA_PT_scene, COBRA_PT_collision, COBRA_UL_lod
 
-    # drag and drop:
+	# drag and drop:
     from bpy.app.handlers import persistent
     from plugin import import_fgm, import_ms2, import_spl
 
@@ -247,7 +247,7 @@ try:
         ImportVoxelskirt,
         UpdateFins,
         LodData,
-        LODS_UL_items,
+        COBRA_UL_lod,
         UpdateLods,
         GenerateRigEdit,
         ApplyPoseAll,
@@ -264,19 +264,19 @@ try:
         CobraMeshSettings,
         CobraCollisionSettings,
         CobraMaterialSettings,
-        CobraMaterialPanel,
-        CobraMdl2Panel,
-        VIEW_PT_Mdl2,
+        COBRA_PT_material,
+        COBRA_PT_model,
+        COBRA_PT_viewport,
         Mdl2Rename,
         Mdl2Duplicate,
         AutosmoothAll,
         EditFlag,
-        MESH_PT_CobraTools,
-        SCENE_PT_CobraTools,
-        COLLISION_PT_CobraTools,
+        COBRA_PT_mesh,
+        COBRA_PT_scene,
+        COBRA_PT_collision,
         MATCOL_ListItem,
-        MATCOL_UL_matslots,
-        PT_ListExample,
+        COBRA_UL_matcol_slot,
+        COBRA_PT_matcols,
         InstallDependencies,
         *updater_classes
     )
