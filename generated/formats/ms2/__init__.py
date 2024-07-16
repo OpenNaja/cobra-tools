@@ -140,9 +140,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def load_buffers(self, stream, dump):
 		stream.seek(self.buffer_2_offset)
-		for i, buffer_info in enumerate(self.buffer_infos):
-			buffer_info.name = None
-			buffer_info.index = i
+		self.init_buffers()
 		# attach the static stream to the right buffer_info
 		if self.buffer_infos and self.info.static_buffer_index > -1:
 			i = self.info.static_buffer_index
@@ -162,6 +160,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for buffer_info, modelstream_name in zip(self.external_streams(), self.modelstream_names):
 			buffer_info.name = modelstream_name
 			self.attach_streams(buffer_info, stream, dump=dump)
+
+	def init_buffers(self):
+		for i, buffer_info in enumerate(self.buffer_infos):
+			buffer_info.name = None
+			buffer_info.index = i
 
 	def external_streams(self):
 		return [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
@@ -371,6 +374,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.reset_field("buffer_infos")
 			self.reset_field("modelstream_names")
 			# first init all writers for the buffers
+			self.init_buffers()
 			for buffer_info in self.buffer_infos:
 				self.attach_streams(buffer_info)
 				if is_pc(self.context):
