@@ -16,6 +16,7 @@ from plugin.utils.anim import c_map
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections
 from plugin.modules_import.anim import get_rna_path
 from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
+from plugin.utils.object import get_property
 from plugin.utils.transforms import ManisCorrector
 
 POS = "pos"
@@ -199,7 +200,7 @@ def save(reporter, filepath="", per_armature=False):
 		# export each armature and its actions to the corresponding mani_infos
 		for b_ob, actions in anim_map.items():
 			mani_infos = [info_lut[action] for action in actions]
-			export_actions(b_ob, actions, mani_infos, folder, scene, target_names)
+			export_actions(b_ob, actions, manis, mani_infos, folder, scene, target_names)
 
 		manis.header.mani_files_size = manis.mani_count * 16
 		manis.header.hash_block_size = len(target_names) * 4
@@ -211,7 +212,7 @@ def save(reporter, filepath="", per_armature=False):
 		reporter.show_info(f"Exported {export_name}")
 
 
-def export_actions(b_ob, actions, mani_infos, folder, scene, target_names):
+def export_actions(b_ob, actions, manis, mani_infos, folder, scene, target_names):
 	corrector = ManisCorrector(False)
 	game = scene.cobra.game
 	if b_ob.type == "ARMATURE":
@@ -228,6 +229,8 @@ def export_actions(b_ob, actions, mani_infos, folder, scene, target_names):
 	for b_action, mani_info in zip(actions, mani_infos):
 		logging.info(f"Exporting {b_action.name}")
 		mani_info.name = b_action.name
+		# update ovs name
+		manis.stream = get_property(b_action, "stream", default="")
 		first_frame, last_frame = b_action.frame_range
 		first_frame = int(first_frame)
 		last_frame = int(last_frame) + 1

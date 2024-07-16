@@ -129,6 +129,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			b_armature_ob.rotation_mode = "QUATERNION"
 			cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
+		# store ovs name
+		b_action["stream"] = manis.stream
 		stash(b_armature_ob, b_action, mi.name, 0)
 		# print(mi)
 		logging.info(f"Compression = {mi.dtype.compression}")
