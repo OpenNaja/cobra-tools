@@ -473,9 +473,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.update_buffer_2_bytes()
 		# save multiple buffer_infos
 		streams = self.external_streams()
-		for i, buffer_info in enumerate(streams):
+		for buffer_info in streams:
 			# update the modelstram name just incase
-			buffer_info.name = f"{self.basename}{i}"
+			buffer_info.name = f"{self.basename}{buffer_info.index}"
 		self.modelstream_names[:] = [buffer_info.name for buffer_info in streams]
 		logging.info(f"Writing to {filepath}")
 		with open(filepath, "wb") as stream:

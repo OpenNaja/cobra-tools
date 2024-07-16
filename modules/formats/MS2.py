@@ -89,6 +89,7 @@ class Ms2Loader(MemStructLoader):
 			raise UserWarning(f"Ignored backup '{file_path}'")
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
+		# print(ms2_file)
 		self.ovl.is_dev = int(not ms2_file.biosyn)
 		self.context = Ms2Context()
 		self.context.version = ms2_file.info.version
@@ -250,7 +251,6 @@ class Ms2Loader(MemStructLoader):
 				# update the hashes & save
 				ms2_file.save(ms2_path)
 				# inject again
-				self.remove()
 				loader = self.ovl.create_file(ms2_path, self.name)
 				self.ovl.register_loader(loader)
 			except:
