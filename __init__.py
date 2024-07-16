@@ -53,9 +53,12 @@ try:
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
     CobraMaterialSettings, LodData, MATCOL_ListItem
     from plugin.utils.panels import COBRA_PT_material, COBRA_PT_model, COBRA_PT_viewport, matcol_slot_updated, \
-	COBRA_UL_matcol_slot, COBRA_PT_matcols, COBRA_PT_mesh, COBRA_PT_scene, COBRA_PT_collision, COBRA_UL_lod
+    COBRA_UL_matcol_slot, COBRA_PT_matcols, COBRA_PT_mesh, COBRA_PT_scene, COBRA_PT_collision, COBRA_UL_lod
+    # mod data
+    from plugin.mods.properties import ModData, SceneryData
+    from plugin.mods.panels import COBRA_MOD_PT_mod, COBRA_MOD_PT_scenery
 
-	# drag and drop:
+    # drag and drop:
     from bpy.app.handlers import persistent
     from plugin import import_fgm, import_ms2, import_spl
 
@@ -231,54 +234,58 @@ try:
 
 
     classes = (
-        ImportBanis,
-        ImportManis,
-        ImportMatcol,
-        ImportFgm,
-        ImportMS2,
-        ImportSPL,
-        ImportMS2FromBrowser,
-        ImportFGMFromBrowser,
-        ExportFgm,
-        ExportMS2,
-        ExportSPL,
-        ExportBanis,
-        ExportManis,
-        ImportVoxelskirt,
-        UpdateFins,
-        LodData,
-        COBRA_UL_lod,
-        UpdateLods,
-        GenerateRigEdit,
-        ApplyPoseAll,
-        SetupRig,
-        ConvertScaleToLoc,
-        VcolToComb,
-        CombToVcol,
-        ExtrudeFins,
-        IntrudeFins,
-        TransferHairCombing,
+        *updater_classes,
         AddHair,
-        CobraPreferences,
-        CobraSceneSettings,
-        CobraMeshSettings,
+        ApplyPoseAll,
+        AutosmoothAll,
+        COBRA_PT_collision,
+        COBRA_PT_matcols,
+        COBRA_PT_material,
+        COBRA_PT_mesh,
+        COBRA_PT_model,
+        COBRA_PT_scene,
+        COBRA_PT_viewport,
+        COBRA_UL_lod,
+        COBRA_UL_matcol_slot,
+        COBRA_MOD_PT_mod,
+        COBRA_MOD_PT_scenery,
+        ModData,
+        SceneryData,
         CobraCollisionSettings,
         CobraMaterialSettings,
-        COBRA_PT_material,
-        COBRA_PT_model,
-        COBRA_PT_viewport,
-        Mdl2Rename,
-        Mdl2Duplicate,
-        AutosmoothAll,
+        CobraMeshSettings,
+        CobraPreferences,
+        CobraSceneSettings,
+        CombToVcol,
+        ConvertScaleToLoc,
         EditFlag,
-        COBRA_PT_mesh,
-        COBRA_PT_scene,
-        COBRA_PT_collision,
-        MATCOL_ListItem,
-        COBRA_UL_matcol_slot,
-        COBRA_PT_matcols,
+        ExportBanis,
+        ExportFgm,
+        ExportMS2,
+        ExportManis,
+        ExportSPL,
+        ExtrudeFins,
+        GenerateRigEdit,
+        ImportBanis,
+        ImportFGMFromBrowser,
+        ImportFgm,
+        ImportMS2,
+        ImportMS2FromBrowser,
+        ImportManis,
+        ImportMatcol,
+        ImportSPL,
+        ImportVoxelskirt,
         InstallDependencies,
-        *updater_classes
+        IntrudeFins,
+        LodData,
+        MATCOL_ListItem,
+        Mdl2Duplicate,
+        Mdl2Rename,
+        SetupRig,
+        TransferHairCombing,
+        UpdateFins,
+        UpdateLods,
+        VcolToComb,
     )
     if hasattr(bpy.types, 'FileHandler'):
         classes += (MS2_FH_script_import, FGM_FH_script_import)
@@ -310,7 +317,9 @@ def register():
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
     bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
-
+    # mod properties
+    bpy.types.Collection.mod = bpy.props.PointerProperty(type=ModData)
+    bpy.types.Object.scenery = bpy.props.PointerProperty(type=SceneryData)
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
     bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)

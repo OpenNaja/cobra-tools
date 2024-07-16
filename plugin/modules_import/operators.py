@@ -35,7 +35,8 @@ class BulkImportOp(ImportOp):
 				result = self.report_messages(self.target, filepath=filepath, **self.kwargs)
 				if 'CANCELLED' in result:
 					error_count += 1
-				self.report({'INFO'}, f"Attempt to import {len(self.files)} {self.filename_ext}s, {error_count} errors found.")
+				self.report({'INFO'},
+							f"Attempt to import {len(self.files)} {self.filename_ext}s, {error_count} errors found.")
 		# return only material result
 		return {'FINISHED'}
 
@@ -58,7 +59,9 @@ class ImportManis(BulkImportOp):
 	filename_ext = ".manis"
 	filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
 	files: CollectionProperty(type=bpy.types.PropertyGroup)
-	disable_ik: BoolProperty(name="Disable IK", description="Disable IK constraints on armature to enable jitter-free playback of baked animations", default=True)
+	disable_ik: BoolProperty(name="Disable IK",
+							 description="Disable IK constraints on armature to enable jitter-free playback of baked animations",
+							 default=True)
 	# set_fps: BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
 	target = import_manis.load
 
@@ -71,11 +74,11 @@ class ImportMatcol(ImportOp):
 	# filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
 	# filter_glob: StringProperty(default="*.matcol;*.materialcollection;*.dinosaurmateriallayers", options={'HIDDEN'})
 	target = import_matcol.load
-	
+
 
 class ImportFgm(BulkImportOp):
 	"""Import from Fgm file format (.fgm), allows importing multiple files"""
-	bl_idname = "import_scene.cobra_fgm"  
+	bl_idname = "import_scene.cobra_fgm"
 	bl_label = "Import Fgm(s)"
 	filename_ext = ".fgm"
 	target = import_fgm.load
@@ -161,24 +164,26 @@ class ImportFGMFromBrowser(BrowserImportOp):
 
 if hasattr(bpy.types, 'FileHandler'):
 	class MS2_FH_script_import(bpy.types.FileHandler):
-	    bl_idname = "MS2_FH_script_import"
-	    bl_label = "File handler for ms2 script node import"
-	    bl_import_operator = "import_scene.cobra_ms2"
-	    bl_file_extensions = ".ms2"
+		bl_idname = "MS2_FH_script_import"
+		bl_label = "File handler for ms2 script node import"
+		bl_import_operator = "import_scene.cobra_ms2"
+		bl_file_extensions = ".ms2"
 
-	    @classmethod
-	    def poll_drop(cls, context):
-	        return (context.area and context.area.type == 'VIEW_3D')
+		@classmethod
+		def poll_drop(cls, context):
+			return context.area and context.area.type == 'VIEW_3D'
+
 
 	class FGM_FH_script_import(bpy.types.FileHandler):
-	    bl_idname = "FGM_FH_script_import"
-	    bl_label = "File handler for ms2 script node import"
-	    bl_import_operator = "import_scene.cobra_fgm"
-	    bl_file_extensions = ".fgm"
+		bl_idname = "FGM_FH_script_import"
+		bl_label = "File handler for fgm script node import"
+		bl_import_operator = "import_scene.cobra_fgm"
+		bl_file_extensions = ".fgm"
 
-	    @classmethod
-	    def poll_drop(cls, context):
-	        return (context.area and context.area.type == 'VIEW_3D') or (context.region and context.region.type == 'WINDOW'
-                and context.area and context.area.ui_type == 'ShaderNodeTree'
-                and context.object and context.object.type == 'MESH'
-                and context.material)
+		@classmethod
+		def poll_drop(cls, context):
+			return (context.area and context.area.type == 'VIEW_3D') or (
+						context.region and context.region.type == 'WINDOW'
+						and context.area and context.area.ui_type == 'ShaderNodeTree'
+						and context.object and context.object.type == 'MESH'
+						and context.material)

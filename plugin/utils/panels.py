@@ -1,4 +1,5 @@
 import bpy
+from bpy.types import Panel
 
 from ovl_util.shared import check_any
 from plugin import addon_updater_ops

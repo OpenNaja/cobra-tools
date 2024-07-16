@@ -4,7 +4,8 @@ import math
 import sys
 
 import bpy.props
-from bpy.props import IntProperty, EnumProperty, FloatProperty, StringProperty, BoolProperty
+from bpy.types import PropertyGroup
+from bpy.props import *
 from bpy.types import PropertyGroup
 
 from constants import ConstantsProvider
@@ -215,97 +216,6 @@ class CobraCollisionSettings(VersionedPropertyGroup):
 	)
 
 
-from bpy.props import *
-from bpy.types import (Panel, Operator, PropertyGroup, )
-import uuid
-
-
-# region Global variables, functions and properties of Collection for MOD creation
-def update_uuid(self, context):
-	if self.uuid == "":
-		self.uuid = str(uuid.uuid4())
-	return
-
-
-class ModData(PropertyGroup):
-	"""Stores enough information to create a mod from this blender file"""
-	name: StringProperty(name="Name", description='This is the human-readable name of the mod.')
-	desc: StringProperty(name="Description", description="Mod's description is used to create the readme file.")
-	game: EnumProperty(name="Game",
-					   items=(
-						   ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution', ""),
-						   ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2', ""),
-						   ('PLANET_COASTER', 'Planet Coaster', ""),
-						   ('PLANET_ZOO', 'Planet Zoo', ""),
-						   ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin', "")
-					   )
-					   )
-	uuid: StringProperty(name="UUID", description="Mod's uuid. Delete to generate a new one", update=update_uuid, )
-	ordid: IntProperty(name="Order ID",
-					   description="Mod's starting id for to assets (Use a free Id). IDs will be assigned consecutively (only for JWE2)")
-	path: StringProperty(name="Mod Path", description="A folder will be created in this path for the mod files",
-						 default="", maxlen=1024, subtype="DIR_PATH")
-	pack: StringProperty(name="Pack into",
-						 description="Create the ovl files for this mod into this folder, usually one level deep from the ovldata folder",
-						 default="", maxlen=1024, subtype="DIR_PATH")
-
-
-class ModDataPanel(Panel):
-	"""Creates a Panel in the Collection properties window for mod attributes"""
-	bl_label = "Cobra Mod information"
-	bl_idname = "OBJECT_PT_ModDataPanel"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context = "collection"
-
-	def draw(self, context):
-		self.layout.prop(context.collection.mod, "name")
-		self.layout.prop(context.collection.mod, "desc")
-		self.layout.prop(context.collection.mod, "game")
-		self.layout.prop(context.collection.mod, "uuid")
-		if context.collection.mod.game == 'JURASSIC_WORLD_EVOLUTION_2':
-			self.layout.prop(context.collection.mod, "ordid")
-		self.layout.prop(context.collection.mod, "path")
-		self.layout.operator("cobra.export_mod")
-		self.layout.prop(context.collection.mod, "pack")
-		self.layout.operator("cobra.pack_mod")
-
-
-# endregion
-
-# region Global variables, functions and properties of Object for Mod creation
-class SceneryData(PropertyGroup):
-	"""Stores enough information to create a mod from this blender file"""
-	name: StringProperty(name="Name", description='This is the human-readable name of the asset.')
-	desc: StringProperty(name="Description", description="Asset long description.")
-	price: FloatProperty(name="Price", min=0)
-	cost: FloatProperty(name="Running cost", min=0)
-
-
-class SceneryDataPanel(Panel):
-	"""Creates a Panel in the Object properties window for Scenery asset attributes"""
-	bl_label = "Cobra Asset information"
-	bl_idname = "OBJECT_PT_SceneryDataPanel"
-	bl_space_type = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context = "object"
-
-	def draw(self, context):
-		self.layout.prop(context.object.scenery, "name")
-		self.layout.prop(context.object.scenery, "desc")
-
-		row = self.layout.row()
-		row.label(text="Gameplay", icon='WORLD_DATA')
-		row.prop(context.object.scenery, "price")
-		row.prop(context.object.scenery, "cost")
-
-		self.layout.operator("cobra.generate_icon")
-
-
-# endregion
-
-
-# region Global variables and properties of Material
 class CobraMaterialSettings(VersionedPropertyGroup):
 	c = ConstantsProvider(("shaders", "textures"))
 
