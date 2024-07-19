@@ -196,3 +196,6 @@ ovl_util/compressonator/**.png
 ovl_util/compressonator/**.dds
 ovl_util/compressonator/**_analysis.xml
 ovl_util/compressonator/process_results.txt
+
+# created mods should not be saved as part of this repo.
+Mods/
