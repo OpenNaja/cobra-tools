@@ -248,22 +248,24 @@ def export_joints(bone_info, corrector, b_armature_ob):
 				hitcheck.classification_name = classification_name
 			hitcheck.name = get_joint_name(b_armature_basename, b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector, b_armature_basename)
-		
-		rb = joints.rigid_body_list[joint_i]
-		if b_joint.children:
-			b_rb = b_joint.children[0]
-			rb.mass = b_rb.rigid_body.mass
-			rb.loc.set(pack_swizzle_collision(b_rb.location))
-			rb.air_resistance_x = b_rb.cobra_coll.air_resistance[0]
-			rb.air_resistance_y = b_rb.cobra_coll.air_resistance[1]
-			rb.air_resistance_z = b_rb.cobra_coll.air_resistance[2]
-			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
-			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
-			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
-			rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
-		else:
-			rb.mass = -1.0
-			rb.flag = 0
+
+		# rigid_body_list is present afte PC
+		if bone_info.context.version > 32:
+			rb = joints.rigid_body_list[joint_i]
+			if b_joint.children:
+				b_rb = b_joint.children[0]
+				rb.mass = b_rb.rigid_body.mass
+				rb.loc.set(pack_swizzle_collision(b_rb.location))
+				rb.air_resistance_x = b_rb.cobra_coll.air_resistance[0]
+				rb.air_resistance_y = b_rb.cobra_coll.air_resistance[1]
+				rb.air_resistance_z = b_rb.cobra_coll.air_resistance[2]
+				rb.unk_1 = b_rb.cobra_coll.damping_3d[0]
+				rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
+				rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
+				rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
+			else:
+				rb.mass = -1.0
+				rb.flag = 0
 
 	# update ragdoll constraints, relies on previously updated joints
 	corrector_rag = CorrectorRagdoll(False)

@@ -715,6 +715,7 @@ class OvlFile(Header):
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
+		logging.info(file_paths)
 		if not file_paths:
 			return
 		# file_paths must be direct children of the same folder

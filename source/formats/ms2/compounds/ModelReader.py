@@ -214,10 +214,11 @@ class ModelReader(BaseStruct):
 				s = stream.tell()
 				logging.debug(f"Model {model_info.name} at {s}")
 				# write padding or seek back
-				if model_info.shift > 0:
-					stream.write(b"\x00" * model_info.shift)
-				elif model_info.shift < 0:
-					stream.seek(s+model_info.shift)
+				if hasattr(model_info, "shift"):
+					if model_info.shift > 0:
+						stream.write(b"\x00" * model_info.shift)
+					elif model_info.shift < 0:
+						stream.seek(s+model_info.shift)
 				model_info.model.to_stream(model_info.model, stream, instance.context)
 				logging.debug(f"Model ends at {stream.tell()}")
 				# test for FR_GrandCarousel.ovl
