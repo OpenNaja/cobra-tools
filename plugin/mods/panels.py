@@ -10,7 +10,6 @@ class COBRA_MOD_PT_mod(PropertiesPanel):
 		mod = context.collection.mod
 		self.layout.prop(mod, "name")
 		self.layout.prop(mod, "desc")
-		self.layout.prop(mod, "game")
 		self.layout.prop(mod, "uuid")
 		if mod.game == 'JURASSIC_WORLD_EVOLUTION_2':
 			self.layout.prop(mod, "ordid")

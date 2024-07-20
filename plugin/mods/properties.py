@@ -14,15 +14,6 @@ class ModData(PropertyGroup):
 	"""Stores enough information to create a mod from this blender file"""
 	name: StringProperty(name="Name", description='This is the human-readable name of the mod.')
 	desc: StringProperty(name="Description", description="Mod's description is used to create the readme file.")
-	game: EnumProperty(name="Game",
-					   items=(
-						   ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution', ""),
-						   ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2', ""),
-						   ('PLANET_COASTER', 'Planet Coaster', ""),
-						   ('PLANET_ZOO', 'Planet Zoo', ""),
-						   ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin', "")
-					   )
-					   )
 	uuid: StringProperty(name="UUID", description="Mod's uuid. Delete to generate a new one", update=update_uuid, )
 	ordid: IntProperty(name="Order ID",
 					   description="Mod's starting id for to assets (Use a free Id). IDs will be assigned consecutively (only for JWE2)")
