@@ -118,7 +118,7 @@ def dds_to_png(dds_file_path, codec):
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
 	args = [BINARY, "-y", "-ft", "png", "-o", out_dir, "-fl", "12.1", "-dx10"]
-	logging.info(f"Selective SRGB {codec}")
+	# logging.info(f"Selective SRGB {codec}")
 	if "SRGB" in codec:
 		args.extend(("-f", "R8G8B8A8_UNORM_SRGB", "-srgb"))
 	else:

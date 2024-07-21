@@ -285,7 +285,7 @@ class MainWindow(widgets.MainWindow):
 						logging.exception(f"Could not compare '{file_name}'")
 
 	def set_ovl_game_choice_game(self, game=None):
-		logging.debug(f"Setting OVL Game to {game}")
+		# logging.debug(f"Setting OVL game to {game}")
 		self.ovl_game_choice.entry.setText(game)
 
 	@contextlib.contextmanager
