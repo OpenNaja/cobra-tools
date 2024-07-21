@@ -455,9 +455,7 @@ class ManisFile(InfoHeader, IoFile):
                             frame_inc += 1
                         rel = ushort_storage[out_frame_i*3: out_frame_i*3+3]
                         out = rel.astype(np.float32)
-                        out[0] = self.make_signed(rel[0])
-                        out[1] = self.make_signed(rel[1])
-                        out[2] = self.make_signed(rel[2])
+                        out[:] = self.make_signed(*rel)
                         last_key_delta = (last_key_b - last_key_a) + last_key_b
                         base_plus_delta = last_key_delta + key_picked
                         # todo do something here for base_key_float
@@ -595,9 +593,7 @@ class ManisFile(InfoHeader, IoFile):
                         # we're only accessing XYZ in code, but Q is set to 0.0 below so it's ok
                         rel = ushort_storage[out_frame_i*3: out_frame_i*3+4]
                         out = rel.astype(np.float32)
-                        out[0] = self.make_signed(rel[0])
-                        out[1] = self.make_signed(rel[1])
-                        out[2] = self.make_signed(rel[2])
+                        out[:] = self.make_signed(*rel)
                         out[3] = 0.0
                         # self.printm(out)
                         # int key (good)
@@ -972,13 +968,9 @@ class ManisFile(InfoHeader, IoFile):
         return wavelet_i, frame_map
 
     def read_vec3(self, f):
-        # f_pos = int(f.pos)
         # pos_base = f.read_uint(45)
         pos_base = 0
-        # # logging.info(f"{hex(pos_base)}, {pos_base}")
-        # x = pos_base & 0x7fff
-        # y = (pos_base >> 0xf) & 0x7fff
-        # z = (pos_base >> 0x1e) & 0x7fff
+        # logging.info(f"{hex(pos_base)}, {pos_base}")
         if self.context.version > 259:
             # current PZ, JWE2
             x = f.read_uint(15)
@@ -989,13 +981,8 @@ class ManisFile(InfoHeader, IoFile):
             x = f.read_uint_reversed(15)
             y = f.read_uint_reversed(15)
             z = f.read_uint_reversed(15)
-        raw = np.zeros(4, dtype=np.uint32)
-        raw[:3] = x, y, z
         vec = np.zeros(4, dtype=np.float32)
-        vec[0] = self.make_signed(x)
-        vec[1] = self.make_signed(y)
-        vec[2] = self.make_signed(z)
-        # print(x,vec[0])
+        vec[:] = self.make_signed(x, y, z, 0)
         # logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
         return pos_base, vec
 
@@ -1007,8 +994,8 @@ class ManisFile(InfoHeader, IoFile):
             if expected_key != pos_base:
                 raise AttributeError(f"Expected and found keys do not match")
 
-    def make_signed(self, x):
-        return -(x + 1 >> 1) if x & 1 else x >> 1
+    def make_signed(self, *args):
+        return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]
 
 
 def get_quat_scale_fac2(norm_half_abs):
