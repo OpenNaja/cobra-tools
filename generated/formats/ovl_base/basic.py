@@ -58,7 +58,8 @@ class OffsetString(Int):
         except KeyError:
             return ""
         except AttributeError:
-            logging.warning(f"Arg '{arg}' is not a ZStringBuffer")
+            # should be resolved locally by the container, so don't warn here
+            # logging.debug(f"Arg '{arg}' is not a ZStringBuffer")
             return offset
 
     @classmethod

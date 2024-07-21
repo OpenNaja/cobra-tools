@@ -25,6 +25,7 @@ class Ms2Context:
 	def __init__(self):
 		self.version = 0
 		self.biosyn = 0
+		self.joint_names = None
 
 	def __repr__(self):
 		return f"{self.version} | {self.biosyn}"

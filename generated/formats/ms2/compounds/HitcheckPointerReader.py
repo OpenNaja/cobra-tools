@@ -1,6 +1,5 @@
-import logging
-
-from generated.formats.ms2.compounds.HitCheck import HitCheck
+from generated.array import Array
+from generated.formats.base.basic import Uint64
 from generated.base_struct import BaseStruct
 
 from generated.base_struct import BaseStruct
@@ -11,6 +10,11 @@ class HitcheckPointerReader(BaseStruct):
 	__name__ = 'HitcheckPointerReader'
 
 
+	def __init__(self, context, arg=0, template=None, set_default=True):
+		super().__init__(context, arg, template, set_default=False)
+		if set_default:
+			self.set_defaults()
+
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
@@ -19,39 +23,16 @@ class HitcheckPointerReader(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default=False)
-		if set_default:
-			self.set_defaults()
-
-	def set_defaults(self):
-		pass
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		joint_data = instance.arg
-		instance.hc_pointers = []
 		for jointinfo in joint_data.joint_infos:
-			for i in range(jointinfo.hitcheck_count):
-				hc = stream.read(8)
-				instance.hc_pointers.append(hc)
+			jointinfo.hitcheck_pointers = Array.from_stream(stream, jointinfo.context, jointinfo.arg, None, shape=(jointinfo.hitcheck_count,), dtype=Uint64)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		# joint_data = instance.arg
-		# instance.hc_pointers = []
-		for hcp in instance.hc_pointers:
-			stream.write(hcp)
-
-	@classmethod
-	def get_fields_str(cls, instance, indent=0):
-		try:
-			s = ''
-			joint_data = instance.arg
-			for jointinfo in joint_data.joint_infos:
-				s += str(jointinfo.hitchecks)
-			return s
-		except:
-			return "Bad arg?"
+		joint_data = instance.arg
+		for jointinfo in joint_data.joint_infos:
+			Array.to_stream(jointinfo.hitcheck_pointers, stream, instance.context, shape=(jointinfo.hitcheck_count,), dtype=Uint64)
 
 

@@ -31,29 +31,41 @@ class JointData(BaseStruct):
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		# todo - maybe auto-assign joint_names to context during reading?
+		instance.context.joint_names = None
 		super().read_fields(stream, instance)
 		# after reading, we can resolve the joint pointers
 		for ptr in instance.get_pointers():
 			ptr.joint = instance.joint_infos[ptr.index]
-	# 	# after reading, resolve the names to string
-	# 	for child_instance, attrib in instance.get_string_attribs():
-	# 		# get the offset
-	# 		offset = child_instance.get_field(child_instance, attrib)
-	# 		# get str from ZStringBuffer
-	# 		string = instance.joint_names.get_str_at(offset)
-	# 		# set the string
-	# 		cls.set_field(child_instance, attrib, string)
+		# if instance.context.version <= 32:
+		# as joints are defined before joint_names in PC and before, patch the strings
+		# after reading, resolve the name indices to string
+		for child_instance, attrib in instance.get_string_attribs():
+			# get the offset
+			offset = child_instance.get_field(child_instance, attrib)
+			# get str from ZStringBuffer
+			string = instance.joint_names.get_str_at(offset)
+			# print(string)
+			# set the string
+			cls.set_field(child_instance, attrib, string)
+		# print(instance)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		if instance.context.version > 32:
-			strings = list(instance.get_strings())
-			instance.joint_names.update_strings(strings)
-		else:
-			logging.warning("Can't update joint_names for early versions")
+		instance.context.joint_names = instance.joint_names
+		# if instance.context.version <= 32:
+		# set arg = instance.joint_names
+		strings = list(instance.get_strings())
+		# print(strings)
+		instance.joint_names.update_strings(strings)
 		instance.namespace_length = len(instance.joint_names.data)
 		# update indices of joint pointers
 		joints_map = {j: i for i, j in enumerate(instance.joint_infos)}
 		for ptr in instance.get_pointers():
 			ptr.index = joints_map.get(ptr.joint)
 		super().write_fields(stream, instance)
+		# for f_name, f_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+		#     try:
+		#         f_type.to_stream(getattr(instance, f_name), stream, instance.context, *arguments)
+		#     except:
+		#         raise BufferError(f"Failed writing '{cls.__name__}.{f_name}' at {stream.tell()}")

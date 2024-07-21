@@ -17,12 +17,12 @@ class HitCheck(BaseStruct):
 		self.classification_name = name_type_map['Jwe1Collision'](self.context, 0, None)
 		self.surface_name = name_type_map['Jwe1Surface'](self.context, 0, None)
 		self.align = name_type_map['Uint'].from_value(0)
-		self.classification_name = name_type_map['OffsetString'](self.context, self.arg, None)
-		self.surface_name = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.classification_name = name_type_map['OffsetString'](self.context, self.context.joint_names, None)
+		self.surface_name = name_type_map['OffsetString'](self.context, self.context.joint_names, None)
 
 		# ?
 		self.zero_extra_pc = name_type_map['Uint'](self.context, 0, None)
-		self.name = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.name = name_type_map['OffsetString'](self.context, self.context.joint_names, None)
 		self.collider = name_type_map['MeshCollision'](self.context, 0, None)
 
 		# ?
@@ -59,11 +59,11 @@ class HitCheck(BaseStruct):
 			yield 'surface_name', name_type_map['Jwe1Surface'], (0, None), (False, None)
 		if instance.context.version >= 48:
 			yield 'align', name_type_map['Uint'], (0, None), (False, 0)
-			yield 'classification_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
-			yield 'surface_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+			yield 'classification_name', name_type_map['OffsetString'], (instance.context.joint_names, None), (False, None)
+			yield 'surface_name', name_type_map['OffsetString'], (instance.context.joint_names, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'zero_extra_pc', name_type_map['Uint'], (0, None), (False, None)
-		yield 'name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+		yield 'name', name_type_map['OffsetString'], (instance.context.joint_names, None), (False, None)
 		if instance.dtype == 0:
 			yield 'collider', name_type_map['Sphere'], (0, None), (False, None)
 		if instance.dtype == 1:
