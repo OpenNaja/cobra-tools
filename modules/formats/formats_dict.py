@@ -26,7 +26,7 @@ class FormatDict(dict):
 						if not hasattr(attribute, "extension"):
 							continue
 						if attribute.extension is None:
-							logging.debug(f"Missing extension on class {attribute_name} in file {module_name}")
+							# logging.debug(f"Missing extension on class {attribute_name} in file {module_name}")
 							continue
 						if not attribute.extension.startswith("."):
 							logging.warning(f"Bad extension '{attribute.extension}' on class {attribute_name} in file {module_name}")
