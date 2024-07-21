@@ -3,7 +3,7 @@ texchannels = {
 	'pBaseColourTexture': {"RGB": "BC", "A": ""},  # unsure about A
 	# 'pCavitySmoothnessArrayTexture': {"": ""},
 	# 'pCavitySmoothnessOpacitySamplerTexture': {"R": "", "G": "", "B": "", "A": ""},
-	'pCavitySmoothnessSamplerTexture': {"R": "CA", "G": "SM"},  # rest apparently unused according to dino mascot
+	'pCavitySmoothnessSamplerTexture': {"R": "CA", "G": "SM", "B": "", "A": "FO"},  # B, A unused in dino mascot, but needed in hol_baubles_01 for flexi
 	# 'pCoarseNoiseTexture': {"": ""},
 	# 'pDiffuseArrayTexture': {"": ""},
 	'pDiffuseOpacityTexture': {"RGB": "BC", "A": "OP"},
