@@ -132,7 +132,7 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self, ):
 		start_time = time.time()
 		try:
-			logging.info(f"Loading {len(self.ms2_file.mdl_2_names)} files into gui")
+			logging.info(f"Loading {len(self.ms2_file.mdl_2_names)} files into GUI")
 			self.files_container.set_data([[m.name, ".mdl2", m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
 			self.game_choice.entry.setText(self.ms2_file.game)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")

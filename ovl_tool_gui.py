@@ -432,7 +432,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_files_ui(self, f_list):
 		"""Give table widget new files"""
-		with self.reporter.log_duration(f"Loading {len(f_list)} files into gui"):
+		with self.reporter.log_duration(f"Loading {len(f_list)} files into GUI"):
 			self.files_container.set_data(f_list)
 			self.update_file_counts()
 
