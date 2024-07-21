@@ -985,7 +985,7 @@ class ManisFile(InfoHeader, IoFile):
             y = f.read_uint(15)
             z = f.read_uint(15)
         else:
-            # PC, JWE1, old PC have the order reversed
+            # PC, JWE1, old PZ have the order reversed
             x = f.read_uint_reversed(15)
             y = f.read_uint_reversed(15)
             z = f.read_uint_reversed(15)
