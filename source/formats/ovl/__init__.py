@@ -1360,8 +1360,8 @@ class OvlFile(Header):
 		if self.filepath not in streams:
 			streams[self.filepath] = open(self.filepath, mode)
 		yield streams
-		logging.debug("Closing OVS streams")
-		# we don't use context manager so gotta close them
+		logging.debug("Closing streams")
+		# we don't use context manager to open the streams so close them manually
 		for ovs_file in streams.values():
 			ovs_file.close()
 
