@@ -265,7 +265,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
 											classification_name.add(hit.classification_name)
 											surface_name.add(hit.surface_name)
-											surface_name2.add((hit.surface_name, int(hit.surface_name_2)))
+											# surface_name2.add((hit.surface_name, int(hit.surface_name_2)))
+											surface_name2.add((int(hit.surface_name), hit.surface_name_2))
 											if hit.dtype == CollisionType.MESH_COLLISION:
 												mesh_collision.add(ms2_path_rel)
 							else:

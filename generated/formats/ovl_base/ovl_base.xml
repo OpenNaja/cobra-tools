@@ -76,7 +76,7 @@
 
     <compound name="Pointer" >
         a pointer in an ovl memory layout, can point to a struct or a dependency entry
-        <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
+        <add name="pool_index" type="int" default="0">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
         <add name="data_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
         <add name="data" type="uint" abstract="True">data lives at some other point</add>
     </compound>

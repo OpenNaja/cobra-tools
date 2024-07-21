@@ -55,7 +55,7 @@ class ZStringBuffer:
 
 	@classmethod
 	def format_indented(cls, self, indent=0):
-		return str(self.strings)
+		return f"{self.strings} Size: {len(self.data)}"
 
 	@classmethod
 	def read_fields(cls, stream, instance):

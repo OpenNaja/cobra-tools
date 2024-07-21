@@ -619,7 +619,7 @@
 
 	<compound name="MinusPadding">
 		Used in PC
-		<add name="indices" type="short" arr1="#ARG#" >-1</add>
+		<add name="indices" type="short" arr1="#ARG#" default="-1"/>
 		<add name="padding" type="byte" arr1="(16 - ((#ARG# * 2) % 16)) % 16" >0</add>
 	</compound>
 
@@ -861,16 +861,19 @@
 	<compound name="JointInfo">
 		#ARG# is the names buffer
 		PC: 40 bytes
-		the following defaults are all the same in PZ and JWE2 as of 2022-10-14
 		<add name="eleven" type="uint" default="11"/>
-		<add name="zero_0" type="int" default="0"/>
-		<add name="zero_1" type="int" default="0"/>
-		<add name="minus_1" type="int" default="-1"/>
-		<add name="minus_1b_pc" type="int" until="32"/>
+		<add name="ff_1" type="int" default="-1" until="32"/>
+		<add name="ff_2" type="int" default="-1" until="32"/>
+		<add name="ff_3" type="int" default="536870911" until="32"/>
+		<add name="ff_4" type="int" default="-5570646" until="32"/>
+		the following defaults are all the same in PZ and JWE2 as of 2022-10-14
+		<add name="zero_0" type="int" default="0" since="47"/>
+		<add name="zero_1" type="int" default="0" since="47"/>
+		<add name="minus_1" type="int" default="-1" since="47"/>
 		<add name="name" type="OffsetString" arg="context \ joint_names"/>
 		<add name="hitcheck count" type="uint"/>
 		<add name="zero_2_a" type="int" until="32"/>
-		<add name="zero_2" type="uint64" >8 bytes of zeros</add>
+		<add name="zero_2" type="uint64" default="0"/>
 		deferred to coherent arrays up to PC
 		<add name="hitcheck_pointers" type="uint64" arr1="hitcheck count" until="32" abstract="True"/>
 		<add name="hitcheck_pointers" type="uint64" arr1="hitcheck count" since="47"/>8 bytes of zeros per hitcheck
@@ -993,7 +996,6 @@
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
-		# JWE may not have these, apparently they are present in final JWE
 		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</add>
 		<add name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</add>
 		<add name="joints" type="JointData" cond="joint count" >joints</add>

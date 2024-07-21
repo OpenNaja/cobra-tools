@@ -154,7 +154,7 @@ class ModelReader(BaseStruct):
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
 			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
-			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
+			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}, expected {padding_len}")
 
 	def align_to(self, stream, alignment=16, rel=None):
 		if rel is None:
@@ -222,7 +222,7 @@ class ModelReader(BaseStruct):
 				model_info.model.to_stream(model_info.model, stream, instance.context)
 				logging.debug(f"Model ends at {stream.tell()}")
 				# test for FR_GrandCarousel.ovl
-				if model_info.model.io_size == 0 and model_info.increment_flag:
+				if model_info.model.io_size == 0 and model_info.increment_flag and hasattr(model_info.model, "padding"):
 					SmartPadding.to_stream(model_info.model.padding, stream, instance.context)
 				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
 		else:

@@ -6,6 +6,8 @@ import mathutils
 
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
+from generated.formats.ms2.enums.PcCollision import PcCollision
+from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
@@ -67,12 +69,14 @@ def export_bones_custom(b_armature_ob, model_info):
 	bone_info = model_info.bone_info
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
-		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = len(b_armature_ob.data.bones)
+		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = bone_info.zeros_count = len(b_armature_ob.data.bones)
 	bone_info.reset_field("bones")
 	bone_info.reset_field("inverse_bind_matrices")
 	bone_info.reset_field("parents")
 	bone_info.reset_field("name_indices")
 	bone_info.reset_field("enumeration")
+	bone_info.reset_field("minus_padding")
+	bone_info.reset_field("zeros_padding")
 
 	sorted_bones = sorted(b_armature_ob.data.bones, key=lambda b_bone: b_armature_ob.pose.bones[b_bone.name]["index"])
 	for bone_i, b_bone in enumerate(sorted_bones):
@@ -91,9 +95,6 @@ def export_bones_custom(b_armature_ob, model_info):
 		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else 255
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
 		bone_info.enumeration[bone_i] = [4, bone_i]
-	if bone_info.zeros_count:
-		bone_info.zeros_count = len(b_armature_ob.data.bones)
-		bone_info.zeros_padding.arg = bone_info.zeros_count
 	# sanity check for bone hierarchy to verify sorting is correct
 	for bone_i, parent_i in enumerate(bone_info.parents):
 		if parent_i != 255:
@@ -238,19 +239,23 @@ def export_joints(bone_info, corrector, b_armature_ob):
 		joint_info.reset_field("hitcheck_pointers")
 		game = bpy.context.scene.cobra.game
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
-			# todo - for PC support, we need the enums
 			surface_name = b_hitcheck.cobra_coll.get_value(bpy.context, "surface")
 			classification_name = b_hitcheck.cobra_coll.get_value(bpy.context, "classification")
 			if game == "Jurassic World Evolution":
 				hitcheck.surface_name = Jwe1Surface[surface_name]
 				hitcheck.classification_name = Jwe1Collision[classification_name]
+			elif game == "Planet Coaster":
+				hitcheck.surface_name = PcSurface[surface_name]
+				hitcheck.classification_name = PcCollision[classification_name]
+				surface_2_name = b_hitcheck.cobra_coll.get_value(bpy.context, "surface_2")
+				hitcheck.surface_name = PcSurface[surface_2_name]
 			else:
 				hitcheck.surface_name = surface_name
 				hitcheck.classification_name = classification_name
 			hitcheck.name = get_joint_name(b_armature_basename, b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector, b_armature_basename)
 
-		# rigid_body_list is present afte PC
+		# rigid_body_list is present after PC
 		if bone_info.context.version > 32:
 			rb = joints.rigid_body_list[joint_i]
 			if b_joint.children:
