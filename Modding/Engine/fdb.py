@@ -237,7 +237,7 @@ if __name__ == "__main__":
     fdbm = DatabaseManager()
 
     # Work on PZ 
-    fdbm.templates_path = os.path.join('Modding', 'Games', 'PlanetZoo', 'Data')
+    fdbm.templates_path = os.path.join('Modding', 'Games', 'Planet_Zoo', 'Data')
     fdbm.templates      = {
         'ModularScenery': ['ContentPacks', 'LocalGridAlignmentStyle', 'MoveObjectType', 'PlacementPartType', 'TagGroupsDefinition'],
     }
