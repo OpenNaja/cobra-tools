@@ -7,7 +7,6 @@ from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.logs import get_stdout_handler
-from gui.widgets import Reporter
 from modules import walker
 from root_path import root_dir
 from generated.formats.ovl import games, OvlFile
@@ -26,7 +25,7 @@ class MainWindow(widgets.MainWindow):
 		self.setAcceptDrops(True)
 		self.suppress_popups = False
 
-		self.reporter = Reporter()
+		self.reporter = widgets.Reporter()
 		self.ovl_data = OvlFile()
 		self.ovl_data.reporter = self.reporter
 		self.ovl_data.cfg = self.cfg
@@ -38,6 +37,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
 		self.ovl_game_choice.setToolTip("Game version of current OVL")
+		self.ovl_game_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 
 		self.compression_choice = widgets.LabelCombo(
 			"Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed,
@@ -76,49 +76,38 @@ class MainWindow(widgets.MainWindow):
 			"These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.update_includes)
 
-		left_frame = QtWidgets.QWidget()
-		hbox = QtWidgets.QVBoxLayout()
-		hbox.addWidget(self.installed_games)
-		hbox.addWidget(self.installed_games.search)
-		hbox.addWidget(self.installed_games.dirs)
-		hbox.setContentsMargins(0, 0, 1, 0)
-		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
-		left_frame.setLayout(hbox)
-
-		right_frame = QtWidgets.QWidget()
-		hbox = QtWidgets.QVBoxLayout()
-		hbox.addWidget(self.file_widget)
-		hbox.addWidget(self.files_container)
-		hbox.addWidget(self.included_ovls_view)
-		hbox.setContentsMargins(3, 0, 0, 0)
-		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
-		right_frame.setLayout(hbox)
-
 		# toggles
-		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
-		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
-		self.t_in_folder.setChecked(False)
-
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setPlaceholderText("Find")
 		self.e_name_old.setToolTip("Old strings - one item per line")
 		self.e_name_new = QtWidgets.QTextEdit("")
 		self.e_name_new.setPlaceholderText("Replace")
 		self.e_name_new.setToolTip("New strings - one item per line")
-		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
+		self.e_name_new.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 		self.e_name_old.setTabChangesFocus(True)
 		self.e_name_new.setTabChangesFocus(True)
 
 		grid = QtWidgets.QGridLayout()
 		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
 		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
-		grid.addWidget(self.t_in_folder, 0, 2)
-		grid.addWidget(self.ovl_game_choice, 0, 3)
-		grid.addWidget(self.compression_choice, 1, 3)
-		grid.addWidget(self.extract_types_choice, 2, 3)
+		grid.addWidget(self.ovl_game_choice, 0, 2)
+		grid.addWidget(self.compression_choice, 1, 2)
+		grid.addWidget(self.extract_types_choice, 2, 2)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
+		left_frame = widgets.pack_in_vbox(
+			self.installed_games,
+			self.installed_games.search,
+			self.installed_games.dirs,
+			self.installed_games.process_folder,
+			margins=(0, 0, 1, 0))
+		right_frame = widgets.pack_in_vbox(
+			self.file_widget,
+			self.files_container,
+			self.included_ovls_view,
+			margins=(3, 0, 0, 0))
 		self.layout_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
@@ -255,7 +244,7 @@ class MainWindow(widgets.MainWindow):
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
-		if self.t_in_folder.isChecked():
+		if self.installed_games.process_folder.isChecked():
 			logging.warning(f"Batch mode encountered an error: {details}")
 		elif self.suppress_popups:
 			logging.warning(f"Dragging encountered an error: {details}")
@@ -263,7 +252,7 @@ class MainWindow(widgets.MainWindow):
 			self.showwarning(msg, details=details)
 
 	def enable_gui_options(self, enable=True):
-		self.t_in_folder.setEnabled(enable)
+		self.installed_games.process_folder.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
@@ -310,7 +299,7 @@ class MainWindow(widgets.MainWindow):
 
 	def handle_path(self, save_over=True):
 		# get path
-		if self.t_in_folder.isChecked():
+		if self.installed_games.process_folder.isChecked():
 			selected_dir = self.walk_root()
 			if selected_dir:
 				with self.log_level_override("WARNING"):
@@ -475,7 +464,7 @@ class MainWindow(widgets.MainWindow):
 		selected_dir = self.walk_root()
 		for ovl in self.handle_path(save_over=False):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
-			if self.t_in_folder.isChecked():
+			if self.installed_games.process_folder.isChecked():
 				rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 				out_dir = os.path.join(_out_dir, rel_p)
 			ovl.extract(out_dir, only_types=only_types)
@@ -515,7 +504,7 @@ class MainWindow(widgets.MainWindow):
 			if names:
 				for ovl in self.handle_path():
 					ovl.rename(names)
-					if not self.t_in_folder.isChecked():
+					if not self.installed_games.process_folder.isChecked():
 						self.set_dirty()
 		except:
 			self.handle_error("Renaming failed, see log!")
@@ -524,13 +513,13 @@ class MainWindow(widgets.MainWindow):
 		names = self.get_replace_strings()
 		if names:
 			# if we are operating only on the current ovl, check selection state
-			if not self.t_in_folder.isChecked():
+			if not self.installed_games.process_folder.isChecked():
 				only_files = self.files_container.table.get_selected_files()
 			else:
 				only_files = ()
 			for ovl in self.handle_path():
 				ovl.rename_contents(names, only_files)
-				if not self.t_in_folder.isChecked():
+				if not self.installed_games.process_folder.isChecked():
 					self.set_dirty()
 				# file names don't change, so no need to update gui
 

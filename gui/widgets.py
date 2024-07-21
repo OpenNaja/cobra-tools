@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import webbrowser
 import os
@@ -2037,6 +2038,10 @@ class GamesWidget(QWidget):
         self.dirs.setIndentation(12)
         self.dirs.setSortingEnabled(True)
 
+        self.process_folder = QtWidgets.QCheckBox("Process Folder")
+        self.process_folder.setToolTip("Runs commands on all OVLs of current folder")
+        self.process_folder.setChecked(False)
+        
         self.set_games()
 
         if game_chosen_fn is not None:
@@ -3471,3 +3476,14 @@ def get_main_window():
     for w in QtWidgets.qApp.topLevelWidgets():
         if isinstance(w, MainWindow):
             return w
+
+
+def pack_in_vbox(*widgets, margins=(0, 0, 0, 0)):
+    frame = QtWidgets.QWidget()
+    box = QtWidgets.QVBoxLayout()
+    for w in widgets:
+        box.addWidget(w)
+    box.setContentsMargins(*margins)
+    box.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
+    frame.setLayout(box)
+    return frame
