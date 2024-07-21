@@ -22,12 +22,6 @@ except:
     logging.warning(f"bitarray module is not installed")
 
 
-def hex_test():
-    for i in range(20):
-        x = 2 ** i
-        print(i, bin(i), x, bin(x))
-
-
 class BinStream:
     def __init__(self, val):
         self.data = bitarray.bitarray(endian='little')
@@ -1180,5 +1174,4 @@ if __name__ == "__main__":
 
 # mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
 # mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
-# hex_test()
 
