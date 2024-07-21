@@ -6,6 +6,9 @@ class will ensure the path is provided for different in game assets.
 Assetpackages are created using relative paths from the content pack folder, but
 they need to include the full path from OVLData
 
+When exporting the assetpkg data, the .assetpkg file will be added to the Init folder
+and the full assetpkg path will be created. This folder needs to be turned into an ovl.
+
 NOTE: No templates allowed.
 
 Example:
@@ -36,6 +39,7 @@ class AssetPackageManager():
     def add(self, name, prefix=''):
         """ Creates an assetpkg entry, will append the ID to the path """
         self.refs[name] = os.path.normpath(os.path.join(prefix, name))
+        return self.refs[name]
 
     def remove(self, name):
         """ Remove an assetpkg entry"""
