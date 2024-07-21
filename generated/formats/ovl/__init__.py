@@ -1345,16 +1345,16 @@ class OvlFile(Header):
 
 	@contextmanager
 	def open_streams(self, mode="wb"):
-		logging.debug("Opening OVS streams")
+		logging.debug("Opening streams")
 		streams = {}
 		for archive_entry in self.archives:
 			# gotta update it here
 			self.get_ovs_path(archive_entry)
-			logging.debug(f"Loading {archive_entry.ovs_path}")
 			if archive_entry.ovs_path not in streams:
 				# make sure that the ovs exists
 				if mode == "rb" and not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError(f"OVS file not found. Make sure it is here: {archive_entry.ovs_path}")
+				logging.debug(f"Opening {archive_entry.ovs_path}")
 				# open file in desired mode
 				streams[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
 		# for simplicity, tests don't always have an ovs, so allow for pure ovl files
