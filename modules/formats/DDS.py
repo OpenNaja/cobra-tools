@@ -152,7 +152,17 @@ class DdsLoader(MemStructLoader):
 			# create list of bytes for each buffer
 			tex_buffers = self.header.buffer_infos.data
 			if is_pc(self.ovl):
-				# todo PC array textures
+				# todo create self.header.buffer_infos.data for PC
+				#  however note that size_info = self.get_tex_structs() is the first entry of the array
+				#  maybe even pick stream count according to dimensions
+				# for 2048, 3 buffers
+				# for 1024-256, 2 buffers
+				# for 128, 1 buffer
+				# last buffer is 128 regardless of full size eg:
+				# 		<texbufferpc width="2048" height="2048" num_tiles="1" num_mips="12" />
+				# 		<texbufferpc width="1024" height="1024" num_tiles="1" num_mips="11" />
+				# 		<texbufferpc width="128" height="128" num_tiles="1" num_mips="8" />
+				# todo how to pack PC array textures
 				return dds_files[0].pack_mips_pc(tex_buffers)
 			else:
 				# padding depends on io_size being updated
