@@ -12,30 +12,32 @@ from constants import ConstantsProvider
 from generated.formats.ms2 import games
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
+from generated.formats.ms2.enums.PcCollision import PcCollision
+from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 from plugin.utils.object import get_view_collections
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
+suffix_map = {
+	"Planet Coaster": "_pc",
+	"Jurassic World Evolution": "_jwe",
+	"Planet Zoo": "_pz",
+	"Jurassic World Evolution 2": "_jwe2",
+	"Warhammer Age of Sigmar - Realms of Ruin": "_whaos",
+}
+
 
 class VersionedPropertyGroup(PropertyGroup):
-
 	def get_current_game_suffix(self, context):
 		game = context.scene.cobra.game
-		if game == "Planet Coaster":
-			return "_pc"
-		elif game == "Jurassic World Evolution":
-			return "_jwe"
-		elif game == "Planet Zoo":
-			return "_pz"
-		elif game == "Jurassic World Evolution 2":
-			return "_jwe2"
-		elif game == 'Warhammer Age of Sigmar - Realms of Ruin':
-			return "_whaos"
+		return suffix_map.get(game, None)
 
 	def get_current_versioned_name(self, context, name):
 		game_suffix = self.get_current_game_suffix(context)
 		if game_suffix:
-			return f"{name}{game_suffix}"
+			prop_name = f"{name}{game_suffix}"
+			if hasattr(self, prop_name):
+				return f"{name}{game_suffix}"
 
 	def get_value(self, context, name):
 		versioned_prop = self.get_current_versioned_name(context, name)
@@ -147,15 +149,8 @@ class CobraMeshSettings(PropertyGroup):
 	pass
 
 
-class_jwe = [e.name for e in Jwe1Collision]
-class_pz = ['Animal', 'Animal_Bone', 'Animal_Box', 'Animal_Dead', 'Animal_Pouncing', 'Balloon', 'Bedding', 'Building', 'Character_InFlight', 'Character_Limb', 'Character_Limb_NoCollision', 'Character_Miscreant', 'Character_SoS', 'Climbable', 'Coaster', 'Coaster_Car', 'Coaster_Misc', 'Coaster_RacingCar', 'DevelopmentOnly_Ball', 'DevelopmentOnly_Character', 'Enrichment_Object', 'Facility', 'Kinetic_Object', 'Landscape', 'Navmesh', 'NoCollision', 'Poo', 'Prop', 'Ride', 'Scenery', 'Scenery_NoNavSource', 'Scenery_Vandalised', 'Structure', 'Track', 'TrackScenery', 'Track_Support', 'TreeBase', 'TreeBranch', 'TreeFoliage', 'TreeTrunk', 'Trigger_AnimalMemorialStaffThoughts', 'Trigger_AnimalObstruction', 'Trigger_EducationSource', 'Trigger_EscapedAnimal', 'Trigger_FacilityNegativeInfluence', 'Trigger_Grid', 'Trigger_GuestGate', 'Trigger_Inspector', 'Trigger_Presenter', 'Trigger_Queue', 'Trigger_Screen', 'Trigger_Security', 'UIElement', 'Water', 'WaterSpray', 'Wheel']
-class_jwe2 = ['AIDrone', 'AIVehicle', 'AIVehicleFindGrid', 'AIVehicleObstacle', 'Audio', 'AviaryTourGate', 'Building', 'BuildingAIVehicleObstacle', 'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle', 'Character', 'Debris', 'Default', 'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy', 'DinosaurDinosaur', 'DinosaurNoBuilding', 'DinosaurNoCollision', 'DinosaurNoFence', 'DinosaurNoVehicle', 'DinosaurSelfCollision', 'Drone', 'Fence', 'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Guest', 'GuestAvoidance', 'GuestObstacle', 'GuestRagdoll', 'HatcheryGate', 'InvisibleWall', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'Landscape', 'MissionTrigger', 'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'Prop', 'PropNoCameraObstacle', 'Pylon', 'Rotor', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Tree', 'Vehicle', 'Wall', 'Water', 'WaterSplash', 'Wheel']
-surfaces_jwe = [e.name for e in Jwe1Surface]
-surfaces_pz = ['Animal', 'Brick', 'Character', 'Cloth', 'Concrete', 'Default', 'Default_Legacy_DO_NOT_USE', 'Dirt', 'Foliage', 'Frictionless', 'Glass', 'Grass', 'Ice', 'Leaves', 'Litter', 'Metal', 'Mud', 'Plastic', 'Poo', 'Rubber', 'Sand', 'Snow', 'Stone', 'Tree', 'Trigger', 'Tyre', 'Wood']
-surfaces_jwe2 = ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow', 'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb', 'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gyrosphere', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless', 'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePondBottom', 'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood', 'LandscapeWoodHollow', 'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal', 'PropPlastic', 'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault', 'SceneryTree', 'StructureFence', 'StructurePath', 'StructurePylon', 'StructureTrack', 'StructureWall', 'Water']
-
-
 class CobraCollisionSettings(VersionedPropertyGroup):
+	__annotations__ = {}
 	air_resistance: bpy.props.FloatVectorProperty(
 		name='Air Resistance',
 		description="Air Resistance in 3D, relative to the joint's axes",
@@ -184,36 +179,23 @@ class CobraCollisionSettings(VersionedPropertyGroup):
 		description='Current state of this rigidbody',
 		items=[(item.name, item.name, "") for i, item in enumerate(RigidBodyFlag)],
 	)
-	classification_jwe: EnumProperty(
-		name='Classification',
-		description='Hitcheck Classification Name for Jurassic World Evolution',
-		items=[(name, name, "") for name in class_jwe],
-	)
-	classification_pz: EnumProperty(
-		name='Classification',
-		description='Hitcheck Classification Name for Planet Zoo',
-		items=[(name, name, "") for name in class_pz],
-	)
-	classification_jwe2: EnumProperty(
-		name='Classification',
-		description='Hitcheck Classification Name for Jurassic World Evolution 2',
-		items=[(name, name, "") for name in class_jwe2],
-	)
-	surface_jwe: EnumProperty(
-		name='Surface',
-		description='Hitcheck Surface Name for Jurassic World Evolution',
-		items=[(name, name, "") for name in surfaces_jwe],
-	)
-	surface_pz: EnumProperty(
-		name='Surface',
-		description='Hitcheck Surface Name for Planet Zoo',
-		items=[(name, name, "") for name in surfaces_pz],
-	)
-	surface_jwe2: EnumProperty(
-		name='Surface',
-		description='Hitcheck Surface Name for Jurassic World Evolution 2',
-		items=[(name, name, "") for name in surfaces_jwe2],
-	)
+	for game, dtype, values in (
+			("Planet Coaster", "Surface", [e.name for e in PcSurface]),
+			("Planet Coaster", "Surface_2", [e.name for e in PcSurface]),
+			("Planet Coaster", "Classification", [e.name for e in PcCollision]),
+			("Jurassic World Evolution", "Surface", [e.name for e in Jwe1Surface]),
+			("Jurassic World Evolution", "Classification", [e.name for e in Jwe1Collision]),
+			("Planet Zoo", "Surface", ['Animal', 'Brick', 'Character', 'Cloth', 'Concrete', 'Default', 'Default_Legacy_DO_NOT_USE', 'Dirt', 'Foliage', 'Frictionless', 'Glass', 'Grass', 'Ice', 'Leaves', 'Litter', 'Metal', 'Mud', 'Plastic', 'Poo', 'Rubber', 'Sand', 'Snow', 'Stone', 'Tree', 'Trigger', 'Tyre', 'Wood']),
+			("Planet Zoo", "Classification", ['Animal', 'Animal_Bone', 'Animal_Box', 'Animal_Dead', 'Animal_Pouncing', 'Balloon', 'Bedding', 'Building', 'Character_InFlight', 'Character_Limb', 'Character_Limb_NoCollision', 'Character_Miscreant', 'Character_SoS', 'Climbable', 'Coaster', 'Coaster_Car', 'Coaster_Misc', 'Coaster_RacingCar', 'DevelopmentOnly_Ball', 'DevelopmentOnly_Character', 'Enrichment_Object', 'Facility', 'Kinetic_Object', 'Landscape', 'Navmesh', 'NoCollision', 'Poo', 'Prop', 'Ride', 'Scenery', 'Scenery_NoNavSource', 'Scenery_Vandalised', 'Structure', 'Track', 'TrackScenery', 'Track_Support', 'TreeBase', 'TreeBranch', 'TreeFoliage', 'TreeTrunk', 'Trigger_AnimalMemorialStaffThoughts', 'Trigger_AnimalObstruction', 'Trigger_EducationSource', 'Trigger_EscapedAnimal', 'Trigger_FacilityNegativeInfluence', 'Trigger_Grid', 'Trigger_GuestGate', 'Trigger_Inspector', 'Trigger_Presenter', 'Trigger_Queue', 'Trigger_Screen', 'Trigger_Security', 'UIElement', 'Water', 'WaterSpray', 'Wheel']),
+			("Jurassic World Evolution 2", "Surface", ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow', 'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb', 'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gyrosphere', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless', 'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePondBottom', 'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood', 'LandscapeWoodHollow', 'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal', 'PropPlastic', 'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault', 'SceneryTree', 'StructureFence', 'StructurePath', 'StructurePylon', 'StructureTrack', 'StructureWall', 'Water']),
+			("Jurassic World Evolution 2", "Classification", ['AIDrone', 'AIVehicle', 'AIVehicleFindGrid', 'AIVehicleObstacle', 'Audio', 'AviaryTourGate', 'Building', 'BuildingAIVehicleObstacle', 'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle', 'Character', 'Debris', 'Default', 'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy', 'DinosaurDinosaur', 'DinosaurNoBuilding', 'DinosaurNoCollision', 'DinosaurNoFence', 'DinosaurNoVehicle', 'DinosaurSelfCollision', 'Drone', 'Fence', 'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Guest', 'GuestAvoidance', 'GuestObstacle', 'GuestRagdoll', 'HatcheryGate', 'InvisibleWall', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'Landscape', 'MissionTrigger', 'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'Prop', 'PropNoCameraObstacle', 'Pylon', 'Rotor', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Tree', 'Vehicle', 'Wall', 'Water', 'WaterSplash', 'Wheel']),
+	):
+		identifier = f"{dtype.lower()}{suffix_map.get(game, None)}"
+		__annotations__[identifier] = EnumProperty(
+			name=dtype,
+			description=f"Hitcheck {dtype} Name for {game}",
+			items=[(name, name, "") for name in values],
+		)
 
 
 class CobraMaterialSettings(VersionedPropertyGroup):

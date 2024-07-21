@@ -153,8 +153,8 @@ class ModelReader(BaseStruct):
 		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
-			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
-			# raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
+			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
 
 	def align_to(self, stream, alignment=16, rel=None):
 		if rel is None:

@@ -43,6 +43,8 @@ type_module_name_map = {
 	'MainVersion': 'generated.formats.ms2.basic',
 	'BonePointerIndex': 'generated.formats.ms2.basic',
 	'Jwe1Collision': 'generated.formats.ms2.enums.Jwe1Collision',
+	'PcCollision': 'generated.formats.ms2.enums.PcCollision',
+	'PcSurface': 'generated.formats.ms2.enums.PcSurface',
 	'Jwe1Surface': 'generated.formats.ms2.enums.Jwe1Surface',
 	'RigidBodyFlag': 'generated.formats.ms2.enums.RigidBodyFlag',
 	'MeshFormat': 'generated.formats.ms2.enums.MeshFormat',

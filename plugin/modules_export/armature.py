@@ -238,6 +238,7 @@ def export_joints(bone_info, corrector, b_armature_ob):
 		joint_info.reset_field("hitcheck_pointers")
 		game = bpy.context.scene.cobra.game
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
+			# todo - for PC support, we need the enums
 			surface_name = b_hitcheck.cobra_coll.get_value(bpy.context, "surface")
 			classification_name = b_hitcheck.cobra_coll.get_value(bpy.context, "classification")
 			if game == "Jurassic World Evolution":

@@ -65,7 +65,9 @@
         <add name="e"    type="uint64" />
         <add name="f"    type="uint64" />
         <add name="nil" type="Pointer" template="EmptyStruct"/>
-        <add name="flag"    type="uint64" />
+<!--        <add name="flag"    type="uint64" />-->
+        <add name="bitflag"    type="uint" />
+        <add name="unkflag"    type="uint" />
 <!--        <add name="count1"    type="uint" />-->
     </compound>
 

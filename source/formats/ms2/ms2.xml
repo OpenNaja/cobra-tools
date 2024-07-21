@@ -77,6 +77,53 @@
 		<option value="14034625978433600" name="CarBody" />
 	</enum>
 
+	<enum name="PcCollision" storage="uint64">
+		<option value="0" name="Default" />
+		<option value="1" name="Landscape" />
+		<option value="2" name="Prop" />
+		<option value="4" name="Water" />
+		<option value="8" name="Character" />
+		<option value="16" name="Projectile" />
+		<option value="32" name="Building" />
+		<option value="64" name="Track" />
+		<option value="128" name="Car_OnTrack" />
+		<option value="256" name="Car_OffTrack" />
+		<option value="512" name="Vehicle" />
+		<option value="1024" name="Wheel" />
+		<option value="2048" name="NavMesh" />
+		<option value="4096" name="UIElement" />
+		<option value="8192" name="Ride" />
+		<option value="16384" name="Tree" />
+		<option value="32768" name="TrackScenery" />
+		<option value="65536" name="Miscreant" />
+		<option value="131072" name="FlatRideScenery" />
+		<option value="262144" name="DriveableCar" />
+		<option value="524288" name="DriveThru" />
+	</enum>
+
+	<enum name="PcSurface" storage="ushort">
+		<option value="0" name="Landscape" />
+		<option value="1" name="Prop" />
+		<option value="2" name="Water" />
+		<option value="3" name="Character" />
+		<option value="4" name="Projectile" />
+		<option value="5" name="Building" />
+		<option value="6" name="Track" />
+		<option value="7" name="Car_OnTrack" />
+		<option value="8" name="Car_OffTrack" />
+		<option value="9" name="Vehicle" />
+		<option value="10" name="Wheel" />
+		<option value="11" name="NavMesh" />
+		<option value="12" name="UIElement" />
+		<option value="13" name="Ride" />
+		<option value="14" name="Tree" />
+		<option value="15" name="TrackScenery" />
+		<option value="16" name="Miscreant" />
+		<option value="17" name="FlatRideScenery" />
+		<option value="18" name="DriveableCar" />
+		<option value="19" name="DriveThru" />
+	</enum>
+
 	<enum name="JWE1Surface" storage="uint">
 		<option value="0" name="LEGACY_DO_NOT_USE" />
 		<option value="1" name="Default" />
@@ -789,11 +836,13 @@
 	<compound name="HitCheck">
 		JWE2: 20 bytes excluding collider
 		<add name="dtype" type="CollisionType"/>
-		<add name="ClassificationName" type="JWE1Collision" until="47"/>
-		<add name="SurfaceName" type="JWE1Surface" until="47"/>
 		<add name="align" type="uint" since="48" default="0"/>
-<!--		<add name="flag_0" type="ushort" default="0">PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0</add>-->
-<!--		<add name="flag_1" type="ushort" default="0">PC: 0; JWE: 16; PZ, JWE2 always 0</add>-->
+		<add name="ClassificationName" type="PcCollision" until="32"/>
+		todo one of these may be an index into the classification group
+		<add name="SurfaceName" type="PcSurface" until="32"/>
+		<add name="SurfaceName2" type="PcSurface" until="32"/>
+		<add name="ClassificationName" type="JWE1Collision" since="47" until="47"/>
+		<add name="SurfaceName" type="JWE1Surface" since="47" until="47"/>
 		<add name="ClassificationName" type="OffsetString" arg="context \ joint_names" since="48"/>from physicsskeleton.specdef
 		<add name="SurfaceName" type="OffsetString" arg="context \ joint_names" since="48"/>
 		<add name="zero_extra_pc" type="uint" until="32">?</add>

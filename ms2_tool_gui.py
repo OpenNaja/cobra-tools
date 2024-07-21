@@ -109,6 +109,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			try:
 				self.ms2_file.load(filepath, read_editable=True)
+				print(self.ms2_file)
 			except:
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()

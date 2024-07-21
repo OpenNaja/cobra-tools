@@ -172,16 +172,14 @@ class COBRA_PT_collision(PropertiesPanel):
 	def draw(self, context):
 		rb = context.active_object.cobra_coll
 		layout = self.layout
-		row = layout.row(align=True)
-		row.prop(rb, "air_resistance")
-		row = layout.row(align=True)
-		row.prop(rb, "damping_3d")
-		row = layout.row(align=True)
-		row.prop(rb, "flag")
-		row = layout.row(align=True)
-		row.prop(rb, rb.get_current_versioned_name(context, "surface"))
-		row = layout.row(align=True)
-		row.prop(rb, rb.get_current_versioned_name(context, "classification"))
+		layout.prop(rb, "air_resistance")
+		layout.prop(rb, "damping_3d")
+		layout.prop(rb, "flag")
+		layout.prop(rb, rb.get_current_versioned_name(context, "surface"))
+		prop_name = rb.get_current_versioned_name(context, "surface_2")
+		if prop_name:
+			layout.prop(rb, prop_name)
+		layout.prop(rb, rb.get_current_versioned_name(context, "classification"))
 
 
 class COBRA_PT_viewport(ViewportPanel):
