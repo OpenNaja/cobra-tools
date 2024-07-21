@@ -88,7 +88,7 @@ class TextureManager():
             return 'Main'
         return path
 
-    def export_contentpack(self, path, contentpack_name):
+    def export_contentpack(self, path, contentpack_name, context="PLANET_ZOO"):
         """Exports txt entries to {path}/{texture_path}/{ID}.txt"""
 
         for name in self.refs:
@@ -99,7 +99,7 @@ class TextureManager():
             with open(f"{dest_path}/{name}.png", 'wb') as f:
                 f.write(self.refs[name]['content'])
             with open(f"{dest_path}/{name}.tex", 'w') as f:
-                f.write('<TexHeader compression_type="DdsType.BC7_UNORM" one_0="0" stream_count="1" stream_count_repeat="1" game="Games.PLANET_ZOO"><buffer_infos pool_type="3"><texbuffer offset="0" size="0" first_mip="0" mip_count="1" /></buffer_infos><size_info pool_type="4"><data data_size="0" width="0" height="0" num_mips="1"><mip_maps><mipmap offset="0" size="0" size_array="0" size_scan="0" size_data="0" /></mip_maps></data><padding></padding></size_info></TexHeader>')
+                f.write(f'<TexHeader compression_type="DdsType.BC7_UNORM" one_0="0" stream_count="1" stream_count_repeat="1" game="Games.{context}"><buffer_infos pool_type="3"><texbuffer offset="0" size="0" first_mip="0" mip_count="1" /></buffer_infos><size_info pool_type="4"><data data_size="0" width="0" height="0" num_mips="1"><mip_maps><mipmap offset="0" size="0" size_array="0" size_scan="0" size_data="0" /></mip_maps></data><padding></padding></size_info></TexHeader>')
 
     #
     # Helper functions

@@ -74,7 +74,7 @@ class UserInterfaceIconDataManager():
         # Maybe this needs to be moved to a tex handler
         for name in self.refs:
             with open(os.path.join(contentpack_path, f"{name}.userinterfaceicondata"), 'w') as f:
-                f.write(f"<UserinterfaceicondataRoot game=\"Games.{context}\"><tex_name pool_type=\"2\">{self.refs[name]['texture']}</tex_name><ovl_name pool_type=\"2\">{self.refs[name]['assetpkg']}</ovl_name></UserinterfaceicondataRoot>")
+                f.write(f"<UserinterfaceicondataRoot game=\"Games.{context}\">\n <tex_name pool_type=\"2\">{self.refs[name]['texture']}</tex_name>\n <ovl_name pool_type=\"2\">{self.refs[name]['assetpkg']}</ovl_name>\n</UserinterfaceicondataRoot>")
 
 
 if __name__ == "__main__":
