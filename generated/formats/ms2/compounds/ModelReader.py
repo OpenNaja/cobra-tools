@@ -1,8 +1,11 @@
 import logging
+from io import BytesIO
 
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
+from generated.formats.ms2.compounds.BufferInfo import BufferInfo
+from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ms2.versions import is_pc
 from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.compounds.Model import Model
@@ -218,8 +221,19 @@ class ModelReader(BaseStruct):
 		if instance.context.version < 47:
 			# buffer 1 starts at buffer_infos
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
+			# logging.debug(f"instance.start_of_buffer = {instance.start_of_buffer}")
+			# io_start is not valid until buffer_infos + model_infos has been loaded/written
+			# this could throw off the padding, especially for more complex models
+			# so a dummy dump to ensure that
+			b = instance.arg.buffer_infos
+			m = instance.arg.model_infos
+			with BytesIO() as dummy_stream:
+				b.write(dummy_stream)
+				m.write(dummy_stream)
+			offset_in_buffer_1 = b.io_size + m.io_size
+			# logging.debug(f"offset_in_buffer_1 = {offset_in_buffer_1}")
 			# meh, add it here even though it's really interleaved
-			instance.buffer_1_start = instance.start_of_buffer
+			instance.buffer_1_start = stream.tell() - offset_in_buffer_1
 			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
 				instance.align_to(stream, alignment=8)
@@ -247,7 +261,7 @@ class ModelReader(BaseStruct):
 				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
 		instance.align_to(stream, alignment=16)
 		instance.bone_info_size = stream.tell() - instance.buffer_1_start
-		# logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
+		logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

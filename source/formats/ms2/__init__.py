@@ -473,8 +473,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.info.mdl_2_count = len(self.model_infos)
 		self.update_names()
 		self.update_buffer_0_bytes()
-		self.update_buffer_1_bytes()
+		# do 2 before 1 to ensure the buffer infos have been created
 		self.update_buffer_2_bytes()
+		self.update_buffer_1_bytes()
 		# save multiple buffer_infos
 		streams = self.external_streams()
 		for buffer_info in streams:
