@@ -57,6 +57,8 @@ type_module_name_map = {
 	'Footer': 'generated.formats.path.compounds.Footer',
 	'SupportSetData': 'generated.formats.path.compounds.SupportSetData',
 	'SupportSetRoot': 'generated.formats.path.compounds.SupportSetRoot',
+	'WoodenSupportSetRoot': 'generated.formats.path.compounds.WoodenSupportSetRoot',
+	'LatticeSupportSetRoot': 'generated.formats.path.compounds.LatticeSupportSetRoot',
 }
 
 name_type_map = {}

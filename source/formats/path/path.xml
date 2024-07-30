@@ -198,4 +198,58 @@
         <add name="zeros" type="uint" default="0" arr1="3"/> <!-- 144 -->
     </compound>
 
+    <compound name="WoodenSupportSetRoot" inherit="MemStruct">
+        <!-- Size 288 -->
+        <add name="model_00" type="Pointer" template="ZString"/>
+        <add name="model_08" type="Pointer" template="ZString"/>
+        <add name="model_16" type="Pointer" template="ZString"/>
+        <add name="model_24" type="Pointer" template="ZString"/>
+        <add name="model_32" type="Pointer" template="ZString"/>
+        <add name="model_40" type="Pointer" template="ZString"/>
+        <add name="model_48" type="Pointer" template="ZString"/>
+        <add name="model_56" type="Pointer" template="ZString"/>
+        <add name="model_64" type="Pointer" template="ZString"/>
+        <add name="model_72" type="Pointer" template="ZString"/>
+        <add name="model_80" type="Pointer" template="ZString"/>
+        <add name="model_88" type="Pointer" template="ZString"/>
+        <add name="model_96" type="Pointer" template="ZString"/>
+        <add name="model_104" type="Pointer" template="ZString"/>
+        <add name="model_112" type="Pointer" template="ZString"/>
+        <add name="model_120" type="Pointer" template="ZString"/>
+        <add name="model_128" type="Pointer" template="ZString"/>
+        <add name="model_136" type="Pointer" template="ZString"/>
+        <add name="model_144" type="Pointer" template="ZString"/>
+        <add name="model_152" type="Pointer" template="ZString"/>
+        <add name="model_160" type="Pointer" template="ZString"/>
+        <add name="model_168" type="Pointer" template="ZString"/>
+        <add name="model_176" type="Pointer" template="ZString"/>
+        <add name="model_184" type="Pointer" template="ZString"/>
+        <add name="model_192" type="Pointer" template="ZString"/>
+        <add name="model_200" type="Pointer" template="ZString"/>
+        <add name="model_208" type="Pointer" template="ZString"/>
+        <add name="model_216" type="Pointer" template="ZString"/>
+        <add name="model_224" type="Pointer" template="ZString"/>
+        <add name="model_232" type="Pointer" template="ZString"/>
+        <add name="model_240" type="Pointer" template="ZString"/>
+        <add name="unkFloats" type="float" arr1="5"/> 
+        <add name="num_data" type="uint" /> <!-- matches num_data1 -->
+        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
+        <add name="num_data1" type="uint64" /> 
+    </compound>
+
+    <compound name="LatticeSupportSetRoot" inherit="MemStruct">
+        <!-- Size 288 -->
+        <add name="model_00" type="Pointer" template="ZString"/>
+        <add name="model_08" type="Pointer" template="ZString"/>
+        <add name="model_16" type="Pointer" template="ZString"/>
+        <add name="model_24" type="Pointer" template="ZString"/>
+        <add name="unkFloats" type="float" arr1="10"/> 
+        <add name="sub_braces" type="ArrayPointer" template="SubBrace" arg="num_sub_brace" />
+        <add name="num_sub_brace" type="uint64" />
+        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
+        <add name="num_data" type="uint64" />
+        <add name="padding" type="uint64" /> 
+    </compound>
+
+
 </niftoolsxml>

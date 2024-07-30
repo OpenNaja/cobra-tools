@@ -4,6 +4,8 @@ from generated.formats.path.compounds.PathResource import PathResource
 from generated.formats.path.compounds.PathSupport import PathSupport
 from generated.formats.path.compounds.PathType import PathType
 from generated.formats.path.compounds.SupportSetRoot import SupportSetRoot
+from generated.formats.path.compounds.LatticeSupportSetRoot import LatticeSupportSetRoot
+from generated.formats.path.compounds.WoodenSupportSetRoot import WoodenSupportSetRoot
 from generated.formats.path.compounds.PathJoinPartResourceRoot import PathJoinPartResourceRoot
 from modules.formats.BaseFormat import MemStructLoader
 
@@ -78,3 +80,28 @@ class SupportSetLoader(MemStructLoader):
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
 		self.write_memory_data()
+
+class LatticeSupportSetLoader(MemStructLoader):
+	target_class = LatticeSupportSetRoot
+	extension = ".latticesupportset"
+
+	def prep(self):
+		pass
+
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
+		self.prep()
+		self.write_memory_data()
+
+class WoodenSupportSetLoader(MemStructLoader):
+	target_class = WoodenSupportSetRoot
+	extension = ".woodensupportset"
+
+	def prep(self):
+		pass
+
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
+		self.prep()
+		self.write_memory_data()
+
