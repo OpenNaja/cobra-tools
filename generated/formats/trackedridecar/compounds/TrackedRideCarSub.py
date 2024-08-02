@@ -16,7 +16,6 @@ class TrackedRideCarSub(MemStruct):
 		self.float = name_type_map['Float'](self.context, 0, None)
 		self.u_0 = name_type_map['Uint'](self.context, 0, None)
 		self.vecs_count = name_type_map['Uint64'](self.context, 0, None)
-		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.vectors = name_type_map['ArrayPointer'](self.context, self.vecs_count, name_type_map['Vector3'])
 		if set_default:
 			self.set_defaults()
@@ -28,7 +27,6 @@ class TrackedRideCarSub(MemStruct):
 		yield 'u_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vectors', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None)
 		yield 'vecs_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,4 +35,3 @@ class TrackedRideCarSub(MemStruct):
 		yield 'u_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'vectors', name_type_map['ArrayPointer'], (instance.vecs_count, name_type_map['Vector3']), (False, None)
 		yield 'vecs_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
