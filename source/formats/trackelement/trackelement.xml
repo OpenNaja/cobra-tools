@@ -19,8 +19,9 @@
         PC: 80 PZ: 48
         <add name="loop_name" type="Pointer" template="ZString"/>
         <add name="ovl_name" type="Pointer" template="ZString"/>
-        <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/>
-        <add name="unk 0" type="uint64" until="18" />
+'\'        <!-- <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/> -->
+        <add name="catwalk" type="ArrayPointer" arg="catwalk_count" until="18" template="Catwalk_ref" />
+        <add name="catwalk_count" until="18"  type="uint64" />
         <add name="OptionalCatwalk" type="Pointer" template="ZString"/>
         <add name="unk 1" type="uint" until="18"/>
         <add name="unk 2" type="uint" />
@@ -30,6 +31,10 @@
         <add name="unk 6" type="uint" default="1"/>
         <add name="unk 7" type="uint" default="1" />
         <add name="pad" type="uint64" cond="#ARG# #LT# 2" >8 bytes when count is 1</add>
+    </compound>
+
+    <compound name="Catwalk_ref" inherit="MemStruct">
+        <add name="CatWalkName" type="Pointer" template="ZString" />
     </compound>
 
     <compound name="TrackElementSub" inherit="MemStruct">
