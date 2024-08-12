@@ -15,8 +15,6 @@ class ModData(PropertyGroup):
 	name: StringProperty(name="Name", description='This is the human-readable name of the mod.')
 	desc: StringProperty(name="Description", description="Mod's description is used to create the readme file.")
 	uuid: StringProperty(name="UUID", description="Mod's uuid. Delete to generate a new one", update=update_uuid, )
-	ordid: IntProperty(name="Order ID",
-					   description="Mod's starting id for to assets (Use a free Id). IDs will be assigned consecutively (only for JWE2)")
 	path: StringProperty(name="Mod Path", description="A folder will be created in this path for the mod files",
 						 default="", maxlen=1024, subtype="DIR_PATH")
 	pack: StringProperty(name="Pack into",

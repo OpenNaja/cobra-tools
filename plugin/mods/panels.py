@@ -11,8 +11,6 @@ class COBRA_MOD_PT_mod(PropertiesPanel):
 		self.layout.prop(mod, "name")
 		self.layout.prop(mod, "desc")
 		self.layout.prop(mod, "uuid")
-		if mod.game == 'JURASSIC_WORLD_EVOLUTION_2':
-			self.layout.prop(mod, "ordid")
 		self.layout.prop(mod, "path")
 		# todo - re-add operators
 		# self.layout.operator("cobra.export_mod")
