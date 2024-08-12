@@ -50,6 +50,7 @@
 
     <compound name="PathResource" inherit="MemStruct">
         <!-- Size 48 -->
+        <add name="pathtype" type="Pointer" template="ZString" vercond="#PC#"/>
         <add name="pathmaterial" type="Pointer" template="ZString"/>
         <add name="pathextrusion_kerb" type="Pointer" template="ZString"/>
         <add name="pathextrusion_railing" type="Pointer" template="ZString"/>
