@@ -32,4 +32,7 @@ texchannels = {
 	# 'pWaterDetailNormalMapTexture': {"": ""},
 	# 'pWaterFoamMapTexture': {"": ""},
 	# 'pWaterHighFreqDetailNormalMapTexture': {"": ""},
+	'pSpecularSmoothnessSamplerTexture': {"": "SP"}, # path materials
+	'pCavitySmoothnessAOSamplerTexture': {"R": "CA", "G": "SM", "B": "AO", "A": ""},  # path materials
+
 }
