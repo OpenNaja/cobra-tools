@@ -152,12 +152,13 @@
     </compound>
 
     <compound name="Pillar" inherit="MemStruct">
-        <!-- Size 40 -->
+        <!-- Size 40 PC, 48 PZ -->
         <add name="pillar_model" type="Pointer" template="ZString"/>
         <add name="cap_model" type="Pointer" template="ZString"/>
         <add name="fln_model" type="Pointer" template="ZString"/>
         <add name="unkFloats" type="float" arr1="2"/>
         <add name="unkInt2" type="uint64" />
+        <add name="unkInt3" type="uint64" vercond="#PZ#"/>
     </compound>
 
     <compound name="Footer" inherit="MemStruct">
