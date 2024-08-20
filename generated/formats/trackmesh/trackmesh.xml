@@ -7,10 +7,10 @@
     <compound name="TrackMeshRoot" inherit="MemStruct">
         PC: 80 bytes
         <add name="a" type="uint64"  />
-        <add name="offset_data" type="ArrayPointer" arg="count0" template="OffsetData"/>
+        <add name="offset_data" type="ArrayPointer" arg="offset_data_count" template="OffsetData"/>
         <add name="object_data" type="ArrayPointer" arg="object_data_count" template="TrackMesh_Object"/>
         <add name="element_data" type="ArrayPointer" arg="element_data_count" template="TrackMesh_Element"/>
-        <add name="count0" type="uint"  />
+        <add name="offset_data_count" type="uint"  />
         <add name="object_data_count" type="uint"  />
         <add name="element_data_count" type="uint64"  />
         <add name="lods" type="ArrayPointer" arg="lod_count" template="Lod"/>
@@ -48,8 +48,8 @@
     <compound name="TrackMesh_Element" inherit="MemStruct">
         PC: 120 bytes
         <add name="element_id" type="Pointer" template="ZString"/>
-        <add name="Objects_List" type="Pointer" template="ZStringList" arg="objects_count" />
-        <add name="objects_count" type="uint64"/>
+        <add name="Objects_List" type="Pointer" template="ZStringList" arg="objects_list_count" />
+        <add name="objects_list_count" type="uint64"/>
         <add name="flanges" type="Pointer" template="ZStringList" arg="flanges_count" />
         <add name="flanges_count" type="uint64" default="1"/>
         <add name="start_1" type="Pointer" template="ZStringList" arg="start_1_count" />
