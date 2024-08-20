@@ -41,7 +41,7 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TrackElementRoot': 'generated.formats.trackelement.compounds.TrackElementRoot',
 	'TrackElementData': 'generated.formats.trackelement.compounds.TrackElementData',
-	'CatwalkRef': 'generated.formats.trackelement.compounds.CatwalkRef',
+	'TrackMeshRef': 'generated.formats.trackelement.compounds.TrackMeshRef',
 	'TrackElementSub': 'generated.formats.trackelement.compounds.TrackElementSub',
 }
 

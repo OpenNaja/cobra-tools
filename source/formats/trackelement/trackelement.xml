@@ -2,26 +2,23 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-	
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-	
-
 	
     <compound name="TrackElementRoot" inherit="MemStruct">
         PC: 32 bytes
         <add name="track_data" type="ArrayPointer" arg="count" template="TrackElementData"/>
         <add name="count" type="uint64" />
-		<add name="unk string1" type="pointer" template="ZString" />
-		<add name="unk string2" type="pointer" template="ZString" />
+		<add name="support_prefab_name_1" type="pointer" template="ZString" />
+		<add name="support_prefab_name_2" type="pointer" template="ZString" />
     </compound>
 
     <compound name="TrackElementData" inherit="MemStruct">
         PC: 80 PZ: 48
-        <add name="loop_name" type="Pointer" template="ZString"/>
-        <add name="ovl_name" type="Pointer" template="ZString"/>
-'\'        <!-- <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/> -->
-        <add name="catwalk" type="ArrayPointer" arg="catwalk_count" until="18" template="Catwalk_ref" />
-        <add name="catwalk_count" until="18"  type="uint64" />
+        <add name="spline_name" type="Pointer" template="ZString"/> Will require a _l_spline and _r_spline spl files
+        <add name="trackmesh_element_name" type="Pointer" template="ZString"/> This is a ref to an existing trackmesh element
+        <!-- <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/> -->
+        <add name="TrackMeshList" type="ArrayPointer" arg="trackmeshlist_count" until="18" template="TrackMesh_ref" /> Used for TrackMeshIndex params, points to trackmesh elements by name. PZ does not support this param in the fdb.
+        <add name="trackmeshlist_count" until="18"  type="uint64" />
         <add name="OptionalCatwalk" type="Pointer" template="ZString"/>
         <add name="unk 1" type="uint" until="18"/>
         <add name="unk 2" type="uint" />
@@ -33,10 +30,11 @@
         <add name="pad" type="uint64" cond="#ARG# #LT# 2" >8 bytes when count is 1</add>
     </compound>
 
-    <compound name="Catwalk_ref" inherit="MemStruct">
-        <add name="CatWalkName" type="Pointer" template="ZString" />
+    <compound name="TrackMesh_ref" inherit="MemStruct">
+        <add name="trackmesh_element_name" type="Pointer" template="ZString" />
     </compound>
 
+    -- This is not used, but I'm leaving it as reminder that before the buffer had an empty string at the end.
     <compound name="TrackElementSub" inherit="MemStruct">
         PC: 32
         <add name="CatwalkRight_LSM" type="Pointer" template="ZString"/>
