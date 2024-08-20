@@ -8,11 +8,11 @@
         PC: 80 bytes
         <add name="a" type="uint64"  />
         <add name="offset_data" type="ArrayPointer" arg="count0" template="OffsetData"/>
-        <add name="track_data" type="ArrayPointer" arg="next_count" template="TrackData"/>
-        <add name="last" type="ArrayPointer" arg="last_count" template="LastData"/>
+        <add name="object_data" type="ArrayPointer" arg="object_data_count" template="TrackMesh_Object"/>
+        <add name="element_data" type="ArrayPointer" arg="element_data_count" template="TrackMesh_Element"/>
         <add name="count0" type="uint"  />
-        <add name="next_count" type="uint"  />
-        <add name="last_count" type="uint64"  />
+        <add name="object_data_count" type="uint"  />
+        <add name="element_data_count" type="uint64"  />
         <add name="lods" type="ArrayPointer" arg="lod_count" template="Lod"/>
         <add name="lod_count" type="uint64"  />
         <add name="heatmap_name" type="Pointer" template="ZString"/>
@@ -22,8 +22,8 @@
     <compound name="OffsetData" inherit="MemStruct">
         PC: 64 bytes
         <add name="offset_id" type="Pointer" template="ZString"/>
-        <add name="unk 1" type="Pointer" template="ZString"/>often unused
-        <add name="unk 2" type="Pointer" template="ZString"/>often unused
+        <add name="mdl2_name" type="Pointer" template="ZString"/>When used this is a mdl2
+        <add name="Bone_name" type="Pointer" template="ZString"/>when used this is a bone of the model
         <add name="relative_offset" type="Vector3" />
         <add name="spacing" type="float" />
         <add name="one" type="uint" />
@@ -34,22 +34,22 @@
         <add name="z5" type="uint" />
     </compound>
 
-    <compound name="TrackData" inherit="MemStruct">
+    <compound name="TrackMesh_Object" inherit="MemStruct">
         PC: 48 bytes
         <add name="place_id" type="Pointer" template="ZString"/>
-        <add name="file" type="Pointer" template="ZString"/>
-        <add name="a" type="uint" />
+        <add name="file" type="Pointer" template="ZString"/> -- can be a prefab, a model, an object, hitcheck, an audio.. 
+        <add name="type" type="uint" /> -- this is what defines what the string 'file' means
         <add name="b" type="uint" />
         <add name="c" type="uint64" />
         <add name="offset_id" type="Pointer" template="ZString"/>
         <add name="d" type="uint64" />
     </compound>
 
-    <compound name="LastData" inherit="MemStruct">
+    <compound name="TrackMesh_Element" inherit="MemStruct">
         PC: 120 bytes
-        <add name="some_name" type="Pointer" template="ZString"/>
-        <add name="models" type="Pointer" template="ZStringList" arg="models_count" />
-        <add name="models_count" type="uint64"/>
+        <add name="element_id" type="Pointer" template="ZString"/>
+        <add name="Objects_List" type="Pointer" template="ZStringList" arg="objects_count" />
+        <add name="objects_count" type="uint64"/>
         <add name="flanges" type="Pointer" template="ZStringList" arg="flanges_count" />
         <add name="flanges_count" type="uint64" default="1"/>
         <add name="start_1" type="Pointer" template="ZStringList" arg="start_1_count" />

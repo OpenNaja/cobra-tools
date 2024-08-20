@@ -22,8 +22,8 @@ class OffsetData(MemStruct):
 		self.z_4 = name_type_map['Uint'](self.context, 0, None)
 		self.z_5 = name_type_map['Uint'](self.context, 0, None)
 		self.offset_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.unk_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.unk_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.mdl_2_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.bone_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -31,8 +31,8 @@ class OffsetData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'unk_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'unk_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'mdl_2_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'relative_offset', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'spacing', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'one', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -46,8 +46,8 @@ class OffsetData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'unk_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'unk_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'mdl_2_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'relative_offset', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'spacing', name_type_map['Float'], (0, None), (False, None)
 		yield 'one', name_type_map['Uint'], (0, None), (False, None)
