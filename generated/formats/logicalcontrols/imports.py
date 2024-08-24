@@ -41,6 +41,8 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'LogicalControls': 'generated.formats.logicalcontrols.compounds.LogicalControls',
 	'ButtonData': 'generated.formats.logicalcontrols.compounds.ButtonData',
+	'ButtonStr': 'generated.formats.logicalcontrols.compounds.ButtonStr',
+	'PCButtonData': 'generated.formats.logicalcontrols.compounds.PCButtonData',
 	'Button': 'generated.formats.logicalcontrols.compounds.Button',
 	'AxisValue': 'generated.formats.logicalcontrols.compounds.AxisValue',
 	'AxisButton': 'generated.formats.logicalcontrols.compounds.AxisButton',

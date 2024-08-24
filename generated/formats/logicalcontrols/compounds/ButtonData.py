@@ -4,15 +4,6 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class ButtonData(MemStruct):
 
-	"""
-	PC, probably different
-	WARNING | Pointer at 63 | 3888 to 63 | 3712 is missing for ButtonData (rel offset: 0)
-	
-	# Apparently the binding value is from a = 1..
-	# HUD_MapMode:          13  209     m and M
-	# HUD_Notifications:    14  210     n and N
-	"""
-
 	__name__ = 'ButtonData'
 
 

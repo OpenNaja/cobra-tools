@@ -21,12 +21,6 @@
     </compound>
 
     <compound name="ButtonData" inherit="MemStruct">
-        PC, probably different
-WARNING | Pointer at 63 | 3888 to 63 | 3712 is missing for ButtonData (rel offset: 0)
-
-        # Apparently the binding value is from a = 1..
-        # HUD_MapMode:          13  209     m and M
-        # HUD_Notifications:    14  210     n and N
         <add name="k1a" type="ushort"/>
         <add name="k1b" type="ushort"/>
         <add name="k2" type="uint"/>
@@ -34,11 +28,24 @@ WARNING | Pointer at 63 | 3888 to 63 | 3712 is missing for ButtonData (rel offse
         <add name="k4" type="uint"/>
     </compound>
 
+    <compound name="ButtonStr" inherit="MemStruct">
+        <add name="ref_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="PCButtonData" inherit="MemStruct">
+        #Specific for PC, the format is completely different
+        <add name="keys" type="ArrayPointer" template="ButtonStr" arg="key_count"/>
+        <add name="key_count" type="ushort" />
+        <add name="key_flags" type="ushort" />
+        <add name="unkown" type="uint"/>
+    </compound>
+
     <compound name="Button" inherit="MemStruct">
         <add name="button_name" type="Pointer" template="ZString"/>
-        <add name="datas" type="ArrayPointer" template="ButtonData" arg="datas_count"/>
+        <add name="datas" type="ArrayPointer" template="ButtonData" arg="datas_count" vercond="!#PC#"/>
+        <add name="pcdatas" type="ArrayPointer" template="PCButtonData" arg="datas_count" vercond="#PC#"/>
         <add name="datas_count" type="uint" />
-        <add name="flags" type="uint" />
+        <add name="flags" type="uint"/>
     </compound>
 
     <compound name="AxisValue" inherit="MemStruct">
