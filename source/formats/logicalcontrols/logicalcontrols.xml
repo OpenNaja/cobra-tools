@@ -9,9 +9,13 @@
 
     <compound name="LogicalControls" inherit="MemStruct">
         <add name="buttons" type="ArrayPointer" template="Button" arg="button_count"/>
-        <add name="axes" type="ArrayPointer" template="AxisValue" arg="axis_count"/>
-        <add name="axis_buttons" type="ArrayPointer" template="AxisButton" arg="count3"/>
-        <add name="d" type="ArrayPointer" template="Some" arg="count4"/>
+
+        # axes, axis_buttons and d are causing crashes in PC if the pointer to the array exists, but I can't
+        # figure a way to not create the pointer to an empty array.
+
+        <add name="axes" type="ArrayPointer" template="AxisValue" arg="axis_count"  optional="true"/>
+        <add name="axis_buttons" type="ArrayPointer" template="AxisButton" arg="count3" optional="true"/>
+        <add name="d" type="ArrayPointer" template="Some" arg="count4" optional="true" />
         <add name="button_count" type="ubyte" />
         <add name="axis_count" type="ubyte" />
         <add name="count3" type="ubyte" />
