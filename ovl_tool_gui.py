@@ -6,6 +6,7 @@ import tempfile
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import get_icon
 from ovl_util.logs import get_stdout_handler
 from modules import walker
 from root_path import root_dir
@@ -55,7 +56,12 @@ class MainWindow(widgets.MainWindow):
 			self,
 			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
-			search_content_fn=self.search_ovl_contents)
+			search_content_fn=self.search_ovl_contents,
+			actions={
+				QtWidgets.QAction(get_icon("extract"), "Unpack All"): self.extract_all_batch,
+				QtWidgets.QAction("Rename Files"): self.rename_batch,
+				QtWidgets.QAction("Rename Contents"): self.rename_contents_batch,
+				})
 		self.installed_games.set_selected_game()
 
 		# create the table
@@ -101,7 +107,6 @@ class MainWindow(widgets.MainWindow):
 			self.installed_games,
 			self.installed_games.search,
 			self.installed_games.dirs,
-			self.installed_games.process_folder,
 			margins=(0, 0, 1, 0))
 		right_frame = widgets.pack_in_vbox(
 			self.file_widget,
@@ -128,8 +133,8 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", "remove"),
-			(edit_menu, "Load included ovl list", self.load_included_ovls, "", ""),
-			(edit_menu, "Export included ovl list", self.save_included_ovls, "", ""),
+			(edit_menu, "Load Included Ovl List", self.load_included_ovls, "", ""),
+			(edit_menu, "Export Included Ovl List", self.save_included_ovls, "", ""),
 			(edit_menu, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
 			(util_menu, "Inspect ms2", self.inspect_models, "", "ms2", True),
 			(util_menu, "Inspect fgm", self.walker_fgm, "", "fgm", True),
@@ -244,15 +249,12 @@ class MainWindow(widgets.MainWindow):
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
-		if self.installed_games.process_folder.isChecked():
-			logging.warning(f"Batch mode encountered an error: {details}")
-		elif self.suppress_popups:
+		if self.suppress_popups:
 			logging.warning(f"Dragging encountered an error: {details}")
 		else:
 			self.showwarning(msg, details=details)
 
 	def enable_gui_options(self, enable=True):
-		self.installed_games.process_folder.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
@@ -297,24 +299,24 @@ class MainWindow(widgets.MainWindow):
 		# go back to original log level
 		self.set_log_level.emit(log_level)
 
-	def handle_path(self, save_over=True):
-		# get path
-		if self.installed_games.process_folder.isChecked():
+	def handle_path(self, save_over=True, batch=False):
+		if batch:
+			# get path
 			selected_dir = self.walk_root()
 			if selected_dir:
-				with self.log_level_override("WARNING"):
-					# walk path
-					for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
-						# open ovl file
-						self.open(ovl_path, threaded=False)
-						# todo transition to open_file api for consistency
-						#      but this must not spawn a new thread so that save_over works
-						#      clear logger after each file, but self.file_widget.open_file would do that
-						# self.file_widget.open_file(ovl_path)
-						# process each
-						yield self.ovl_data
-						if save_over:
-							self.save(ovl_path)
+				with self.no_popups():
+					with self.log_level_override("WARNING"):
+						for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
+							# open ovl file
+							self.open(ovl_path, threaded=False)
+							# todo transition to open_file api for consistency
+							#      but this must not spawn a new thread so that save_over works
+							#      clear logger after each file, but self.file_widget.open_file would do that
+							# self.file_widget.open_file(ovl_path)
+							# process each
+							yield self.ovl_data
+							if save_over:
+								self.save(ovl_path)
 			else:
 				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
@@ -333,35 +335,40 @@ class MainWindow(widgets.MainWindow):
 	def open_tools_dir():
 		os.startfile(root_dir)
 
+	@contextlib.contextmanager
+	def no_popups(self):
+		self.suppress_popups = True
+		yield
+		self.suppress_popups = False
+
 	def drag_files(self, file_names):
 		# logging.debug(f"Dragging {file_names}")
-		self.suppress_popups = True
-		drag = QtGui.QDrag(self)
-		data = QtCore.QMimeData()
-		temp_dir = tempfile.mkdtemp("-cobra")
-		try:
-			out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
-			if out_paths:
-				# make relative to output folder
-				pure_paths = (PurePath(os.path.relpath(path, temp_dir)) for path in out_paths)
-				rel_out_paths = set()
-				for p in pure_paths:
-					# get the first dir in the path
-					if len(p.parents) > 1:
-						rel_out_paths.add(str(p.parents[-2]))
-					# no dir, just the file itself
-					else:
-						rel_out_paths.add(str(p))
-				# join the children back to the temp_dir
-				out_paths = set(os.path.join(temp_dir, p) for p in rel_out_paths)
-				# set paths to mime
-				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
-				drag.setMimeData(data)
-				drag.exec_()
-		except:
-			self.handle_error("Dragging failed, see log!")
-		shutil.rmtree(temp_dir)
-		self.suppress_popups = False
+		with self.no_popups():
+			drag = QtGui.QDrag(self)
+			data = QtCore.QMimeData()
+			temp_dir = tempfile.mkdtemp("-cobra")
+			try:
+				out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
+				if out_paths:
+					# make relative to output folder
+					pure_paths = (PurePath(os.path.relpath(path, temp_dir)) for path in out_paths)
+					rel_out_paths = set()
+					for p in pure_paths:
+						# get the first dir in the path
+						if len(p.parents) > 1:
+							rel_out_paths.add(str(p.parents[-2]))
+						# no dir, just the file itself
+						else:
+							rel_out_paths.add(str(p))
+					# join the children back to the temp_dir
+					out_paths = set(os.path.join(temp_dir, p) for p in rel_out_paths)
+					# set paths to mime
+					data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+					drag.setMimeData(data)
+					drag.exec_()
+			except:
+				self.handle_error("Dragging failed, see log!")
+			shutil.rmtree(temp_dir)
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
@@ -450,21 +457,24 @@ class MainWindow(widgets.MainWindow):
 		except:
 			self.handle_error("Saving OVL failed, see log!")
 
-	def extract_all(self):
+	def extract_all(self, batch=False):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
 															 self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			self.run_in_threadpool(self._extract_all, (), out_dir)
+			self.run_in_threadpool(self._extract_all, (), out_dir, batch)
 
-	def _extract_all(self, out_dir):
+	def extract_all_batch(self):
+		self.extract_all(batch=True)
+
+	def _extract_all(self, out_dir, batch=False):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
 		only_types = self.extract_types_choice.currentData()
 		selected_dir = self.walk_root()
-		for ovl in self.handle_path(save_over=False):
+		for ovl in self.handle_path(save_over=False, batch=batch):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
-			if self.installed_games.process_folder.isChecked():
+			if batch:
 				rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 				out_dir = os.path.join(_out_dir, rel_p)
 			ovl.extract(out_dir, only_types=only_types)
@@ -498,30 +508,42 @@ class MainWindow(widgets.MainWindow):
 		except:
 			self.handle_error("Getting replace strings failed, see log!")
 
-	def rename(self):
+	def rename(self, batch=False):
 		names = self.get_replace_strings()
 		try:
 			if names:
 				for ovl in self.handle_path():
 					ovl.rename(names)
-					if not self.installed_games.process_folder.isChecked():
+					if not batch:
 						self.set_dirty()
 		except:
 			self.handle_error("Renaming failed, see log!")
 
+	def rename_batch(self):
+		names = self.get_replace_strings()
+		if names:
+			try:
+				for ovl in self.handle_path(batch=True):
+					ovl.rename(names)
+			except:
+				self.handle_error("Renaming failed, see log!")
+
 	def rename_contents(self):
 		names = self.get_replace_strings()
 		if names:
-			# if we are operating only on the current ovl, check selection state
-			if not self.installed_games.process_folder.isChecked():
-				only_files = self.files_container.table.get_selected_files()
-			else:
-				only_files = ()
+			# we are operating only on the current ovl, so check selection state
+			only_files = self.files_container.table.get_selected_files()
 			for ovl in self.handle_path():
 				ovl.rename_contents(names, only_files)
-				if not self.installed_games.process_folder.isChecked():
-					self.set_dirty()
+				self.set_dirty()
 				# file names don't change, so no need to update gui
+
+	def rename_contents_batch(self):
+		names = self.get_replace_strings()
+		if names:
+			only_files = ()
+			for ovl in self.handle_path(batch=True):
+				ovl.rename_contents(names, only_files)
 
 	def rename_both(self):
 		self.rename_contents()

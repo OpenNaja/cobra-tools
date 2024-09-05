@@ -1936,8 +1936,9 @@ class OvlDataFilesystemModel(QFileSystemModel):
 
 class OvlDataTreeView(QTreeView):
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, actions={}) -> None:
         super().__init__(parent)
+        self.actions = actions
 
     def map_index(self, index: QModelIndex) -> QModelIndex:
         """Map from source if applicable"""
@@ -1966,6 +1967,18 @@ class OvlDataTreeView(QTreeView):
                  hint: QAbstractItemView.ScrollHint = QAbstractItemView.ScrollHint.EnsureVisible) -> None:
         return super().scrollTo(self.map_index(index), hint)
 
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu()
+        index = self.indexAt(event.pos())
+        if index.isValid():
+            if self.actions:
+                for action, func in self.actions.items():
+                    menu.addAction(action)
+                res = menu.exec_(event.globalPos())
+                if res in self.actions:
+                    func = self.actions[res]
+                    func()
+
 
 class GamesWidget(QWidget):
     """Installed games combo box with optional search and directory widgets (caller has to add them to layout)"""
@@ -1978,7 +1991,8 @@ class GamesWidget(QWidget):
                  game_chosen_fn: Optional[Callable] = None,
                  dir_dbl_click_fn: Optional[Callable] = None,
                  file_dbl_click_fn: Optional[Callable] = None,
-                 search_content_fn: Optional[Callable] = None) -> None:
+                 search_content_fn: Optional[Callable] = None,
+                 actions: dict = {}) -> None:
         super().__init__(parent)
         self.cfg: dict[str, Any] = parent.cfg
         if filters is None:
@@ -2018,7 +2032,7 @@ class GamesWidget(QWidget):
         self.model.setNameFilters(filters)
         self.model.setNameFilterDisables(False)
 
-        self.dirs = OvlDataTreeView()
+        self.dirs = OvlDataTreeView(actions=actions)
         self.dirs.setModel(self.model)
         self.dirs.setColumnHidden(1, True)
         self.dirs.setColumnHidden(2, True)
@@ -2037,10 +2051,6 @@ class GamesWidget(QWidget):
         self.dirs.setAnimated(False)
         self.dirs.setIndentation(12)
         self.dirs.setSortingEnabled(True)
-
-        self.process_folder = QtWidgets.QCheckBox("Process Folder")
-        self.process_folder.setToolTip("Runs commands on all OVLs of current folder")
-        self.process_folder.setChecked(False)
         
         self.set_games()
 
@@ -2128,7 +2138,8 @@ class GamesWidget(QWidget):
 
     def get_selected_dir(self) -> str:
         file_path = self.model.filePath(self.dirs.currentIndex())
-        return file_path if os.path.isdir(file_path) else ""
+        # if a file is selected, get its containing dir
+        return file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
 
     def set_selected_dir(self, dir_path: str) -> None:
         """Show dir_path in dirs"""
