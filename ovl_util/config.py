@@ -60,6 +60,7 @@ class Config(dict):
 	dds_use_gpu = TransientSetting("Use GPU Compression", "GPU is faster but less accurate, especially on MIP maps", True, (True, False))
 	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
 	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
+	decompile_lua = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
 	# GUI appearance
 	logger_show = ImmediateSetting("Show Logger", "Show Logger panel - needs restart", False, (True, False))  # Hides/show the logger panel.
 	logger_orientation = ImmediateSetting("Logger Orientation", "Set logger orientation - needs restart", "H", ("H", "V"))

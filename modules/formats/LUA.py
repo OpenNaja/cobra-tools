@@ -11,7 +11,11 @@ class LuaLoader(MemStructLoader):
 	extension = ".lua"
 	target_class = LuaRoot
 	# temp_extensions = ".bin"
-	
+
+	@property
+	def decompile_lua(self):
+		return self.ovl.cfg.get("decompile_lua", False)
+
 	def create(self, file_path):
 		buffer_0 = self._get_data(file_path)
 		self.create_data_entry((buffer_0,))
@@ -38,19 +42,22 @@ class LuaLoader(MemStructLoader):
 			bin_path = lua_path + ".bin"
 			with open(bin_path, 'wb') as outfile:
 				outfile.write(buffer_data)
-			# try to decompile it
-			decompiled_bytes = texconv.bin_to_lua(bin_path)
-			if decompiled_bytes:
-				with open(lua_path, 'wb') as outfile:
-					outfile.write(decompiled_bytes)
-				out_files.append(lua_path)
-				# also include the compiled version if needed
-				if error_flag in decompiled_bytes:
+			if self.decompile_lua:
+				# try to decompile it
+				decompiled_bytes = texconv.bin_to_lua(bin_path)
+				if decompiled_bytes:
+					with open(lua_path, 'wb') as outfile:
+						outfile.write(decompiled_bytes)
+					out_files.append(lua_path)
+					# also include the compiled version if needed
+					if error_flag in decompiled_bytes:
+						out_files.append(bin_path)
+						logging.warning(f"Decompiler error in {self.name} - refer to the compiled lua")
+					elif self.show_temp_files:
+						out_files.append(bin_path)
+				# no conversion result, just get bin
+				else:
 					out_files.append(bin_path)
-					logging.warning(f"Decompiler error in {self.name} - refer to the compiled lua")
-				elif self.show_temp_files:
-					out_files.append(bin_path)
-			# no conversion result, just get bin
 			else:
 				out_files.append(bin_path)
 		else:
