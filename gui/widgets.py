@@ -1,5 +1,6 @@
 import contextlib
 import logging
+import subprocess
 import webbrowser
 import os
 import re
@@ -1972,6 +1973,7 @@ class OvlDataTreeView(QTreeView):
         index = self.indexAt(event.pos())
         if index.isValid():
             if self.actions:
+                menu.addSection("Batch Process")
                 for action, func in self.actions.items():
                     menu.addAction(action)
                 res = menu.exec_(event.globalPos())
@@ -2000,13 +2002,20 @@ class GamesWidget(QWidget):
 
         self.entry = CleverCombo(self, options=[])
         self.entry.setEditable(False)
+        self.entry.setToolTip("Select game for easy access")
         self.set_data(self.cfg["games"])
 
-        self.add_button = QPushButton("+")
+        self.play_button = QPushButton(get_icon("play"), "")
+        self.play_button.setMaximumWidth(20)
+        self.play_button.setToolTip("Run the currently selected game")
+
+        self.add_button = QPushButton(get_icon("bookmarks"), "")
         self.add_button.setMaximumWidth(20)
+        self.add_button.setToolTip("Add a game from a folder to the list of games")
 
         vbox = QHBoxLayout(self)
         vbox.addWidget(self.entry)
+        vbox.addWidget(self.play_button)
         vbox.addWidget(self.add_button)
         vbox.setContentsMargins(0, 0, 0, 0)
 
@@ -2023,9 +2032,9 @@ class GamesWidget(QWidget):
         vbox.addWidget(self.search_button)
         vbox.setContentsMargins(0, 0, 0, 0)
 
-        self.setToolTip("Select game for easy access below")
         
         self.entry.textActivated.connect(self.set_selected_game)
+        self.play_button.clicked.connect(self.run_selected_game)
         self.add_button.clicked.connect(self.add_installed_game_manually)
 
         self.model = OvlDataFilesystemModel()
@@ -2128,6 +2137,14 @@ class GamesWidget(QWidget):
             self.entry.setText(game)
             self.game_chosen(game)
 
+    def run_selected_game(self):
+        selected_game = self.get_selected_game()
+        logging.info(f"Running {selected_game}")
+        for game, ovldata in self.cfg["games"].items():
+            if game == selected_game:
+                exe_path = self.get_exe_from_ovldata(ovldata)
+                subprocess.Popen([exe_path, "-nointro"])
+
     def set_root(self, dir_game: str) -> None:
         root_index = self.model.setRootPath(dir_game)
         self.dirs.setRootIndex(root_index)
@@ -2175,9 +2192,7 @@ class GamesWidget(QWidget):
         self.entry.clear()
         for game, ovldata in sorted_games:
             try:
-                game_dir = Path(ovldata).parent.parent
-                exe = [exe for exe in os.listdir(game_dir) if exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe", )][0]
-                exe_path = os.path.join(game_dir, exe)
+                exe_path = self.get_exe_from_ovldata(ovldata)
                 info = QFileInfo(exe_path)
                 icon = QIcon(provider.icon(info))
                 self.entry.addItem(icon, game)
@@ -2188,6 +2203,13 @@ class GamesWidget(QWidget):
             # get the current game from cfg, and fall back to first of the list if needed
             current_game = self.cfg.get("current_game", sorted_games[0][0])
             self.entry.setText(current_game)
+
+    def get_exe_from_ovldata(self, ovldata):
+        game_dir = Path(ovldata).parent.parent
+        exe = [exe for exe in os.listdir(game_dir) if
+               exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
+        exe_path = os.path.join(game_dir, exe)
+        return exe_path
 
     def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
         self.proxy = proxy_cls(self)
