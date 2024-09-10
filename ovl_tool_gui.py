@@ -59,8 +59,8 @@ class MainWindow(widgets.MainWindow):
 			search_content_fn=self.search_ovl_contents,
 			actions={
 				QtWidgets.QAction(get_icon("extract"), "Unpack All"): self.extract_all_batch,
-				QtWidgets.QAction("Rename Files"): self.rename_batch,
-				QtWidgets.QAction("Rename Contents"): self.rename_contents_batch,
+				QtWidgets.QAction(get_icon("rename"), "Rename Files"): self.rename_batch,
+				QtWidgets.QAction(get_icon("rename_contents"), "Rename Contents"): self.rename_contents_batch,
 				})
 		self.installed_games.set_selected_game()
 
@@ -129,8 +129,8 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack All", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(edit_menu, "Rename Files", self.rename, "CTRL+R", ""),
-			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
+			(edit_menu, "Rename Files", self.rename, "CTRL+R", "rename"),
+			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", "rename_contents"),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", "remove"),
 			(edit_menu, "Load Included OVL List", self.load_included_ovls, "", ""),
