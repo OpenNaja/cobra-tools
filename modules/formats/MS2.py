@@ -90,6 +90,7 @@ class Ms2Loader(MemStructLoader):
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
 		# print(ms2_file)
+		# print(ms2_file.models_reader.bone_infos)
 		self.ovl.is_dev = int(not ms2_file.biosyn)
 		self.context = Ms2Context()
 		self.context.version = ms2_file.info.version

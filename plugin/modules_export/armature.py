@@ -70,6 +70,9 @@ def export_bones_custom(b_armature_ob, model_info):
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
 		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = bone_info.zeros_count = len(b_armature_ob.data.bones)
+	if model_info.context.version > 47:
+		# verified as unused for PZ, JWE2
+		bone_info.zeros_count = 0
 	bone_info.reset_field("bones")
 	bone_info.reset_field("inverse_bind_matrices")
 	bone_info.reset_field("parents")

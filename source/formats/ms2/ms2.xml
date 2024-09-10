@@ -964,7 +964,7 @@
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
-		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
+		<add name="zeros count" type="uint64" >counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2</add>
 		<add name="ik_count" type="uint64"/>max of ik_info's ik_count and ik_targets_count
 		<add name="joint count" type="uint64"/>
 		<add name="zero 1" type="uint64" default="0"/>

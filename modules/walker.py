@@ -196,6 +196,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 		classification_name = set()
 		surface_name = set()
 		surface_name2 = set()
+		zeros_count = set()
 		joint_pad_size = {}
 		if walk_models:
 			with gui.reporter.log_duration("Walking MS2 files"):
@@ -236,6 +237,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 							# pack_bases.add(model_info.pack_base)
 							pack_bases.add((model_info.pack_base, model_info.precision))
 							if model_info.bone_info:
+								zeros_count.add(model_info.bone_info.zeros_count)
 								if model_info.bone_info.bone_count > max_bones:
 									max_bones = model_info.bone_info.bone_count
 									max_bones_ms2 = ms2_path_rel
@@ -266,7 +268,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 											classification_name.add(hit.classification_name)
 											surface_name.add(hit.surface_name)
 											# surface_name2.add((hit.surface_name, int(hit.surface_name_2)))
-											surface_name2.add((int(hit.surface_name), hit.surface_name_2))
+											surface_name2.add((hit.surface_name, hit.surface_name_2))
 											if hit.dtype == CollisionType.MESH_COLLISION:
 												mesh_collision.add(ms2_path_rel)
 							else:
@@ -304,6 +306,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 			print(f"surface_name2: {sorted(surface_name2)}")
 			print(f"mesh_w: {mesh_w}")
 			print(f"materials: {sorted(materials)}")
+			print(f"zeros_count: {sorted(zeros_count)}")
 			# largest_zstring_buffers = sorted(joint_names_padding.keys())
 			# num = 10
 			# if len(largest_zstring_buffers) > num:

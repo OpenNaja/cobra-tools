@@ -53,7 +53,7 @@ class BoneInfo(BaseStruct):
 		# matches the other count on dino entertainer, but ik_count is not present
 		self.unk_pc_count = name_type_map['Uint64'](self.context, 0, None)
 
-		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
+		# counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2
 		self.zeros_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
 		self.joint_count = name_type_map['Uint64'](self.context, 0, None)
