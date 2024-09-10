@@ -459,16 +459,18 @@ class MainWindow(widgets.MainWindow):
 			except:
 				self.handle_error("Saving OVL failed, see log!")
 
-	def extract_all(self, batch=False):
+	def extract_all(self):
 		if self.is_open_ovl():
-			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
-																 self.cfg.get("dir_extract", "C://"), )
-			if out_dir:
-				self.cfg["dir_extract"] = out_dir
-				self.run_in_threadpool(self._extract_all, (), out_dir, batch)
+			self.extract_all_ask(batch=False)
+
+	def extract_all_ask(self, batch=False):
+		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
+		if out_dir:
+			self.cfg["dir_extract"] = out_dir
+			self.run_in_threadpool(self._extract_all, (), out_dir, batch)
 
 	def extract_all_batch(self):
-		self.extract_all(batch=True)
+		self.extract_all_ask(batch=True)
 
 	def _extract_all(self, out_dir, batch=False):
 		_out_dir = out_dir
