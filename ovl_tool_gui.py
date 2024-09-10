@@ -616,6 +616,7 @@ class MainWindow(widgets.MainWindow):
 		return ""
 	
 	def walk_root(self):
+		# todo - fall back on game root if selected dir is not child of current game dir
 		selected = self.installed_games.get_selected_dir()
 		return selected if selected else self.game_root()
 
