@@ -259,7 +259,9 @@ class ModelReader(BaseStruct):
 			instance.start_of_buffer = stream.tell()
 			for model_info in instance.arg.model_infos:
 				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
-		instance.align_to(stream, alignment=16)
+		# 2024-09-10: PC is definitely not aligned to 16, but 8 if anything
+		instance.align_to(stream, alignment=8)
+		# instance.align_to(stream, alignment=16)
 		instance.bone_info_size = stream.tell() - instance.buffer_1_start
 		logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
 		instance.io_size = stream.tell() - instance.io_start
