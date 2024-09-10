@@ -3069,7 +3069,7 @@ class MainWindow(FramelessMainWindow):
             # Frameless titlebar
             self.titleBar.raise_()
 
-        self.threadpool = QtCore.QThreadPool()
+        self.threadpool = QtCore.QThreadPool.globalInstance()
         self.setCentralWidget(self.central_widget)
 
     def layout_splitter(self, grid, left_frame, right_frame):
