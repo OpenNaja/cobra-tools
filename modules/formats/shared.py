@@ -79,6 +79,10 @@ class DummyReporter:
             logging.success(msg)
             self.success_msg.emit(msg)
 
+    def show_success(self, msg):
+        logging.success(msg)
+        self.success_msg.emit(msg)
+
     def show_error(self, msg, files=()):
         self.warning_msg.emit((msg, "\n".join(files)))
 

@@ -1424,7 +1424,7 @@ class OvlFile(Header):
 		for loader in self.sorted_loaders:
 			loader.dump_buffers(out_dir_func)
 
-	def save(self, filepath, use_threads = True):
+	def save(self, filepath, use_threads=True):
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Writing {self.name}"):
 			# do this last so we also catch the assets & sets
@@ -1462,6 +1462,7 @@ class OvlFile(Header):
 				stream = streams[self.filepath]
 				self.write_fields(stream, self)
 				stream.write(ovl_compressed)
+		self.reporter.show_success(f"Saved {self.name}")
 
 
 if __name__ == "__main__":

@@ -173,6 +173,7 @@ class MainWindow(widgets.MainWindow):
 		reporter.included_ovls_list.connect(self.included_ovls_view.set_data)
 		reporter.warning_msg.connect(self.notify_user)
 		reporter.progress_percentage.connect(self.set_progress)
+		reporter.success_msg.connect(self.set_msg_temporarily)
 		reporter.current_action.connect(self.set_msg_temporarily)
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
 		self.preferences_widget = None
@@ -316,7 +317,7 @@ class MainWindow(widgets.MainWindow):
 							# process each
 							yield self.ovl_data
 							if save_over:
-								self.save(ovl_path)
+								self.save(ovl_path, threaded=False)
 			else:
 				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
@@ -447,15 +448,16 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovl_names = includes
 		self.set_dirty()
 
-	def save(self, filepath):
+	def save(self, filepath, threaded=True):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
-		try:
-			# self.run_in_threadpool(self.ovl_data.save, (self.set_clean, ), filepath)
-			self.ovl_data.save(filepath)
-			self.set_file_modified(False)
-			self.set_msg_temporarily(f"Saved {self.ovl_data.basename}")
-		except:
-			self.handle_error("Saving OVL failed, see log!")
+		if threaded:
+			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, ), filepath)
+		else:
+			try:
+				self.ovl_data.save(filepath)
+				self.set_clean()
+			except:
+				self.handle_error("Saving OVL failed, see log!")
 
 	def extract_all(self, batch=False):
 		if self.is_open_ovl():
