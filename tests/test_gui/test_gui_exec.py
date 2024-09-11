@@ -149,7 +149,7 @@ def test_ovl_tool_new(OVLTool: QtAppFixture, log_succeeds: LogCaptureFixture, mo
 	app, window, qtbot = OVLTool
 	window.file_widget.set_file_path("tests/Files/Files.ovl")
 	window.file_widget.dir_opened.emit("tests/Files/")
-	qtbot.waitUntil(lambda: "finished adding" in window.status_bar.currentMessage().lower(), timeout=10000)
+	qtbot.waitUntil(lambda: "adding succeeded" in window.status_bar.currentMessage().lower(), timeout=10000)
 
 	assert window.file_widget.filepath == "tests/Files/Files.ovl"
 	assert "Files.ovl" in window.windowTitle()
