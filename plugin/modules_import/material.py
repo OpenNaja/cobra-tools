@@ -268,8 +268,6 @@ class BaseShader:
 					self.id_2_out_socket[purpose] = color.outputs[0]
 
 	def map_color_channel(self, channel, rgba):
-		# @TODO: Hendrix please fix
-		# importing Content0\Rides\Shared\Textures\RidesSharedTextures\Concrete.fgm fails here
 		if len(channel) == 4:
 			return [rgba[c] for c in channel]
 		elif len(channel) == 3:
@@ -277,7 +275,7 @@ class BaseShader:
 		elif len(channel) == 2:
 			return [rgba[c] for c in channel] + [1.0, 1.0]
 		elif len(channel) == 1:
-			return [rgba[channel] for _ in range(3)] + [1.0, ]
+			return [rgba[channel[0]] for _ in range(3)] + [1.0, ]
 			
 
 def load_material_from_asset_library(created_materials, filepath, matname):
