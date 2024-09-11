@@ -36,10 +36,12 @@ If you would like to install the dependencies manually:
 3. In the command prompt type the following line and hit `Enter`
 
     ```
-    pip install --upgrade pip && pip install -r requirements.txt
+    pip install --upgrade pip && pip install .[gui]
     ```
-    <sup>**Please note:** If you do not open cmd in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`</sup>  
-    <sup>**Note:** You may need to upgrade pip using `python.exe -m pip install --upgrade pip` instead.</sup>
+    <sup>**Please note:**</sup>  
+    <sup>There is a dot `.` at the end of the command `.[gui]`.</sup>  
+    <sup>If you do not open `cmd` in your Cobra Tools folder, you will need to replace `.` with the full path to the folder.</sup>  
+    <sup>You may need to upgrade pip using `python.exe -m pip install --upgrade pip` instead.</sup>
 
 ### Blender Plugin Installation
 
@@ -49,11 +51,11 @@ Currently the tools work in blender 3.6 to 4.0.
 
 ### Developers
 
-If you are contributing to the project, in addition to installing `requirements.txt`:
+If you are contributing to the project:
 
-1. Install the dev requirements. From `cobra-tools` directory run:
+1. Install the dev dependencies. From `cobra-tools` directory run:
     ```
-    pip install --upgrade pip && pip install -r requirements-dev.txt
+    pip install --upgrade pip && pip install .[gui,dev]
     ```
     <sup>**Note:** You may need to upgrade pip using `python.exe -m pip install --upgrade pip` instead.</sup>
 2. Then install the pre-commit hooks:
