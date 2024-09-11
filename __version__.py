@@ -1,0 +1,3 @@
+VERSION = "3.0.2"
+COMMIT_HASH = "6c0fba8af"
+COMMIT_TIME = "Wed Sep 11 14:48:36 2024 -0700"

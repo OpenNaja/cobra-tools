@@ -29,6 +29,9 @@ optional-dependencies.doc = [
     "mkdocs-git-committers-plugin-2~=2.3.0",
 ]
 
+[tool.setuptools.dynamic]
+version = { attr = "__version__.VERSION" }
+
 [tool.setuptools.packages.find]
 where = ["."]
 exclude = ["*"] # empty package for now

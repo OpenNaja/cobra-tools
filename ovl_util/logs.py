@@ -1,4 +1,5 @@
 from __future__ import annotations
+from __version__ import VERSION, COMMIT_HASH, COMMIT_TIME
 import logging
 import os
 import platform
@@ -259,24 +260,9 @@ def get_stdout_handler(name: str) -> StreamHandler | None:
 	return None
 
 
-def get_version():
-	init_path = f'{os.path.join(root_dir, "__init__")}.py'
-	with open(init_path, "r") as f:
-		line = ""
-		while '"version"' not in line:
-			line = f.readline()
-		# 	"version": (2, 3, 1),
-		_, r = line.split("(", 1)
-		version_raw, _ = r.split(")", 1)
-		version = [int(x.strip()) for x in version_raw.split(",")]
-	return version
-
-
 def get_version_str():
-	version_tuple = get_version()
-	return '.'.join([str(x) for x in version_tuple])
+    return VERSION
 
 
 def get_commit_str():
-	with open(os.path.join(root_dir, "version.txt"), "r") as f:
-		return f.read()
+    return f"{COMMIT_HASH} - {COMMIT_TIME}"

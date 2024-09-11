@@ -7,7 +7,7 @@ on:
       - .vscode/**
       - .idea/**
       - README.md
-      - version.txt
+      - __version__.py
   pull_request:
 
 jobs:
