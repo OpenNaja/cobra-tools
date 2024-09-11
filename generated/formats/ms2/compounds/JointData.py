@@ -237,9 +237,9 @@ class JointData(BaseStruct):
 		# if instance.context.version <= 32:
 		# set arg = instance.joint_names
 		strings = list(instance.get_strings())
-		# print(strings)
 		instance.joint_names.update_strings(strings)
-		instance.namespace_length = len(instance.joint_names.data)
+		# at least PC stores the length without the alignment at the end
+		instance.namespace_length = instance.joint_names.raw_len
 		# update indices of joint pointers
 		joints_map = {j: i for i, j in enumerate(instance.joint_infos)}
 		for ptr in instance.get_pointers():

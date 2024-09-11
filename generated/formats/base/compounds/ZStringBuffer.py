@@ -33,6 +33,8 @@ class ZStringBuffer(BaseStruct):
 		self.strings = []
 		self.offset_dic = {}
 		self.offset_2_str = {}
+		self.raw_len = 0
+		self.padded_len = 0
 
 	def get_str_at(self, pos):
 		try:
@@ -63,7 +65,9 @@ class ZStringBuffer(BaseStruct):
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
+		self.raw_len = len(buffer_bytes)
 		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
+		self.padded_len = len(buffer_bytes)
 
 	@classmethod
 	def format_indented(cls, self, indent=0):
