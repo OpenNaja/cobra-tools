@@ -8,7 +8,12 @@ dynamic = ["version"]
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = "==3.11.*"
-dependencies = ["imageio~=2.26.0", "numpy~=1.22", "pillow>=10.0.1"]
+dependencies = [
+    "imageio~=2.26.0",
+    "numpy~=1.22",
+    "pillow>=10.0.1",
+    "bitarray~=2.9.2",
+]
 optional-dependencies.gui = [
     "PyQt5~=5.15.4",
     "PyQt5-Frameless-Window~=0.2.8",
@@ -18,7 +23,6 @@ optional-dependencies.dev = [
     "pre-commit~=3.8.0",
     "pytest~=8.3.3",
     "pytest-qt~=4.4.0",
-    "bitarray~=2.9.2",
 ]
 optional-dependencies.doc = [
     "mkdocs~=1.6.1",
