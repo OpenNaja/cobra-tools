@@ -14,10 +14,11 @@ keyword_regex = re.compile(r"(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-
 
 class BaseClass:
 
-    def __init__(self, parser, struct, gen_dir):
+    def __init__(self, parser, struct, gen_dir, src_dir):
         self.parser = parser
         self.struct = struct
         self.gen_dir = gen_dir
+        self.src_dir = src_dir
         self.read()
 
     def read(self, ):
@@ -107,7 +108,7 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        src_file = os.path.join(root_dir, "source", self.parser.path_dict[self.class_name])
+        src_file = os.path.join(root_dir, self.src_dir, self.parser.path_dict[self.class_name])
         src_file = f"{src_file}.py"
 
         if os.path.exists(src_file):

@@ -31,11 +31,12 @@ class XmlParser:
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
     builtin_literals = {'str': '', 'float': 0.0, 'int': 0, 'bool': False}
 
-    def __init__(self, format_name, gen_dir="generated"):
+    def __init__(self, format_name, gen_dir="generated", src_dir="source"):
         """Set up the xml parser."""
 
         self.format_name = format_name
         self.gen_dir = gen_dir
+        self.src_dir = src_dir
         self.base_segments = os.path.join("formats", self.format_name)
         # which encoding to use for the output files
         self.encoding = 'utf-8'
@@ -125,13 +126,13 @@ class XmlParser:
         for child in root:
             try:
                 if child.tag in self.struct_types:
-                    Compound(self, child, gen_dir=self.gen_dir)
+                    Compound(self, child, self.gen_dir, self.src_dir)
                 elif child.tag in self.bitstruct_types:
-                    Bitfield(self, child, gen_dir=self.gen_dir)
+                    Bitfield(self, child, self.gen_dir, self.src_dir)
                 elif child.tag == "basic":
                     self.basics.read(child)
                 elif child.tag == "enum":
-                    Enum(self, child, gen_dir=self.gen_dir)
+                    Enum(self, child, self.gen_dir, self.src_dir)
                 elif child.tag == "module":
                     Module(self, child, gen_dir=self.gen_dir)
                 elif child.tag == "version":
@@ -390,13 +391,13 @@ def apply_autopep8(target_dir):
         logging.warn("Tried to run autopep8, but module not found.")
 
 
-def generate_classes(gen_dir, silent):
+def generate_classes(gen_dir, src_dir, silent):
     try:
         if silent:
             logging.disable(logging.ERROR)
         logging.info("Starting class generation")
         cwd = os.getcwd()
-        source_dir = os.path.join(cwd, "source")
+        source_dir = os.path.join(cwd, src_dir)
         target_dir = os.path.join(cwd, gen_dir)
         root_dir = os.path.join(source_dir, "formats")
         copy_src_to_generated(source_dir, target_dir)
@@ -425,9 +426,10 @@ def generate_classes(gen_dir, silent):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='codegen')
     parser.add_argument('-g', '--generated-dir', default="generated")
+    parser.add_argument('-s', '--source-dir', default="source")
     parser.add_argument('--silent', action='store_true')
     args = parser.parse_args()
-    exit_code = generate_classes(gen_dir=args.generated_dir, silent=args.silent)
+    exit_code = generate_classes(gen_dir=args.generated_dir, src_dir=args.source_dir, silent=args.silent)
     try:
         exit(exit_code)
     except NameError:
