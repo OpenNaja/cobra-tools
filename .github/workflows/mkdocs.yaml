@@ -5,7 +5,7 @@ on:
       - 'docs/**'
       - 'docs_includes/**'
       - 'mkdocs.yml'
-      - 'requirements-mkdocs.txt'
+      - 'pyproject.toml'
     branches:
       - master
 permissions:
@@ -32,5 +32,5 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: pip install "mkdocs-material[imaging]"
-      - run: pip install -r requirements-mkdocs.txt
+      - run: pip install .[doc]
       - run: mkdocs gh-deploy --force

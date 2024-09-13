@@ -1,3 +1,4 @@
+# blender plugin version is auto-synced with pyproject.toml version
 bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",

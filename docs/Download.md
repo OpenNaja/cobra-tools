@@ -55,10 +55,11 @@ If you would like to install the dependencies manually:
 3. In the command prompt type the following line and hit `Enter`
 
     ```
-    python.exe -m pip install --upgrade pip && pip install -r requirements.txt
+    python.exe -m pip install --upgrade pip && pip install .[gui]
     ```
     !!! tip "IMPORTANT"
-        If you do not open `cmd` in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`
+        There is a dot `.` at the end of the command `.[gui]`.
+        If you do not open `cmd` in your Cobra Tools folder, you will need to replace `.` with the full path to the folder.
 
 ## Troubleshooting Errors
 

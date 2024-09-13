@@ -50,6 +50,7 @@ try:
     from importlib import import_module
     # importlib.metadata is available on py >= 3.8
     from importlib.metadata import distribution, PackageNotFoundError, packages_distributions
+    import tomllib
 
     MISSING: dict[str, str] = {}
     OUTDATED: dict[str, str] = {}
@@ -57,11 +58,13 @@ try:
     UPDATED: list[str] = []
     MODULES: list[str] = []
 
-    req_path = os.path.join(root_dir, "requirements.txt")
-    with open(req_path) as requirements:
-        lines = requirements.read().splitlines()
+    pyproject_path = os.path.join(root_dir, "pyproject.toml")
+    with open(pyproject_path, 'rb') as fproj:
+        pyproject = tomllib.load(fproj)
+        deps = pyproject.get('dependencies', [])
+        deps_gui = pyproject.get('project', {}).get('optional-dependencies', {}).get('gui', [])
         pkg_dist = packages_distributions()
-        for line in lines:
+        for line in deps + deps_gui:
             lib, op, version = re.split("(~=|==|>=|<=|>|<)", line)
             # Get import name from package name to verify it can be imported
             for module, pkgs in pkg_dist.items():

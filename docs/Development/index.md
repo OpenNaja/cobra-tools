@@ -7,11 +7,11 @@ icon: material/console
 
 ## Code Contributions
 
-If you are interested in contributing to the codebase, in addition to installing `requirements.txt`:
+If you are interested in contributing to the codebase:
 
-1. Install the dev requirements. From `cobra-tools` directory run:
+1. Install the dev dependencies. From `cobra-tools` directory run:
     ```
-    python.exe -m pip install --upgrade pip && pip install -r requirements-dev.txt
+    python.exe -m pip install --upgrade pip && pip install .[gui,dev]
     ```
 
 2. Then install the pre-commit hooks:
@@ -22,11 +22,11 @@ If you are interested in contributing to the codebase, in addition to installing
 
 ## Documentation Contributions
 
-If you are interested in contributing to the documentation, in addition to installing `requirements.txt`:
+If you are interested in contributing to the documentation:
 
-1. Install the mkdocs requirements. From `cobra-tools` directory run:
+1. Install the mkdocs dependencies. From `cobra-tools` directory run:
     ```
-    python.exe -m pip install --upgrade pip && pip install -r requirements-mkdocs.txt
+    python.exe -m pip install --upgrade pip && pip install .[doc]
     ```
 
 2. Then, you may run mkdocs locally with:
