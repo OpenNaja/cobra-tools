@@ -17,7 +17,7 @@ from .Bitfield import Bitfield
 from .Versions import Versions
 from .Module import Module
 from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
-from .path_utils import module_path_to_import_path, module_path_to_output_file_path
+from .path_utils import module_path_to_import_path, module_path_to_file_path
 from .expression import format_potential_tuple
 
 logging.basicConfig(level=logging.DEBUG)
@@ -141,11 +141,11 @@ class XmlParser:
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        versions_file = module_path_to_output_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, root_dir)
+        versions_file = module_path_to_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, root_dir)
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
-        self.write_import_map(module_path_to_output_file_path(imports_module, self.gen_dir, root_dir))
-        init_file_path = module_path_to_output_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, root_dir)
+        self.write_import_map(module_path_to_file_path(imports_module, self.gen_dir, root_dir))
+        init_file_path = module_path_to_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, root_dir)
         import_string = f'from {module_path_to_import_path(imports_module, self.gen_dir)} import name_type_map\n'
         if not os.path.exists(init_file_path):
             with open(init_file_path, "w", encoding=self.encoding) as f:

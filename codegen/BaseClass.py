@@ -5,7 +5,7 @@ import re
 import sys
 
 from root_path import root_dir
-from .path_utils import module_path_to_output_file_path
+from .path_utils import module_path_to_file_path
 from .Imports import Imports
 
 
@@ -32,7 +32,7 @@ class BaseClass:
             logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
                          f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
-        self.out_file = module_path_to_output_file_path(self.parser.path_dict[self.class_name], self.gen_dir, root_dir)
+        self.out_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.gen_dir, root_dir)
 
         # handle imports
         self.imports = Imports(self.parser, self.struct, gen_dir=self.gen_dir)
@@ -108,13 +108,10 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        src_file = os.path.join(root_dir, self.src_dir, self.parser.path_dict[self.class_name])
-        src_file = f"{src_file}.py"
-
+        src_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.src_dir, root_dir, mkdir=False)
         if os.path.exists(src_file):
             with open(src_file, "r", encoding=self.parser.encoding) as f:
                 return f.read()
-
         return ""
 
     def grab_src_snippet(self, start, end=""):
