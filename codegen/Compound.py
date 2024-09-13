@@ -6,8 +6,8 @@ FIELD_TYPES = ("add", "field")
 
 class Compound(BaseClass):
 
-    def __init__(self, parser, struct, gen_dir, src_dir):
-        super().__init__(parser, struct, gen_dir, src_dir)
+    def __init__(self, parser, struct, gen_dir, src_dir, root_dir):
+        super().__init__(parser, struct, gen_dir, src_dir, root_dir)
 
     def read(self):
         """Create a self.struct class"""

@@ -8,7 +8,6 @@ import fnmatch
 import argparse
 import traceback
 from html import unescape
-from root_path import root_dir
 
 from .Basics import Basics
 from .Compound import Compound
@@ -31,10 +30,11 @@ class XmlParser:
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
     builtin_literals = {'str': '', 'float': 0.0, 'int': 0, 'bool': False}
 
-    def __init__(self, format_name, gen_dir="generated", src_dir="source"):
+    def __init__(self, format_name, root_dir, gen_dir="generated", src_dir="source"):
         """Set up the xml parser."""
 
         self.format_name = format_name
+        self.root_dir = root_dir
         self.gen_dir = gen_dir
         self.src_dir = src_dir
         self.base_segments = os.path.join("formats", self.format_name)
@@ -126,26 +126,26 @@ class XmlParser:
         for child in root:
             try:
                 if child.tag in self.struct_types:
-                    Compound(self, child, self.gen_dir, self.src_dir)
+                    Compound(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag in self.bitstruct_types:
-                    Bitfield(self, child, self.gen_dir, self.src_dir)
+                    Bitfield(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag == "basic":
                     self.basics.read(child)
                 elif child.tag == "enum":
-                    Enum(self, child, self.gen_dir, self.src_dir)
+                    Enum(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag == "module":
-                    Module(self, child, gen_dir=self.gen_dir)
+                    Module(self, child, self.gen_dir, self.root_dir)
                 elif child.tag == "version":
                     self.versions.read(child)
                 elif child.tag == "verattr":
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        versions_file = module_path_to_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, root_dir)
+        versions_file = module_path_to_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, self.root_dir)
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
-        self.write_import_map(module_path_to_file_path(imports_module, self.gen_dir, root_dir))
-        init_file_path = module_path_to_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, root_dir)
+        self.write_import_map(module_path_to_file_path(imports_module, self.gen_dir, self.root_dir))
+        init_file_path = module_path_to_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, self.root_dir)
         import_string = f'from {module_path_to_import_path(imports_module, self.gen_dir)} import name_type_map\n'
         if not os.path.exists(init_file_path):
             with open(init_file_path, "w", encoding=self.encoding) as f:
@@ -196,7 +196,7 @@ class XmlParser:
         if new_path not in parsed_xmls:
             # if not, parse it now
             format_name = os.path.splitext(os.path.basename(new_path))[0]
-            new_parser = XmlParser(format_name, gen_dir=self.gen_dir)
+            new_parser = XmlParser(format_name, root_dir=self.root_dir, gen_dir=self.gen_dir)
             new_parser.load_xml(new_path, parsed_xmls)
         else:
             new_parser = parsed_xmls[new_path]
@@ -391,20 +391,19 @@ def apply_autopep8(target_dir):
         logging.warn("Tried to run autopep8, but module not found.")
 
 
-def generate_classes(gen_dir, src_dir, silent):
+def generate_classes(root_dir, gen_dir, src_dir, silent):
     try:
         if silent:
             logging.disable(logging.ERROR)
         logging.info("Starting class generation")
-        cwd = os.getcwd()
-        source_dir = os.path.join(cwd, src_dir)
-        target_dir = os.path.join(cwd, gen_dir)
-        root_dir = os.path.join(source_dir, "formats")
+        source_dir = os.path.join(root_dir, src_dir)
+        target_dir = os.path.join(root_dir, gen_dir)
+        formats_dir = os.path.join(source_dir, "formats")
         copy_src_to_generated(source_dir, target_dir)
         fix_imports(target_dir)
         parsed_xmls = {}
-        for format_name in os.listdir(root_dir):
-            dir_path = os.path.join(root_dir, format_name)
+        for format_name in os.listdir(formats_dir):
+            dir_path = os.path.join(formats_dir, format_name)
             if os.path.isdir(dir_path):
                 xml_path = os.path.join(dir_path, format_name+".xml")
                 if os.path.isfile(xml_path):
@@ -412,7 +411,7 @@ def generate_classes(gen_dir, src_dir, silent):
                         logging.info(f"Already read {format_name}, skipping")
                     else:
                         logging.info(f"Reading {format_name} format")
-                        xmlp = XmlParser(format_name, gen_dir=gen_dir)
+                        xmlp = XmlParser(format_name, root_dir, gen_dir=gen_dir)
                         xmlp.load_xml(xml_path, parsed_xmls)
         create_inits(target_dir)
         if silent:
@@ -429,7 +428,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--source-dir', default="source")
     parser.add_argument('--silent', action='store_true')
     args = parser.parse_args()
-    exit_code = generate_classes(gen_dir=args.generated_dir, src_dir=args.source_dir, silent=args.silent)
+    exit_code = generate_classes(os.getcwd(), gen_dir=args.generated_dir, src_dir=args.source_dir, silent=args.silent)
     try:
         exit(exit_code)
     except NameError:

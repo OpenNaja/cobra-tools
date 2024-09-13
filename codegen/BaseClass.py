@@ -4,7 +4,6 @@ import os
 import re
 import sys
 
-from root_path import root_dir
 from .path_utils import module_path_to_file_path
 from .Imports import Imports
 
@@ -14,11 +13,12 @@ keyword_regex = re.compile(r"(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-
 
 class BaseClass:
 
-    def __init__(self, parser, struct, gen_dir, src_dir):
+    def __init__(self, parser, struct, gen_dir, src_dir, root_dir):
         self.parser = parser
         self.struct = struct
         self.gen_dir = gen_dir
         self.src_dir = src_dir
+        self.root_dir = root_dir
         self.read()
 
     def read(self, ):
@@ -32,7 +32,7 @@ class BaseClass:
             logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
                          f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
-        self.out_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.gen_dir, root_dir)
+        self.out_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.gen_dir, self.root_dir)
 
         # handle imports
         self.imports = Imports(self.parser, self.struct, gen_dir=self.gen_dir)
@@ -108,7 +108,7 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        src_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.src_dir, root_dir, mkdir=False)
+        src_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.src_dir, self.root_dir, mkdir=False)
         if os.path.exists(src_file):
             with open(src_file, "r", encoding=self.parser.encoding) as f:
                 return f.read()
