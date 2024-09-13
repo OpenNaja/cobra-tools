@@ -7,18 +7,17 @@ import shutil
 import fnmatch
 import argparse
 import traceback
-
 from html import unescape
+from root_path import root_dir
 
-from .BaseClass import BaseClass
 from .Basics import Basics
 from .Compound import Compound
 from .Enum import Enum
 from .Bitfield import Bitfield
-from .Imports import Imports
 from .Versions import Versions
 from .Module import Module
 from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
+from .path_utils import module_path_to_import_path, module_path_to_output_file_path
 from .expression import format_potential_tuple
 
 logging.basicConfig(level=logging.DEBUG)
@@ -141,12 +140,12 @@ class XmlParser:
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"), gen_dir=self.gen_dir)
+        versions_file = module_path_to_output_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, root_dir)
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
-        self.write_import_map(BaseClass.get_out_path(imports_module, gen_dir=self.gen_dir))
-        init_file_path = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"), gen_dir=self.gen_dir)
-        import_string = f'from {Imports.import_from_module_path(imports_module, gen_dir=self.gen_dir)} import name_type_map\n'
+        self.write_import_map(module_path_to_output_file_path(imports_module, self.gen_dir, root_dir))
+        init_file_path = module_path_to_output_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, root_dir)
+        import_string = f'from {module_path_to_import_path(imports_module, self.gen_dir)} import name_type_map\n'
         if not os.path.exists(init_file_path):
             with open(init_file_path, "w", encoding=self.encoding) as f:
                 f.write(import_string)
@@ -164,7 +163,7 @@ class XmlParser:
             f.write("from importlib import import_module\n")
             f.write("\n\ntype_module_name_map = {\n")
             for type_name in self.processed_types:
-                f.write(f"\t'{type_name}': '{Imports.import_from_module_path(self.path_dict[type_name], gen_dir=self.gen_dir)}',\n")
+                f.write(f"\t'{type_name}': '{module_path_to_import_path(self.path_dict[type_name], self.gen_dir)}',\n")
             f.write('}\n')
             f.write("\nname_type_map = {}\n")
             f.write("for type_name, module in type_module_name_map.items():\n")

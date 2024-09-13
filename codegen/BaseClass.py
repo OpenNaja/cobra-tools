@@ -5,6 +5,7 @@ import re
 import sys
 
 from root_path import root_dir
+from .path_utils import module_path_to_output_file_path
 from .Imports import Imports
 
 
@@ -30,7 +31,7 @@ class BaseClass:
             logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
                          f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
-        self.out_file = self.get_out_path(self.parser.path_dict[self.class_name], gen_dir=self.gen_dir)
+        self.out_file = module_path_to_output_file_path(self.parser.path_dict[self.class_name], self.gen_dir, root_dir)
 
         # handle imports
         self.imports = Imports(self.parser, self.struct, gen_dir=self.gen_dir)
@@ -129,12 +130,3 @@ class BaseClass:
             # print("found start", len(snipp), start, end)
             return snipp
         return ""
-
-    @staticmethod
-    def get_out_path(module_path, gen_dir):
-        # get the module path from the path of the file
-        out_file = os.path.join(root_dir, gen_dir, module_path + ".py")
-        out_dir = os.path.dirname(out_file)
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        return out_file

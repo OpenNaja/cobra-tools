@@ -1,6 +1,6 @@
 from .expression import Version
-from .Imports import Imports
 from .naming_conventions import name_enum_key
+from .path_utils import module_path_to_import_path
 
 base_ver_attrs = ("id", "supported", "custom", "ext")
 
@@ -72,7 +72,7 @@ class Versions:
 				if self.parent.verattrs:
 					for verattr_name, (verattr_access, verattr_type) in self.parent.verattrs.items():
 						if verattr_type is not None:
-							import_path = Imports.import_from_module_path(self.parent.path_dict[verattr_type], gen_dir=self.gen_dir)
+							import_path = module_path_to_import_path(self.parent.path_dict[verattr_type], self.gen_dir)
 							stream.write(f"from {import_path} import {verattr_type}\n")
 				stream.write(f"\n\n")
 

@@ -1,6 +1,6 @@
 import os
-
-from .BaseClass import BaseClass
+from root_path import root_dir
+from .path_utils import module_path_to_output_file_path
 
 
 class Module:
@@ -19,7 +19,7 @@ class Module:
         self.custom = element.attrib.get("custom", "False")
 
     def write(self, module_path):
-        init_path = BaseClass.get_out_path(os.path.join(module_path, "__init__"), gen_dir=self.gen_dir)
+        init_path = module_path_to_output_file_path(os.path.join(module_path, "__init__"), self.gen_dir, root_dir)
         with open(init_path, "w", encoding=self.parser.encoding) as file:
             file.write(self.comment_str)
             file.write(f'\n\n__priority__ = {repr(self.priority)}')
