@@ -4,8 +4,7 @@ repos:
     hooks: 
     -   id: version
         name: Increment Version
-        # this script import file from the root folder
-        entry: bash -c 'PYTHONPATH=. ./bin/increment_version.py'
+        entry: ./bin/increment_version.py
         language: system
         stages: [pre-commit, manual]
         pass_filenames: false

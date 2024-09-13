@@ -1,10 +1,9 @@
-from __version__ import VERSION
-
+# blender plugin version is auto-synced with pyproject.toml version
 bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",
     "blender": (4, 0, 0),
-    "version": VERSION.split("."),
+    "version": (3, 0, 2),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations",
     "warning": "",

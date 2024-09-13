@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cobra-tools"
-dynamic = ["version"]
+version = "3.0.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = "==3.11.*"
@@ -32,9 +32,6 @@ optional-dependencies.doc = [
     "mkdocs-git-revision-date-localized-plugin~=1.2.8",
     "mkdocs-git-committers-plugin-2~=2.3.0",
 ]
-
-[tool.setuptools.dynamic]
-version = { attr = "__version__.VERSION" }
 
 [tool.setuptools.packages.find]
 where = ["."]
