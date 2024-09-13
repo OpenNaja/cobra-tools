@@ -3,7 +3,7 @@ from html import unescape
 import os
 import xml.etree.ElementTree as ET
 
-from codegen.expression import Expression 
+from .expression import Expression 
 
 # filter the nif xml based on a given version
 # everything will be removed except main_tags that have matching versions, main_types that have matching versions

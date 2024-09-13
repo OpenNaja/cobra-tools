@@ -32,7 +32,7 @@ def main():
     # The files in the current commit
     changed = subprocess.check_output(["git", "diff", "--name-only", "--cached"], text=True)
     # Run codegen
-    result = subprocess.run([get_env(), "codegen.py", "--silent"]).returncode
+    result = subprocess.run([get_env(), "-m", "codegen", "--silent"]).returncode
     if result == 0:
         # Run `git add` for generated paths corresponding to source paths in commit
         for file in generated_files(changed):

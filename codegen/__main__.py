@@ -10,16 +10,16 @@ import traceback
 
 from html import unescape
 
-from codegen import naming_conventions as convention
-from codegen.BaseClass import BaseClass
-from codegen.Basics import Basics
-from codegen.Compound import Compound
-from codegen.Enum import Enum
-from codegen.Bitfield import Bitfield
-from codegen.Imports import Imports
-from codegen.Versions import Versions
-from codegen.Module import Module
-from codegen.naming_conventions import clean_comment_str
+from .BaseClass import BaseClass
+from .Basics import Basics
+from .Compound import Compound
+from .Enum import Enum
+from .Bitfield import Bitfield
+from .Imports import Imports
+from .Versions import Versions
+from .Module import Module
+from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
+from .expression import format_potential_tuple
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -215,46 +215,46 @@ class XmlParser:
             # don't apply conventions to these types (or there are none to apply)
             return
         elif struct.tag == "version":
-            self.apply_convention(struct, convention.force_bool, ("supported", "custom"))
+            self.apply_convention(struct, force_bool, ("supported", "custom"))
         elif struct.tag == "verattr":
-            self.apply_convention(struct, convention.name_class, ("type",))
-            self.apply_convention(struct, convention.name_access, ("access",))
+            self.apply_convention(struct, name_class, ("type",))
+            self.apply_convention(struct, name_access, ("access",))
         elif struct.tag == "module":
-            self.apply_convention(struct, convention.name_module, ("name", "depends"))
-            self.apply_convention(struct, convention.force_bool, ("custom",))
+            self.apply_convention(struct, name_module, ("name", "depends"))
+            self.apply_convention(struct, force_bool, ("custom",))
             struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
         else:
             # it is a tag with a class
             struct.attrib["__name__"] = struct.attrib["name"]
-            self.apply_convention(struct, convention.name_class, ("name", "inherit"))
-            self.apply_convention(struct, convention.name_module, ("module",))
+            self.apply_convention(struct, name_class, ("name", "inherit"))
+            self.apply_convention(struct, name_module, ("module",))
             if struct.tag == "basic":
-                self.apply_convention(struct, convention.force_bool, ("boolean", "integral", "countable", "generic"))
+                self.apply_convention(struct, force_bool, ("boolean", "integral", "countable", "generic"))
             elif struct.tag == "enum":
-                self.apply_convention(struct, convention.name_class, ("storage",))
+                self.apply_convention(struct, name_class, ("storage",))
                 for option in struct:
-                    self.apply_convention(option, convention.name_enum_key_if_necessary, ("name", ))
+                    self.apply_convention(option, name_enum_key_if_necessary, ("name", ))
             elif struct.tag in self.bitstruct_types:
-                self.apply_convention(struct, convention.name_class, ("storage",))
+                self.apply_convention(struct, name_class, ("storage",))
                 # a bitfield/bitflags fields
                 if struct.tag == 'bitflags':
                     for field in struct:
-                        field.attrib['enum_name'] = convention.name_enum_key_if_necessary(field.attrib['name'])
+                        field.attrib['enum_name'] = name_enum_key_if_necessary(field.attrib['name'])
                 for field in struct:
-                    self.apply_convention(field, convention.name_attribute, ("name",))
-                    self.apply_convention(field, convention.name_class, ("type",))
+                    self.apply_convention(field, name_attribute, ("name",))
+                    self.apply_convention(field, name_class, ("type",))
             elif struct.tag in self.struct_types:
-                self.apply_convention(struct, convention.force_bool, ("generic",))
+                self.apply_convention(struct, force_bool, ("generic",))
                 # a struct's fields
                 for field in struct:
-                    self.apply_convention(field, convention.name_attribute, ("name",))
-                    self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, convention.force_bool, ("optional", "abstract", "recursive"))
+                    self.apply_convention(field, name_attribute, ("name",))
+                    self.apply_convention(field, name_class, ("type", "onlyT", "excludeT"))
+                    self.apply_convention(field, force_bool, ("optional", "abstract", "recursive"))
                     # template can refer to a type of an attribute
-                    self.apply_convention(field, convention.format_potential_tuple, ("default",))
+                    self.apply_convention(field, format_potential_tuple, ("default",))
                     for default in field:
-                        self.apply_convention(default, convention.name_class, ("onlyT",))
-                        self.apply_convention(default, convention.format_potential_tuple, ("value",))
+                        self.apply_convention(default, name_class, ("onlyT",))
+                        self.apply_convention(default, format_potential_tuple, ("value",))
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 

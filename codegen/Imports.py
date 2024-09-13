@@ -1,7 +1,7 @@
 import os.path as path
 import logging
 
-import codegen.naming_conventions as convention
+from .naming_conventions import name_class, template_re
 
 
 NO_CLASSES = ("Padding", "self", "template")
@@ -41,13 +41,13 @@ class Imports:
                             for entry in template:
                                 # template can be either a type or a template
                                 # only import if a type
-                                template_class = convention.name_class(entry)
+                                template_class = name_class(entry)
                                 if not self.is_template(template_class):
                                     self.add_indirect_import()
                         else:
                             # template can be either a type or a template
                             # only import if a type
-                            template_class = convention.name_class(template)
+                            template_class = name_class(template)
                             if not self.is_template(template_class):
                                 self.add_indirect_import()
     
@@ -68,7 +68,7 @@ class Imports:
             raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
     def is_template(self, string_to_check):
-        return bool(convention.template_re.fullmatch(string_to_check))
+        return bool(template_re.fullmatch(string_to_check))
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:

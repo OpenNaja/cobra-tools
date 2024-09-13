@@ -1,8 +1,8 @@
 from itertools import chain
 
-from codegen.expression import Expression, Version, interpret_literal
-from codegen.Versions import Versions
-import codegen.naming_conventions as convention
+from .expression import Expression, Version, interpret_literal
+from .Versions import Versions
+from .naming_conventions import name_class, name_enum_key_if_necessary, clean_comment_str
 
 CONTEXT_SUFFIX = "context"
 
@@ -130,7 +130,7 @@ class Union:
         def format_template(template_entry):
             if template_entry:
                 # template can be either a type or a reference to a local field
-                template_class = convention.name_class(template_entry)
+                template_class = name_class(template_entry)
                 if template_class not in self.compounds.parser.path_dict:
                     template_entry = Expression(template_entry, target_variable)
                 else:
@@ -183,7 +183,7 @@ class Union:
         if value is not None:
             return str(value)
         if field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] in ("enum", "bitflags"):
-            value = convention.name_enum_key_if_necessary(default_string)
+            value = name_enum_key_if_necessary(default_string)
             return f'{field_type_access}.{value}'
         # not interpretable in any way, must be a string
         return repr(default_string)
@@ -211,7 +211,7 @@ class Union:
         debug_strs = []
         field_default = None
         for field in reversed(self.members):
-            field_debug_str = convention.clean_comment_str(field.text, indent=base_indent)
+            field_debug_str = clean_comment_str(field.text, indent=base_indent)
             arg, template, arr, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
 
             if field_debug_str.strip() and field_debug_str not in debug_strs:

@@ -1,6 +1,6 @@
-from codegen.expression import Version
-from codegen.Imports import Imports
-from codegen.naming_conventions import name_enum_key
+from .expression import Version
+from .Imports import Imports
+from .naming_conventions import name_enum_key
 
 base_ver_attrs = ("id", "supported", "custom", "ext")
 
