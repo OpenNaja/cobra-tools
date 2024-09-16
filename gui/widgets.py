@@ -1,4 +1,3 @@
-import contextlib
 import logging
 import subprocess
 import webbrowser
@@ -14,14 +13,13 @@ from ovl_util import config, logs
 
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
-from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
 
 import gui
 from gui import qt_theme
 from root_path import root_dir
 
-from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg # pyright: ignore  # noqa: F401
+from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg  # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QRectF, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
@@ -52,7 +50,6 @@ except:
     WINDOWS = False
 
 
-games_list = [g.value for g in games]
 MAX_UINT = 4294967295
 ICON_CACHE = {"no_icon": QIcon()}
 
@@ -1989,7 +1986,9 @@ class GamesWidget(QWidget):
     file_dbl_clicked = pyqtSignal(str)
     search_content_clicked = pyqtSignal(str)
 
-    def __init__(self, parent: "MainWindow", filters: Optional[list[str]] = None,
+    def __init__(self, parent: "MainWindow",
+                 games: Optional[list] = (),
+                 filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
                  dir_dbl_click_fn: Optional[Callable] = None,
                  file_dbl_click_fn: Optional[Callable] = None,
@@ -1997,6 +1996,7 @@ class GamesWidget(QWidget):
                  actions: dict = {}) -> None:
         super().__init__(parent)
         self.cfg: dict[str, Any] = parent.cfg
+        self.games_list = games
         if filters is None:
             filters = ["*.ovl", ]
 
@@ -2032,7 +2032,6 @@ class GamesWidget(QWidget):
         vbox.addWidget(self.search_button)
         vbox.setContentsMargins(0, 0, 0, 0)
 
-        
         self.entry.textActivated.connect(self.set_selected_game)
         self.play_button.clicked.connect(self.run_selected_game)
         self.add_button.clicked.connect(self.add_installed_game_manually)
@@ -2115,7 +2114,7 @@ class GamesWidget(QWidget):
         """Run after choosing a game from dropdown of installed games"""
         self.cfg["current_game"] = game
         # only update the ovl game version choice if it is a valid game
-        if game in games_list:
+        if game in self.games_list:
             self.installed_game_chosen.emit(game)
 
     def ask_game_dir(self) -> str:
@@ -2246,7 +2245,7 @@ class GamesWidget(QWidget):
                 try:
                     apps_path = os.path.join(steam_path, "steamapps\\common")
                     # filter with supported fdev games
-                    fdev_in_lib = [game for game in os.listdir(apps_path) if game in games_list]
+                    fdev_in_lib = [game for game in os.listdir(apps_path) if game in self.games_list]
                     # generate the whole path for each game, add to dict
                     # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
                     fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})

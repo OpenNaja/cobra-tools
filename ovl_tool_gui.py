@@ -54,6 +54,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["games"] = {}
 		self.installed_games = widgets.GamesWidget(
 			self,
+			[g.value for g in games],
 			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
 			search_content_fn=self.search_ovl_contents,
