@@ -16,7 +16,6 @@ from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
 from constants import Mime, Shader, ConstantsProvider
-from root_path import root_dir
 
 # get this huge dict from fgm walker, use in ms2 walker
 shader_map = {}
@@ -143,8 +142,7 @@ def generate_hash_table(gui, start_dir):
 
 def get_game_constants_dir(start_dir):
 	# Find a matching game
-	root_path = Path(root_dir)
-	constants_dir = root_path / "constants"
+	constants_dir = Path(__file__).resolve().parent.parent / "constants"
 	for game in reversed(games):
 		if game.value in start_dir:
 			return constants_dir / game.value
