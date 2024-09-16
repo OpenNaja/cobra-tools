@@ -9,7 +9,8 @@ from abc import abstractmethod
 from pathlib import Path
 
 from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
-from ovl_util import config, logs
+from ovl_util import logs
+from ovl_util.config import Config
 
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
@@ -17,7 +18,6 @@ from modules.formats.shared import DummyReporter
 
 import gui
 from gui import qt_theme
-from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg  # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
@@ -49,9 +49,10 @@ except:
     logging.warning("Required Windows modules missing; some features may not work.")
     WINDOWS = False
 
-
 MAX_UINT = 4294967295
 ICON_CACHE = {"no_icon": QIcon()}
+
+root_dir = Path(__file__).resolve().parent.parent
 
 
 def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) -> QIcon:
@@ -3087,7 +3088,7 @@ class MainWindow(FramelessMainWindow):
         self.status_timer.setInterval(3500)
         self.status_timer.timeout.connect(self.reset_progress)
 
-        self.cfg: config.Config[str, Any] = config.Config()
+        self.cfg: Config[str, Any] = Config(root_dir)
         self.cfg.load()
 
         if self.opts.frameless:

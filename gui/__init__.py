@@ -5,7 +5,8 @@ import logging
 import platform
 from typing import NamedTuple, Optional
 from pathlib import Path
-from ovl_util import logs, config
+from ovl_util import logs
+from ovl_util.config import save_config
 from gui.widgets import MainWindow
 from gui import qt_theme
 
@@ -78,5 +79,6 @@ def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 		app_qt.setStyleSheet(opts.stylesheet)
 	win.show()
 	app_qt.exec_()
-	config.save_config(win.cfg)
+	cfg_path = Path(__file__).resolve().parent / "config.json"
+	save_config(cfg_path, win.cfg)
 	logging.shutdown()

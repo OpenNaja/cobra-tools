@@ -2,7 +2,7 @@ import logging
 import sys
 import time
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from ovl_util import config
+from ovl_util.config import read_str_dict, read_list
 
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext
@@ -27,8 +27,8 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
 		self.file_widget = self.make_file_widget(ftype="materialcollection")
-		self.tooltips = config.read_str_dict("gui/tooltips/matcol.txt")
-		self.default_fgms = config.read_list("gui/tooltips/matcol-fgm-names.txt")
+		self.tooltips = read_str_dict("gui/tooltips/matcol.txt")
+		self.default_fgms = read_list("gui/tooltips/matcol-fgm-names.txt")
 
 		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')

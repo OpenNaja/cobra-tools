@@ -2,8 +2,6 @@ import json
 import logging
 import os
 
-from root_path import root_dir
-
 
 class BaseSetting(object):
 
@@ -66,7 +64,10 @@ class Config(dict):
 	logger_orientation = ImmediateSetting("Logger Orientation", "Set logger orientation - needs restart", "H", ("H", "V"))
 	theme = ImmediateSetting("Theme", "Select theme palette - needs restart", "dark", ("dark", "light"))
 
-	name = "config.json"
+	def __init__(self, dir, name="config.json", **kwargs):
+		super().__init__(**kwargs)
+		self.dir = dir
+		self.name = name
 
 	def __setitem__(self, k, v):
 		super().__setitem__(k, v)
@@ -78,10 +79,6 @@ class Config(dict):
 	#
 	# def __getitem__(self, k):
 	# 	return self[k]
-
-	def __init__(self, name="config.json", **kwargs):
-		super().__init__(**kwargs)
-		self.name = name
 
 	@property
 	def settings(self):
@@ -99,7 +96,7 @@ class Config(dict):
 
 	@property
 	def cfg_path(self):
-		return os.path.join(root_dir, self.name)
+		return os.path.join(self.dir, self.name)
 
 	def save(self):
 		logging.info(f"Saving config")
@@ -121,15 +118,15 @@ class Config(dict):
 			logging.error(str(e))
 
 
-def save_config(cfg_dict):
-	logging.info(f"Saving config")
-	with open(os.path.join(root_dir, "config.json"), "w") as json_writer:
+def save_config(cfg_path, cfg_dict):
+	logging.info(f"Saving config to {cfg_path}")
+	with open(cfg_path, "w") as json_writer:
 		json.dump(cfg_dict, json_writer, indent="\t", sort_keys=True)
 
 
-def load_config():
+def load_config(cfg_path):
 	try:
-		cfg_path = os.path.join(root_dir, 'config.json')
+		logging.info(f"Loading config from {cfg_path}")
 		with open(cfg_path, "r") as json_reader:
 			return json.load(json_reader)
 	except FileNotFoundError:
@@ -177,7 +174,7 @@ def read_list(cfg_path):
 
 
 if __name__ == '__main__':
-	cfg = Config()
+	cfg = Config(os.getcwd())
 	cfg.load()
 	print(cfg)
 	# print(cfg.settings)
