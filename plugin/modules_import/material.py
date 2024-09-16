@@ -11,7 +11,6 @@ import numpy as np
 from generated.formats.ovl import get_game
 from ovl_util.shared import check_any
 from plugin.utils.texture_settings import tex_slots
-from root_path import root_dir
 from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
@@ -24,7 +23,8 @@ from plugin.utils import texture_settings
 def append_shader(name):
 	if name not in bpy.data.node_groups:
 		logging.info(f"Appending shader group '{name}'")
-		blends_dir = os.path.join(root_dir, "plugin", "blends")
+		current_dir = os.path.dirname(__file__)
+		blends_dir = os.path.abspath(os.path.join(current_dir, '..', 'blends'))
 		for file_name in os.listdir(blends_dir):
 			if not file_name.lower().endswith(".blend"):
 				continue
