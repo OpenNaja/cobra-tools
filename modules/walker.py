@@ -5,7 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from ovl_util.logs import ANSI
-from experimentals.convert_constants import write_mimes_dict, write_hashes_dict
+from constants.converter import write_mimes_dict, write_hashes_dict
 from generated.array import Array
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.manis.compounds.ManiInfo import ManiInfo
