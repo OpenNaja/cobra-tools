@@ -265,7 +265,7 @@ def generate_rig_edit(reporter, **kwargs):
 			Vector(p_bone.rotation_quaternion), VEC4_1, errortolerance)) and p_bone.name.startswith(
 			"NODE_"):
 			# Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
-			editnumber = editnumber + 1
+			editnumber += 1
 			logging.info(f"rig edit number {editnumber}")
 			logging.info(f"NODE with offsets detected. Applying offsets directly.")
 			continue
@@ -352,7 +352,7 @@ def generate_rig_edit(reporter, **kwargs):
 		bonenode.length = nodelength
 
 		# Node completed. Log number of edits.
-		editnumber = editnumber + 1
+		editnumber += 1
 		# Node creation complete
 		logging.info(f"created node: {bonenode.name}")
 	# logging.info(f"node matrix:")
@@ -360,30 +360,23 @@ def generate_rig_edit(reporter, **kwargs):
 
 	bpy.ops.object.mode_set(mode='POSE')
 
-	# Creating node groups to delete
-
+	# Creating node groups to delete duplicates to merge
 	if mergenodes:
-		# Checking for duplicates to merge
 		logging.info(f"creating node_groups to merge")
-		# Initiate list
-		node_list = []
 
-		# We create a list of all NODES
-		for p_bone in b_armature_ob.pose.bones:
-			if p_bone.name.startswith("NODE_"):
-				node_list.append(p_bone)
+		# create a list of all NODES
+		node_list = [p_bone for p_bone in b_armature_ob.pose.bones if p_bone.name.startswith("NODE_")]
 
 		# Create NODE parent dictionary
 		node_groups = {}
 
-		# Create and sort NODE groups, we create a dictionary with a tuple of: parent,rounded matrix as the key. This way we can group identical nodes.
+		# create and sort NODE groups
+		# create a dictionary with a tuple of: parent,rounded matrix as the key. This way we can group identical nodes
 		for p_bone in node_list:
-			# We create a rounded matrix to create leeway for miniscule variation
+			# create a rounded matrix to create leeway for miniscule variation
 			rounded_matrix = tuple(tuple(round(element, 5) for element in row) for row in p_bone.bone.matrix_local)
-			# logging.info(f"node matrix: {p_bone.bone.matrix_local}")
-			# logging.info(f"rounded matrix: {rounded_matrix}")
 
-			# We use the parent and rounded matrix as a key to sort all identical nodes into groups
+			# use the parent and rounded matrix as a key to sort all identical nodes into groups
 			keytuple = (p_bone.parent, rounded_matrix)
 			if keytuple in node_groups:
 				node_groups[keytuple].append(p_bone)
@@ -391,32 +384,32 @@ def generate_rig_edit(reporter, **kwargs):
 				node_groups[keytuple] = [p_bone]
 
 		# Log node groups
-		for nodegroup in node_groups:
-			logging.info(f"node group: {nodegroup}")
-			for node in node_groups[nodegroup]:
-				logging.info(f"node: {node.name}")
+		for keytuple, nodegroup in node_groups.items():
+			logging.debug(f"node group: {keytuple}")
+			for node in nodegroup:
+				logging.debug(f"node: {node.name}")
 
 		# store number of deleted nodes
 		deletednodes = 0
 
 		# Merge node groups
-		for nodegroup in node_groups:
+		for keytuple, nodegroup in node_groups.items():
 			# Rename NODE to indicate it owns more than one bone
-			if len(node_groups[nodegroup]) > 1:
+			if len(nodegroup) > 1:
 				# Renaming to be more descriptive
-				if not node_groups[nodegroup][0].parent:
-					node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_ROOTNODE"
+				if not nodegroup[0].parent:
+					nodegroup[0].name = f"NODE_{len(nodegroup)}GROUP_ROOTNODE"
 				else:
-					node_groups[nodegroup][
-						0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_{node_groups[nodegroup][0].parent.name}"
+					nodegroup[
+						0].name = f"NODE_{len(nodegroup)}GROUP_{nodegroup[0].parent.name}"
 
 			# Log group organization
-			# logging.info(f"first node: {node_groups[nodegroup][0].name}")
-			# logging.info(f"first child: {node_groups[nodegroup][0].children[0].name}")
+			# logging.info(f"first node: {nodegroup[0].name}")
+			# logging.info(f"first child: {nodegroup[0].children[0].name}")
 
 			# Delete all extra nodes
-			for node in node_groups[nodegroup]:
-				if node != node_groups[nodegroup][0]:
+			for node in nodegroup:
+				if node != nodegroup[0]:
 					# logging.info(f"secondary node: {node.name}")
 					# logging.info(f"secondary child: {node.children[0].name}")
 
@@ -425,10 +418,10 @@ def generate_rig_edit(reporter, **kwargs):
 
 					# Reparent duplicate basebones to the first node
 					b_armature_ob.data.edit_bones.get(node.children[0].name).parent = b_armature_ob.data.edit_bones.get(
-						node_groups[nodegroup][0].name)
+						nodegroup[0].name)
 
 					# Delete the duplicate nodes
-					deletednodes = deletednodes + 1
+					deletednodes += 1
 					b_armature_ob.data.edit_bones.remove(b_armature_ob.data.edit_bones.get(node.name))
 
 					# Switch back to pose mode
