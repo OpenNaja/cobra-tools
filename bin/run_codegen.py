@@ -31,6 +31,8 @@ def generated_files(changed: str):
 def main():
     # The files in the current commit
     changed = subprocess.check_output(["git", "diff", "--name-only", "--cached", "--ignore-cr-at-eol"], text=True)
+    if len(changed) == 0:
+        return 0
     # Run codegen
     result = subprocess.run([get_env(), "-m", "codegen", "--silent"]).returncode
     if result == 0:
