@@ -5,7 +5,8 @@ from importlib import import_module
 import logging
 
 from constants import Mime
-from root_path import root_dir
+
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 strs = ("mimes_name", "mimes_mime_hash", "mimes_mime_version", "mimes_triplet_count", "mimes_triplets", "files_pool_type", "files_set_pool_type")
 ignores = ("triplet_count", )
 game_lut = {'DLA': 'Disneyland Adventures', 'JWE': 'Jurassic World Evolution', 'JWE2': 'Jurassic World Evolution 2', 'PC': 'Planet Coaster', 'PZ': 'Planet Zoo', 'ZTUAC': 'Zoo Tycoon Ultimate Animal Collection'
