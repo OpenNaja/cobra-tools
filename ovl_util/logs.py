@@ -11,7 +11,8 @@ from logging.handlers import RotatingFileHandler
 from typing import TextIO
 
 from ovl_util.config import load_config
-from root_path import root_dir
+# TODO: log_dir and config_path used in this file should be parameterized instead of hardcoded based on root_dir
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 shorten_paths = {
 	root_dir: os.path.basename(root_dir),

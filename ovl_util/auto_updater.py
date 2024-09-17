@@ -9,8 +9,9 @@ import time
 import logging
 import subprocess
 
-from root_path import root_dir
 from ovl_util.logs import ANSI
+
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # temporarily set to make sure it shows up, even though it is not written to the log file
 logger = logging.getLogger()
