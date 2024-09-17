@@ -12,7 +12,6 @@ from plugin.utils.tristrip import triangulate
 
 
 # END_GLOBALS
-from source.formats.ms2.compounds.packing_utils import unpack_int64_weights, pack_int64_weights
 
 
 class ChunkedMesh(MeshData):
