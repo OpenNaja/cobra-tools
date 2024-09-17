@@ -171,22 +171,3 @@ def read_list(cfg_path):
 	except:
 		print(f"{cfg_path} is missing or broken!")
 		return []
-
-
-if __name__ == '__main__':
-	cfg = Config(os.getcwd())
-	cfg.load()
-	print(cfg)
-	# print(cfg.settings)
-	import sys
-	from gui.widgets import LabelCombo, ConfigWindow
-	from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QApplication
-
-	app = QApplication(sys.argv)
-
-	w = ConfigWindow(cfg)
-	w.show()
-
-	app.exec()
-	print(cfg)
-	# c.show()
