@@ -377,15 +377,15 @@ def generate_rig_edit(reporter, **kwargs):
 			rounded_matrix = tuple(tuple(round(element, 5) for element in row) for row in p_bone.bone.matrix_local)
 
 			# use the parent and rounded matrix as a key to sort all identical nodes into groups
-			keytuple = (p_bone.parent, rounded_matrix)
-			if keytuple in node_groups:
-				node_groups[keytuple].append(p_bone)
-			else:
-				node_groups[keytuple] = [p_bone]
+			parent_name = p_bone.parent.name if p_bone.parent else "ROOTNODE"
+			keytuple = (parent_name, rounded_matrix)
+			if keytuple not in node_groups:
+				node_groups[keytuple] = []
+			node_groups[keytuple].append(p_bone)
 
 		# Log node groups
-		for keytuple, nodegroup in node_groups.items():
-			logging.debug(f"node group: {keytuple}")
+		for (parent_name, rounded_matrix), nodegroup in node_groups.items():
+			logging.debug(f"node group: {parent_name} {rounded_matrix}")
 			for node in nodegroup:
 				logging.debug(f"node: {node.name}")
 
@@ -393,15 +393,11 @@ def generate_rig_edit(reporter, **kwargs):
 		deletednodes = 0
 
 		# Merge node groups
-		for keytuple, nodegroup in node_groups.items():
+		for (parent_name, rounded_matrix), nodegroup in node_groups.items():
 			# Rename NODE to indicate it owns more than one bone
 			if len(nodegroup) > 1:
 				# Renaming to be more descriptive
-				if not nodegroup[0].parent:
-					nodegroup[0].name = f"NODE_{len(nodegroup)}GROUP_ROOTNODE"
-				else:
-					nodegroup[
-						0].name = f"NODE_{len(nodegroup)}GROUP_{nodegroup[0].parent.name}"
+				nodegroup[0].name = f"NODE_{len(nodegroup)}GROUP_{parent_name}"
 
 			# Log group organization
 			# logging.info(f"first node: {nodegroup[0].name}")
@@ -409,7 +405,7 @@ def generate_rig_edit(reporter, **kwargs):
 
 			# Delete all extra nodes
 			for node in nodegroup:
-				if node != nodegroup[0]:
+				if node != nodegroup[0] and node.children:
 					# logging.info(f"secondary node: {node.name}")
 					# logging.info(f"secondary child: {node.children[0].name}")
 
