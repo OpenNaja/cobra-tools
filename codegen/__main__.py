@@ -16,7 +16,7 @@ from .Bitfield import Bitfield
 from .Versions import Versions
 from .Module import Module
 from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
-from .path_utils import module_path_to_import_path, module_path_to_file_path
+from .path_utils import module_path_to_import_path, module_path_to_file_path, to_import_path
 from .expression import format_potential_tuple
 
 logging.basicConfig(level=logging.DEBUG)
@@ -357,14 +357,14 @@ def copy_src_to_generated(src_dir, trg_dir):
 
 def fix_imports(gen_dir):
     """Fixes hardcoded imports in non-generated files"""
-    basename = os.path.basename(gen_dir)
+    gen_import_path = to_import_path(gen_dir)
     for path, _, files in os.walk(os.path.abspath(gen_dir)):
         for filename in fnmatch.filter(files, "*.py"):
             filepath = os.path.join(path, filename)
             with open(filepath, "r", encoding="utf-8") as f:
                 s = f.read()
-            s = s.replace("from generated.", f"from {basename}.")
-            s = s.replace("import generated.", f"import {basename}.")
+            s = s.replace("from generated.", f"from {gen_import_path}.")
+            s = s.replace("import generated.", f"import {gen_import_path}.")
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(s)
 

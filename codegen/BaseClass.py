@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from .path_utils import module_path_to_file_path
+from .path_utils import module_path_to_file_path, to_import_path
 from .Imports import Imports
 
 
@@ -84,8 +84,8 @@ class BaseClass:
     def write(self, stream):
         src_globals = self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS")
         src_globals = "\n".join(src_globals.split("\n")[1:])
-        src_globals = src_globals.replace("from generated.", f"from {self.gen_dir}.")
-        src_globals = src_globals.replace("import generated.", f"import {self.gen_dir}.")
+        src_globals = src_globals.replace("from generated.", f"from {to_import_path(self.gen_dir)}.")
+        src_globals = src_globals.replace("import generated.", f"import {to_import_path(self.gen_dir)}.")
         stream.write(src_globals)
 
         self.imports.write(stream)
