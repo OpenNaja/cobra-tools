@@ -4,7 +4,7 @@ import ast
 import math
 import operator
 
-import codegen.naming_conventions as naming_conventions
+from .naming_conventions import name_access
 
 
 class LiteralFloat(float):
@@ -59,6 +59,31 @@ def interpret_literal(input_str, include_version=False):
         except:
             pass
     return None
+
+
+def str_is_number(str_expr):
+    # check if it might be an int:
+    return interpret_literal is None
+
+
+def format_potential_tuple(value):
+    """Converts xml attribute value lists to tuples if space is present and all
+    comma-space-separated values can be converted to numbers, otherwise leaves it alone.
+    :param value: the string that is the value of an attribute
+    :return: original string if no space is present, or commas as separators
+    and surrounding parentheses if whitespace is present.
+    >>> format_potential_tuple('1.0')
+    '1.0
+    >>> format_potential_tuple('1.0, 1.0, 1.0')
+    '(1.0, 1.0, 1.0)'"""
+    if ', ' in value:
+        interpreted_literals = [interpret_literal(potential_number) for potential_number in value.split(', ')]
+        if all([interpreted is not None for interpreted in interpreted_literals]):
+            return f"({', '.join([str(interpreted) for interpreted in interpreted_literals])})"
+        else:
+            return value
+    else:
+        return value
 
 
 class Expression(object):
@@ -137,7 +162,7 @@ class Expression(object):
         # apply name filter on each component separately
         # (where a dot separates components)
         prefix = f"{target_variable}." if target_variable else ""
-        return prefix + naming_conventions.name_access(expr_str)
+        return prefix + name_access(expr_str)
 
     @classmethod
     def _partition(cls, expr_str):

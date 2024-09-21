@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from root_path import root_dir
+from .path_utils import module_path_to_file_path, to_import_path
 from .Imports import Imports
 
 
@@ -13,10 +13,12 @@ keyword_regex = re.compile(r"(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-
 
 class BaseClass:
 
-    def __init__(self, parser, struct, gen_dir):
+    def __init__(self, parser, struct, gen_dir, src_dir, root_dir):
         self.parser = parser
         self.struct = struct
         self.gen_dir = gen_dir
+        self.src_dir = src_dir
+        self.root_dir = root_dir
         self.read()
 
     def read(self, ):
@@ -30,7 +32,7 @@ class BaseClass:
             logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
                          f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
-        self.out_file = self.get_out_path(self.parser.path_dict[self.class_name], gen_dir=self.gen_dir)
+        self.out_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.gen_dir, self.root_dir)
 
         # handle imports
         self.imports = Imports(self.parser, self.struct, gen_dir=self.gen_dir)
@@ -82,8 +84,8 @@ class BaseClass:
     def write(self, stream):
         src_globals = self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS")
         src_globals = "\n".join(src_globals.split("\n")[1:])
-        src_globals = src_globals.replace("from generated.", f"from {self.gen_dir}.")
-        src_globals = src_globals.replace("import generated.", f"import {self.gen_dir}.")
+        src_globals = src_globals.replace("from generated.", f"from {to_import_path(self.gen_dir)}.")
+        src_globals = src_globals.replace("import generated.", f"import {to_import_path(self.gen_dir)}.")
         stream.write(src_globals)
 
         self.imports.write(stream)
@@ -106,13 +108,10 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        src_file = os.path.join(root_dir, "source", self.parser.path_dict[self.class_name])
-        src_file = f"{src_file}.py"
-
+        src_file = module_path_to_file_path(self.parser.path_dict[self.class_name], self.src_dir, self.root_dir, mkdir=False)
         if os.path.exists(src_file):
             with open(src_file, "r", encoding=self.parser.encoding) as f:
                 return f.read()
-
         return ""
 
     def grab_src_snippet(self, start, end=""):
@@ -129,12 +128,3 @@ class BaseClass:
             # print("found start", len(snipp), start, end)
             return snipp
         return ""
-
-    @staticmethod
-    def get_out_path(module_path, gen_dir):
-        # get the module path from the path of the file
-        out_file = os.path.join(root_dir, gen_dir, module_path + ".py")
-        out_dir = os.path.dirname(out_file)
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        return out_file

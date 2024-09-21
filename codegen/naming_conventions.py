@@ -1,7 +1,5 @@
 import re
 
-import codegen.expression as expression
-
 # precompiled regular expressions, used in name_parts
 
 _RE_NAME_SEP = re.compile('[_\W]+')
@@ -151,31 +149,6 @@ def name_module(name):
     'bshavok'
     """
     return name.lower()
-
-
-def str_is_number(str_expr):
-    # check if it might be an int:
-    return expression.interpret_literal is None
-
-
-def format_potential_tuple(value):
-    """Converts xml attribute value lists to tuples if space is present and all
-    comma-space-separated values can be converted to numbers, otherwise leaves it alone.
-    :param value: the string that is the value of an attribute
-    :return: original string if no space is present, or commas as separators
-    and surrounding parentheses if whitespace is present.
-    >>> format_potential_tuple('1.0')
-    '1.0
-    >>> format_potential_tuple('1.0, 1.0, 1.0')
-    '(1.0, 1.0, 1.0)'"""
-    if ', ' in value:
-        interpreted_literals = [expression.interpret_literal(potential_number) for potential_number in value.split(', ')]
-        if all([interpreted is not None for interpreted in interpreted_literals]):
-            return f"({', '.join([str(interpreted) for interpreted in interpreted_literals])})"
-        else:
-            return value
-    else:
-        return value
 
 
 def force_bool(value):

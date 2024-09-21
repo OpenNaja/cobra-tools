@@ -1,7 +1,7 @@
-import os.path as path
 import logging
 
-import codegen.naming_conventions as convention
+from .naming_conventions import name_class, template_re
+from .path_utils import module_path_to_import_path
 
 
 NO_CLASSES = ("Padding", "self", "template")
@@ -41,13 +41,13 @@ class Imports:
                             for entry in template:
                                 # template can be either a type or a template
                                 # only import if a type
-                                template_class = convention.name_class(entry)
+                                template_class = name_class(entry)
                                 if not self.is_template(template_class):
                                     self.add_indirect_import()
                         else:
                             # template can be either a type or a template
                             # only import if a type
-                            template_class = convention.name_class(template)
+                            template_class = name_class(template)
                             if not self.is_template(template_class):
                                 self.add_indirect_import()
     
@@ -68,7 +68,7 @@ class Imports:
             raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
     def is_template(self, string_to_check):
-        return bool(convention.template_re.fullmatch(string_to_check))
+        return bool(template_re.fullmatch(string_to_check))
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
@@ -97,7 +97,7 @@ class Imports:
                 continue
             import_path = self.parent.path_dict.get(class_import, None)
             if import_path:
-                local_imports.append(f"from {self.import_from_module_path(import_path, gen_dir=self.gen_dir)} import {class_import}\n")
+                local_imports.append(f"from {module_path_to_import_path(import_path, self.gen_dir)} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
         module_imports.sort()
@@ -106,7 +106,3 @@ class Imports:
             stream.write(line)
         if self.imports:
             stream.write("\n\n")
-
-    @staticmethod
-    def import_from_module_path(module_path, gen_dir):
-        return f"{gen_dir}.{module_path.replace(path.sep, '.')}"

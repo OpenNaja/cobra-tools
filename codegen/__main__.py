@@ -7,19 +7,17 @@ import shutil
 import fnmatch
 import argparse
 import traceback
-
 from html import unescape
 
-from codegen import naming_conventions as convention
-from codegen.BaseClass import BaseClass
-from codegen.Basics import Basics
-from codegen.Compound import Compound
-from codegen.Enum import Enum
-from codegen.Bitfield import Bitfield
-from codegen.Imports import Imports
-from codegen.Versions import Versions
-from codegen.Module import Module
-from codegen.naming_conventions import clean_comment_str
+from .Basics import Basics
+from .Compound import Compound
+from .Enum import Enum
+from .Bitfield import Bitfield
+from .Versions import Versions
+from .Module import Module
+from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
+from .path_utils import module_path_to_import_path, module_path_to_file_path, to_import_path
+from .expression import format_potential_tuple
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,11 +30,13 @@ class XmlParser:
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
     builtin_literals = {'str': '', 'float': 0.0, 'int': 0, 'bool': False}
 
-    def __init__(self, format_name, gen_dir="generated"):
+    def __init__(self, format_name, root_dir, gen_dir="generated", src_dir="source"):
         """Set up the xml parser."""
 
         self.format_name = format_name
+        self.root_dir = root_dir
         self.gen_dir = gen_dir
+        self.src_dir = src_dir
         self.base_segments = os.path.join("formats", self.format_name)
         # which encoding to use for the output files
         self.encoding = 'utf-8'
@@ -126,27 +126,27 @@ class XmlParser:
         for child in root:
             try:
                 if child.tag in self.struct_types:
-                    Compound(self, child, gen_dir=self.gen_dir)
+                    Compound(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag in self.bitstruct_types:
-                    Bitfield(self, child, gen_dir=self.gen_dir)
+                    Bitfield(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag == "basic":
                     self.basics.read(child)
                 elif child.tag == "enum":
-                    Enum(self, child, gen_dir=self.gen_dir)
+                    Enum(self, child, self.gen_dir, self.src_dir, self.root_dir)
                 elif child.tag == "module":
-                    Module(self, child, gen_dir=self.gen_dir)
+                    Module(self, child, self.gen_dir, self.root_dir)
                 elif child.tag == "version":
                     self.versions.read(child)
                 elif child.tag == "verattr":
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"), gen_dir=self.gen_dir)
+        versions_file = module_path_to_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, self.root_dir)
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
-        self.write_import_map(BaseClass.get_out_path(imports_module, gen_dir=self.gen_dir))
-        init_file_path = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"), gen_dir=self.gen_dir)
-        import_string = f'from {Imports.import_from_module_path(imports_module, gen_dir=self.gen_dir)} import name_type_map\n'
+        self.write_import_map(module_path_to_file_path(imports_module, self.gen_dir, self.root_dir))
+        init_file_path = module_path_to_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, self.root_dir)
+        import_string = f'from {module_path_to_import_path(imports_module, self.gen_dir)} import name_type_map\n'
         if not os.path.exists(init_file_path):
             with open(init_file_path, "w", encoding=self.encoding) as f:
                 f.write(import_string)
@@ -164,7 +164,7 @@ class XmlParser:
             f.write("from importlib import import_module\n")
             f.write("\n\ntype_module_name_map = {\n")
             for type_name in self.processed_types:
-                f.write(f"\t'{type_name}': '{Imports.import_from_module_path(self.path_dict[type_name], gen_dir=self.gen_dir)}',\n")
+                f.write(f"\t'{type_name}': '{module_path_to_import_path(self.path_dict[type_name], self.gen_dir)}',\n")
             f.write('}\n')
             f.write("\nname_type_map = {}\n")
             f.write("for type_name, module in type_module_name_map.items():\n")
@@ -196,7 +196,7 @@ class XmlParser:
         if new_path not in parsed_xmls:
             # if not, parse it now
             format_name = os.path.splitext(os.path.basename(new_path))[0]
-            new_parser = XmlParser(format_name, gen_dir=self.gen_dir)
+            new_parser = XmlParser(format_name, root_dir=self.root_dir, gen_dir=self.gen_dir)
             new_parser.load_xml(new_path, parsed_xmls)
         else:
             new_parser = parsed_xmls[new_path]
@@ -215,46 +215,46 @@ class XmlParser:
             # don't apply conventions to these types (or there are none to apply)
             return
         elif struct.tag == "version":
-            self.apply_convention(struct, convention.force_bool, ("supported", "custom"))
+            self.apply_convention(struct, force_bool, ("supported", "custom"))
         elif struct.tag == "verattr":
-            self.apply_convention(struct, convention.name_class, ("type",))
-            self.apply_convention(struct, convention.name_access, ("access",))
+            self.apply_convention(struct, name_class, ("type",))
+            self.apply_convention(struct, name_access, ("access",))
         elif struct.tag == "module":
-            self.apply_convention(struct, convention.name_module, ("name", "depends"))
-            self.apply_convention(struct, convention.force_bool, ("custom",))
+            self.apply_convention(struct, name_module, ("name", "depends"))
+            self.apply_convention(struct, force_bool, ("custom",))
             struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
         else:
             # it is a tag with a class
             struct.attrib["__name__"] = struct.attrib["name"]
-            self.apply_convention(struct, convention.name_class, ("name", "inherit"))
-            self.apply_convention(struct, convention.name_module, ("module",))
+            self.apply_convention(struct, name_class, ("name", "inherit"))
+            self.apply_convention(struct, name_module, ("module",))
             if struct.tag == "basic":
-                self.apply_convention(struct, convention.force_bool, ("boolean", "integral", "countable", "generic"))
+                self.apply_convention(struct, force_bool, ("boolean", "integral", "countable", "generic"))
             elif struct.tag == "enum":
-                self.apply_convention(struct, convention.name_class, ("storage",))
+                self.apply_convention(struct, name_class, ("storage",))
                 for option in struct:
-                    self.apply_convention(option, convention.name_enum_key_if_necessary, ("name", ))
+                    self.apply_convention(option, name_enum_key_if_necessary, ("name", ))
             elif struct.tag in self.bitstruct_types:
-                self.apply_convention(struct, convention.name_class, ("storage",))
+                self.apply_convention(struct, name_class, ("storage",))
                 # a bitfield/bitflags fields
                 if struct.tag == 'bitflags':
                     for field in struct:
-                        field.attrib['enum_name'] = convention.name_enum_key_if_necessary(field.attrib['name'])
+                        field.attrib['enum_name'] = name_enum_key_if_necessary(field.attrib['name'])
                 for field in struct:
-                    self.apply_convention(field, convention.name_attribute, ("name",))
-                    self.apply_convention(field, convention.name_class, ("type",))
+                    self.apply_convention(field, name_attribute, ("name",))
+                    self.apply_convention(field, name_class, ("type",))
             elif struct.tag in self.struct_types:
-                self.apply_convention(struct, convention.force_bool, ("generic",))
+                self.apply_convention(struct, force_bool, ("generic",))
                 # a struct's fields
                 for field in struct:
-                    self.apply_convention(field, convention.name_attribute, ("name",))
-                    self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, convention.force_bool, ("optional", "abstract", "recursive"))
+                    self.apply_convention(field, name_attribute, ("name",))
+                    self.apply_convention(field, name_class, ("type", "onlyT", "excludeT"))
+                    self.apply_convention(field, force_bool, ("optional", "abstract", "recursive"))
                     # template can refer to a type of an attribute
-                    self.apply_convention(field, convention.format_potential_tuple, ("default",))
+                    self.apply_convention(field, format_potential_tuple, ("default",))
                     for default in field:
-                        self.apply_convention(default, convention.name_class, ("onlyT",))
-                        self.apply_convention(default, convention.format_potential_tuple, ("value",))
+                        self.apply_convention(default, name_class, ("onlyT",))
+                        self.apply_convention(default, format_potential_tuple, ("value",))
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
@@ -357,14 +357,14 @@ def copy_src_to_generated(src_dir, trg_dir):
 
 def fix_imports(gen_dir):
     """Fixes hardcoded imports in non-generated files"""
-    basename = os.path.basename(gen_dir)
+    gen_import_path = to_import_path(gen_dir)
     for path, _, files in os.walk(os.path.abspath(gen_dir)):
         for filename in fnmatch.filter(files, "*.py"):
             filepath = os.path.join(path, filename)
             with open(filepath, "r", encoding="utf-8") as f:
                 s = f.read()
-            s = s.replace("from generated.", f"from {basename}.")
-            s = s.replace("import generated.", f"import {basename}.")
+            s = s.replace("from generated.", f"from {gen_import_path}.")
+            s = s.replace("import generated.", f"import {gen_import_path}.")
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(s)
 
@@ -391,20 +391,19 @@ def apply_autopep8(target_dir):
         logging.warn("Tried to run autopep8, but module not found.")
 
 
-def generate_classes(gen_dir, silent):
+def generate_classes(root_dir, gen_dir, src_dir, silent):
     try:
         if silent:
             logging.disable(logging.ERROR)
         logging.info("Starting class generation")
-        cwd = os.getcwd()
-        source_dir = os.path.join(cwd, "source")
-        target_dir = os.path.join(cwd, gen_dir)
-        root_dir = os.path.join(source_dir, "formats")
+        source_dir = os.path.join(root_dir, src_dir)
+        target_dir = os.path.join(root_dir, gen_dir)
+        formats_dir = os.path.join(source_dir, "formats")
         copy_src_to_generated(source_dir, target_dir)
         fix_imports(target_dir)
         parsed_xmls = {}
-        for format_name in os.listdir(root_dir):
-            dir_path = os.path.join(root_dir, format_name)
+        for format_name in os.listdir(formats_dir):
+            dir_path = os.path.join(formats_dir, format_name)
             if os.path.isdir(dir_path):
                 xml_path = os.path.join(dir_path, format_name+".xml")
                 if os.path.isfile(xml_path):
@@ -412,7 +411,7 @@ def generate_classes(gen_dir, silent):
                         logging.info(f"Already read {format_name}, skipping")
                     else:
                         logging.info(f"Reading {format_name} format")
-                        xmlp = XmlParser(format_name, gen_dir=gen_dir)
+                        xmlp = XmlParser(format_name, root_dir, gen_dir=gen_dir)
                         xmlp.load_xml(xml_path, parsed_xmls)
         create_inits(target_dir)
         if silent:
@@ -426,9 +425,10 @@ def generate_classes(gen_dir, silent):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='codegen')
     parser.add_argument('-g', '--generated-dir', default="generated")
+    parser.add_argument('-s', '--source-dir', default="source")
     parser.add_argument('--silent', action='store_true')
     args = parser.parse_args()
-    exit_code = generate_classes(gen_dir=args.generated_dir, silent=args.silent)
+    exit_code = generate_classes(os.getcwd(), gen_dir=args.generated_dir, src_dir=args.source_dir, silent=args.silent)
     try:
         exit(exit_code)
     except NameError:

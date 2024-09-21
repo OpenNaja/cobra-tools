@@ -12,7 +12,7 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
 
 1. Download the source code for cobra tools, open in an IDE. For a new format, you need to do three things:
     * In `/source/formats/`, duplicate an existing OVL file format's folder (eg. `animalresearch`) and rename it to your new format. Rename the XML inside of it, too.
-    * Run `/codegen.py` to generate `.py` files from the XML structure definitions in `/source/formats/`. These will be put in in `/generated/formats/`. Whenever you have made a change to an XML definition, run the codegen again to update the `.py` files.
+    * Run `python -m codegen` to generate `.py` files from the XML structure definitions in `/source/formats/`. These will be put in in `/generated/formats/`. Whenever you have made a change to an XML definition, run the codegen again to update the `.py` files.
     * In `/modules/formats/`, create a new `.py` file with a class that handles your format. This tells the tools which XML-defined struct class to use (eg. `ResearchRoot`) and which file extension to apply this to (eg. `.animalresearchunlockssettings`). Minimal example:
     ```python
     from generated.formats.animalresearch.compound.ResearchRoot import ResearchRoot
