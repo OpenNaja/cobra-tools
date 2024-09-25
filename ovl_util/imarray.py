@@ -132,8 +132,22 @@ def get_split_mode(game, png_name, compression):
 		all_tex_channels = constants[game]["texchannels"]
 		all_tex_channels_lower = {tex_type.lower(): tex_channels for tex_type, tex_channels in all_tex_channels.items()}
 		tex_channels_map = all_tex_channels_lower.get(tex_type[1:])  # strip the leading .
-		# todo - implement a clamping of channel IDs according to compression type to select the correct subtype
-		return "_".join(channel_id for channel_id in tex_channels_map.keys() if channel_id)  # ignore empty identifiers = RGBA
+		suggested_channels = set(tex_channels_map.keys())
+		valid_channels = [channel_id for channel_id in suggested_channels if channel_id]
+		out_channels = []
+		# clamping of channel IDs according to compression type to select the correct subtype
+		for channel_id in valid_channels:
+			if check_any(("BC5",), compression):
+				# supports only two channels - only accept RG or R_G
+				if channel_id not in ("RG", "R", "G"):
+					continue
+			else:
+				if channel_id in ("RG", "R", "G"):
+					# prefer RGB(A) if it is available
+					if check_any(("RGB", "RGBA"), valid_channels):
+						continue
+			out_channels.append(channel_id)
+		return "_".join(out_channels)  # ignore empty identifiers = RGBA
 	except:
 		logging.warning(f"Game based splitting failed, falling back on legacy splitting rules")
 
