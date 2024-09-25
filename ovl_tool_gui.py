@@ -303,23 +303,18 @@ class MainWindow(widgets.MainWindow):
 
 	def handle_path(self, save_over=True, batch=False):
 		if batch:
-			# get path
-			selected_dir = self.walk_root()
-			if selected_dir:
-				with self.no_popups():
-					with self.log_level_override("WARNING"):
-						for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
-							# open ovl file
-							self.open(ovl_path)
-							# todo clear logger after each file, using self.file_widget.open_file would do that
-							#      however the open_file signal and thus ovl loading is processed later than the yield
-							# self.file_widget.open_file(ovl_path)
-							# process each
-							yield self.ovl_data
-							if save_over:
-								self.save(ovl_path)
-			else:
-				self.showwarning("Select a root directory!")
+			with self.no_popups():
+				with self.log_level_override("WARNING"):
+					for ovl_path in walker.walk_type(self.walk_root(), extension=".ovl"):
+						# open ovl file
+						self.open(ovl_path)
+						# todo clear logger after each file, using self.file_widget.open_file would do that
+						#      however the open_file signal and thus ovl loading is processed later than the yield
+						# self.file_widget.open_file(ovl_path)
+						# process each
+						yield self.ovl_data
+						if save_over:
+							self.save(ovl_path)
 		# just the one that's currently open, do not save over
 		elif self.is_open_ovl():
 			yield self.ovl_data
