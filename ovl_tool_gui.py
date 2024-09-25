@@ -310,15 +310,14 @@ class MainWindow(widgets.MainWindow):
 					with self.log_level_override("WARNING"):
 						for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 							# open ovl file
-							self.open(ovl_path, threaded=False)
-							# todo transition to open_file api for consistency
-							#      but this must not spawn a new thread so that save_over works
-							#      clear logger after each file, but self.file_widget.open_file would do that
+							self.open(ovl_path)
+							# todo clear logger after each file, using self.file_widget.open_file would do that
+							#      however the open_file signal and thus ovl loading is processed later than the yield
 							# self.file_widget.open_file(ovl_path)
 							# process each
 							yield self.ovl_data
 							if save_over:
-								self.save(ovl_path, threaded=False)
+								self.save(ovl_path)
 			else:
 				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
@@ -402,12 +401,13 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
-	def open(self, filepath, threaded=True):
+	def open(self, filepath):
 		if filepath:
 			commands = {"game": self.ovl_game_choice.entry.currentText()}
 			self.set_clean()
-			logging.debug(f"Loading threaded {threaded}")
-			if threaded:
+			# logging.debug(f"Loading threaded {threaded}")
+			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
+			if not self.suppress_popups:
 				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, ), filepath, commands)
 			else:
 				try:
@@ -449,9 +449,9 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovl_names = includes
 		self.set_dirty()
 
-	def save(self, filepath, threaded=True):
+	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
-		if threaded:
+		if not self.suppress_popups:
 			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, ), filepath)
 		else:
 			try:
