@@ -617,9 +617,9 @@ class MainWindow(widgets.MainWindow):
 		return ""
 	
 	def walk_root(self):
-		# todo - fall back on game root if selected dir is not child of current game dir
 		selected = self.installed_games.get_selected_dir()
-		return selected if selected else self.game_root()
+		# fall back on game root dir if selected dir is not child of current game's dir tree
+		return selected if PurePath(self.game_root()) in PurePath(selected).parents else self.game_root()
 
 	def walker_hash(self, ):
 		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root())
