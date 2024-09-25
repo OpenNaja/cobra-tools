@@ -395,8 +395,7 @@ class ManisFile(InfoHeader, IoFile):
                 self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, segment_frames_count,
                                    segment_ori_bones, keys_iter=keys_iter)
             except:
-                logging.exception(f"Reading Segment[{segment_i}] failed at bit {f.pos}, byte {f.pos / 8}")
-                raise
+                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}")
             frame_offset += segment_frames_count
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]

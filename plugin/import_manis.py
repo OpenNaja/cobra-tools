@@ -120,7 +120,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	cam_corr = None
 
 	for mi in manis.mani_infos:
-		logging.info(f"Importing '{mi.name}'")
+		logging.debug(f"Importing '{mi.name}'")
 		if "_camera" in mi.name:
 			b_cam_data = bpy.data.cameras.new(mi.name)
 			# b_cam_data.lens_unit = "FOV"  # no use, as blender can't animate FOV directly
@@ -144,7 +144,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			else:
 				suffix = ""
 			b_name = bone_name_for_blender(m_name)
-			logging.info(f"Importing '{b_name}'")
+			logging.debug(f"Importing '{b_name}'")
 			keys = k.floats[:, bone_i]
 			samples = range(len(keys))
 			if m_name == "CameraFOV":
