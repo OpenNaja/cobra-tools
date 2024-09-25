@@ -30,7 +30,7 @@ dt_size = {
 def get_channel(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 	for bone_i, m_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(m_name)
-		logging.debug(f"Importing '{b_name}'")
+		logging.debug(f"Importing {b_name}")
 		if b_name in bones_data:
 			bonerestmat_inv = bones_data[b_name]
 			b_channel = b_name
@@ -120,7 +120,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	cam_corr = None
 
 	for mi in manis.mani_infos:
-		logging.debug(f"Importing '{mi.name}'")
+		logging.info(f"Importing {mi.name}")
 		if "_camera" in mi.name:
 			b_cam_data = bpy.data.cameras.new(mi.name)
 			# b_cam_data.lens_unit = "FOV"  # no use, as blender can't animate FOV directly
@@ -133,7 +133,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		b_action["stream"] = manis.stream
 		stash(b_armature_ob, b_action, mi.name, 0)
 		# print(mi)
-		logging.info(f"Compression = {mi.dtype.compression}")
+		logging.debug(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 		# floats are present for compressed or uncompressed
@@ -144,7 +144,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			else:
 				suffix = ""
 			b_name = bone_name_for_blender(m_name)
-			logging.debug(f"Importing '{b_name}'")
+			logging.debug(f"Importing {b_name}")
 			keys = k.floats[:, bone_i]
 			samples = range(len(keys))
 			if m_name == "CameraFOV":
@@ -175,7 +175,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				# logging.debug(k.floats[:, bone_i])
 		# check compression flag
 		if mi.dtype.compression != 0:
-			logging.info(f"{mi.name} is compressed, trying to import anyway")
+			# logging.info(f"{mi.name} is compressed, trying to import anyway")
 			ck = k.compressed
 			try:
 				manis.decompress(None, mi)

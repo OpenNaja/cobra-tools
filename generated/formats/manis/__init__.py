@@ -73,25 +73,65 @@ class BinStream:
 
 
 class KeysContext:
-    def __init__(self, f2, wavelet_byte_offset):
-        # logging.info(f"wavelet_byte_offset {wavelet_byte_offset}")
-        f2.seek(wavelet_byte_offset * 8)
-        self.do_increment = f2.read_uint(1)
-        self.runs_remaining = f2.read_uint(16)
-        # size = k_channel_bitsize + 1
-        # verified
-        size = 4
-        self.init_k_a = f2.read_uint_reversed(size)
-        self.init_k_b = f2.read_uint_reversed(size)
-        if not self.do_increment:
-            self.init_k_a, self.init_k_b = self.init_k_b, self.init_k_a
-        logging.info(self)
-        self.do_increment = not self.do_increment
-        self.begun = True
-        self.i_in_run = 0
+    def __init__(self, stream, wavelet_byte_offset, segment_frames_count):
+        self.stream = stream
+        logging.debug(f"wavelet_byte_offset {wavelet_byte_offset}")
+        self.stream.seek(wavelet_byte_offset * 8)
+        # stream can have 00 00 at wavelet_byte_offset for a segment with 1 frame = no relative keys
+        if segment_frames_count == 1:
+            empty = self.stream.read_uint(16)
+            assert empty == 0, "Stream with no relative keys must have 00 00 context"
+            self.do_increment = self.runs_remaining = self.init_k_a = self.init_k_b = 0
+        else:
+            self.do_increment = self.stream.read_uint(1)
+            self.runs_remaining = self.stream.read_uint(16)
+            # size = k_channel_bitsize + 1
+            # verified
+            size = 4
+            self.init_k_a = self.stream.read_uint_reversed(size)
+            self.init_k_b = self.stream.read_uint_reversed(size)
+            if not self.do_increment:
+                self.init_k_a, self.init_k_b = self.init_k_b, self.init_k_a
+            logging.debug(self)
+            self.do_increment = not self.do_increment
+            self.begun = True
+            self.i_in_run = 0
 
+    def read_wavelet_table(self, frame_map, segment_frames_count):
+        # logging.info(f"wavelets at bit {self.stream.pos}")
+        new_wavelets_offset = 0
+        for wave_frame_i in range(1, segment_frames_count):
+            if self.i_in_run == 0:
+                assert self.runs_remaining != 0
+                self.runs_remaining -= 1
+                self.do_increment = not self.do_increment
+                init_k = self.init_k_a if self.do_increment else self.init_k_b
+                assert init_k < 32
+                # run 0: init_k_a = 2
+                # run 1: init_k_b = 4
+                # logging.info(f"do_increment {do_increment} init_k {init_k} at {self.stream.pos}")
+                k_size = self.stream.read_bit_size_flag(32 - init_k)
+                k_flag = 1 << (init_k & 0x1f)
+                k_flag_out = self.stream.interpret_as_shift(k_size, k_flag)
+                # logging.info(
+                # 	f"pos before key {self.stream.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+                k_key = self.stream.read_uint_reversed(k_size + init_k)
+                assert k_size + init_k < 32
+                self.i_in_run = k_key + k_flag_out
+            # logging.info(
+            # 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+            # logging.info(f"pos after read {self.stream.pos}")
+            self.i_in_run -= 1
+            if self.do_increment:
+                frame_map[new_wavelets_offset] = wave_frame_i
+                new_wavelets_offset += 1
+
+        # logging.info(frame_map)
+        # logging.info(f"wavelets finished at bit {self.stream.pos}, byte {self.stream.pos / 8}, out_count {new_wavelets_offset}")
+        return new_wavelets_offset
+    
     def __repr__(self):
-        return f"do_increment {self.do_increment}, runs_remaining {self.runs_remaining}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
+        return f"Context: do_increment {self.do_increment}, runs_remaining {self.runs_remaining}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
 
 
 def f_as_i(f):
@@ -280,7 +320,8 @@ class ManisFile(InfoHeader, IoFile):
         new_bit = 0xf  # MOV new_bit,0xf
         return new_bit.bit_length() - 1
 
-    def segment_frame_count(self, i, frame_count):
+    @staticmethod
+    def get_segment_frame_count(i, frame_count):
         # get from chunk index
         return min(32, frame_count - (i * 32))
 
@@ -302,7 +343,7 @@ class ManisFile(InfoHeader, IoFile):
                 # if "def_c_hips_joint" == ori_name:
                 #     logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
 
-    def parse_keys(self, target=None):
+    def parse_keys(self, target=None, dump=False):
         for mani_info in self.iter_compressed_manis():
             keys_iter = None
             if target and mani_info.name != target:
@@ -316,7 +357,7 @@ class ManisFile(InfoHeader, IoFile):
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
             try:
-                self.decompress(keys_iter, mani_info)
+                self.decompress(keys_iter, mani_info, dump=dump)
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
 
@@ -365,23 +406,26 @@ class ManisFile(InfoHeader, IoFile):
             plt.legend()
             plt.show()
 
-    def decompress(self, keys_iter, mani_info):
+    def decompress(self, keys_iter, mani_info, dump=False):
         if bitarray is None:
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
         k_channel_bitsize = self.get_bitsize()
-        k = mani_info.keys
         ck = mani_info.keys.compressed
-        logging.info(
-            f"Anim {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
+        logging.debug(
+            f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
         ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
         ck.ori_bones = np.empty((mani_info.frame_count, mani_info.ori_bone_count, 4), np.float32)
         assert ck.pos_bone_count == mani_info.pos_bone_count
         assert ck.ori_bone_count == mani_info.ori_bone_count
         frame_offset = 0
         for segment_i, mb in enumerate(ck.segments):
+            # dump compressed segment data if needed
+            if dump:
+                with open(os.path.join(self.dir, f"{mani_info.name}_{segment_i}.maniskeys"), "wb") as f:
+                    f.write(mb.data)
             f = BinStream(mb.data)
             f2 = BinStream(mb.data)
-            segment_frames_count = self.segment_frame_count(segment_i, mani_info.frame_count)
+            segment_frames_count = self.get_segment_frame_count(segment_i, mani_info.frame_count)
             # logging.info(f"Segment[{segment_i}] frames {segment_frames_count} Keys Iter {keys_iter}")
             # create views into the complete data for this segment
             segment_pos_bones = ck.pos_bones[frame_offset:frame_offset + segment_frames_count]
@@ -389,13 +433,13 @@ class ManisFile(InfoHeader, IoFile):
             try:
                 # this is a jump to the end of the compressed keys
                 wavelet_byte_offset = f.read_uint_reversed(16)
-                context = KeysContext(f2, wavelet_byte_offset)
-                self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
+                context = KeysContext(f2, wavelet_byte_offset, segment_frames_count)
+                self.read_vec3_keys(context, f, segment_i, k_channel_bitsize, mani_info,
                                     segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
-                self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, segment_frames_count,
+                self.read_rot_keys(context, f, segment_i, k_channel_bitsize, mani_info, segment_frames_count,
                                    segment_ori_bones, keys_iter=keys_iter)
             except:
-                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}")
+                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(mb.data)}")
             frame_offset += segment_frames_count
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
@@ -406,13 +450,13 @@ class ManisFile(InfoHeader, IoFile):
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "srb")
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_spine0_joint")
         # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
-        self.show_keys(ck.pos_bones, k.pos_bones_names, "srb")
+        # self.show_keys(ck.pos_bones, k.pos_bones_names, "srb")
         # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
-    def read_vec3_keys(self, context, f, f2, i, k_channel_bitsize, mani_info,
+    def read_vec3_keys(self, context, f, i, k_channel_bitsize, mani_info,
                        segment_frames_count, segment_pos_bones, keys_iter=None):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
@@ -437,8 +481,8 @@ class ManisFile(InfoHeader, IoFile):
             # if pos_name == "def_c_root_joint":
             #     logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
+                new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
+                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
@@ -479,13 +523,13 @@ class ManisFile(InfoHeader, IoFile):
             else:
                 # set all keyframes
                 segment_pos_bones[:, pos_index] = vec[:3]
-        logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+        logging.debug(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 
     def printm(self, v):
         """print in order of memory register"""
         print(list(reversed(v)))
 
-    def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, segment_frames_count,
+    def read_rot_keys(self, context, f, i, k_channel_bitsize, mani_info, segment_frames_count,
                       segment_ori_bones, keys_iter=None):
         q_scale = 2 * math.pi  # 6.283185
         epsilon = 1.1920929E-7
@@ -529,8 +573,8 @@ class ManisFile(InfoHeader, IoFile):
             keys_flag = StoreKeys.from_value(keys_flag)
             # logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
+                new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
+                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
@@ -886,7 +930,7 @@ class ManisFile(InfoHeader, IoFile):
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
-        logging.info(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
+        logging.debug(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
 
     def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):
         # the default initial scale seems to be for loc and rot
@@ -903,7 +947,7 @@ class ManisFile(InfoHeader, IoFile):
         # update the packed scale
         return 1 / quant_fac_clamped
 
-    def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i):
+    def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset):
         for channel_i, is_active in enumerate((keys_flag.z, keys_flag.y, keys_flag.x)):
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
@@ -912,7 +956,7 @@ class ManisFile(InfoHeader, IoFile):
                 ch_key_size_masked = ch_key_size & 0x1f
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
-                for trg_frame_i in frame_map[:wavelet_i]:
+                for trg_frame_i in frame_map[:new_wavelets_offset]:
                     rel_key_flag = 1 << ch_key_size_masked | 1 >> (0x20 - ch_key_size_masked)
                     # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
                     rel_key_size = f.read_bit_size_flag(32)
@@ -932,39 +976,6 @@ class ManisFile(InfoHeader, IoFile):
                     # logging.info(f"key = {ch_rel_key}")
                     rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
                     ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
-
-    def read_wavelet_table(self, context, f2, frame_map, segment_frames_count):
-        # logging.info(f"wavelets at bit {f2.pos}")
-        wavelet_i = 0
-        for wave_frame_i in range(1, segment_frames_count):
-            if context.i_in_run == 0:
-                assert context.runs_remaining != 0
-                context.runs_remaining -= 1
-                context.do_increment = not context.do_increment
-                init_k = context.init_k_a if context.do_increment else context.init_k_b
-                assert init_k < 32
-                # run 0: init_k_a = 2
-                # run 1: init_k_b = 4
-                # logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
-                k_size = f2.read_bit_size_flag(32 - init_k)
-                k_flag = 1 << (init_k & 0x1f)
-                k_flag_out = f2.interpret_as_shift(k_size, k_flag)
-                # logging.info(
-                # 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
-                k_key = f2.read_uint_reversed(k_size + init_k)
-                assert k_size + init_k < 32
-                context.i_in_run = k_key + k_flag_out
-            # logging.info(
-            # 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
-            # logging.info(f"pos after read {f2.pos}")
-            context.i_in_run -= 1
-            if context.do_increment:
-                frame_map[wavelet_i] = wave_frame_i
-                wavelet_i += 1
-
-        # logging.info(frame_map)
-        # logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
-        return wavelet_i, frame_map
 
     def read_vec3(self, f):
         # pos_base = f.read_uint(45)
@@ -1052,17 +1063,19 @@ def test_get_scale_fac():
 
 if __name__ == "__main__":
     logging_setup("mani")
-    for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
-        print(ManisDtype.from_value(k))
+    # for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
+    #     print(ManisDtype.from_value(k))
     mani = ManisFile()
+    mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset48183260.manis")
+    mani.parse_keys("giganotosaurusjw@walk", dump=True)
     # mani.load("C:/Users/arnfi/Desktop/indominus/motionextracted.maniset39f6a438.manis")
     # WH
     # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
     # mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
     # print(mani)
     # ZTUAC
-    mani.load("C:/Users/arnfi/Desktop/locomotion.maniset4838180b.manis")
-    print(mani)
+    # mani.load("C:/Users/arnfi/Desktop/locomotion.maniset4838180b.manis")
+    # print(mani)
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
     # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
