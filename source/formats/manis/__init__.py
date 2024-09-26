@@ -367,9 +367,7 @@ class ManisFile(InfoHeader, IoFile):
             logging.warning("No matplotlib, can't show keys")
             return
         if bone_name in bone_names:
-            logging.info(f"Showing keys")
             bone_i = bone_names.index(bone_name)
-            # plt.figure(figsize=(5, 2.7), layout='constrained')
             plt.plot(keys[:, bone_i, 0], label='X')
             plt.plot(keys[:, bone_i, 1], label='Y')
             plt.plot(keys[:, bone_i, 2], label='Z')
@@ -382,7 +380,9 @@ class ManisFile(InfoHeader, IoFile):
             plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
             plt.xlabel('Frame')
             plt.ylabel('Value')
-            plt.title(f"{dt} Keys for {bone_name}")
+            title_str = f"{dt} Keys for {bone_name} [{bone_i}]"
+            logging.info(f"Showing {title_str}")
+            plt.title(title_str)
             plt.legend()
             plt.show()
 
@@ -410,6 +410,7 @@ class ManisFile(InfoHeader, IoFile):
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
         k_channel_bitsize = self.get_bitsize()
         ck = mani_info.keys.compressed
+        k = mani_info.keys
         logging.debug(
             f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
         ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
@@ -445,12 +446,9 @@ class ManisFile(InfoHeader, IoFile):
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
-        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
-        # self.show_keys(ck.ori_bones, k.ori_bones_names, "srb")
-        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_spine0_joint")
-        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
-        # self.show_keys(ck.pos_bones, k.pos_bones_names, "srb")
-        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
+        # acro walk
+        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
+        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_legUprJiggleFront_joint")  # may be ok, lines up on segments
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
@@ -1065,8 +1063,8 @@ if __name__ == "__main__":
     # for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
     #     print(ManisDtype.from_value(k))
     mani = ManisFile()
-    mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset48183260.manis")
-    mani.parse_keys("giganotosaurusjw@walk", dump=True)
+    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset48183260.manis")
+    # mani.parse_keys("giganotosaurusjw@walk", dump=True)
     # mani.load("C:/Users/arnfi/Desktop/indominus/motionextracted.maniset39f6a438.manis")
     # WH
     # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
@@ -1102,11 +1100,9 @@ if __name__ == "__main__":
     # # mani.parse_keys("acrocanthosaurus@standidle01")
     # mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
 
-    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset85c65403.manis")  # locomotion
-    # # mani.parse_keys("acrocanthosaurus@run")
-    # # todo see if def_horselink_joint_IKBlend.L loc can be easily debugged
-    # mani.parse_keys("acrocanthosaurus@walk")
-    # # mani.show_floats("phase")
+    mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset85c65403.manis")  # locomotion
+    # # todo debug acrocanthosaurus@walk - def_horselink_joint_IKBlend.L segment[0] loc, segment[1] is fine
+    mani.parse_keys("acrocanthosaurus@walk")
 
     # # JWE1
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting
