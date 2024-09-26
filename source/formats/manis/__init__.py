@@ -307,15 +307,6 @@ class ManisFile(InfoHeader, IoFile):
             with open(os.path.join(self.dir, f"{mani_info.name}_{i}.maniskeys"), "wb") as f:
                 f.write(mb.data)
 
-    def get_bitsize(self):
-        # for i in reversed(range(31, -1, -1)):
-        # 	# print(i, 15 >> i)
-        # 	if 15 >> i == 0:
-        # 		return i
-        # return -1
-        new_bit = 0xf  # MOV new_bit,0xf
-        return new_bit.bit_length() - 1
-
     @staticmethod
     def get_segment_frame_count(i, frame_count):
         # get from chunk index
@@ -439,8 +430,7 @@ class ManisFile(InfoHeader, IoFile):
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
-    def read_pos_keys(self, context, f, i, mani_info,
-                       segment_frames_count, segment_pos_bones):
+    def read_pos_keys(self, context, f, i, mani_info, segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
@@ -506,8 +496,7 @@ class ManisFile(InfoHeader, IoFile):
         """print in order of memory register"""
         print(list(reversed(v)))
 
-    def read_ori_keys(self, context, f, i, mani_info, segment_frames_count,
-                      segment_ori_bones):
+    def read_ori_keys(self, context, f, i, mani_info, segment_frames_count, segment_ori_bones):
         q_scale = 2 * math.pi  # 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
