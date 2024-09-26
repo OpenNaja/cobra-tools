@@ -155,7 +155,6 @@ class ChunkedMesh(MeshData):
 		if self.is_speedtree:
 			for vertex_index, weight in enumerate(self.wind):
 				self.add_to_weights("wind", vertex_index, weight)
-			# todo - the whatever unk
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.SPEEDTREE_32:
 				self.whatever_range = np.max(self.whatever)
 				if self.whatever_range > 0.0:
@@ -185,7 +184,6 @@ class ChunkedMesh(MeshData):
 		vert_chunk.whatever = self.whatever[v_slice]
 		chunk_fmt = vert_chunk.weights_flag.mesh_format
 		if chunk_fmt in (MeshFormat.SEPARATE,):
-			# todo - once stable, change back to empty
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
 			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
 			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
