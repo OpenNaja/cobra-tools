@@ -13,7 +13,7 @@ from root_path import root_dir
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
-from typing import Any, Optional
+from typing import Optional
 
 
 class MainWindow(widgets.MainWindow):
@@ -199,7 +199,8 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Showing {ovl_path} in Explorer")
 		os.startfile(os.path.dirname(ovl_path))
 
-	def run_action(self, *args):
+	@staticmethod
+	def run_action(*args):
 		print("action", args)
 
 	def close(self) -> bool:
@@ -583,7 +584,7 @@ class MainWindow(widgets.MainWindow):
 	def load_included_ovls(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(
 			self, "Open ovls.include", os.path.join(self.cfg.get("dir_inject", "C://"), "ovls.include"),
-				"Include file (*.include)", )[0]
+			"Include file (*.include)", )[0]
 		if filepath:
 			try:
 				self.ovl_data.load_included_ovls(filepath)
@@ -625,7 +626,8 @@ class MainWindow(widgets.MainWindow):
 		chk_full_report.setChecked(self.walk_root() == self.game_root())
 		dialog.options.addWidget(chk_full_report)
 		if dialog.exec():
-			self.run_in_threadpool(walker.get_fgm_values, (), self, self.game_root(),
+			self.run_in_threadpool(
+				walker.get_fgm_values, (), self, self.game_root(),
 				walk_dir=dialog.walk_dir, walk_ovls=dialog.chk_ovls.isChecked(),
 				official_only=dialog.chk_official.isChecked(), full_report=chk_full_report.isChecked()
 			)
@@ -633,14 +635,16 @@ class MainWindow(widgets.MainWindow):
 	def walker_manis(self, ):
 		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
-			self.run_in_threadpool(walker.get_manis_values, (), self, dialog.walk_dir,
+			self.run_in_threadpool(
+				walker.get_manis_values, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
 	def inspect_models(self):
 		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
-			self.run_in_threadpool(walker.bulk_test_models, (), self, dialog.walk_dir,
+			self.run_in_threadpool(
+				walker.bulk_test_models, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
