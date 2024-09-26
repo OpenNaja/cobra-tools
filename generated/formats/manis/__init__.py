@@ -85,11 +85,8 @@ class KeysContext:
         else:
             self.do_increment = self.stream.read_uint(1)
             self.runs_remaining = self.stream.read_uint(16)
-            # size = k_channel_bitsize + 1
-            # verified
-            size = 4
-            self.init_k_a = self.stream.read_uint_reversed(size)
-            self.init_k_b = self.stream.read_uint_reversed(size)
+            self.init_k_a = self.stream.read_uint_reversed(4)
+            self.init_k_b = self.stream.read_uint_reversed(4)
             if not self.do_increment:
                 self.init_k_a, self.init_k_b = self.init_k_b, self.init_k_a
             logging.debug(self)
@@ -345,19 +342,12 @@ class ManisFile(InfoHeader, IoFile):
 
     def parse_keys(self, target=None, dump=False):
         for mani_info in self.iter_compressed_manis():
-            keys_iter = None
             if target and mani_info.name != target:
                 continue
-            # acro debug keys
-            dump_path = os.path.join(root_path.root_dir, "dumps", f"{mani_info.name}_keys.txt")
-            if os.path.isfile(dump_path):
-                logging.info(f"Found reference keys for {mani_info.name}")
-                keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
-                keys_iter = iter(keys)
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
             try:
-                self.decompress(keys_iter, mani_info, dump=dump)
+                self.decompress(mani_info, dump=dump)
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
 
@@ -406,10 +396,9 @@ class ManisFile(InfoHeader, IoFile):
             plt.legend()
             plt.show()
 
-    def decompress(self, keys_iter, mani_info, dump=False):
+    def decompress(self, mani_info, dump=False):
         if bitarray is None:
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
-        k_channel_bitsize = self.get_bitsize()
         ck = mani_info.keys.compressed
         k = mani_info.keys
         logging.debug(
@@ -427,7 +416,6 @@ class ManisFile(InfoHeader, IoFile):
             f = BinStream(mb.data)
             f2 = BinStream(mb.data)
             segment_frames_count = self.get_segment_frame_count(segment_i, mani_info.frame_count)
-            # logging.info(f"Segment[{segment_i}] frames {segment_frames_count} Keys Iter {keys_iter}")
             # create views into the complete data for this segment
             segment_pos_bones = ck.pos_bones[frame_offset:frame_offset + segment_frames_count]
             segment_ori_bones = ck.ori_bones[frame_offset:frame_offset + segment_frames_count]
@@ -435,10 +423,8 @@ class ManisFile(InfoHeader, IoFile):
                 # this is a jump to the end of the compressed keys
                 wavelet_byte_offset = f.read_uint_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset, segment_frames_count)
-                self.read_vec3_keys(context, f, segment_i, k_channel_bitsize, mani_info,
-                                    segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
-                self.read_rot_keys(context, f, segment_i, k_channel_bitsize, mani_info, segment_frames_count,
-                                   segment_ori_bones, keys_iter=keys_iter)
+                self.read_pos_keys(context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones)
+                self.read_ori_keys(context, f, segment_i, mani_info, segment_frames_count, segment_ori_bones)
             except:
                 logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(mb.data)}")
             frame_offset += segment_frames_count
@@ -448,14 +434,14 @@ class ManisFile(InfoHeader, IoFile):
         ck.pos_bones += loc_min
         # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
         # acro walk
-        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")
-        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_legUprJiggleFront_joint")  # may be ok, lines up on segments
+        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")  # def wrong
+        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_legUprJiggleFront_joint")  # not sure
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
-    def read_vec3_keys(self, context, f, i, k_channel_bitsize, mani_info,
-                       segment_frames_count, segment_pos_bones, keys_iter=None):
+    def read_pos_keys(self, context, f, i, mani_info,
+                       segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
@@ -464,23 +450,17 @@ class ManisFile(InfoHeader, IoFile):
             # definitely not byte aligned as the key bytes can not be found in the manis data
             # defines basic loc values and which channels are keyframed
             # logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
-            f_pos = f.pos
-            pos_base, vec = self.read_vec3(f)
+            vec = self.read_vec3(f)
             vec *= scale
 
             # scale_pack = float(scale)
             # the scale per bone is always norm = 0 in acro_run
             scale_pack = self.get_pack_scale(mani_info)
-            # logging.info(f"{pos_index} {pos_name} {vec}")
-            # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
-            self.compare_key_with_reference(f, keys_iter, pos_base)
             keys_flag = f.read_uint_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
-            # if pos_name == "def_c_root_joint":
-            #     logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset)
+                self.read_rel_keys(f, frame_map, keys_flag, ushort_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
@@ -527,8 +507,8 @@ class ManisFile(InfoHeader, IoFile):
         """print in order of memory register"""
         print(list(reversed(v)))
 
-    def read_rot_keys(self, context, f, i, k_channel_bitsize, mani_info, segment_frames_count,
-                      segment_ori_bones, keys_iter=None):
+    def read_ori_keys(self, context, f, i, mani_info, segment_frames_count,
+                      segment_ori_bones):
         q_scale = 2 * math.pi  # 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
@@ -541,8 +521,7 @@ class ManisFile(InfoHeader, IoFile):
             ushort_storage = np.zeros(156, dtype=np.uint32)
             # defines basic rot values
             # logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
-            f_pos = f.pos
-            pos_base, vec = self.read_vec3(f)
+            vec = self.read_vec3(f)
             scale_pack = float(scale)
             # vec *= scale_pack * q_scale
             vec *= scale * q_scale
@@ -563,16 +542,13 @@ class ManisFile(InfoHeader, IoFile):
                 #     # dbg -0.393401 -0.667924 -0.620973 -0.116215
                 # logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
                 # print(scale_fac, quat)
-            # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
-            self.compare_key_with_reference(f, keys_iter, pos_base)
 
             # which channels are keyframed
             keys_flag = f.read_uint_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
-            # logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset)
+                self.read_rel_keys(f, frame_map, keys_flag, ushort_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
@@ -945,12 +921,12 @@ class ManisFile(InfoHeader, IoFile):
         # update the packed scale
         return 1 / quant_fac_clamped
 
-    def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, new_wavelets_offset):
+    def read_rel_keys(self, f, frame_map, keys_flag, ushort_storage, new_wavelets_offset):
         for channel_i, is_active in enumerate((keys_flag.z, keys_flag.y, keys_flag.x)):
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
                 # define the minimal key size for this channel
-                ch_key_size = f.read_uint_reversed(k_channel_bitsize + 1)
+                ch_key_size = f.read_uint_reversed(4)
                 ch_key_size_masked = ch_key_size & 0x1f
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
@@ -976,9 +952,6 @@ class ManisFile(InfoHeader, IoFile):
                     ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
 
     def read_vec3(self, f):
-        # pos_base = f.read_uint(45)
-        pos_base = 0
-        # logging.info(f"{hex(pos_base)}, {pos_base}")
         if self.context.version > 259:
             # current PZ, JWE2
             x = f.read_uint(15)
@@ -991,16 +964,7 @@ class ManisFile(InfoHeader, IoFile):
             z = f.read_uint_reversed(15)
         vec = np.zeros(4, dtype=np.float32)
         vec[:] = self.make_signed(x, y, z, 0)
-        # logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
-        return pos_base, vec
-
-    def compare_key_with_reference(self, f, keys_iter, pos_base):
-        if keys_iter is not None:
-            expected_key = next(keys_iter)
-            # expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
-            # logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
-            if expected_key != pos_base:
-                raise AttributeError(f"Expected and found keys do not match")
+        return vec
 
     def make_signed(self, *args):
         return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]

@@ -178,7 +178,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			# logging.info(f"{mi.name} is compressed, trying to import anyway")
 			ck = k.compressed
 			try:
-				manis.decompress(None, mi)
+				manis.decompress(mi)
 			except:
 				b_action.use_frame_range = True
 				b_action.frame_start = 0
