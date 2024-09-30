@@ -6,7 +6,7 @@ from itertools import pairwise
 import numpy as np
 
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap, PACKEDVEC_MAX
-from plugin.utils.tristrip import triangulate, stripify
+from ovl_util.tristrip import triangulate, stripify
 
 
 # END_GLOBALS
