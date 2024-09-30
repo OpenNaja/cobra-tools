@@ -5,7 +5,7 @@ import numpy as np
 from generated.formats.ms2.compounds.ZtTriBlockInfo import ZtTriBlockInfo
 from generated.formats.ms2.compounds.ZtVertBlockInfo import ZtVertBlockInfo
 from generated.formats.ms2.compounds.packing_utils import *
-from plugin.utils.tristrip import triangulate
+from ovl_util.tristrip import triangulate
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map
 

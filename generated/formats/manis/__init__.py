@@ -7,7 +7,6 @@ import os
 import numpy as np
 np.set_printoptions(precision=4, suppress=True)
 
-import root_path
 from ovl_util.logs import logging_setup
 from generated.io import IoFile
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
@@ -335,6 +334,13 @@ class ManisFile(InfoHeader, IoFile):
         for mani_info in self.iter_compressed_manis():
             if target and mani_info.name != target:
                 continue
+            # acro debug keys
+            pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+            dump_path = os.path.join(pkg_dir, "dumps", f"{mani_info.name}_keys.txt")
+            if os.path.isfile(dump_path):
+                logging.info(f"Found reference keys for {mani_info.name}")
+                keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
+                keys_iter = iter(keys)
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
             try:

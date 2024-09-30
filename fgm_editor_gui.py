@@ -1,7 +1,7 @@
 import logging
 import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from ovl_util import config
+from ovl_util.config import read_str_dict
 from typing import Any, Optional
 
 from constants import ConstantsProvider
@@ -38,7 +38,7 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
-		self.tooltips = config.read_str_dict("gui/tooltips/fgm.txt")
+		self.tooltips = read_str_dict("gui/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.import_header = None
 

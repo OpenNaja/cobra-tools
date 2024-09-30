@@ -41,7 +41,6 @@ try:
     from ovl_util.logs import logging_setup
     logging_setup("blender_plugin")
     logging.info(f"Running blender {'.'.join([str(x) for x in bpy.app.version])}")
-    from root_path import root_dir
 
     from plugin import addon_updater_ops
     from plugin.addon_updater_ops import classes as updater_classes
@@ -298,7 +297,7 @@ except:
 
 def register():
     addon_updater_ops.register(bl_info)
-    icons_dir = os.path.join(root_dir, "icons")
+    icons_dir = os.path.join(plugin_dir, "icons")
     global preview_collection
     preview_collection = bpy.utils.previews.new()
     for icon_name_ext in os.listdir(icons_dir):

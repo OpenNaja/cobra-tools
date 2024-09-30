@@ -9,7 +9,6 @@ from gui import widgets, startup, GuiOptions  # Import widgets before everything
 from gui.widgets import get_icon
 from ovl_util.logs import get_stdout_handler
 from modules import walker
-from root_path import root_dir
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -330,7 +329,7 @@ class MainWindow(widgets.MainWindow):
 
 	@staticmethod
 	def open_tools_dir():
-		os.startfile(root_dir)
+		os.startfile(os.path.abspath(os.path.dirname(__file__)))
 
 	@contextlib.contextmanager
 	def no_popups(self):

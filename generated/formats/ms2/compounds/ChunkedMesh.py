@@ -7,7 +7,7 @@ from generated.formats.ms2.compounds.VertChunk import VertChunk
 from generated.formats.ms2.compounds.TriChunk import TriChunk
 from generated.formats.ms2.compounds.packing_utils import *
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
-from plugin.utils.tristrip import triangulate
+from ovl_util.tristrip import triangulate
 
 
 from generated.formats.ms2.compounds.MeshData import MeshData

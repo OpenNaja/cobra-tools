@@ -10,7 +10,6 @@ from collections import namedtuple
 from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import djb2
-from root_path import root_dir
 
 
 class FdbLoader(BaseFile):
@@ -41,7 +40,8 @@ class FdbLoader(BaseFile):
 
 	@staticmethod
 	def open_command(f):
-		command_path = os.path.join(root_dir, "sql_commands", f"{f}.sql")
+		pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+		command_path = os.path.join(pkg_dir, "sql_commands", f"{f}.sql")
 		with open(command_path, "r") as file:
 			return file.read()
 

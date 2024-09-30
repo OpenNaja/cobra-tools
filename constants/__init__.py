@@ -6,7 +6,6 @@ import sys
 from pkgutil import iter_modules
 from importlib import import_module
 from dataclasses import dataclass
-from root_path import root_dir
 
 dict_names = ("hashes", "mimes", "shaders", "textures", "texchannels")
 
@@ -59,7 +58,7 @@ class ConstantsProvider(dict):
 		super().__init__()
 
 		# iterate through the modules in the current package
-		package_dir = os.path.join(root_dir, "constants")
+		package_dir = os.path.dirname(__file__)
 		for game in os.listdir(package_dir):
 			game_dir = os.path.join(package_dir, game)
 			# ignore that
@@ -105,7 +104,7 @@ if __name__ == '__main__':
 	print(dur)
 
 	start = time.time()
-	with open(os.path.join(root_dir, "constants", "Jurassic World Evolution 2", "hashes.json"), "r") as json_reader:
+	with open(os.path.join(os.path.dirname(__file__), "Jurassic World Evolution 2", "hashes.json"), "r") as json_reader:
 		a = json.load(json_reader)
 		print(a["10236475"])
 	dur = time.time() - start
