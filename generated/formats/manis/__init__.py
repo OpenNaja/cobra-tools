@@ -1062,6 +1062,7 @@ if __name__ == "__main__":
 
     mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset85c65403.manis")  # locomotion
     # # todo debug acrocanthosaurus@walk - def_horselink_joint_IKBlend.L segment[0] loc, segment[1] is fine
+    # maybe create a dedicated copy of walk that includes just that bone?
     mani.parse_keys("acrocanthosaurus@walk")
 
     # # JWE1
