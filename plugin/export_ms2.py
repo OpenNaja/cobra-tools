@@ -78,8 +78,11 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 	# clear out any existing model_infos
 	ms2.model_infos.clear()
 	scene = bpy.context.scene
-	set_game(ms2.context, scene.cobra.game)
-	set_game(ms2.info, scene.cobra.game)
+	game = scene.cobra.game
+	set_game(ms2.context, game)
+	set_game(ms2.info, game)
+	if ms2.context.version < 32:
+		raise AttributeError(f"Export not supported for '{game}'")
 
 	armatures_collections = get_armatures_collections(scene)
 	last_armature = None

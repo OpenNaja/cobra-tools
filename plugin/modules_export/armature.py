@@ -97,7 +97,7 @@ def export_bones_custom(b_armature_ob, model_info):
 		# set parent index
 		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else 255
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
-		bone_info.enumeration[bone_i] = [4, bone_i]
+		bone_info.enumeration[bone_i] = [4, bone_i] if model_info.context.version >= 32 else bone_i
 	# sanity check for bone hierarchy to verify sorting is correct
 	for bone_i, parent_i in enumerate(bone_info.parents):
 		if parent_i != 255:
