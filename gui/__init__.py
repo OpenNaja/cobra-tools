@@ -1,4 +1,3 @@
-import os
 import sys
 import time
 import logging
@@ -12,7 +11,6 @@ from gui import qt_theme
 
 from PyQt5.QtCore import Qt, qVersion
 from PyQt5.QtWidgets import QApplication, QStyleFactory
-from PyQt5.QtGui import QPalette
 
 
 def check_python() -> None:
@@ -79,6 +77,6 @@ def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 		app_qt.setStyleSheet(opts.stylesheet)
 	win.show()
 	app_qt.exec_()
-	cfg_path = Path(__file__).resolve().parent / "config.json"
+	cfg_path = Path(__file__).resolve().parent.parent / "config.json"
 	save_config(cfg_path, win.cfg)
 	logging.shutdown()
