@@ -114,7 +114,7 @@ def add_parents(bones_with_ik, p_bone, count):
 	child_bone = p_bone
 	for i in range(count):
 		bones_with_ik[child_bone] = child_bone.parent
-		child_bone = p_bone.parent
+		child_bone = child_bone.parent
 
 
 def export_ik(b_armature_ob, bone_info):
@@ -131,8 +131,10 @@ def export_ik(b_armature_ob, bone_info):
 				bones_with_target[p_bone] = constraint.subtarget
 				# only if bone actually has IK constraint
 				if "IK" in p_bone.constraints:
-					# f"{p_bone.name} on {b_armature_ob.name} has copy rot, but no IK constraint"
+					logging.debug(f"Adding {p_bone.constraints['IK'].chain_count} tracked IK links for {p_bone.name}")
 					add_parents(bones_with_ik, p_bone, p_bone.constraints["IK"].chain_count)
+				else:
+					logging.warning(f"{p_bone.name} on {b_armature_ob.name} has copy rot, but no IK constraint")
 	# bare IK
 	for p_bone in b_armature_ob.pose.bones:
 		for constraint in p_bone.constraints:
@@ -140,6 +142,7 @@ def export_ik(b_armature_ob, bone_info):
 				if p_bone in bones_with_ik:
 					# already processed from an IK with target
 					continue
+				logging.debug(f"Adding {constraint.chain_count} IK links for {p_bone.name}")
 				add_parents(bones_with_ik, p_bone, constraint.chain_count)
 	# used like this on acro and acro airlift
 	bone_info.ik_count = max(len(bones_with_ik), len(bones_with_target))
@@ -159,9 +162,11 @@ def export_ik(b_armature_ob, bone_info):
 		except:
 			raise KeyError(f"Bone '{name}' is used by IK constraints but does not exist")
 	for ik_target, (p_end, p_target_name) in zip(ik_info.ik_targets, bones_with_target.items()):
+		logging.debug(f"Adding IK target {p_end.name}->{p_target_name}")
 		ik_target.ik_end.joint = check_ik_name(p_end.name)
 		ik_target.ik_blend.joint = check_ik_name(p_target_name)
 	for ik_link, (p_child, p_parent) in zip(ik_info.ik_list, bones_with_ik.items()):
+		logging.debug(f"Adding IK constraint {p_parent.name}->{p_child.name}")
 		ik_link.parent.joint = check_ik_name(p_parent.name)
 		ik_link.child.joint = check_ik_name(p_child.name)
 		ik_link.yaw.min = -math.degrees(p_child.ik_min_x)
