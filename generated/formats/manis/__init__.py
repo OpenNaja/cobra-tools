@@ -4,11 +4,17 @@ import logging
 import math
 import struct
 import os
+from copy import copy
+
 import numpy as np
+
+from modules.formats.shared import djb2
+
 np.set_printoptions(precision=4, suppress=True)
 
 from ovl_util.logs import logging_setup
 from generated.io import IoFile
+from generated.formats.manis.versions import get_game, set_game
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
@@ -264,6 +270,49 @@ class ManisFile(InfoHeader, IoFile):
     def __init__(self):
         super().__init__(self)
 
+
+    @property
+    def game(self):
+        return get_game(self.context)[0].value
+
+    @game.setter
+    def game(self, game_name):
+        set_game(self.context, game_name)
+        set_game(self, game_name)
+
+    def name_used(self, new_name):
+        for model_info in self.mani_infos:
+            if model_info.name == new_name:
+                return True
+
+    def rename_file(self, old, new):
+        logging.info(f"Renaming .mani in {self.name}")
+        for model_info in self.mani_infos:
+            if model_info.name == old:
+                model_info.name = new
+
+    def remove(self, mani_names):
+        logging.info(f"Removing {len(mani_names)} .mani files in {self.name}")
+        for model_info in reversed(self.mani_infos):
+            if model_info.name in mani_names:
+                self.mani_infos.remove(model_info)
+
+    def duplicate(self, mani_names):
+        logging.info(f"Duplicating {len(mani_names)} .mani files in {self.name}")
+        for model_info in reversed(self.mani_infos):
+            if model_info.name in mani_names:
+                model_info_copy = copy(model_info)
+                # add as many suffixes as needed to make new_name unique
+                self.make_name_unique(model_info_copy)
+                self.mani_infos.append(model_info_copy)
+        self.mani_infos.sort(key=lambda model_info: model_info.name)
+
+    def make_name_unique(self, model_info_copy):
+        new_name = model_info_copy.name
+        while self.name_used(new_name):
+            new_name = f"{new_name}_copy"
+        model_info_copy.name = new_name
+
     def load(self, filepath):
         # store file name for later
         self.file = filepath
@@ -283,6 +332,24 @@ class ManisFile(InfoHeader, IoFile):
                 # 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
                 # if mi.root_ori_bone != 255:
                 # 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
+
+    def save(self, filepath):
+        self.mani_count = len(self.mani_infos)
+        self.names[:] = [mani.name for mani in self.mani_infos]
+        self.header.mani_files_size = self.mani_count * 16
+        target_names = set()
+        for mani_info in self.mani_infos:
+            k = mani_info.keys
+            target_names.update(k.pos_bones_names)
+            target_names.update(k.ori_bones_names)
+            target_names.update(k.scl_bones_names)
+            target_names.update(k.floats_names)
+
+        self.header.hash_block_size = len(target_names) * 4
+        self.reset_field("name_buffer")
+        self.name_buffer.bone_names[:] = sorted(target_names)
+        self.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in self.name_buffer.bone_names]
+        super().save(filepath)
 
     def iter_compressed_manis(self):
         for mani_info in self.mani_infos:

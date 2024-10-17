@@ -11,7 +11,6 @@ from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
-from modules.formats.shared import djb2
 from plugin.utils.anim import c_map
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections
 from plugin.modules_import.anim import get_rna_path
@@ -98,9 +97,8 @@ def set_mani_info_counts(mani_info, channel_storage, bones_lut, m_dtype):
 	return bone_names, indices
 
 
-def update_key_indices(k, m_dtype, b_names, indices, target_names, bone_names):
+def update_key_indices(k, m_dtype, b_names, indices, bone_names):
 	m_names = [bone_name_for_ovl(name) for name in b_names]
-	target_names.update(m_names)
 	getattr(k, f"{m_dtype}_bones_names")[:] = m_names
 	# map key data index to bone
 	getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
@@ -190,29 +188,22 @@ def save(reporter, filepath="", per_armature=False):
 	for export_name, anim_map in manis_datas.items():
 		manis = ManisFile()
 		set_game(manis, scene.cobra.game)
-		target_names = set()
 		all_actions = [action for actions in anim_map.values() for action in actions]
 		manis.mani_count = len(all_actions)
-		manis.names[:] = [b_action.name for b_action in all_actions]
 		manis.reset_field("mani_infos")
 		manis.reset_field("keys_buffer")
 		info_lut = {action: info for action, info in zip(all_actions, manis.mani_infos)}
 		# export each armature and its actions to the corresponding mani_infos
 		for b_ob, actions in anim_map.items():
 			mani_infos = [info_lut[action] for action in actions]
-			export_actions(b_ob, actions, manis, mani_infos, folder, scene, target_names)
+			export_actions(b_ob, actions, manis, mani_infos, folder, scene)
 
-		manis.header.mani_files_size = manis.mani_count * 16
-		manis.header.hash_block_size = len(target_names) * 4
-		manis.reset_field("name_buffer")
-		manis.name_buffer.bone_names[:] = sorted(target_names)
-		manis.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in manis.name_buffer.bone_names]
 		filepath = os.path.join(folder, export_name)
 		manis.save(filepath)
 		reporter.show_info(f"Exported {export_name}")
 
 
-def export_actions(b_ob, actions, manis, mani_infos, folder, scene, target_names):
+def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 	corrector = ManisCorrector(False)
 	game = scene.cobra.game
 	if b_ob.type == "ARMATURE":
@@ -321,16 +312,15 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene, target_names
 		scl_names, scl_indices = set_mani_info_counts(mani_info, channel_storage, bones_lut, SCL)
 		# floats are not necessarily per bone, so don't check for membership in bones_lut
 		floats_names = [name for name, channels in channel_storage.items() if FLO in channels]
-		target_names.update(floats_names)
 		mani_info.float_count = len(floats_names)
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		# fill in the actual keys data
 		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
 		k = mani_info.keys
-		update_key_indices(k, POS, pos_names, pos_indices, target_names, bone_names)
-		update_key_indices(k, ORI, ori_names, ori_indices, target_names, bone_names)
-		update_key_indices(k, SCL, scl_names, scl_indices, target_names, bone_names)
+		update_key_indices(k, POS, pos_names, pos_indices, bone_names)
+		update_key_indices(k, ORI, ori_names, ori_indices, bone_names)
+		update_key_indices(k, SCL, scl_names, scl_indices, bone_names)
 		k.floats_names[:] = floats_names
 		# copy the keys and set root bone indices
 		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
