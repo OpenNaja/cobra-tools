@@ -7,6 +7,10 @@ class MotiongraphLoader(MemStructLoader):
 	target_class = MotiongraphHeader
 	extension = ".motiongraph"
 
+	@property
+	def motiongraph_rename_sound(self):
+		return self.ovl.cfg.get("motiongraph_rename_sound", False)
+	
 	def collect(self):
 		if self.ovl.version >= 19:
 			# structs are too different, doesn't register anim names, would break rename contents
@@ -20,4 +24,4 @@ class MotiongraphLoader(MemStructLoader):
 		if "@" in in_str:
 			return True
 		# sound events don't, eg. Acrocanthosaurus_FightReact
-		return False
+		return self.motiongraph_rename_sound

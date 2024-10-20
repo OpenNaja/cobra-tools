@@ -13,8 +13,8 @@ class LuaLoader(MemStructLoader):
 	# temp_extensions = ".bin"
 
 	@property
-	def decompile_lua(self):
-		return self.ovl.cfg.get("decompile_lua", False)
+	def lua_decompile(self):
+		return self.ovl.cfg.get("lua_decompile", False)
 
 	def create(self, file_path):
 		buffer_0 = self._get_data(file_path)
@@ -42,7 +42,7 @@ class LuaLoader(MemStructLoader):
 			bin_path = lua_path + ".bin"
 			with open(bin_path, 'wb') as outfile:
 				outfile.write(buffer_data)
-			if self.decompile_lua:
+			if self.lua_decompile:
 				# try to decompile it
 				decompiled_bytes = texconv.bin_to_lua(bin_path)
 				if decompiled_bytes:
