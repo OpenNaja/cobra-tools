@@ -269,6 +269,7 @@ class ManisFile(InfoHeader, IoFile):
 
     def __init__(self):
         super().__init__(self)
+        self.context.bones_lut = {}
 
 
     @property
@@ -313,6 +314,10 @@ class ManisFile(InfoHeader, IoFile):
             new_name = f"{new_name}_copy"
         model_info_copy.name = new_name
 
+    @property
+    def sorted_ms2_bone_names(self):
+        return [n for n, i in sorted(self.context.bones_lut.items(), key=lambda kv: kv[1])]
+
     def load(self, filepath):
         # store file name for later
         self.file = filepath
@@ -333,7 +338,54 @@ class ManisFile(InfoHeader, IoFile):
                 # if mi.root_ori_bone != 255:
                 # 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 
+    def update_key_indices(self, k, m_dtype):
+        ms2_bone_names = self.sorted_ms2_bone_names
+        m_names = getattr(k, f"{m_dtype}_bones_names")
+        # logging.debug(f"Updating key indices for {m_dtype}")
+        # logging.debug(ms2_bone_names)
+        # logging.debug(m_names)
+        try:
+            indices = [self.context.bones_lut[bone_name] for bone_name in m_names]
+        except KeyError:
+            logging.debug(self.context.bones_lut)
+            raise
+        # map key data index to bone
+        getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
+        # logging.debug(indices)
+        # map bones from selected range in skeleton to index in keyed manis bones
+        if indices:
+            # get the boundary indices in ms2 bones
+            bone_0 = min(indices)
+            bone_1 = max(indices) + 1
+            key_lut = {name: i for i, name in enumerate(m_names)}
+            # logging.debug(f"Limits [{bone_0}:{bone_1}]")
+            getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in ms2_bone_names[bone_0:bone_1]]
+
     def save(self, filepath):
+
+        # export supplies a bones_lut, saving has to supply its own
+        if not self.context.bones_lut:
+            # reconstruct bone indices as used in the ms2
+            for mani_info in self.mani_infos:
+                for m_dtype in (POS, ORI, SCL):
+                    channel_to_bone = getattr(mani_info.keys, f"{m_dtype}_channel_to_bone")
+                    m_names = getattr(mani_info.keys, f"{m_dtype}_bones_names")
+                    assert len(channel_to_bone) == len(m_names)
+                    for i, b in zip(channel_to_bone, m_names):
+                        if b in self.context.bones_lut and self.context.bones_lut[b] != i:
+                            logging.warning(f"Bone {b} is used with several indices ({i} vs {self.context.bones_lut[b]})")
+                        self.context.bones_lut[b] = i
+
+            # ensure lut is fully sampled so that indexing works
+            for mani_info in self.mani_infos:
+                # maybe check they all have the same target count?
+                for i in range(mani_info.target_bone_count):
+                    if i not in self.context.bones_lut.values():
+                        dummy_name = f"DummyBone{i}"
+                        logging.debug(f"Adding {dummy_name}")
+                        self.context.bones_lut[dummy_name] = i
+            # raise LookupError(f"Bones LUT is empty, can't save {filepath}")
+
         self.mani_count = len(self.mani_infos)
         self.names[:] = [mani.name for mani in self.mani_infos]
         self.header.mani_files_size = self.mani_count * 16
@@ -347,8 +399,14 @@ class ManisFile(InfoHeader, IoFile):
 
         self.header.hash_block_size = len(target_names) * 4
         self.reset_field("name_buffer")
-        self.name_buffer.bone_names[:] = sorted(target_names)
-        self.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in self.name_buffer.bone_names]
+        self.name_buffer.target_names[:] = sorted(target_names)
+        self.name_buffer.target_hashes[:] = [djb2(name.lower()) for name in self.name_buffer.target_names]
+
+        for mani_info in self.mani_infos:
+            k = mani_info.keys
+            self.update_key_indices(k, POS)
+            self.update_key_indices(k, ORI)
+            self.update_key_indices(k, SCL)
         super().save(filepath)
 
     def iter_compressed_manis(self):
@@ -1197,3 +1255,10 @@ if __name__ == "__main__":
 # mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
 # mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
 
+POS = "pos"
+ORI = "ori"
+SCL = "scl"
+FLO = "float"
+EUL = "euler"
+root_name = "def_c_root_joint"
+srb_name = "srb"

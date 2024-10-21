@@ -23,18 +23,18 @@ class ChannelName:
     def from_stream(cls, stream, context, arg=0, template=None):
         ind = cls.cls_from_context(context).from_stream(stream, context, arg, template)
         try:
-            return context.name_buffer.bone_names[ind]
+            return context.name_buffer.target_names[ind]
         except (IndexError, ValueError):
-            raise IndexError(f"Index '{ind}' exceeds names list '{context.name_buffer.bone_names}' at offset {stream.tell()}")
+            raise IndexError(f"Index '{ind}' exceeds names list '{context.name_buffer.target_names}' at offset {stream.tell()}")
 
     @classmethod
     def to_stream(cls, instance, stream, context, arg=0, template=None):
         # bones list needs to be filled before writing
         # now we just take the index prepared by the string table
         try:
-            ind = context.name_buffer.bone_names.index(instance)
+            ind = context.name_buffer.target_names.index(instance)
         except (IndexError, ValueError):
-            raise IndexError(f"String '{instance}' was missing from names list '{context.name_buffer.bone_names}'")
+            raise IndexError(f"String '{instance}' was missing from names list '{context.name_buffer.target_names}'")
         # print(offset, instance, arg.offset_dic)
         cls.cls_from_context(context).to_stream(ind, stream, context, arg, template)
 

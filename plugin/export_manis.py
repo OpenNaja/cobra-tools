@@ -7,7 +7,7 @@ import mathutils
 import numpy as np
 
 from generated.formats.base.basic import Ushort, Ubyte
-from generated.formats.manis import ManisFile
+from generated.formats.manis import ManisFile, POS, ORI, SCL, FLO, EUL, root_name, srb_name
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
@@ -18,15 +18,6 @@ from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.object import get_property
 from plugin.utils.transforms import ManisCorrector
 
-POS = "pos"
-ORI = "ori"
-SCL = "scl"
-FLO = "float"
-EUL = "euler"
-
-root_name = "def_c_root_joint"
-srb_name = "srb"
-
 
 def store_pose_frame_info(b_ob, src_i, trg_i, bones_data, channel_storage, corrector, cam_corr):
 	bpy.context.scene.frame_set(src_i)
@@ -34,14 +25,15 @@ def store_pose_frame_info(b_ob, src_i, trg_i, bones_data, channel_storage, corre
 	if b_ob.type == "CAMERA":
 		store_transform_data(channel_storage, corrector, b_ob.matrix_local, "camera_joint", src_i, trg_i, cam_corr)
 	elif b_ob.type == "ARMATURE":
-		for name, p_bone in b_ob.pose.bones.items():
+		for b_name, p_bone in b_ob.pose.bones.items():
+			m_name = bone_name_for_ovl(b_name)
 			# Get the final transform of the bone in its own local space...
 			# then make it relative to the parent bone
 			# transform is stored relative to the parent rest
 			# whereas blender stores translation relative to the bone itself, not the parent
-			matrix = bones_data[name] @ b_ob.convert_space(
+			matrix = bones_data[m_name] @ b_ob.convert_space(
 				pose_bone=p_bone, matrix=p_bone.matrix, from_space='POSE', to_space='LOCAL')
-			store_transform_data(channel_storage, corrector, matrix, name, src_i, trg_i, cam_corr)
+			store_transform_data(channel_storage, corrector, matrix, m_name, src_i, trg_i, cam_corr)
 
 
 def store_transform_data(channel_storage, corrector, matrix, name, src_i, trg_i, cam_corr):
@@ -86,28 +78,15 @@ def index_min_max(indices):
 	return 255, 0
 
 
-def set_mani_info_counts(mani_info, channel_storage, bones_lut, m_dtype):
+def set_mani_info_counts(mani_info, channel_storage, m_dtype):
 	# get count of all keyframed bones that appear in the bone index lut
-	bone_names = [bone_name for bone_name, channels in channel_storage.items() if m_dtype in channels and bone_name in bones_lut]
+	m_bone_names = [bone_name for bone_name, channels in channel_storage.items() if m_dtype in channels and bone_name in mani_info.context.bones_lut]
 	for s in (f"{m_dtype}_bone_count", f"{m_dtype}_bone_count_repeat", f"{m_dtype}_bone_count_related"):
-		setattr(mani_info, s, len(bone_names))
-	indices = [bones_lut[bone_name] for bone_name in bone_names]
+		setattr(mani_info, s, len(m_bone_names))
+	indices = [mani_info.context.bones_lut[bone_name] for bone_name in m_bone_names]
 	for s, v in zip((f"{m_dtype}_bone_min", f"{m_dtype}_bone_max"), index_min_max(indices)):
 		setattr(mani_info, s, v)
-	return bone_names, indices
-
-
-def update_key_indices(k, m_dtype, b_names, indices, bone_names):
-	m_names = [bone_name_for_ovl(name) for name in b_names]
-	getattr(k, f"{m_dtype}_bones_names")[:] = m_names
-	# map key data index to bone
-	getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
-	# map bones to key data index
-	if indices:
-		bone_0 = min(indices)
-		bone_1 = max(indices) + 1
-		key_lut = {name: i for i, name in enumerate(b_names)}
-		getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
+	return m_bone_names
 
 
 def get_local_bone(bone):
@@ -192,7 +171,7 @@ def save(reporter, filepath="", per_armature=False):
 		manis.mani_count = len(all_actions)
 		manis.reset_field("mani_infos")
 		manis.reset_field("keys_buffer")
-		info_lut = {action: info for action, info in zip(all_actions, manis.mani_infos)}
+		info_lut = {action: mani_info for action, mani_info in zip(all_actions, manis.mani_infos)}
 		# export each armature and its actions to the corresponding mani_infos
 		for b_ob, actions in anim_map.items():
 			mani_infos = [info_lut[action] for action in actions]
@@ -207,16 +186,18 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 	corrector = ManisCorrector(False)
 	game = scene.cobra.game
 	if b_ob.type == "ARMATURE":
-		bones_data = {bone.name: get_local_bone(bone) for bone in b_ob.data.bones}
+		bones_data = {bone_name_for_ovl(bone.name): get_local_bone(bone) for bone in b_ob.data.bones}
 		assign_p_bone_indices(b_ob)
-		bones_lut = {p_bone.name: p_bone["index"] for p_bone in b_ob.pose.bones}
+		manis.context.bones_lut = {bone_name_for_ovl(p_bone.name): p_bone["index"] for p_bone in b_ob.pose.bones}
 		cam_corr = None
 	else:
-		bones_lut = {"unk1": 0, "camera_joint": 1, "unk2": 2}  # camera_joint is index 1, count is 3
-		bones_data = {name: mathutils.Matrix().to_4x4() for name in bones_lut}
+		manis.context.bones_lut = {"unk1": 0, "camera_joint": 1, "unk2": 2}  # camera_joint is index 1, count is 3
+		bones_data = {name: mathutils.Matrix().to_4x4() for name in manis.context.bones_lut}
 		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		cam_corr.invert()
-	bone_names = [n for n, i in sorted(bones_lut.items(), key=lambda kv: kv[1])]
+	
+	# sort bones by their index
+	m_bone_names = manis.sorted_ms2_bone_names
 	for b_action, mani_info in zip(actions, mani_infos):
 		logging.info(f"Exporting {b_action.name}")
 		mani_info.name = b_action.name
@@ -232,11 +213,11 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		mani_info.target_bone_count = len(bones_data)
 
 		# create arrays for loc, rot, scale keys
-		channel_storage = {bone_name: {
+		channel_storage = {m_bone_name: {
 			POS: np.zeros((mani_info.frame_count, 3), float),
 			ORI: np.zeros((mani_info.frame_count, 4), float),
 			SCL: np.zeros((mani_info.frame_count, 3), float),
-		} for bone_name in bone_names}
+		} for m_bone_name in m_bone_names}
 		# add euler for root motion
 		if root_name in channel_storage:
 			channel_storage[root_name][EUL] = np.zeros((mani_info.frame_count, 3), float)
@@ -249,7 +230,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			# todo identify additional condition for this; it is not motionextracted vs notmotionextracted
 			export_wsm(folder, mani_info, srb_name, channel_storage)
 			# remove srb from bones_lut for JWE2, so it exported to wsm only
-			bones_lut.pop(srb_name, None)
+			manis.context.bones_lut.pop(srb_name, None)
 
 		# decide which channels to keyframe by determining if the keys are static
 		for bone, channels in tuple(channel_storage.items()):
@@ -307,20 +288,21 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 						channel_storage["CameraFOV"] = {FLO: keys}
 
 		# print(channel_storage)
-		pos_names, pos_indices = set_mani_info_counts(mani_info, channel_storage, bones_lut, POS)
-		ori_names, ori_indices = set_mani_info_counts(mani_info, channel_storage, bones_lut, ORI)
-		scl_names, scl_indices = set_mani_info_counts(mani_info, channel_storage, bones_lut, SCL)
+		pos_names = set_mani_info_counts(mani_info, channel_storage, POS)
+		ori_names = set_mani_info_counts(mani_info, channel_storage, ORI)
+		scl_names = set_mani_info_counts(mani_info, channel_storage, SCL)
 		# floats are not necessarily per bone, so don't check for membership in bones_lut
 		floats_names = [name for name, channels in channel_storage.items() if FLO in channels]
 		mani_info.float_count = len(floats_names)
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
+
 		# fill in the actual keys data
 		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
 		k = mani_info.keys
-		update_key_indices(k, POS, pos_names, pos_indices, bone_names)
-		update_key_indices(k, ORI, ori_names, ori_indices, bone_names)
-		update_key_indices(k, SCL, scl_names, scl_indices, bone_names)
+		k.pos_bones_names[:] = pos_names
+		k.ori_bones_names[:] = ori_names
+		k.scl_bones_names[:] = scl_names
 		k.floats_names[:] = floats_names
 		# copy the keys and set root bone indices
 		mani_info.root_pos_bone = mani_info.root_ori_bone = 255

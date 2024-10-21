@@ -144,11 +144,11 @@
     </compound>
 
     <compound name="Buffer1">
-		the game verifies that hash and bone name match
+		the game verifies that hash and target name match
 		if they don't, the target won't be animated
-		<add name="bone hashes" type="uint" arr1="#ARG#"/>
-		<add name="bone names" type="ZString" arr1="#ARG#"/>
-		<add name="bone pad" type="PadAlign" template="bone names" arg="4" since="260"/>not on DLA, may be present on PC, not on JWE1
+		<add name="target hashes" type="uint" arr1="#ARG#"/>
+		<add name="target names" type="ZString" arr1="#ARG#"/>
+		<add name="bone pad" type="PadAlign" template="target names" arg="4" since="260"/>not on DLA, may be present on PC, not on JWE1
     </compound>
 
     <compound name="KeysReader">
