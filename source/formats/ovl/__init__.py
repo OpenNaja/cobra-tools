@@ -640,8 +640,12 @@ class OvlFile(Header):
 		if not only_files:
 			only_files = list(self.loaders.keys())
 		logging.info(f"Renaming contents for {name_tups} for {len(only_files)} selected files")
-		for file_name in only_files:
-			self.loaders[file_name].rename_content(name_tups)
+		with self.reporter.report_error_files("Renaming contents for") as error_files:
+			for file_name in only_files:
+				try:
+					self.loaders[file_name].rename_content(name_tups)
+				except:
+					error_files.append(file_name)
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=()):
