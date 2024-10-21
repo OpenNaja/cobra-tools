@@ -126,7 +126,8 @@ class ModelReader(BaseStruct):
 				model_info.bone_info.name = f"{model_info.name}_armature"
 				self.bone_infos.append(model_info.bone_info)
 			except:
-				logging.exception(f"Bone info {i} failed for model_info")
+				raise AttributeError(f"Bone info {i} failed for model_info")
+				# logging.exception(f"Bone info {i} failed for model_info")
 				# logging.warning(model_info)
 				# logging.warning(model_info.model)
 				# logging.warning(f"here's the bone info before:")
