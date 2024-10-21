@@ -59,7 +59,7 @@ class Config(dict):
 	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
 	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
 	lua_decompile = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
-	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents", False, (True, False))
+	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
 	# GUI appearance
 	logger_show = ImmediateSetting("Show Logger", "Show Logger panel - needs restart", False, (True, False))  # Hides/show the logger panel.
 	logger_orientation = ImmediateSetting("Logger Orientation", "Set logger orientation - needs restart", "H", ("H", "V"))
