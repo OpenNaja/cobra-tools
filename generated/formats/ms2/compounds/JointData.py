@@ -238,8 +238,12 @@ class JointData(BaseStruct):
 		# set arg = instance.joint_names
 		strings = list(instance.get_strings())
 		instance.joint_names.update_strings(strings)
-		# at least PC stores the length without the alignment at the end
+		# at least PC+PZ store the length without the 8 byte alignment padding at the end
+		# however the end of ZStringBuffer is aligned to 8 and may be padded additionally
+		# if instance.context.version <= 32:
 		instance.namespace_length = instance.joint_names.raw_len
+		# else:
+		# 	instance.namespace_length = instance.joint_names.padded_len
 		# update indices of joint pointers
 		joints_map = {j: i for i, j in enumerate(instance.joint_infos)}
 		for ptr in instance.get_pointers():

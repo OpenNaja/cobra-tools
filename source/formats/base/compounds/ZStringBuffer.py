@@ -3,7 +3,7 @@ from io import BytesIO
 import logging
 
 from generated.formats.base.basic import ZString
-from generated.formats.base.compounds.PadAlign import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding, get_padding_size
 
 ZERO = b"\x00"
 
@@ -63,7 +63,7 @@ class ZStringBuffer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.data = stream.read(instance.arg)
+		instance.data = stream.read(instance.arg + get_padding_size(instance.arg, alignment=8))
 		instance.strings = instance.data.split(ZERO)
 		instance.offset_2_str = {}
 		instance.offset_dic = {}
