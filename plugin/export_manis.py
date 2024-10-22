@@ -329,7 +329,8 @@ def sample_fcu(fcu, first_frame, last_frame, mani_info):
 
 
 def add_normed_float_keys(channel_storage, keys, needed_axes, float_name, game):
-	if game == "Jurassic World Evolution":
+	# not used on JWE2
+	if game in ("Jurassic World Evolution", "Planet Zoo"):
 		# S Motion Track ~ norm of X, Y, Z
 		# T Motion Track ~ abs(RotY), probably also norm because usually only Y is used
 		# make relative to first key
