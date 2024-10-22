@@ -156,12 +156,14 @@ class CustomSortFilterProxyModel(QSortFilterProxyModel):
 
 class TableModel(QAbstractTableModel):
     member_renamed = pyqtSignal(str, str)
+    value_edited = pyqtSignal(str, str, object)
 
-    def __init__(self, header_names: list[str], ignore_types: list[str]) -> None:
+    def __init__(self, header_names: list[str], ignore_types: list[str], editable_columns=("Name",)) -> None:
         super(TableModel, self).__init__()
         self._data: list[list[str]] = []
         self.header_labels = header_names
         self.ignore_types = ignore_types
+        self.editable_columns = set(self.header_labels.index(n) for n in editable_columns)
         # self.member_renamed.connect(self.member_renamed_debug_print)
 
     @staticmethod
@@ -205,7 +207,10 @@ class TableModel(QAbstractTableModel):
                 # value has changed, gotta update it
                 if old_value != value:
                     self._data[row][column] = value
-                    self.member_renamed.emit(old_value, value)
+                    if column == 0:
+                        self.member_renamed.emit(old_value, value)
+                    else:
+                        self.value_edited.emit(self._data[row][0], self.header_labels[column], value)
                 return True
         return False
 
@@ -231,7 +236,7 @@ class TableModel(QAbstractTableModel):
         d_n_d = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | Qt.ItemFlag.ItemIsSelectable))
         renamable = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled))
         state = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.NoItemFlags))
-        if index.column() == 0:
+        if index.column() in self.editable_columns:
             state |= renamable
         if len(dtype) and dtype[1] not in self.ignore_types:
             state |= d_n_d
@@ -241,9 +246,9 @@ class TableModel(QAbstractTableModel):
 class SortableTable(QWidget):
     closed = pyqtSignal()
 
-    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}) -> None:
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}, editable_columns=("Name",)) -> None:
         super().__init__()
-        self.table = TableView(header_names, ignore_types, ignore_drop_type, actions)
+        self.table = TableView(header_names, ignore_types, ignore_drop_type, actions, editable_columns)
         self.filter_entry = IconEdit("filter", "Filter Files", callback=self.table.set_filter)
         self.filter_entry.setToolTip("Filter by name - only show items matching this name")
 
@@ -322,13 +327,13 @@ class TableView(QTableView):
     file_selected = pyqtSignal(int)
     file_selected_count = pyqtSignal(int)
 
-    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str, actions={}) -> None:
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str, actions={}, editable_columns=("Name",)) -> None:
         super().__init__()
         self.ignore_types = ignore_types
         self.header_names = header_names
         self.ignore_drop_type = ignore_drop_type
         self.actions = actions
-        self.table_model = TableModel(header_names, ignore_types)
+        self.table_model = TableModel(header_names, ignore_types, editable_columns=editable_columns)
         self.proxy_model = CustomSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.table_model)
         self.proxy_model.setSortRole(Qt.ItemDataRole.UserRole)

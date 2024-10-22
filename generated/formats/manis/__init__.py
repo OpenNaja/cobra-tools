@@ -410,6 +410,12 @@ class ManisFile(InfoHeader, IoFile):
             self.update_key_indices(k, SCL)
         super().save(filepath)
 
+    def get_mani(self, name):
+        for mani_info in self.mani_infos:
+            if mani_info.name == name:
+                return mani_info
+        raise AttributeError(f"Name {name} not found")
+
     def iter_compressed_manis(self):
         for mani_info in self.mani_infos:
             if hasattr(mani_info, "keys"):

@@ -26,9 +26,10 @@ class MainWindow(widgets.MainWindow):
 											  changed_fn=self.game_changed)
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MANIS")
+		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MANIS", editable_columns=("Name", "Stream", "Compressed", "Duration"))
 		# connect the interaction functions
 		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
+		self.files_container.table.table_model.value_edited.connect(self.edit_handle)
 		self.files_container.table.hideColumn(1)
 
 		# Configure table button row
@@ -68,6 +69,28 @@ class MainWindow(widgets.MainWindow):
 			game = self.game_choice.entry.currentText()
 		logging.info(f"Setting Manis version to {game}")
 		self.manis_file.game = game
+
+	def edit_handle(self, name, dtype, new_val):
+		logging.debug(f"Editing {dtype} = {new_val} for {name}")
+		try:
+			mani_info = self.manis_file.get_mani(name)
+			print(mani_info.name)
+			if dtype == "Compressed":
+				if mani_info.dtype.compression == 1 and new_val in (0, "0"):
+					print("Decompressing")
+					self.manis_file.decompress(mani_info, dump=False)
+					mani_info.dtype.compression = 0
+					mani_info.dtype.has_list = 0
+					k = mani_info.keys
+					ck = mani_info.keys.compressed
+					# mani_info.keys.set_defaults()
+					k.reset_field("pos_bones")
+					k.reset_field("ori_bones")
+					k.pos_bones[:] = ck.pos_bones
+					k.ori_bones[:] = ck.ori_bones
+					# k.scl_bones[:] = ck.scl_bones
+		except:
+			logging.exception("test")
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""

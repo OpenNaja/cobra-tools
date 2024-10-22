@@ -70,7 +70,7 @@
 <!--		<member width="1" pos="3" name="old_list" type="bool"/>-->
 		<member width="2" pos="2" name="compression" type="int"/>
 		<member width="1" pos="4" name="use_ushort" type="int"/>
-		<member width="2" pos="5" name="has_list" type="int"/>
+		<member width="2" pos="5" name="has_list" type="int"/>only on if compressed
 	</bitfield>
 
 	<bitfield name="StoreKeys" storage="ubyte">
