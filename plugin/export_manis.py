@@ -49,7 +49,7 @@ def store_transform_data(channel_storage, corrector, matrix, name, src_i, trg_i,
 		key = mathutils.Quaternion((key.x, -key.y, key.w, -key.z))
 	# swizzle - w is stored last
 	channel_storage[name][ORI][trg_i] = key.x, key.y, key.z, key.w
-	if name == root_name:
+	if name == srb_name:
 		channel_storage[name][EUL][trg_i] = key.to_euler()
 	# scale
 	scale_mat = sample_scale2(matrix, src_i)
@@ -195,7 +195,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		bones_data = {name: mathutils.Matrix().to_4x4() for name in manis.context.bones_lut}
 		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		cam_corr.invert()
-	
+
 	# sort bones by their index
 	m_bone_names = manis.sorted_ms2_bone_names
 	for b_action, mani_info in zip(actions, mani_infos):
@@ -219,8 +219,8 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			SCL: np.zeros((mani_info.frame_count, 3), float),
 		} for m_bone_name in m_bone_names}
 		# add euler for root motion
-		if root_name in channel_storage:
-			channel_storage[root_name][EUL] = np.zeros((mani_info.frame_count, 3), float)
+		if srb_name in channel_storage:
+			channel_storage[srb_name][EUL] = np.zeros((mani_info.frame_count, 3), float)
 		# store pose data for b_action
 		b_ob.animation_data.action = b_action
 		for trg_i, src_i in enumerate(range(first_frame, last_frame)):
@@ -238,7 +238,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 				needed_axes = list(needs_keyframes(keys))
 				if needed_axes:
 					# copy root motion channels as floats
-					if bone == root_name and channels:
+					if bone == srb_name and channels:
 						# copy to avoid modifying the original keys data
 						keys = keys.copy()
 						if channel_id == POS:

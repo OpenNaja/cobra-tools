@@ -61,6 +61,7 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
 			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
+			(edit_menu, "Show Keys", self.show_keys, "", ""),
 		)
 		self.add_to_menu(button_data)
 
@@ -94,6 +95,13 @@ class MainWindow(widgets.MainWindow):
 				mani_info.duration = new_val
 		except:
 			logging.exception("test")
+
+	def show_keys(self,):
+		selected_file_names = self.files_container.table.get_selected_files()
+		if selected_file_names:
+			for name in selected_file_names:
+				mani_info = self.manis_file.get_mani(name)
+				self.manis_file.show_floats(mani_info, name_filter="")
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""

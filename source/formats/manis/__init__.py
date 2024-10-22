@@ -25,6 +25,14 @@ except:
     bitarray = None
     logging.warning(f"bitarray module is not installed")
 
+POS = "pos"
+ORI = "ori"
+SCL = "scl"
+FLO = "float"
+EUL = "euler"
+root_name = "def_c_root_joint"
+srb_name = "srb"
+
 
 class BinStream:
     def __init__(self, val):
@@ -505,24 +513,24 @@ class ManisFile(InfoHeader, IoFile):
             plt.legend()
             plt.show()
 
-    def show_floats(self, name_filter=""):
+    def show_floats(self, mani_info, name_filter=""):
         try:
             import matplotlib.pyplot as plt
         except:
             logging.warning("No matplotlib, can't show keys")
             return
         logging.info(f"Showing floats")
-        for mani_info in self.mani_infos:
-            k = mani_info.keys
-            for f_i, f_name in enumerate(k.floats_names):
-                if name_filter and name_filter not in f_name:
-                    continue
-                plt.plot(k.floats[:, f_i], label=f_name)
-            plt.xlabel('Frame')
-            plt.ylabel('Value')
-            plt.title(f"Float Keys for {mani_info.name}")
-            plt.legend()
-            plt.show()
+        # for mani_info in self.mani_infos:
+        k = mani_info.keys
+        for f_i, f_name in enumerate(k.floats_names):
+            if name_filter and name_filter not in f_name:
+                continue
+            plt.plot(k.floats[:, f_i], label=f_name)
+        plt.xlabel('Frame')
+        plt.ylabel('Value')
+        plt.title(f"Float Keys for {mani_info.name}")
+        plt.legend()
+        plt.show()
 
     def decompress(self, mani_info, dump=False):
         if bitarray is None:
@@ -1175,7 +1183,6 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")
     # mani.load("C:/Users/arnfi/Desktop/test.manis")
     # print(mani)
-    # mani.show_floats("Track")
 
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
     # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
@@ -1260,11 +1267,3 @@ if __name__ == "__main__":
 
 # mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
 # mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
-
-POS = "pos"
-ORI = "ori"
-SCL = "scl"
-FLO = "float"
-EUL = "euler"
-root_name = "def_c_root_joint"
-srb_name = "srb"
