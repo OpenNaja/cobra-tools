@@ -18,6 +18,7 @@ type_module_name_map = {
 	'Hfloat': 'generated.formats.base.basic',
 	'ZString': 'generated.formats.base.basic',
 	'ZStringBuffer': 'generated.formats.base.compounds.ZStringBuffer',
+	'ZStringBufferPadded': 'generated.formats.base.compounds.ZStringBufferPadded',
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
 	'Vector2': 'generated.formats.manis.compounds.Vector2',

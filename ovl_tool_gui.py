@@ -259,6 +259,7 @@ class MainWindow(widgets.MainWindow):
 
 	def enable_gui_options(self, enable=True):
 		self.compression_choice.setEnabled(enable)
+		self.installed_games.play_button.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
 		for action_name in self.actions.keys():

@@ -103,7 +103,7 @@
     <compound name="Header" inherit="GenericHeader">
         Found at the beginning of every OVL file
         <add name="num ovs types" type="uint" >counts ovs files with unique paths not matching the ovl name; all LODs of one type count as 1</add>
-        <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
+        <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes, aligned to 8</add>
         <add name="Zero 2" type="uint"/>
 
         <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
@@ -122,23 +122,21 @@
         <add name="ztuac unk 0" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 1" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 2" type="uint" >used in ZTUAC elephants</add>
-        <add name="Len Archive Names" type="uint" >length of archive names</add>
+        <add name="Len Archive Names" type="uint" >length of archive names, aligned to 8</add>
         <add name="Num Files 3" type="uint" >another Num Files</add>
         <add name="Len Type Names" type="uint" >length of the type names portion inside Names block (usually at the start), not counting 00 bytes</add>
         <add name="num_triplets" type="uint" >used in PZ1.6 for the first time</add>
         <add name="Reserved" type="uint" arr1="12">zeros</add>
 
 		<!-- end of fixed header structure -->
-        <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
-		<add name="Names_pad" type="PadAlign" template="Names" arg="8"/>
+        <add name="Names" type="ZStringBufferPadded" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Names_pad_dla" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
         <add name="triplets_ref" type="Empty"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
         <add name="triplets_pad" type="PadAlign" template="triplets_ref" arg="4" since="20"/>
         <add name="Files" type="FileEntry" arr1="Num Files"/>
-        <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
-		<add name="archive_names_pad" type="PadAlign" template="archive_names" arg="8"/>
+        <add name="archive_names" type="ZStringBufferPadded" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
         <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19"/>

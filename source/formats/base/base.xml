@@ -86,6 +86,10 @@
         Holds a buffer of zero-terminated strings
     </compound>
 
+    <compound name="ZStringBufferPadded" inherit="ZStringBuffer" count="0" >
+        Holds a buffer of zero-terminated strings, aligned to 8 bytes at the end
+    </compound>
+
     <compound name="PadAlign">
         Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
     </compound>
