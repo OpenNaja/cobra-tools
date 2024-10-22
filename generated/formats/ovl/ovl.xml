@@ -130,13 +130,15 @@
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
-        <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
+		<add name="Names_pad" type="PadAlign" template="Names" arg="8"/>
+        <add name="Names_pad_dla" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
         <add name="triplets_ref" type="Empty"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
         <add name="triplets_pad" type="PadAlign" template="triplets_ref" arg="4" since="20"/>
         <add name="Files" type="FileEntry" arr1="Num Files"/>
         <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
+		<add name="archive_names_pad" type="PadAlign" template="archive_names" arg="8"/>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
         <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19"/>

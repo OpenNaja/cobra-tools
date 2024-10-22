@@ -80,9 +80,10 @@ class Header(GenericHeader):
 
 		# Name buffer for assets and file mime types.
 		self.names = name_type_map['ZStringBuffer'](self.context, self.len_names, None)
+		self.names_pad = name_type_map['PadAlign'](self.context, 8, self.names)
 
 		# used in DLA
-		self.names_pad = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+		self.names_pad_dla = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.mimes = Array(self.context, 0, None, (0,), name_type_map['MimeEntry'])
 		self.triplets_ref = name_type_map['Empty'](self.context, 0, None)
 		self.triplets = Array(self.context, 0, None, (0,), name_type_map['Triplet'])
@@ -91,6 +92,7 @@ class Header(GenericHeader):
 
 		# usually STATIC followed by any external OVS names
 		self.archive_names = name_type_map['ZStringBuffer'](self.context, self.len_archive_names, None)
+		self.archive_names_pad = name_type_map['PadAlign'](self.context, 8, self.archive_names)
 		self.archives = Array(self.context, 0, None, (0,), name_type_map['ArchiveEntry'])
 		self.included_ovls = Array(self.context, 0, None, (0,), name_type_map['IncludedOvl'])
 		self.dependencies = Array(self.context, 0, None, (0,), name_type_map['DependencyEntry'])
@@ -130,13 +132,15 @@ class Header(GenericHeader):
 		yield 'num_triplets', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'reserved', Array, (0, None, (12,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
-		yield 'names_pad', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 15, None)
+		yield 'names_pad', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
+		yield 'names_pad_dla', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 15, None)
 		yield 'mimes', Array, (0, None, (None,), name_type_map['MimeEntry']), (False, None), (None, None)
 		yield 'triplets_ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'triplets', Array, (0, None, (None,), name_type_map['Triplet']), (False, None), (lambda context: context.version >= 20, None)
 		yield 'triplets_pad', name_type_map['PadAlign'], (4, None), (False, None), (lambda context: context.version >= 20, None)
 		yield 'files', Array, (0, None, (None,), name_type_map['FileEntry']), (False, None), (None, None)
 		yield 'archive_names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
+		yield 'archive_names_pad', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
 		yield 'archives', Array, (0, None, (None,), name_type_map['ArchiveEntry']), (False, None), (None, None)
 		yield 'included_ovls', Array, (0, None, (None,), name_type_map['IncludedOvl']), (False, None), (None, None)
 		yield 'dependencies', Array, (0, None, (None,), name_type_map['DependencyEntry']), (False, None), (lambda context: context.version >= 19, None)
@@ -172,8 +176,9 @@ class Header(GenericHeader):
 		yield 'num_triplets', name_type_map['Uint'], (0, None), (False, None)
 		yield 'reserved', Array, (0, None, (12,), name_type_map['Uint']), (False, None)
 		yield 'names', name_type_map['ZStringBuffer'], (instance.len_names, None), (False, None)
+		yield 'names_pad', name_type_map['PadAlign'], (8, instance.names), (False, None)
 		if instance.context.version <= 15:
-			yield 'names_pad', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), name_type_map['Ubyte']), (False, None)
+			yield 'names_pad_dla', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), name_type_map['Ubyte']), (False, None)
 		yield 'mimes', Array, (0, None, (instance.num_mimes,), name_type_map['MimeEntry']), (False, None)
 		yield 'triplets_ref', name_type_map['Empty'], (0, None), (False, None)
 		if instance.context.version >= 20:
@@ -181,6 +186,7 @@ class Header(GenericHeader):
 			yield 'triplets_pad', name_type_map['PadAlign'], (4, instance.triplets_ref), (False, None)
 		yield 'files', Array, (0, None, (instance.num_files,), name_type_map['FileEntry']), (False, None)
 		yield 'archive_names', name_type_map['ZStringBuffer'], (instance.len_archive_names, None), (False, None)
+		yield 'archive_names_pad', name_type_map['PadAlign'], (8, instance.archive_names), (False, None)
 		yield 'archives', Array, (0, None, (instance.num_archives,), name_type_map['ArchiveEntry']), (False, None)
 		yield 'included_ovls', Array, (0, None, (instance.num_included_ovls,), name_type_map['IncludedOvl']), (False, None)
 		if instance.context.version >= 19:

@@ -33,8 +33,6 @@ class ZStringBuffer(BaseStruct):
 		self.strings = []
 		self.offset_dic = {}
 		self.offset_2_str = {}
-		self.raw_len = 0
-		self.padded_len = 0
 
 	def get_str_at(self, pos):
 		try:
@@ -50,7 +48,7 @@ class ZStringBuffer(BaseStruct):
 
 	def update_strings(self, list_of_strs):
 		"""Updates this name buffer with a list of names"""
-		logging.debug("Updating name buffer")
+		# logging.debug(f"Updating name buffer, data = {len(self.data)} bytes {self.data}")
 		self.strings = sorted(set(list_of_strs))
 		self.offset_dic = {}
 		self.offset_2_str = {}
@@ -65,9 +63,8 @@ class ZStringBuffer(BaseStruct):
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
-		self.raw_len = len(buffer_bytes)
-		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
-		self.padded_len = len(buffer_bytes)
+		self.data = buffer_bytes
+		# logging.debug(f"new data = {len(self.data)} bytes {self.data}")
 
 	@classmethod
 	def format_indented(cls, self, indent=0):
@@ -77,7 +74,6 @@ class ZStringBuffer(BaseStruct):
 	def read_fields(cls, stream, instance):
 		# if padding is included in arg, it is read - if it isn't skip it
 		instance.data = stream.read(instance.arg)
-		# instance.data = stream.read(instance.arg + get_padding_size(instance.arg, alignment=8))
 		instance.strings = instance.data.split(ZERO)
 		instance.offset_2_str = {}
 		instance.offset_dic = {}
