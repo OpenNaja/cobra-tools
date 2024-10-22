@@ -244,13 +244,9 @@ class SortableTable(QWidget):
     def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}) -> None:
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type, actions)
-        self.filter_entry = IconEdit("filter")
+        self.filter_entry = IconEdit("filter", "Filter Files", callback=self.table.set_filter)
         self.filter_entry.setToolTip("Filter by name - only show items matching this name")
-        # self.filter_entry.label.setMinimumWidth(16)
-        self.filter_entry.entry.setMinimumWidth(140)
-        self.filter_entry.setMinimumWidth(self.filter_entry.label.minimumWidth() + self.filter_entry.entry.minimumWidth())
-        self.filter_entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-        self.filter_entry.entry.textChanged.connect(self.table.set_filter)
+
         self.show_hidden = QCheckBox("Show Hidden")
         if opt_hide:
             self.show_hidden.stateChanged.connect(self.toggle_show_hidden)
@@ -392,7 +388,6 @@ class TableView(QTableView):
             self.proxy_model.removeFilterFunction(show_hidden_name)
 
     def clear_filter(self) -> None:
-        # self.proxy_model.setFilterFixedString("")
         self.proxy_model.setFilterFixedString("")
         self.sortByColumn(-1, Qt.SortOrder.AscendingOrder)
 
@@ -1590,7 +1585,7 @@ class LabelEdit(QWidget):
 
 
 class IconEdit(QWidget):
-    def __init__(self, icon_name):
+    def __init__(self, icon_name, default_str="", callback=None):
         QWidget.__init__(self, )
         self.label = QPushButton(get_icon(icon_name), "")
         self.label.setCheckable(False)
@@ -1599,11 +1594,17 @@ class IconEdit(QWidget):
         self.entry = QLineEdit()
         self.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         self.entry.setTextMargins(3, 0, 3, 0)
+        if callback:
+            self.entry.textChanged.connect(callback)
         vbox = QHBoxLayout(self)
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
         vbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(vbox)
+        self.entry.setMinimumWidth(140)
+        self.entry.setPlaceholderText(default_str)
+        self.setMinimumWidth(self.label.minimumWidth() + self.entry.minimumWidth())
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
 
 
 class MouseWheelGuard(QObject):
@@ -1845,6 +1846,7 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         self.max_depth: int = 255
         self.root_idx: Optional[QModelIndex] = None
         self.root_depth: int = 0
+        # self.test_str = "Init"
 
     def depth(self, index: QModelIndex) -> int:
         """Depth of the file or directory in the filesystem"""
@@ -1935,9 +1937,25 @@ class OvlDataFilesystemModel(QFileSystemModel):
 
 class OvlDataTreeView(QTreeView):
 
-    def __init__(self, parent: Optional[QWidget] = None, actions={}) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, actions={}, filters=()) -> None:
         super().__init__(parent)
         self.actions = actions
+        self.file_model = OvlDataFilesystemModel()
+        self.file_model.setNameFilters(filters)
+        self.file_model.setNameFilterDisables(False)
+        self.proxy = OvlDataFilterProxy(self)
+        self.proxy.setSourceModel(self.file_model)
+        self.setModel(self.proxy)
+        self.setColumnHidden(1, True)
+        self.setColumnHidden(2, True)
+        self.setColumnHidden(3, True)
+        self.setExpandsOnDoubleClick(False)
+
+        self.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
+        self.model().sort(self.header().sortIndicatorSection(), self.header().sortIndicatorOrder())
+        self.setAnimated(False)
+        self.setIndentation(12)
+        self.setSortingEnabled(True)
 
     def map_index(self, index: QModelIndex) -> QModelIndex:
         """Map from source if applicable"""
@@ -2024,43 +2042,39 @@ class GamesWidget(QWidget):
         self.search_entry = QLineEdit("")
         self.search_entry.setPlaceholderText("Search Archives")
         self.search_button = QPushButton(get_icon("search"), "")
-        self.search_button.setMaximumWidth(20)
+        # self.search_button.setMaximumWidth(20)
         self.search_button.clicked.connect(self.search_button_clicked)
         for btn in (self.search_entry, self.search_button):
             btn.setToolTip("Search OVL archives for uses of this string")
         vbox = QHBoxLayout(self.search)
-        vbox.addWidget(self.search_entry)
         vbox.addWidget(self.search_button)
+        vbox.addWidget(self.search_entry)
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.entry.textActivated.connect(self.set_selected_game)
         self.play_button.clicked.connect(self.run_selected_game)
         self.add_button.clicked.connect(self.add_installed_game_manually)
 
-        self.model = OvlDataFilesystemModel()
-        self.model.setNameFilters(filters)
-        self.model.setNameFilterDisables(False)
-
-        self.dirs = OvlDataTreeView(actions=actions)
-        self.dirs.setModel(self.model)
-        self.dirs.setColumnHidden(1, True)
-        self.dirs.setColumnHidden(2, True)
-        self.dirs.setColumnHidden(3, True)
-        self.dirs.setExpandsOnDoubleClick(False)
+        self.dirs = OvlDataTreeView(actions=actions, filters=filters)
         self.dirs.clicked.connect(self.item_clicked)
         self.dirs.doubleClicked.connect(self.item_dbl_clicked)
 
-        self.dirs.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
-        self.dirs.model().sort(self.dirs.header().sortIndicatorSection(), self.dirs.header().sortIndicatorOrder())
+        self.filters = QWidget()
+        # self.filter_entry = IconEdit("filter", "Filter OVL Files", )  # callback=self.proxy.setFilterRegExp)
+        self.filter_entry = IconEdit("filter", "Filter OVL Files", callback=self.set_filter)
+        self.filter_entry.setToolTip("Filter by name - only show items matching this name")
+        self.show_official_button = QPushButton(get_icon("ovl"), "")
+        self.show_modded_button = QPushButton(get_icon("modded"), "")
+        self.show_official_button.setToolTip("Show official OVLs only")
+        self.show_modded_button.setToolTip("Show modded OVLs only")
+        self.show_official_button.clicked.connect(self.hide_modded)
+        self.show_modded_button.clicked.connect(self.hide_official)
+        vbox = QHBoxLayout(self.filters)
+        vbox.addWidget(self.show_official_button)
+        vbox.addWidget(self.show_modded_button)
+        vbox.addWidget(self.filter_entry)
+        vbox.setContentsMargins(0, 0, 0, 0)
 
-        self.proxy = OvlDataFilterProxy(self)
-        self.proxy.setSourceModel(self.model)
-        self.dirs.setModel(self.proxy)
-
-        self.dirs.setAnimated(False)
-        self.dirs.setIndentation(12)
-        self.dirs.setSortingEnabled(True)
-        
         self.set_games()
 
         if game_chosen_fn is not None:
@@ -2083,16 +2097,16 @@ class GamesWidget(QWidget):
             self.search_content_clicked.emit(search_txt)
 
     def hide_official(self) -> None:
-        self.proxy.setFilterRegularExpression(QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
+        self.dirs.proxy.setFilterRegularExpression(QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
                                                                  options=QRegularExpression.PatternOption.CaseInsensitiveOption))
     
     def hide_modded(self) -> None:
-        self.proxy.setFilterRegularExpression(QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
+        self.dirs.proxy.setFilterRegularExpression(QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
                                                                  options=QRegularExpression.PatternOption.CaseInsensitiveOption))
 
     def set_depth(self, depth: int) -> None:
         """Set max visible subfolder depth. Depth = 0 root folders in ovldata only."""
-        self.proxy.set_max_depth(depth)
+        self.dirs.proxy.set_max_depth(depth)
 
     def item_clicked(self, idx: QModelIndex) -> None:
         if not self.dirs.isExpanded(idx):
@@ -2100,7 +2114,7 @@ class GamesWidget(QWidget):
 
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
-            file_path = self.model.filePath(idx)
+            file_path = self.dirs.file_model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
                 os.startfile(file_path)
@@ -2172,22 +2186,22 @@ class GamesWidget(QWidget):
             logging.warning(f"Couldn't find the game's executable")
 
     def set_root(self, dir_game: str) -> None:
-        root_index = self.model.setRootPath(dir_game)
+        root_index = self.dirs.file_model.setRootPath(dir_game)
         self.dirs.setRootIndex(root_index)
-        self.proxy.update_root(self.dirs.rootIndex())
+        self.dirs.proxy.update_root(self.dirs.rootIndex())
 
     def get_root(self) -> str:
-        return self.model.rootPath()
+        return self.dirs.file_model.rootPath()
 
     def get_selected_dir(self) -> str:
-        file_path = self.model.filePath(self.dirs.currentIndex())
+        file_path = self.dirs.file_model.filePath(self.dirs.currentIndex())
         # if a file is selected, get its containing dir
         return file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
 
     def set_selected_dir(self, dir_path: str) -> None:
         """Show dir_path in dirs"""
         try:
-            self.dirs.setCurrentIndex(self.model.index(dir_path))
+            self.dirs.setCurrentIndex(self.dirs.file_model.index(dir_path))
         except:
             logging.exception("Setting dir failed")
 
@@ -2237,10 +2251,14 @@ class GamesWidget(QWidget):
         exe_path = os.path.join(game_dir, exe)
         return exe_path
 
-    def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
-        self.proxy = proxy_cls(self)
-        self.proxy.setSourceModel(self.model)
-        self.dirs.setModel(self.proxy)
+    def set_filter(self, s):
+        # todo - these filters are OR linked, not AND, so they are useless for the intended purpose
+        self.dirs.file_model.setNameFilters(["*.ovl", f"*{s}*"])
+
+    # def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
+    #     self.proxy = proxy_cls(self)
+    #     self.proxy.setSourceModel(self.model)
+    #     self.dirs.setModel(self.proxy)
 
     def set_games(self) -> None:
         self.cfg["games"].update(self.get_steam_games())

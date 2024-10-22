@@ -104,9 +104,10 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
 		left_frame = widgets.pack_in_vbox(
-			self.installed_games,
 			self.installed_games.search,
+			self.installed_games.filters,
 			self.installed_games.dirs,
+			self.installed_games,
 			margins=(0, 0, 1, 0))
 		right_frame = widgets.pack_in_vbox(
 			self.file_widget,
