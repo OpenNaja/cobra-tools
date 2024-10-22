@@ -74,10 +74,10 @@ class MainWindow(widgets.MainWindow):
 		logging.debug(f"Editing {dtype} = {new_val} for {name}")
 		try:
 			mani_info = self.manis_file.get_mani(name)
-			print(mani_info.name)
+			logging.info(f"Editing {name}")
 			if dtype == "Compressed":
-				if mani_info.dtype.compression == 1 and new_val in (0, "0"):
-					print("Decompressing")
+				if mani_info.dtype.compression == 1 and new_val == 0:
+					logging.info(f"Decompressing")
 					self.manis_file.decompress(mani_info, dump=False)
 					mani_info.dtype.compression = 0
 					mani_info.dtype.has_list = 0
@@ -89,6 +89,9 @@ class MainWindow(widgets.MainWindow):
 					k.pos_bones[:] = ck.pos_bones
 					k.ori_bones[:] = ck.ori_bones
 					# k.scl_bones[:] = ck.scl_bones
+			if dtype == "Duration":
+				logging.info(f"Changing duration to {new_val}")
+				mani_info.duration = new_val
 		except:
 			logging.exception("test")
 
