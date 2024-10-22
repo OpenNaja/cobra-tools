@@ -125,6 +125,9 @@ class MainWindow(widgets.MainWindow):
 					for mani_info in other_manis_file.mani_infos:
 						self.manis_file.make_name_unique(mani_info)
 						self.manis_file.mani_infos.append(mani_info)
+						# update context reference on everything do that indexing happens using the correct reference
+						mani_info.set_context(self.manis_file.context)
+						mani_info.keys.set_context(self.manis_file.context)
 					self.set_file_modified(True)
 				except:
 					self.handle_error("Appending failed, see log!")

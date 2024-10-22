@@ -60,6 +60,14 @@ class Array(list):
         # = ',\n'.join([f_type.format_indented(self[f_name]) for f_name, f_type, _, _ in self._get_filtered_attribute_list(self, self.dtype)])
         # return f"[\n{fields_str}]"
 
+    def set_context(self, context):
+        self._context = context
+        for field in self:
+            if hasattr(field, "set_context"):
+                field.set_context(context)
+            if hasattr(field, "_context"):
+                field._context = context
+
     def set_defaults(self):
         self[:] = self.fill(lambda: self.dtype(self.context, self.arg, self.template))
 

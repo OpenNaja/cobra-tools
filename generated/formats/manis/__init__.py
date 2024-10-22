@@ -343,7 +343,7 @@ class ManisFile(InfoHeader, IoFile):
         m_names = getattr(k, f"{m_dtype}_bones_names")
         # logging.debug(f"Updating key indices for {m_dtype}")
         # logging.debug(ms2_bone_names)
-        # logging.debug(m_names)
+        logging.debug(m_names)
         try:
             indices = [self.context.bones_lut[bone_name] for bone_name in m_names]
         except KeyError:
@@ -403,6 +403,7 @@ class ManisFile(InfoHeader, IoFile):
         self.name_buffer.target_hashes[:] = [djb2(name.lower()) for name in self.name_buffer.target_names]
 
         for mani_info in self.mani_infos:
+            logging.debug(f"Updating {mani_info.name}")
             k = mani_info.keys
             self.update_key_indices(k, POS)
             self.update_key_indices(k, ORI)

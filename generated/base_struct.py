@@ -232,6 +232,15 @@ class BaseStruct(metaclass=StructMetaClass):
             except:
                 raise BufferError(f"Failed writing '{cls.__name__}.{f_name}' at {stream.tell()}")
 
+    def set_context(self, context):
+        self._context = context
+        for f_name, f_type, arguments, _ in self._get_filtered_attribute_list(self, include_abstract=False):
+            field = getattr(self, f_name)
+            if hasattr(field, "set_context"):
+                field.set_context(context)
+            if hasattr(field, "_context"):
+                field._context = context
+
     def reset_field(self, target_f_name):
         for f_name, f_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
             if f_name == target_f_name:
