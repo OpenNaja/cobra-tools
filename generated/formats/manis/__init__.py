@@ -327,6 +327,8 @@ class ManisFile(InfoHeader, IoFile):
         return [n for n, i in sorted(self.context.bones_lut.items(), key=lambda kv: kv[1])]
 
     def load(self, filepath):
+        # clear lut when loading a new file to make sure it is populated afresh
+        self.context.bones_lut = {}
         # store file name for later
         self.file = filepath
         self.dir, self.basename = os.path.split(filepath)
