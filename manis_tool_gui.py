@@ -21,12 +21,15 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = self.make_file_widget(ftype="MANIS")
 
-		header_names = ["Name", "File Type", "Stream", "Compressed", "Frames", "Duration", "Loc", "Rot", "Scale", "Float"]
 		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False,
 											  changed_fn=self.game_changed)
 
+		self.stream_entry = QtWidgets.QLineEdit()
+		self.stream_entry.setPlaceholderText("Stream")
+		self.stream_entry.setToolTip("OVS stream that holds this manis' data")
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MANIS", editable_columns=("Name", "Stream", "Compressed", "Duration"))
+		header_names = ["Name", "File Type", "Compressed", "Duration", "Frames", "Loc", "Rot", "Scale", "Float"]
+		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MANIS", editable_columns=("Name", "Duration", "Compressed"))
 		# connect the interaction functions
 		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.table_model.value_edited.connect(self.edit_handle)
@@ -43,11 +46,12 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.add_button(self.btn_duplicate)
 		self.files_container.add_button(self.btn_delete)
 
-		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0)
-		self.qgrid.addWidget(self.game_choice, 1, 0)
-		self.qgrid.addWidget(self.files_container, 2, 0)
-		self.qgrid.addWidget(self.progress, 3, 0)
+		self.qgrid = QtWidgets.QVBoxLayout()
+		self.qgrid.addWidget(self.file_widget)
+		self.qgrid.addWidget(self.game_choice)
+		self.qgrid.addWidget(self.stream_entry)
+		self.qgrid.addWidget(self.files_container)
+		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menu_bar
@@ -171,8 +175,9 @@ class MainWindow(widgets.MainWindow):
 		start_time = time.time()
 		try:
 			logging.info(f"Loading {len(self.manis_file.mani_infos)} files into GUI")
-			self.files_container.set_data([[m.name, ".manis", self.manis_file.stream, m.dtype.compression, m.frame_count, m.duration, m.pos_bone_count, m.ori_bone_count, m.scl_bone_count, m.float_count] for m in self.manis_file.mani_infos])
+			self.files_container.set_data([[m.name, ".manis", m.dtype.compression, m.duration, m.frame_count, m.pos_bone_count, m.ori_bone_count, m.scl_bone_count, m.float_count] for m in self.manis_file.mani_infos])
 			self.game_choice.entry.setText(self.manis_file.game)
+			self.stream_entry.setText(self.manis_file.stream)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 			self.set_msg_temporarily("Operation completed!")
 		except:
@@ -180,6 +185,7 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath) -> None:
 		try:
+			self.manis_file.stream = self.stream_entry.text()
 			self.manis_file.save(filepath)
 			self.set_file_modified(False)
 			self.set_msg_temporarily(f"Saved {self.manis_file.name}")
