@@ -523,9 +523,8 @@ class ManisFile(InfoHeader, IoFile):
             logging.warning("No matplotlib, can't show keys")
             return
         logging.info(f"Showing floats")
-        # for mani_info in self.mani_infos:
         k = mani_info.keys
-        for f_i, f_name in enumerate(k.floats_names):
+        for f_i, f_name in sorted(enumerate(k.floats_names), key=lambda t: t[1]):
             if name_filter and name_filter not in f_name:
                 continue
             plt.plot(k.floats[:, f_i], label=f_name)

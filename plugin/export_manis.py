@@ -331,14 +331,19 @@ def sample_fcu(fcu, first_frame, last_frame, mani_info):
 def add_normed_float_keys(channel_storage, keys, needed_axes, float_name, game):
 	# not used on JWE2
 	if game in ("Jurassic World Evolution", "Planet Zoo"):
+		# todo S is not completely correct in PZ, some misalignment remains apparently, needs to be scaled by about 1.1
 		# S Motion Track ~ norm of X, Y, Z
 		# T Motion Track ~ abs(RotY), probably also norm because usually only Y is used
 		# make relative to first key
+		# including all channels makes no difference
 		val = np.array(keys[:, needed_axes])
-		val -= val[0]
+		# val = np.array(keys)
+		# val -= val[0]
 		# calculate the length of the vector for each frame
 		channel_storage[float_name] = {}
-		channel_storage[float_name][FLO] = np.linalg.norm(val, axis=1)
+		res = np.linalg.norm(val, axis=1)
+		res -= res[0]
+		channel_storage[float_name][FLO] = res
 
 
 def add_root_float_keys(channel_storage, keys, needed_axes, names):
