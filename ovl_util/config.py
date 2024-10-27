@@ -85,8 +85,6 @@ class Config(dict):
 	def settings(self):
 		# print(self.__members__)
 		members = {k: v for k, v in self.__class__.__dict__.items() if isinstance(v, BaseSetting)}
-		# print("dict", )
-		# sets = {"recent_ovls": self.recent_ovls}
 		return members
 		# return self.__annotations__
 		# total_members = []
@@ -109,9 +107,14 @@ class Config(dict):
 			logging.exception(f"Saving '{self.cfg_path}' failed")
 
 	def load(self):
+		# populate cfg with defaults from managers, so that these make it to disk on saving
+		for k, v in self.settings.items():
+			self[k] = v.default
+		# then try to read any that are stored
 		try:
 			with open(self.cfg_path, "r") as json_reader:
 				self.update(json.load(json_reader))
+				return
 		except FileNotFoundError:
 			logging.debug(f"Config file missing at {self.cfg_path}")
 		except json.decoder.JSONDecodeError as e:
