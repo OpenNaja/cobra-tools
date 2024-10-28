@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QSplitter,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox,
-                             QFileIconProvider)
+                             QFileIconProvider, QButtonGroup)
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 
 import vdf
@@ -2068,12 +2068,14 @@ class GamesWidget(QWidget):
         # self.filter_entry = IconEdit("filter", "Filter OVL Files", )  # callback=self.proxy.setFilterRegExp)
         self.filter_entry = IconEdit("filter", "Filter OVL Files", callback=self.set_filter)
         self.filter_entry.setToolTip("Filter by name - only show items matching this name")
-        self.show_official_button = QPushButton(get_icon("ovl"), "")
-        self.show_modded_button = QPushButton(get_icon("modded"), "")
+        self.show_official_button = IconButton("ovl")
+        self.show_modded_button = IconButton("modded")
+        self.show_official_button.setCheckable(True)
+        self.show_modded_button.setCheckable(True)
+        self.show_official_button.toggled.connect(self.show_official_toggle)
+        self.show_modded_button.toggled.connect(self.show_modded_toggle)
         self.show_official_button.setToolTip("Show official OVLs only")
         self.show_modded_button.setToolTip("Show modded OVLs only")
-        self.show_official_button.clicked.connect(self.hide_modded)
-        self.show_modded_button.clicked.connect(self.hide_official)
         vbox = QHBoxLayout(self.filters)
         vbox.addWidget(self.show_official_button)
         vbox.addWidget(self.show_modded_button)
@@ -2093,6 +2095,24 @@ class GamesWidget(QWidget):
             self.search_entry.returnPressed.connect(self.search_button_clicked)
             self.search_entry.textChanged.connect(self.force_lowercase)
 
+    def set_dirs_regexp(self, regexp):
+        self.dirs.proxy.setFilterRegularExpression(QRegularExpression(regexp,
+                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
+
+    def show_modded_toggle(self, checked: bool) -> None:
+        if checked:
+            self.show_official_button.setChecked(False)
+            self.set_dirs_regexp("^((?!(Content|DLC|GameMain)).)*$")
+        else:
+            self.set_dirs_regexp("")
+
+    def show_official_toggle(self, checked: bool) -> None:
+        if checked:
+            self.show_modded_button.setChecked(False)
+            self.set_dirs_regexp("^.*(Content|GameMain|.*DLC).*$")
+        else:
+            self.set_dirs_regexp("")
+
     def force_lowercase(self, text):
         self.search_entry.setText(text.lower())
 
@@ -2100,14 +2120,6 @@ class GamesWidget(QWidget):
         search_txt = self.search_entry.text()
         if search_txt:
             self.search_content_clicked.emit(search_txt)
-
-    def hide_official(self) -> None:
-        self.dirs.proxy.setFilterRegularExpression(QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
-                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
-    
-    def hide_modded(self) -> None:
-        self.dirs.proxy.setFilterRegularExpression(QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
-                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
 
     def set_depth(self, depth: int) -> None:
         """Set max visible subfolder depth. Depth = 0 root folders in ovldata only."""
@@ -2257,8 +2269,12 @@ class GamesWidget(QWidget):
         return exe_path
 
     def set_filter(self, s):
-        # todo - these filters are OR linked, not AND, so they are useless for the intended purpose
-        self.dirs.file_model.setNameFilters(["*.ovl", f"*{s}*"])
+        # # todo - when matching file names, it only accepts _files_ whose folders have been opened before
+        # self.dirs.proxy.setFilterRegularExpression(QRegularExpression(f"^.*({s}).*$",
+        #                                                          options=QRegularExpression.PatternOption.CaseInsensitiveOption))
+        # todo - setNameFilters are OR linked, not AND, so they are useless for the intended purpose
+        # self.dirs.file_model.setNameFilters(["*.ovl", f"*{s}*"])
+        pass
 
     # def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
     #     self.proxy = proxy_cls(self)
