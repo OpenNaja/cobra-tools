@@ -536,7 +536,7 @@ class ManisFile(InfoHeader, IoFile):
 
     def decompress(self, mani_info, dump=False):
         if bitarray is None:
-            raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
+            raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
         k = mani_info.keys
         logging.debug(

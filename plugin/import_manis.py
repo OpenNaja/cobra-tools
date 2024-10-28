@@ -94,6 +94,12 @@ def stash(b_ob, action, track_name, start_frame):
 
 
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
+	try:
+		import bitarray
+		import bitarray.util
+	except:
+		reporter.show_error(f"Install the 'bitarray' module to blender to import compressed animations.\nRefer to the Cobra Tools wiki for help")
+
 	folder, manis_name = os.path.split(filepath)
 	scene = bpy.context.scene
 	manis = ManisFile()
@@ -175,7 +181,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				# logging.debug(k.floats[:, bone_i])
 		# check compression flag
 		if mi.dtype.compression != 0:
-			# logging.info(f"{mi.name} is compressed, trying to import anyway")
 			ck = k.compressed
 			try:
 				manis.decompress(mi)
@@ -183,7 +188,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				b_action.use_frame_range = True
 				b_action.frame_start = 0
 				b_action.frame_end = mi.frame_count-1
-				logging.exception(f"Decompressing {mi.name} failed, skipping")
+				reporter.show_error(f"Decompressing {mi.name} failed, skipping")
 				continue
 
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
