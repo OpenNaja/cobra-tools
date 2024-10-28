@@ -2092,7 +2092,6 @@ class GamesWidget(QWidget):
         self.show_official_button.setToolTip("Show official OVLs only")
         self.show_modded_button.setToolTip("Show modded OVLs only")
 
-
         vbox = QHBoxLayout(self.filters)
         vbox.addWidget(self.show_official_button)
         vbox.addWidget(self.show_modded_button)
@@ -2132,7 +2131,6 @@ class GamesWidget(QWidget):
         else:
             self.set_dirs_regexp("")
 
-    
     def set_filter(self):
         filter_str = self.filter_entry.entry.text()
         if filter_str:
