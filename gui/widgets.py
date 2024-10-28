@@ -1911,10 +1911,22 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
             return False
         return super().hasChildren(parent)
 
+    @staticmethod
+    def _human_key(key):
+        parts = re.split('(\d*\.\d+|\d+)', key)
+        return tuple((e.swapcase() if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
+
     def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
-        """Sort how QFileSystemModel sorts"""
+        """Change how QFileSystemModel sorts"""
         model = cast("OvlDataFilesystemModel", self.sourceModel())
-        return model.fileInfo(left).isDir() and not model.fileInfo(right).isDir()
+        # dir before file
+        if model.fileInfo(left).isDir() and not model.fileInfo(right).isDir():
+            return True
+        # file after dir
+        if model.fileInfo(right).isDir() and not model.fileInfo(left).isDir():
+            return False
+        # same types
+        return self._human_key(model.fileInfo(left).fileName()) < self._human_key(model.fileInfo(right).fileName())
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         model = cast("OvlDataFilesystemModel", self.sourceModel())
