@@ -75,7 +75,7 @@ class Config(dict):
 		# key for manager may not exist
 		manager = self.settings.get(k)
 		if manager and isinstance(manager, ImmediateSetting):
-			logging.info(f"Saved '{self.name}' after storing '{k}'")
+			logging.debug(f"Saved '{self.name}' after storing '{k}'")
 			self.save()
 	#
 	# def __getitem__(self, k):
@@ -98,7 +98,7 @@ class Config(dict):
 		return os.path.join(self.dir, self.name)
 
 	def save(self):
-		logging.info(f"Saving config")
+		logging.debug(f"Saving config")
 		try:
 			with open(self.cfg_path, "w") as json_writer:
 				json.dump(self, json_writer, indent="\t", sort_keys=True)
