@@ -40,8 +40,8 @@ Transforms in blender actions are stored relative to the armature, but absolute 
 Export does not read the keyframes directly, but samples the visual transforms across an action's frame range. Constraints are automatically baked. Bones that don't move during an action are automatically discarded.
 
 !!! construction "Limitations"
-    - Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.
-    - Single-channel float tracks are automatically generated for `Motion Track` root motion, but others such as `Footplant` or `BlendHeadLookOut` are ignored and missing from exports.
+    Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.
+    If you plan on editing only some animations of a .manis, insert the modified = uncompressed ones into the compressed .manis file using the Manis Editor.
 
 ### Scaling
 
