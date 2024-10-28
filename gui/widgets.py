@@ -2123,6 +2123,8 @@ class GamesWidget(QWidget):
             self.dirs.expandAll()
             # set filter function for search string
             self.set_dirs_regexp(f"^.*({s}).*$")
+        else:
+            self.set_dirs_regexp("")
 
     def force_lowercase(self, text):
         self.search_entry.setText(text.lower())
