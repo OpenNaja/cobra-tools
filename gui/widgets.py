@@ -1590,6 +1590,9 @@ class LabelEdit(QWidget):
 
 
 class IconEdit(QWidget):
+
+    search_text = pyqtSignal(str)
+
     def __init__(self, icon_name, default_str="", callback=None):
         QWidget.__init__(self, )
         self.label = QPushButton(get_icon(icon_name), "")
@@ -1599,8 +1602,6 @@ class IconEdit(QWidget):
         self.entry = QLineEdit()
         self.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         self.entry.setTextMargins(3, 0, 3, 0)
-        if callback:
-            self.entry.textChanged.connect(callback)
         vbox = QHBoxLayout(self)
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
@@ -1610,6 +1611,21 @@ class IconEdit(QWidget):
         self.entry.setPlaceholderText(default_str)
         self.setMinimumWidth(self.label.minimumWidth() + self.entry.minimumWidth())
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+
+        if callback:
+            self.typing_timer = QTimer()
+            self.typing_timer.setSingleShot(True)
+            self.typing_timer.timeout.connect(self.timer_up)
+            self.entry.textChanged.connect(self.search_text_changed)
+            self.search_text.connect(callback)
+
+    def search_text_changed(self):
+        # wait for 250 ms before
+        self.typing_timer.start(250)
+
+    def timer_up(self):
+        # emit the text on the signal
+        self.search_text.emit(self.entry.text())
 
 
 class MouseWheelGuard(QObject):
@@ -2075,6 +2091,8 @@ class GamesWidget(QWidget):
         self.show_modded_button.toggled.connect(self.show_modded_toggle)
         self.show_official_button.setToolTip("Show official OVLs only")
         self.show_modded_button.setToolTip("Show modded OVLs only")
+
+
         vbox = QHBoxLayout(self.filters)
         vbox.addWidget(self.show_official_button)
         vbox.addWidget(self.show_modded_button)
@@ -2114,15 +2132,17 @@ class GamesWidget(QWidget):
         else:
             self.set_dirs_regexp("")
 
-    def set_filter(self, s):
-        if s:
+    
+    def set_filter(self):
+        filter_str = self.filter_entry.entry.text()
+        if filter_str:
             # turn off the other filters if a filter search string was entered
             self.show_modded_button.setChecked(False)
             self.show_official_button.setChecked(False)
             # expand to also filter folders have not been opened before - sometimes slow but easy
             self.dirs.expandAll()
             # set filter function for search string
-            self.set_dirs_regexp(f"^.*({s}).*$")
+            self.set_dirs_regexp(f"^.*({filter_str}).*$")
         else:
             self.set_dirs_regexp("")
 
