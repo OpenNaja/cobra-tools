@@ -2065,7 +2065,6 @@ class GamesWidget(QWidget):
         self.dirs.doubleClicked.connect(self.item_dbl_clicked)
 
         self.filters = QWidget()
-        # self.filter_entry = IconEdit("filter", "Filter OVL Files", )  # callback=self.proxy.setFilterRegExp)
         self.filter_entry = IconEdit("filter", "Filter OVL Files", callback=self.set_filter)
         self.filter_entry.setToolTip("Filter by name - only show items matching this name")
         self.show_official_button = IconButton("ovl")
@@ -2101,6 +2100,7 @@ class GamesWidget(QWidget):
 
     def show_modded_toggle(self, checked: bool) -> None:
         if checked:
+            self.filter_entry.entry.setText("")
             self.show_official_button.setChecked(False)
             self.set_dirs_regexp("^((?!(Content|DLC|GameMain)).)*$")
         else:
@@ -2108,10 +2108,21 @@ class GamesWidget(QWidget):
 
     def show_official_toggle(self, checked: bool) -> None:
         if checked:
+            self.filter_entry.entry.setText("")
             self.show_modded_button.setChecked(False)
             self.set_dirs_regexp("^.*(Content|GameMain|.*DLC).*$")
         else:
             self.set_dirs_regexp("")
+
+    def set_filter(self, s):
+        if s:
+            # turn off the other filters if a filter search string was entered
+            self.show_modded_button.setChecked(False)
+            self.show_official_button.setChecked(False)
+            # expand to also filter folders have not been opened before - sometimes slow but easy
+            self.dirs.expandAll()
+            # set filter function for search string
+            self.set_dirs_regexp(f"^.*({s}).*$")
 
     def force_lowercase(self, text):
         self.search_entry.setText(text.lower())
@@ -2267,19 +2278,6 @@ class GamesWidget(QWidget):
                exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
         exe_path = os.path.join(game_dir, exe)
         return exe_path
-
-    def set_filter(self, s):
-        # # todo - when matching file names, it only accepts _files_ whose folders have been opened before
-        # self.dirs.proxy.setFilterRegularExpression(QRegularExpression(f"^.*({s}).*$",
-        #                                                          options=QRegularExpression.PatternOption.CaseInsensitiveOption))
-        # todo - setNameFilters are OR linked, not AND, so they are useless for the intended purpose
-        # self.dirs.file_model.setNameFilters(["*.ovl", f"*{s}*"])
-        pass
-
-    # def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
-    #     self.proxy = proxy_cls(self)
-    #     self.proxy.setSourceModel(self.model)
-    #     self.dirs.setModel(self.proxy)
 
     def set_games(self) -> None:
         self.cfg["games"].update(self.get_steam_games())
