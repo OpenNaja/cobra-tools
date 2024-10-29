@@ -4,7 +4,6 @@ import datetime
 
 
 def should_increment():
-    return True
     TRACKED_FOLDERS = [
         "codegen",
         "constants",
