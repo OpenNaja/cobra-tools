@@ -2067,6 +2067,7 @@ class GamesWidget(QWidget):
         self.play_button = QPushButton(get_icon("play"), "")
         self.play_button.setMaximumWidth(20)
         self.play_button.setToolTip("Run the currently selected game")
+        self.play_button.setShortcut("CTRL+P")
 
         self.add_button = QPushButton(get_icon("bookmarks"), "")
         self.add_button.setMaximumWidth(20)
