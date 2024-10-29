@@ -10,7 +10,7 @@ from pathlib import Path
 
 from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
 from ovl_util import logs
-from ovl_util.config import Config
+from ovl_util.config import Config, ImmediateSetting, RestartSetting
 
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
@@ -3589,9 +3589,10 @@ class Reporter(DummyReporter, QObject):
 
 class ConfigWindow(QWidget):
 
-    def __init__(self, cfg):
+    def __init__(self, main_window):
         super().__init__()
-        self.cfg = cfg
+        self.main_window = main_window
+        self.cfg = main_window.cfg
         self.vlayout = QVBoxLayout()
         for cfg_key, cfg_manager in self.cfg.settings.items():
             def make_setter():
@@ -3601,8 +3602,8 @@ class ConfigWindow(QWidget):
 
                 def set_key(v):
                     # nonlocal cfg_key
-                    cfg_manager2.update(cfg, cfg_key2, v)
-                # setattr(cfg, cfg_key, v)
+                    cfg_manager2.update(self.cfg, cfg_key2, v)
+
                 return set_key
 
             set_key = make_setter()
@@ -3610,12 +3611,18 @@ class ConfigWindow(QWidget):
                            editable=not bool(cfg_manager.options), activated_fn=set_key)
             c.setToolTip(cfg_manager.tooltip)
             c.entry.setText(str(self.cfg.get(cfg_key, cfg_manager.default)))
+            if isinstance(cfg_manager, RestartSetting):
+                c.entry.currentTextChanged.connect(self.needs_restart)
+            # if isinstance(cfg_manager, ImmediateSetting):
+            # 	logging.debug(f"Saved '{self.name}' after storing '{k}'")
+            # 	self.cfg.save()
             self.vlayout.addWidget(c)
         self.setLayout(self.vlayout)
 
     def needs_restart(self):
-        if self.showconfirmation(f"Restart GUI to apply changes", title="Logger Changed"):
+        if self.main_window.showconfirmation(f"Close tools now and then manually restart to apply the changes", title="Restart Tools"):
             self.close()
+            self.main_window.close()
         # just close the gui, actually restarting from code is hard
 
 

@@ -167,9 +167,8 @@ class MainWindow(widgets.MainWindow):
 		self.preferences_widget = None
 
 	def open_cfg_editor(self):
-		self.preferences_widget = widgets.ConfigWindow(self.cfg)
+		self.preferences_widget = widgets.ConfigWindow(self)
 		self.preferences_widget.setWindowTitle(f"Preferences")
-		# self.preferences_widget.setGeometry(QtCore.QRect(100, 100, 1000, 600))
 		self.preferences_widget.show()
 
 	def abs_path_from_row(self, row_data):

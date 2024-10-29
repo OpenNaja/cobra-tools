@@ -19,17 +19,16 @@ class BaseSetting(object):
 	def update(self, cfg_dict, k, v):
 		# go back to the original type if it existed in options
 		v = self.options_map.get(v, v)
-		print(f"setting cfg[{k}]={v} ({type(v).__name__})")
+		# print(f"setting cfg[{k}]={v} ({type(v).__name__})")
 		# setattr(cfg, k, v)
 		cfg_dict[k] = v
 
-	# def __get__(self, instance, owner):
-	# 	print("__get__", instance, owner)
-	# 	return self
 
-	# def __set__(self, instance, value):
-	# 	print("__set__", instance, value)
-	# 	setattr(instance, self.name, value)
+class RestartSetting(BaseSetting):
+	def __init__(self, name, tooltip, default: object = 0, options=(), accept_filter=lambda x: True):
+		super().__init__(name, tooltip, default, options, accept_filter)
+		if self.tooltip:
+			self.tooltip += " - needs restart"
 
 
 class ImmediateSetting(BaseSetting):
@@ -46,7 +45,6 @@ class TransientSetting(BaseSetting):
 
 class Config(dict):
 
-	# todo implement user feedback for options that need restart
 	# recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
 	# current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
 	oodle_level = TransientSetting("Oodle Level", "Higher numbers compress better, while lower numbers compress faster", 6, list(range(10)))
@@ -61,37 +59,18 @@ class Config(dict):
 	lua_decompile = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
 	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
 	# GUI appearance
-	logger_show = ImmediateSetting("Show Logger", "Show Logger panel - needs restart", False, (True, False))  # Hides/show the logger panel.
-	logger_orientation = ImmediateSetting("Logger Orientation", "Set logger orientation - needs restart", "H", ("H", "V"))
-	theme = ImmediateSetting("Theme", "Select theme palette - needs restart", "dark", ("dark", "light"))
+	logger_show = RestartSetting("Show Logger", "Show Logger panel", False, (True, False))  # Hides/show the logger panel
+	logger_orientation = RestartSetting("Logger Orientation", "Set logger orientation", "H", ("H", "V"))
+	theme = RestartSetting("Theme", "Select theme palette", "dark", ("dark", "light"))
 
 	def __init__(self, dir, name="config.json", **kwargs):
 		super().__init__(**kwargs)
 		self.dir = dir
 		self.name = name
 
-	def __setitem__(self, k, v):
-		super().__setitem__(k, v)
-		# key for manager may not exist
-		manager = self.settings.get(k)
-		if manager and isinstance(manager, ImmediateSetting):
-			logging.debug(f"Saved '{self.name}' after storing '{k}'")
-			self.save()
-	#
-	# def __getitem__(self, k):
-	# 	return self[k]
-
 	@property
 	def settings(self):
-		# print(self.__members__)
-		members = {k: v for k, v in self.__class__.__dict__.items() if isinstance(v, BaseSetting)}
-		return members
-		# return self.__annotations__
-		# total_members = []
-		# for key, value in dict.items():
-		# 	if isinstance(value, BitfieldMember):
-		# 		total_members.append(key)
-		# cls.__members__ = total_members
+		return {k: v for k, v in self.__class__.__dict__.items() if isinstance(v, BaseSetting)}
 
 	@property
 	def cfg_path(self):
@@ -102,7 +81,6 @@ class Config(dict):
 		try:
 			with open(self.cfg_path, "w") as json_writer:
 				json.dump(self, json_writer, indent="\t", sort_keys=True)
-				# json.dump(self.__slots__, json_writer, indent="\t", sort_keys=True)
 		except:
 			logging.exception(f"Saving '{self.cfg_path}' failed")
 
@@ -113,7 +91,8 @@ class Config(dict):
 		# then try to read any that are stored
 		try:
 			with open(self.cfg_path, "r") as json_reader:
-				self.update(json.load(json_reader))
+				from_json = json.load(json_reader)
+				self.update(from_json)
 				return
 		except FileNotFoundError:
 			logging.debug(f"Config file missing at {self.cfg_path}")
