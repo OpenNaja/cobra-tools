@@ -263,8 +263,8 @@ def get_stdout_handler(name: str) -> StreamHandler | None:
 
 
 def get_version_str():
-    return VERSION
+	return VERSION
 
 
 def get_commit_str():
-    return f"{COMMIT_HASH} - {COMMIT_TIME}"
+	return f"{COMMIT_HASH} - {COMMIT_TIME}"
