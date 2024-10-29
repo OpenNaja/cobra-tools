@@ -2223,35 +2223,31 @@ class GamesWidget(QWidget):
         selected_game = self.get_selected_game()
         logging.info(f"Running {selected_game}")
         args = ["-nointro", ]
-        # todo - maybe support custom args per game?
-        # args = ["-nointro", "-disableprint", "-level", "modelviewer"]  # only works on JWE2, crashes PC, PZ
-        # todo - investigate steam launcher more?
-        # # try steam launch
-        # id_map = {
-        #     "Jurassic World Evolution 2": 1244460,
-        #     "Jurassic World Evolution": 648350,
-        #     "Planet Coaster 2": 2688950,
-        #     "Planet Coaster": 493340,
-        #     "Planet Zoo": 703080,
-        #     "Disneyland Adventures": 630610,
-        #     "Zoo Tycoon Ultimate Animal Collection": 613880,
-        #     }
-        # game_id = id_map.get(selected_game)
-        # if game_id:
-        #     import webbrowser
-        #     args_str = "//".join(args)
-        #     steam_cmd = f"steam://rungameid/{game_id}//{args_str}"
-        #     logging.debug(f"Running game from {steam_cmd}")
-        #     webbrowser.open(steam_cmd)
-        #     # subprocess.run(f"start steam://rungameid/{game_id}", *args, shell=True)
-        # else:
-        for game, ovldata in self.cfg["games"].items():
-            if game == selected_game:
+        if selected_game == "Jurassic World Evolution 2":
+            args.extend(["-disableprint", "-level", "modelviewer"])  # only works on JWE2, crashes PC, PZ
+        # try steam launch
+        id_map = {
+            "Jurassic World Evolution 2": 1244460,
+            "Jurassic World Evolution": 648350,
+            "Planet Coaster 2": 2688950,
+            "Planet Coaster": 493340,
+            "Planet Zoo": 703080,
+            "Disneyland Adventures": 630610,
+            "Zoo Tycoon Ultimate Animal Collection": 613880,
+            }
+        steam_game_id = id_map.get(selected_game)
+        if steam_game_id:
+            args_str = " ".join(args)
+            steam_cmd = f"steam://rungameid/{steam_game_id}//{args_str}"
+            logging.debug(f"Running game from {steam_cmd}")
+            webbrowser.open(steam_cmd)
+        else:
+            ovldata = self.cfg["games"].get(selected_game, None)
+            if ovldata:
                 exe_path = self.get_exe_from_ovldata(ovldata)
                 subprocess.Popen([exe_path, ] + args)
-                break
-        else:
-            logging.warning(f"Couldn't find the game's executable")
+            else:
+                logging.warning(f"Couldn't find the game's executable")
 
     def set_root(self, dir_game: str) -> None:
         root_index = self.dirs.file_model.setRootPath(dir_game)
