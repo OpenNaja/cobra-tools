@@ -2568,11 +2568,10 @@ class CollapsibleBox(QWidget):
         )
         self.content_area.setFrameShape(QFrame.Shape.NoFrame)
 
-        lay = QVBoxLayout(self)
-        lay.setSpacing(0)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.addWidget(self.toggle_button)
-        lay.addWidget(self.content_area)
+        pack_in_box(
+            self.toggle_button,
+            self.content_area
+        )
 
         self.toggle_animation.addAnimation(
             QPropertyAnimation(self, b"minimumHeight")
@@ -3633,7 +3632,7 @@ def get_main_window():
             return w
 
 
-def pack_in_vbox(*widgets, margins=(0, 0, 0, 0)):
+def pack_in_box(*widgets, margins=(0, 0, 0, 0)):
     frame = QtWidgets.QWidget()
     box = QtWidgets.QVBoxLayout()
     for w in widgets:

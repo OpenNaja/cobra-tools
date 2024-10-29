@@ -102,13 +102,13 @@ class MainWindow(widgets.MainWindow):
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
-		left_frame = widgets.pack_in_vbox(
+		left_frame = widgets.pack_in_box(
 			self.installed_games.search,
 			self.installed_games.filters,
 			self.installed_games.dirs,
 			self.installed_games,
 			margins=(0, 0, 1, 0))
-		right_frame = widgets.pack_in_vbox(
+		right_frame = widgets.pack_in_box(
 			self.file_widget,
 			self.files_container,
 			self.included_ovls_view,
@@ -432,10 +432,14 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovl_names = includes
 		self.set_dirty()
 
+	def run_current_game(self):
+		if self.cfg.get("play_on_saving", False):
+			self.installed_games.run_selected_game()
+
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		if not self.suppress_popups:
-			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, ), filepath)
+			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, self.run_current_game), filepath)
 		else:
 			try:
 				self.ovl_data.save(filepath)

@@ -58,6 +58,7 @@ class Config(dict):
 	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
 	lua_decompile = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
 	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
+	play_on_saving = TransientSetting("Run Game on Saving", "Always run the currently selected game after saving an OVL", False, (True, False))
 	# GUI appearance
 	logger_show = RestartSetting("Show Logger", "Show Logger panel", False, (True, False))  # Hides/show the logger panel
 	logger_orientation = RestartSetting("Logger Orientation", "Set logger orientation", "H", ("H", "V"))
