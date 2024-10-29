@@ -54,16 +54,9 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler("loc_tool_gui")  # self.log_name not set until after init
 		self.layout_splitter(grid, left_frame, right_frame)
 
-		# Setup Menus
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		edit_menu = main_menu.addMenu('Edit')
-		util_menu = main_menu.addMenu('Util')
-		help_menu = main_menu.addMenu('Help')
-		button_data = (
-			(help_menu, "Report Bug", self.report_bug, "", "report"),
-			(help_menu, "Documentation", self.online_support, "", "manual"))
-		self.add_to_menu(button_data)
+		self.add_to_menu(
+			*self.help_menu_functions,
+		)
 
 	def populate_game(self, current_game=None):
 		if current_game is None:

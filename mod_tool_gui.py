@@ -30,19 +30,14 @@ class ModToolGUI(MainWindow):
 		# Set some main window's properties
 		self.setWindowTitle('Mod Pack Tool ' + __version__)
 
-		# Add a menu
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		help_menu = main_menu.addMenu('Help')
-		button_data = (
-			(file_menu, "Open", self.load_config, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_config, "CTRL+S", "save"),
-			(file_menu, "Pack", self.pack_mod, "CTRL+P", "inject"),
-			(file_menu, "Unpack", self.unpack_mod, "CTRL+U", "extract"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(help_menu, "Report Bug", self.report_bug, "", "report"),
-			(help_menu, "Documentation", self.online_support, "", "manual"))
-		self.add_to_menu(button_data)
+		self.add_to_menu(
+			(widgets.FILE_MENU, "Open", self.load_config, "CTRL+O", "dir"),
+			(widgets.FILE_MENU, "Save", self.save_config, "CTRL+S", "save"),
+			(widgets.FILE_MENU, "Pack", self.pack_mod, "CTRL+P", "inject"),
+			(widgets.FILE_MENU, "Unpack", self.unpack_mod, "CTRL+U", "extract"),
+			(widgets.FILE_MENU, "Exit", self.close, "", "exit"),
+			*self.help_menu_functions,
+		)
 
 		# Add app widgets
 		self.src_widget = widgets.DirWidget(self, self.cfg, cfg_key="mod_tool")

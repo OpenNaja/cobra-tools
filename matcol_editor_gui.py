@@ -30,17 +30,10 @@ class MainWindow(widgets.MainWindow):
 		self.tooltips = read_str_dict("gui/tooltips/matcol.txt")
 		self.default_fgms = read_list("gui/tooltips/matcol-fgm-names.txt")
 
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		help_menu = main_menu.addMenu('Help')
-		button_data = (
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
-			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(help_menu, "Report Bug", self.report_bug, "", "report"),
-			(help_menu, "Documentation", self.online_support, "", "manual"))
-		self.add_to_menu(button_data)
+		self.add_to_menu(
+			*self.file_menu_functions,
+			*self.help_menu_functions,
+		)
 
 		self.tex_container = QtWidgets.QGroupBox("Slots")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")

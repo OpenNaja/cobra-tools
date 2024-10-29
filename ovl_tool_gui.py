@@ -6,7 +6,6 @@ import tempfile
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import get_icon
 from ovl_util.logs import get_stdout_handler
 from modules import walker
 from generated.formats.ovl import games, OvlFile
@@ -58,9 +57,9 @@ class MainWindow(widgets.MainWindow):
 			file_dbl_click_fn=self.open_clicked_file,
 			search_content_fn=self.search_ovl_contents,
 			actions={
-				QtWidgets.QAction(get_icon("extract"), "Unpack All"): self.extract_all_batch,
-				QtWidgets.QAction(get_icon("rename"), "Rename Files"): self.rename_batch,
-				QtWidgets.QAction(get_icon("rename_contents"), "Rename Contents"): self.rename_contents_batch,
+				QtWidgets.QAction(widgets.get_icon("extract"), "Unpack All"): self.extract_all_batch,
+				QtWidgets.QAction(widgets.get_icon("rename"), "Rename Files"): self.rename_batch,
+				QtWidgets.QAction(widgets.get_icon("rename_contents"), "Rename Contents"): self.rename_contents_batch,
 				})
 		self.installed_games.set_selected_game()
 
@@ -117,43 +116,28 @@ class MainWindow(widgets.MainWindow):
 		self.layout_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		edit_menu = main_menu.addMenu('Edit')
-		util_menu = main_menu.addMenu('Util')
-		help_menu = main_menu.addMenu('Help')
-		devs_menu = main_menu.addMenu('Devs')
-		button_data = (
-			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
-			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(edit_menu, "Unpack All", self.extract_all, "CTRL+U", "extract"),
-			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(edit_menu, "Rename Files", self.rename, "CTRL+R", "rename"),
-			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", "rename_contents"),
-			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
-			(edit_menu, "Remove Selected", self.remove, "DEL", "remove"),
-			(edit_menu, "Load Included OVL List", self.load_included_ovls, "", ""),
-			(edit_menu, "Export Included OVL List", self.save_included_ovls, "", ""),
-			(edit_menu, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
-			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
-			(util_menu, "Export File List", self.save_file_list, "", ""),
-			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
-			(help_menu, "Show Commit on GitHub", self.open_repo, "", "github"),
-			(help_menu, "Report Bug on GitHub", self.report_bug, "", "report"),
-			(help_menu, "Read Wiki Documentation", self.online_support, "", "manual"),
-			(devs_menu, "Inspect MS2", self.inspect_models, "", "ms2"),
-			(devs_menu, "Inspect FGM", self.walker_fgm, "", "fgm"),
-			(devs_menu, "Inspect MANIS", self.walker_manis, "", "manis"),
-			(devs_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(devs_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
+		self.add_to_menu(
+			(widgets.FILE_MENU, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
+			*self.file_menu_functions,
+			(widgets.EDIT_MENU, "Unpack All", self.extract_all, "CTRL+U", "extract"),
+			(widgets.EDIT_MENU, "Inject", self.inject_ask, "CTRL+I", "inject"),
+			(widgets.EDIT_MENU, "Rename Files", self.rename, "CTRL+R", "rename"),
+			(widgets.EDIT_MENU, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", "rename_contents"),
+			(widgets.EDIT_MENU, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
+			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "remove"),
+			(widgets.EDIT_MENU, "Load Included OVL List", self.load_included_ovls, "", ""),
+			(widgets.EDIT_MENU, "Export Included OVL List", self.save_included_ovls, "", ""),
+			(widgets.EDIT_MENU, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
+			(widgets.UTIL_MENU, "Open Tools Dir", self.open_tools_dir, "", "home"),
+			(widgets.UTIL_MENU, "Export File List", self.save_file_list, "", ""),
+			(widgets.UTIL_MENU, "Compare with other OVL", self.compare_ovls, "", ""),
+			*self.help_menu_functions,
+			(widgets.DEVS_MENU, "Inspect MS2", self.inspect_models, "", "ms2"),
+			(widgets.DEVS_MENU, "Inspect FGM", self.walker_fgm, "", "fgm"),
+			(widgets.DEVS_MENU, "Inspect MANIS", self.walker_manis, "", "manis"),
+			(widgets.DEVS_MENU, "Generate Hash Table", self.walker_hash, "", ""),
+			(widgets.DEVS_MENU, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
 		)
-		self.add_to_menu(button_data)
-
-		separator_action = self.actions['generate hash table']
-		util_menu.insertSeparator(separator_action)
 
 		self.file_info = QtWidgets.QLabel(self)
 		

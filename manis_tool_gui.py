@@ -54,20 +54,14 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
 
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		edit_menu = main_menu.addMenu('Edit')
-		button_data = (
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Append", self.append, "", "append"),
-			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
-			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(edit_menu, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
-			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
-			(edit_menu, "Show Keys", self.show_keys, "", ""),
+		self.add_to_menu(
+			*self.file_menu_functions,
+			(widgets.EDIT_MENU, "Append", self.append, "", "append"),
+			(widgets.EDIT_MENU, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
+			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "delete_mesh"),
+			(widgets.EDIT_MENU, "Show Keys", self.show_keys, "", ""),
+			*self.help_menu_functions,
 		)
-		self.add_to_menu(button_data)
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:

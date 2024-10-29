@@ -44,18 +44,12 @@ class MainWindow(widgets.MainWindow):
 
 		self.central_widget.setLayout(self.qgrid)
 
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		edit_menu = main_menu.addMenu('Edit')
-		button_data = (
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
-			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
-			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject")
+		self.add_to_menu(
+			*self.file_menu_functions,
+			(widgets.EDIT_MENU, "Unpack", self.extract_all, "CTRL+U", "extract"),
+			(widgets.EDIT_MENU, "Inject", self.inject_ask, "CTRL+I", "inject"),
+			*self.help_menu_functions,
 		)
-		self.add_to_menu(button_data)
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []

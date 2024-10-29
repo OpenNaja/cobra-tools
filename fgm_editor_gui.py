@@ -88,22 +88,13 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		main_menu = self.menu_bar
-		file_menu = main_menu.addMenu('File')
-		edit_menu = main_menu.addMenu('Edit')
-		help_menu = main_menu.addMenu('Help')
-		button_data = (
-			(file_menu, "New", self.new_file, "CTRL+N", "new"),
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
-			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit"),
-			(edit_menu, "Import Texture Values", self.import_tex, "", ""),
-			(edit_menu, "Import Attribute Values", self.import_att, "", ""),
-			(help_menu, "Report Bug", self.report_bug, "", "report"),
-			(help_menu, "Documentation", self.online_support, "", "manual")
+		self.add_to_menu(
+			(widgets.FILE_MENU, "New", self.new_file, "CTRL+N", "new"),
+			*self.file_menu_functions,
+			(widgets.EDIT_MENU, "Import Texture Values", self.import_tex, "", ""),
+			(widgets.EDIT_MENU, "Import Attribute Values", self.import_att, "", ""),
+			*self.help_menu_functions,
 		)
-		self.add_to_menu(button_data)
 		self.lock_attrs.toggled.emit(True)
 
 	@property

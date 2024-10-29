@@ -53,6 +53,12 @@ except:
 MAX_UINT = 4294967295
 ICON_CACHE = {"no_icon": QIcon()}
 
+FILE_MENU = 'File'
+EDIT_MENU = 'Edit'
+UTIL_MENU = 'Util'
+HELP_MENU = 'Help'
+DEVS_MENU = 'Devs'
+
 root_dir = Path(__file__).resolve().parent.parent
 
 
@@ -3092,9 +3098,6 @@ class TitleBar(StandardTitleBar):
         pass
 
 
-ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
-
-
 class MainWindow(FramelessMainWindow):
     modified = pyqtSignal(bool)
     set_log_level = pyqtSignal(str)
@@ -3342,6 +3345,19 @@ class MainWindow(FramelessMainWindow):
     def set_dirty(self) -> None:
         self.set_file_modified(True)
 
+    @property
+    def file_menu_functions(self):
+        yield FILE_MENU, "Open", self.file_widget.ask_open, "CTRL+O", "dir"
+        yield FILE_MENU, "Save", self.file_widget.ask_save, "CTRL+S", "save"
+        yield FILE_MENU, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"
+        yield FILE_MENU, "Exit", self.close, "", "exit"
+
+    @property
+    def help_menu_functions(self):
+        yield HELP_MENU, "Show Commit on GitHub", self.open_repo, "", "github"
+        yield HELP_MENU, "Report Bug on GitHub", self.report_bug, "", "report"
+        yield HELP_MENU, "Read Wiki Documentation", self.online_support, "", "manual"
+
     def open_repo(self) -> None:
         webbrowser.open(f"https://github.com/OpenNaja/cobra-tools/tree/{COMMIT_HASH}", new=2)
 
@@ -3351,11 +3367,12 @@ class MainWindow(FramelessMainWindow):
     def online_support(self) -> None:
         webbrowser.open("https://opennaja.github.io/cobra-tools/", new=2)
 
-    def add_to_menu(self, button_data: ButtonData) -> None:
-        for btn in button_data:
+    def add_to_menu(self, *args) -> None:
+        self.menus = {}
+        for btn in args:
             self._add_to_menu(*btn)
 
-    def _add_to_menu(self, submenu: QMenu, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str) -> None:
+    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str) -> None:
         action = QAction(action_name, self)
         if icon_name:
             icon = get_icon(icon_name)
@@ -3364,7 +3381,11 @@ class MainWindow(FramelessMainWindow):
         if shortcut:
             action.setShortcut(shortcut)
         self.actions[action_name.lower()] = action
-        submenu.addAction(action)
+        # add sub-menu if required
+        if menu_name not in self.menus:
+            self.menus[menu_name] = self.menu_bar.addMenu(menu_name)
+        menu = self.menus[menu_name]
+        menu.addAction(action)
 
     def handle_error(self, msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""
