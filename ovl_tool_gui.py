@@ -121,6 +121,7 @@ class MainWindow(widgets.MainWindow):
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		util_menu = main_menu.addMenu('Util')
+		devs_menu = main_menu.addMenu('Devs')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
 			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
@@ -137,11 +138,11 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Load Included OVL List", self.load_included_ovls, "", ""),
 			(edit_menu, "Export Included OVL List", self.save_included_ovls, "", ""),
 			(edit_menu, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
-			(util_menu, "Inspect ms2", self.inspect_models, "", "ms2", True),
-			(util_menu, "Inspect fgm", self.walker_fgm, "", "fgm", True),
-			(util_menu, "Inspect manis", self.walker_manis, "", "manis", True),
-			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug", True),
+			(devs_menu, "Inspect MS2", self.inspect_models, "", "ms2"),
+			(devs_menu, "Inspect FGM", self.walker_fgm, "", "fgm"),
+			(devs_menu, "Inspect MANIS", self.walker_manis, "", "manis"),
+			(devs_menu, "Generate Hash Table", self.walker_hash, "", ""),
+			(devs_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),

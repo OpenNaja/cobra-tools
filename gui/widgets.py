@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox,
                              QFileIconProvider, QButtonGroup)
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
+from __version__ import VERSION, COMMIT_HASH
 
 import vdf
 
@@ -3137,13 +3138,9 @@ class MainWindow(FramelessMainWindow):
         self.progress.setTextVisible(True)
         self.progress.setMaximum(100)
         self.progress.setValue(0)
-        self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
-        dev_str = "DEV" if self.dev_mode else ""
-        commit_str = logs.get_commit_str()
-        commit_str = commit_str.split("+")[0]
 
         self.status_bar = QStatusBar()
-        self.version_info = QLabel(f"Version {commit_str}{dev_str}")
+        self.version_info = QLabel(f"Version {VERSION} ({COMMIT_HASH})")
         self.version_info.setFont(QFont("Consolas, monospace", 8))
         self.version_info.setStyleSheet("color: #999")
         self.status_bar.addPermanentWidget(self.version_info)
@@ -3355,9 +3352,7 @@ class MainWindow(FramelessMainWindow):
         for btn in button_data:
             self._add_to_menu(*btn)
 
-    def _add_to_menu(self, submenu: QMenu, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, only_dev_mode=False) -> None:
-        if only_dev_mode and not self.dev_mode:
-            return
+    def _add_to_menu(self, submenu: QMenu, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str) -> None:
         action = QAction(action_name, self)
         if icon_name:
             icon = get_icon(icon_name)
