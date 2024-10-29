@@ -121,8 +121,8 @@ class MainWindow(widgets.MainWindow):
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		util_menu = main_menu.addMenu('Util')
-		devs_menu = main_menu.addMenu('Devs')
 		help_menu = main_menu.addMenu('Help')
+		devs_menu = main_menu.addMenu('Devs')
 		button_data = (
 			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
@@ -138,16 +138,18 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Load Included OVL List", self.load_included_ovls, "", ""),
 			(edit_menu, "Export Included OVL List", self.save_included_ovls, "", ""),
 			(edit_menu, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
+			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
+			(util_menu, "Export File List", self.save_file_list, "", ""),
+			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
+			(help_menu, "Show Commit on GitHub", self.open_repo, "", "github"),
+			(help_menu, "Report Bug on GitHub", self.report_bug, "", "report"),
+			(help_menu, "Read Wiki Documentation", self.online_support, "", "manual"),
 			(devs_menu, "Inspect MS2", self.inspect_models, "", "ms2"),
 			(devs_menu, "Inspect FGM", self.walker_fgm, "", "fgm"),
 			(devs_menu, "Inspect MANIS", self.walker_manis, "", "manis"),
 			(devs_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(devs_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
-			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
-			(util_menu, "Export File List", self.save_file_list, "", ""),
-			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
-			(help_menu, "Report Bug", self.report_bug, "", "report"),
-			(help_menu, "Documentation", self.online_support, "", "manual"))
+		)
 		self.add_to_menu(button_data)
 
 		separator_action = self.actions['generate hash table']

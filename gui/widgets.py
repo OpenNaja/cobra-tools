@@ -3342,11 +3342,14 @@ class MainWindow(FramelessMainWindow):
     def set_dirty(self) -> None:
         self.set_file_modified(True)
 
+    def open_repo(self) -> None:
+        webbrowser.open(f"https://github.com/OpenNaja/cobra-tools/tree/{COMMIT_HASH}", new=2)
+
     def report_bug(self) -> None:
         webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new?assignees=&labels=&template=bug_report.md&title=", new=2)
 
     def online_support(self) -> None:
-        webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
+        webbrowser.open("https://opennaja.github.io/cobra-tools/", new=2)
 
     def add_to_menu(self, button_data: ButtonData) -> None:
         for btn in button_data:
