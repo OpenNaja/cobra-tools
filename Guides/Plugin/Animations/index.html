@@ -1378,6 +1378,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#manis-editor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manis Editor
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1667,16 +1676,18 @@
 
 
 <h1 id="animations">Animations<a class="headerlink" href="#animations" title="Permanent link">&para;</a></h1>
+<p>The Cobra engine uses two different kinds of animation formats: <code>.manis</code> containers with <code>.mani</code> animations and <code>.banis</code> containers with <code>.bani</code> animations. Extracted from OVL, you get the <code>.manis</code> and <code>.banis</code>.</p>
 <h2 id="manis">Manis<a class="headerlink" href="#manis" title="Permanent link">&para;</a></h2>
-<p>Manis animations are sampled across all frames for different bones and transform channels. They are generally used for advanced character animation that requires dynamics, constraints or blending between animations.</p>
+<p><code>.manis</code> animations are sampled across all frames for different bones and transform channels. They are generally used for advanced character animation that requires dynamics, constraints or blending between animations.</p>
 <h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h3>
-<p>Select a target armature you want to animate before importing a manis file.</p>
+<p>Select a target armature you want to animate before importing a <code>.manis</code> file.</p>
 <div class="admonition construction">
 <p class="admonition-title">Limitations</p>
 <ul>
 <li>Most anims are stored as compressed data, which must be decompressed before being imported.</li>
 <li>Not all anims decompress correctly. If an anim fails to decompress, you may see no keyframes at all or a distorted mess.</li>
 <li>When anims do decompress, single keyframes or whole channels may still show unexpected distortions.</li>
+<li>Decompression is fairly slow. Keep track on the progress by turning on Blender's console (Window &gt; Toggle System Console) before importing. If you have to import the same <code>.manis</code> repeatedly, consider using the <a href="#manis-editor">Manis Editor</a> to decompress it once and for all.</li>
 </ul>
 </div>
 <div class="admonition danger">
@@ -1696,23 +1707,46 @@
 </ul>
 </div>
 <h3 id="export">Export<a class="headerlink" href="#export" title="Permanent link">&para;</a></h3>
-<p>Transforms in blender actions are stored relative to the armature, but absolute in manis. As a result, manis export must know which actions belong to which armature:</p>
+<p>Transforms in blender actions are stored relative to the armature, but absolute in <code>.manis</code>. As a result, <code>.manis</code> export must know which actions belong to which armature:</p>
 <ul>
-<li>If you have a single action per armature, setting it as the current action in the Action Editor is enough.</li>
-<li>To export multiple actions from an armature, stash them in the <a href="https://docs.blender.org/manual/en/latest/editors/nla/tracks.html#action-stashing">NLA Editor</a> or the <a href="https://docs.blender.org/manual/en/latest/editors/dope_sheet/action.html#header">Action Editor</a>.</li>
+<li>If you have a single action per armature, setting it as the current action in the <a href="https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header">Action Editor</a> is enough.</li>
+<li>To export multiple actions from an armature, stash them in the <a href="https://docs.blender.org/manual/en/latest/editors/nla/tracks.html#action-stashing">NLA Editor</a> or the <a href="https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header">Action Editor</a>.</li>
 </ul>
-<p>Export does not read the keyframes directly, but samples the visual transforms across an action's frame range. Constraints are automatically baked. Bones that don't move during an action are automatically discarded.</p>
+<div class="admonition info">
+<p class="admonition-title">Gotchas</p>
+<ul>
+<li>Export does not read the keyframes directly, but samples the visual transforms across an action's frame range. </li>
+<li>Constraints are automatically baked. </li>
+<li>Bones are included as needed; bones that don't move during an action are automatically discarded.</li>
+</ul>
+</div>
 <div class="admonition construction">
 <p class="admonition-title">Limitations</p>
-<p>Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.
-If you plan on editing only some animations of a .manis, insert the modified = uncompressed ones into the compressed .manis file using the Manis Editor.</p>
+<ul>
+<li>Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.</li>
+<li>If you plan on editing only some animations of a <code>.manis</code>, insert the modified (= uncompressed) ones into the compressed <code>.manis</code> file using the <a href="#manis-editor">Manis Editor</a>.</li>
+</ul>
 </div>
 <h3 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h3>
 <p>A command line script is provided to scale compressed animations and ms2 models by a given factor. Call it from a CMD or PowerShell window like this:</p>
+<div class="admonition example">
+<p class="admonition-title">CMD</p>
 <p><code>python resize_manis_cmd.py [FOLDER] [SCALE_FACTOR]</code></p>
 <p><code>python resize_manis_cmd.py "C:\Users\USER\Desktop\tiger" 1.4</code></p>
+</div>
+<h3 id="manis-editor">Manis Editor<a class="headerlink" href="#manis-editor" title="Permanent link">&para;</a></h3>
+<p>A GUI editor to manipulate <code>.manis</code> files.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom" data-gallery="tools"><img alt="Manis Editor" data-gallery="tools" src="../images/manis_editor.png" /></a></p>
+<div class="admonition example">
+<p class="admonition-title">Use Cases</p>
+<ul>
+<li>changing speed of anims</li>
+<li>decompressing anims</li>
+<li>renaming / deleting / appending anims</li>
+</ul>
+</div>
 <h2 id="banis">Banis<a class="headerlink" href="#banis" title="Permanent link">&para;</a></h2>
-<p>Banis animations are rigidly sampled for all bones in a model. They are generally used for simple building or character animations, such as:</p>
+<p><code>.banis</code> animations hold rigidly sampled location and rotation keys for all bones in a model. They are generally used for simple building or character animations, such as:</p>
 <ul>
 <li>guests</li>
 <li>feeders</li>
@@ -1720,7 +1754,7 @@ If you plan on editing only some animations of a .manis, insert the modified = u
 </ul>
 <div class="admonition construction">
 <p class="admonition-title">Limitations</p>
-<p>The transforms used by banis are currently not fully understood. Import is experimental and close to expected for some banis, but totally broken for others. Export is not useable in production.</p>
+<p>The transforms used by <code>.banis</code> are currently not fully understood. Import is experimental and close to expected for some <code>.banis</code>, but totally broken for others. Export is not useable in production.</p>
 </div>
 
 
@@ -1742,7 +1776,7 @@ If you plan on editing only some animations of a .manis, insert the modified = u
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 28, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 29, 2024</span>
   </span>
 
     
