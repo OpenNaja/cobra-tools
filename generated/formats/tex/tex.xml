@@ -180,6 +180,7 @@
 		DLA: 24 bytes, no pointers
         ZTUAC, PC: 24 bytes, with 1 pointer
         JWE, PZ, JWE2: 40 bytes, with 2 pointers
+		PC2: 48 bytes, no pointers
 		<add name="zero 0" type="uint" until="15" default="0" optional="True"/>
 		<add name="zero 0" type="uint64" since="17" default="0" optional="True"/>
 		<add name="zero 1" type="uint64" since="19" default="0" optional="True"/>
@@ -199,6 +200,18 @@
 		<add name="stream_count repeat" type="ubyte" since="17">usually as above</add>
 		<add name="pad" type="uint" default="0" optional="True">0; 1 for PC</add>
 		<add name="pad dla" type="uint64" until="15" default="0" optional="True"/>
+
+		PC2 version = 10 still, but completely different layout
+<!--		<add name="zero 0" type="uint" default="0" optional="True"/>-->
+<!--		<add name="compression type" type="DdsType" />-->
+<!--		<add name="width" type="uint">x size in pixels</add>-->
+<!--		<add name="height" type="uint" >y size in pixels</add>-->
+<!--		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>-->
+<!--		<add name="num mips" type="ushort" />-->
+<!--		<add name="num_tiles" type="uint" default="1" optional="True"/>-->
+<!--        <add name="texel_ref" type="Empty"/>-->
+<!--		<add name="texel" type="ZString" />-->
+<!--        <add name="texel_padding" type="PadAlign" template="texel_ref" arg="4"/>-->
     </compound>
 
     <compound name="TexturestreamHeader" inherit="MemStruct">

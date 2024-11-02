@@ -8,6 +8,7 @@ class TexHeader(MemStruct):
 	DLA: 24 bytes, no pointers
 	ZTUAC, PC: 24 bytes, with 1 pointer
 	JWE, PZ, JWE2: 40 bytes, with 2 pointers
+	PC2: 48 bytes, no pointers
 	"""
 
 	__name__ = 'TexHeader'
