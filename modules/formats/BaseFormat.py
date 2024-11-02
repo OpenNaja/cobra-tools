@@ -419,6 +419,8 @@ class BaseFile:
 			for i, b in enumerate(self.data_entry.buffer_datas):
 				name = f"{self.name}_{i}.dmp"
 				out_path = out_dir(name)
+				if "/" in name:
+					os.makedirs(out_path, exist_ok=True)
 				paths.append(out_path)
 				with open(out_path, 'wb') as outfile:
 					outfile.write(b)
@@ -597,6 +599,6 @@ class MimeVersionedLoader(MemStructLoader):
 
 	def __init__(self, ovl, file_name, mime_version):
 		super().__init__(ovl, file_name, mime_version)
-		self.get_constants_entry()
+		# self.get_constants_entry()
 		self.context = MimeContext(self.mime_version)
 		# logging.debug(self.context)
