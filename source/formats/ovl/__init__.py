@@ -575,6 +575,10 @@ class OvlFile(Header):
 		elem.attrib[prop] = str(get_game(instance)[0])
 
 	@property
+	def is_pc_2(self):
+		return self.game == "Planet Coaster 2"
+
+	@property
 	def game(self):
 		if self._game is None:
 			self._game = get_game(self)[0].value
@@ -594,11 +598,11 @@ class OvlFile(Header):
 		self.reset_field("archives")
 		self.loaders = {}
 
-	def init_loader(self, filename, ext):
+	def init_loader(self, filename, ext, version):
 		# fall back to BaseFile loader, but only for collecting, not creating
 		from modules.formats.BaseFormat import BaseFile
 		loader_cls = self.formats_dict.get(ext, BaseFile)
-		return loader_cls(self, filename)
+		return loader_cls(self, filename, version)
 
 	def remove(self, filenames):
 		"""
@@ -691,7 +695,7 @@ class OvlFile(Header):
 		_, ext = os.path.splitext(file_name)
 		logging.info(f"Creating {file_name} in {ovs_name}")
 		try:
-			loader = self.init_loader(file_name, ext, )
+			loader = self.init_loader(file_name, ext, self.get_mime(ext, "version"))
 			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
 			loader.create(file_path)
@@ -943,8 +947,7 @@ class OvlFile(Header):
 				files_version = [self.mimes_version[i] for i in self.files["extension"]]
 				# initialize the loaders right here
 				for filename, ext, version, pt, set_pt in zip(self.files_name, self.files_ext, files_version, self.files["pool_type"], self.files["set_pool_type"]):
-					loader = self.init_loader(filename, ext)
-					loader.mime_version = version
+					loader = self.init_loader(filename, ext, version)
 					loader.pool_type = pt
 					loader.set_pool_type = set_pt
 					self.loaders[filename] = loader

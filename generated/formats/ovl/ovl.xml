@@ -139,9 +139,10 @@
         <add name="archive_names" type="ZStringBufferPadded" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
         <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls"/>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19"/>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19" vercond="!is_PC2"/>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19" vercond="is_PC2"/>
         <add name="stream_files" type="StreamEntry" arr1="num_stream_files"/>
         <add name="archives_meta" type="ArchiveMeta" arr1="Num Archives"/>
     </compound>

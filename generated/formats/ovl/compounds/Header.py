@@ -139,9 +139,10 @@ class Header(GenericHeader):
 		yield 'archive_names', name_type_map['ZStringBufferPadded'], (None, None), (False, None), (None, None)
 		yield 'archives', Array, (0, None, (None,), name_type_map['ArchiveEntry']), (False, None), (None, None)
 		yield 'included_ovls', Array, (0, None, (None,), name_type_map['IncludedOvl']), (False, None), (None, None)
-		yield 'dependencies', Array, (0, None, (None,), name_type_map['DependencyEntry']), (False, None), (lambda context: context.version >= 19, None)
+		yield 'dependencies', Array, (0, None, (None,), name_type_map['DependencyEntry']), (False, None), (lambda context: context.version >= 19 and not context.is_pc_2, None)
 		yield 'aux_entries', Array, (0, None, (None,), name_type_map['AuxEntry']), (False, None), (None, None)
 		yield 'dependencies', Array, (0, None, (None,), name_type_map['DependencyEntry']), (False, None), (lambda context: context.version <= 18, None)
+		yield 'dependencies', Array, (0, None, (None,), name_type_map['DependencyEntry']), (False, None), (lambda context: context.version >= 19 and context.is_pc_2, None)
 		yield 'stream_files', Array, (0, None, (None,), name_type_map['StreamEntry']), (False, None), (None, None)
 		yield 'archives_meta', Array, (0, None, (None,), name_type_map['ArchiveMeta']), (False, None), (None, None)
 
@@ -183,10 +184,12 @@ class Header(GenericHeader):
 		yield 'archive_names', name_type_map['ZStringBufferPadded'], (instance.len_archive_names, None), (False, None)
 		yield 'archives', Array, (0, None, (instance.num_archives,), name_type_map['ArchiveEntry']), (False, None)
 		yield 'included_ovls', Array, (0, None, (instance.num_included_ovls,), name_type_map['IncludedOvl']), (False, None)
-		if instance.context.version >= 19:
+		if instance.context.version >= 19 and not instance.context.is_pc_2:
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), name_type_map['DependencyEntry']), (False, None)
 		yield 'aux_entries', Array, (0, None, (instance.num_aux_entries,), name_type_map['AuxEntry']), (False, None)
 		if instance.context.version <= 18:
+			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), name_type_map['DependencyEntry']), (False, None)
+		if instance.context.version >= 19 and instance.context.is_pc_2:
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), name_type_map['DependencyEntry']), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), name_type_map['StreamEntry']), (False, None)
 		yield 'archives_meta', Array, (0, None, (instance.num_archives,), name_type_map['ArchiveMeta']), (False, None)
