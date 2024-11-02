@@ -3,6 +3,7 @@ import logging
 import os
 import struct
 import tempfile
+from copy import copy
 from io import BytesIO
 import shutil
 
@@ -23,10 +24,11 @@ class BaseFile:
 	can_extract = True
 	target_class: None
 
-	def __init__(self, ovl, file_name):
+	def __init__(self, ovl, file_name, mime_version):
 		self.ovl = ovl
 		self.context = ovl.context
 		self.name = file_name
+		self.mime_version = mime_version
 		# this needs to be figured out by the root_entry
 		self.ovs = None
 		self.header = None
@@ -516,9 +518,10 @@ class BaseFile:
 
 class MemStructLoader(BaseFile):
 
-	def __init__(self, ovl, file_name):
-		super().__init__(ovl, file_name)
-		self.context = self.ovl.context
+	def __init__(self, ovl, file_name, mime_version):
+		super().__init__(ovl, file_name, mime_version)
+		self.context = copy(self.ovl.context)
+		self.context.mime_version = self.mime_version
 
 	def accept_string(self, in_str):
 		"""Return True if string should receive replacement"""
@@ -592,8 +595,8 @@ class MimeContext:
 
 class MimeVersionedLoader(MemStructLoader):
 
-	def __init__(self, ovl, file_name):
-		super().__init__(ovl, file_name)
+	def __init__(self, ovl, file_name, mime_version):
+		super().__init__(ovl, file_name, mime_version)
 		self.get_constants_entry()
 		self.context = MimeContext(self.mime_version)
 		# logging.debug(self.context)

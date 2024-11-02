@@ -6,6 +6,7 @@ from generated.formats.fgm.imports import name_type_map
 class TextureInfo(GenericInfo):
 
 	"""
+	# PC2 - 16 bytes
 	part of fgm fragment, per texture involved
 	"""
 
@@ -30,8 +31,8 @@ class TextureInfo(GenericInfo):
 		yield 'value', Array, (0, None, (1,), name_type_map['TexIndex']), (False, None), (None, True)
 		yield 'value', Array, (0, None, (2,), name_type_map['Color']), (False, None), (lambda context: context.version >= 18, True)
 		yield 'value', Array, (0, None, (1,), name_type_map['Color']), (False, None), (lambda context: context.version <= 17, True)
-		yield 'some_index_0', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None)
-		yield 'some_index_1', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None)
+		yield 'some_index_0', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18 and context.mime_version != 7, None)
+		yield 'some_index_1', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18 and context.mime_version != 7, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -42,6 +43,6 @@ class TextureInfo(GenericInfo):
 			yield 'value', Array, (0, None, (2,), name_type_map['Color']), (False, None)
 		if instance.context.version <= 17 and instance.dtype == 7:
 			yield 'value', Array, (0, None, (1,), name_type_map['Color']), (False, None)
-		if instance.context.version >= 18:
+		if instance.context.version >= 18 and instance.context.mime_version != 7:
 			yield 'some_index_0', name_type_map['Uint'], (0, None), (True, 0)
 			yield 'some_index_1', name_type_map['Uint'], (0, None), (True, 0)
