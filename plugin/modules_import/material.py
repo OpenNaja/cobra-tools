@@ -337,8 +337,10 @@ def create_material(reporter, in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
+	context = OvlContext()
+	context.mime_version = 6  # just a dummy to make PC2 import work
 	try:
-		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
+		fgm_data = FgmHeader.from_xml_file(fgm_path, context)
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat

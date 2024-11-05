@@ -52,13 +52,12 @@ def set_pc(context):
 
 
 def is_pc2(context):
-	if context.version == 20 and context.user_version in (8340, 8724, 8212):
+	if context.version == 54:
 		return True
 
 
 def set_pc2(context):
-	context.version = 20
-	context.user_version._value = 8340
+	context.version = 54
 
 
 def is_pz(context):
@@ -173,7 +172,7 @@ jwe = Ms2Version(id='JWE', version=(47, 39,), primary_games=[], all_games=[games
 jwe2 = Ms2Version(id='JWE2', version=(52, 51,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PLANET_COASTER])
-pc2 = Ms2Version(id='PC2', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_COASTER_2])
+pc2 = Ms2Version(id='PC2', version=(54,), primary_games=[], all_games=[games.PLANET_COASTER_2])
 pz = Ms2Version(id='PZ', version=(50, 48,), primary_games=[], all_games=[games.PLANET_ZOO])
 pz16 = Ms2Version(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])

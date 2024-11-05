@@ -102,8 +102,13 @@ class MainWindow(widgets.MainWindow):
 		if filepath:
 			self.set_file_modified(False)
 			try:
-				self.ms2_file.load(filepath, read_editable=True)
-				print(self.ms2_file)
+				self.ms2_file.load(filepath, read_editable=True, dump=True)
+				# print(self.ms2_file)
+				# for model_info in self.ms2_file.model_infos:
+				# 	# model_info.
+				# 	model = model_info.model
+				# 	print(model)
+				# 	break
 			except:
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()

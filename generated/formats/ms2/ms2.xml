@@ -13,6 +13,7 @@
 		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented immediately
 		<verexpr token="#JWE2_BIO#" string="(#VER# #EQ# 52)">JWE2</verexpr>
 		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">Warhammer Age of Sigmar - Realms of Ruin</verexpr>
+		<verexpr token="#PC2#" string="(#VER# #EQ# 54)">Planet Coaster 2</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
@@ -23,7 +24,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	set latest first so that that is set
+	set latest occurence of a version number in a game first so that that is set by the setters
 	<version id="DLA" version="7" >Disneyland Adventures</version>
 	<version id="ZTUAC" version="13" >Zoo Tycoon Ultimate Animal Collection</version>
 	<version id="PC" version="32" >Planet Coaster</version>
@@ -31,6 +32,7 @@
 	<version id="PZ" version="50 48" >Planet Zoo</version>
 	<version id="JWE2" version="52 51" >Jurassic World Evolution 2</version>
 	<version id="WAR" version="53" >Warhammer Age of Sigmar - Realms of Ruin</version>
+	<version id="PC2" version="54" >Planet Coaster 2</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
@@ -594,12 +596,16 @@
 	</compound>
 
 	<compound name="TriChunk" >
-		JWE2 Biosyn: 64 bytes
+		JWE2 Biosyn, PC2: 64 bytes
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0</add>
 		<add name="material_index" type="ushort"/> 0, 1, 2
 		<add name="tris_count" type="ushort"/>
-		<add name="bounds max" type="Vector3">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
-		<add name="tris_offset" type="uint"/>bytes into tris buffer
+		<add name="bounds max" type="Vector3" until="53">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
+		<add name="tris_offset" type="uint" until="53" />bytes into tris buffer
+		<add name="tris_index" type="uint" since="54" />index into tris buffer
+		<add name="value_min" type="uint" since="54"/>minimal value of tri index
+		<add name="value_max" type="uint" since="54"/>apparently not maximal value of tri index, maybe close to that
+		<add name="unused" type="uint" since="54"/>?
 		<add name="loc" type="Vector3">can be 0,0,0, no obvious range, not always within range of bounds</add>
 		<add name="rot" type="AxisAngle">can be 1, 0, 0, 0; w always in range -1, +1</add>
 		<add name="shell_index" type="ushort"/> 0, 1, 2 - increments per shell layer

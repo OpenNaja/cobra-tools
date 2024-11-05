@@ -5,7 +5,7 @@ from generated.formats.ms2.imports import name_type_map
 class TriChunk(BaseStruct):
 
 	"""
-	JWE2 Biosyn: 64 bytes
+	JWE2 Biosyn, PC2: 64 bytes
 	"""
 
 	__name__ = 'TriChunk'
@@ -22,6 +22,10 @@ class TriChunk(BaseStruct):
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
 		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
+		self.tris_index = name_type_map['Uint'](self.context, 0, None)
+		self.value_min = name_type_map['Uint'](self.context, 0, None)
+		self.value_max = name_type_map['Uint'](self.context, 0, None)
+		self.unused = name_type_map['Uint'](self.context, 0, None)
 
 		# can be 0,0,0, no obvious range, not always within range of bounds
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
@@ -39,8 +43,12 @@ class TriChunk(BaseStruct):
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'material_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'tris_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version <= 53, None)
+		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 53, None)
+		yield 'tris_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
+		yield 'value_min', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
+		yield 'value_max', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
+		yield 'unused', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None), (None, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -52,8 +60,14 @@ class TriChunk(BaseStruct):
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'material_index', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'tris_count', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version <= 53:
+			yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
+			yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 54:
+			yield 'tris_index', name_type_map['Uint'], (0, None), (False, None)
+			yield 'value_min', name_type_map['Uint'], (0, None), (False, None)
+			yield 'value_max', name_type_map['Uint'], (0, None), (False, None)
+			yield 'unused', name_type_map['Uint'], (0, None), (False, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None)

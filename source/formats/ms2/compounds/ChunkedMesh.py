@@ -26,16 +26,6 @@ class ChunkedMesh(MeshData):
 	def read_tris(self):
 		pass
 
-	def read_tris_bio(self):
-		# this assumes that chunks are sorted by tris_offset, not guaranteed to be always true
-		# read all tri indices for this mesh
-		self.buffer_info.tris.seek(self.tri_chunks[0].tris_offset)
-		index_count = self.tris_count * 3  # // self.shell_count
-		# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
-		_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
-		self.buffer_info.tris.readinto(_tri_indices)
-		self.tri_indices = _tri_indices.astype(np.uint32)
-
 	@staticmethod
 	def pr_indices(input_list, indices, msg):
 		print(f"\n{msg}")
@@ -53,6 +43,14 @@ class ChunkedMesh(MeshData):
 		size_of_chunk = 16
 		return self.chunks_offset * size_of_chunk
 
+	@staticmethod
+	def get_tri_offset(chunk):
+		"""For a TriChunk, return its offset in the tri_chunks_buffer in bytes"""
+		if chunk.context.version < 54:
+			return chunk.tris_offset
+		else:
+			return chunk.tris_index * 3
+
 	def read_verts(self):
 		# logging.debug(self)
 		self.read_chunk_infos()
@@ -62,28 +60,45 @@ class ChunkedMesh(MeshData):
 		self.update_dtype()
 		self.init_arrays()
 
-		first_tris_offs = self.tri_chunks[0].tris_offset
+		first_tris_offs = self.get_tri_offset(self.tri_chunks[0])
 		offs = 0
 
-		self.read_tris_bio()
+		# tris reading has changed since v54
+		# first create the consistent output buffer
+		# todo investigate performance penalty of separate reading over reading once and then processing per chunk
+		self.tri_indices = np.empty(dtype=np.uint32, shape=self.tris_count * 3)
+
 		self.weights_info = {}
 		self.face_maps = {}
 		self.bones_sets = []
 		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
-
-			# these sometimes correspond but not always
-			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
-
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
-			# logging.info(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
-			# logging.info(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
+			# logging.debug(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
+			# logging.debug(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
 
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
-			tris_start = tri_chunk.tris_offset - first_tris_offs
-			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tris_count * 3]
+
+			# read tri indices for this chunk
+			index_count = tri_chunk.tris_count * 3
+			_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
+			self.buffer_info.tris.seek(self.get_tri_offset(tri_chunk))
+			# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
+			self.buffer_info.tris.readinto(_tri_indices)
+			tri_chunk.tri_indices = _tri_indices.astype(np.uint32)
+			if self.context.version < 54:
+				tri_chunk.tri_indices += offs
+			else:
+				# assert np.max(tri_chunk.tri_indices) == tri_chunk.value_max
+				tri_chunk.tri_indices += tri_chunk.value_min
+				# todo investigate tri_chunk.value_max
+				logging.debug(f"{np.max(tri_chunk.tri_indices)}, {tri_chunk.value_max}")
+			tris_start = self.get_tri_offset(tri_chunk) - first_tris_offs
+			# logging.debug(tri_chunk.tri_indices)
+			self.tri_indices[tris_start: tris_start+index_count] = tri_chunk.tri_indices
+
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			try:
 				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
@@ -122,8 +137,10 @@ class ChunkedMesh(MeshData):
 			except:
 				logging.exception(f"Chunk {i} failed")
 			# create absolute vertex indices for the total mesh
-			tri_chunk.tri_indices += offs
 			offs += vert_chunk.vertex_count
+			# logging.debug(vert_chunk.vertices)
+			# logging.debug(vert_chunk.meta)
+		# logging.debug(self.tri_indices)
 		# since malta dlc, one mesh can have several mesh formats
 		# assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
