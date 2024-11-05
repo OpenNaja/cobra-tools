@@ -66,13 +66,13 @@ def main():
 
         # override static version of blender plugin in __init__.py
         init_file = "__init__.py"
-        version_tupleformat = f"({date_version_str.replace('.', ', ')})"
+        date_version_str_int = tuple(int(x) for x in date_version_str.split("."))
         with open(init_file, "r") as file:
             lines = file.readlines()
         with open(init_file, "w") as file:
             for line in lines:
                 if '"version":' in line:
-                    file.write(f'    "version": {version_tupleformat},\n')
+                    file.write(f'    "version": {date_version_str_int},\n')
                 else:
                     file.write(line)
 
