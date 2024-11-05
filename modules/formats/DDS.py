@@ -5,9 +5,10 @@ import os
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
+from generated.formats.tex.compounds.Pc2TexBuffer import Pc2TexBuffer
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MemStructLoader, BaseFile
 
 from ovl_util import texconv, imarray
 
@@ -267,7 +268,7 @@ class DdsLoader(MemStructLoader):
 		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
-		if is_dla(self.ovl):
+		if is_dla(self.ovl) or self.context.is_pc_2:
 			return self.header
 		if self.ovl.version < 19:
 			# this corresponds to a stripped down size_info
@@ -286,12 +287,11 @@ class DdsLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
+		dds_paths = []
 		tex_name = self.name
 		basename = os.path.splitext(tex_name)[0]
 		logging.info(f"Writing {tex_name}")
 
-		# get joined output buffer
-		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		size_info = self.get_tex_structs()
 
 		dds_file = DdsFile()
@@ -303,31 +303,64 @@ class DdsLoader(MemStructLoader):
 
 		compression_type = DxgiFormat[self.compression_name]
 
+		# get joined output buffer
+		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		# set compression
 		dds_file.dx_10.dxgi_format = compression_type
-
-		tiles = self.get_tiles(size_info)
-		# set num_tiles to unpack the mips
-		if hasattr(size_info, "num_tiles"):
-			dds_file.dx_10.num_tiles = size_info.num_tiles
-		else:
-			# DLA has no num_tiles
+		if not self.context.is_pc_2:
+			tiles = self.get_tiles(size_info)
+			# set num_tiles to unpack the mips
+			if hasattr(size_info, "num_tiles"):
+				dds_file.dx_10.num_tiles = size_info.num_tiles
+			else:
+				# DLA has no num_tiles
+				dds_file.dx_10.num_tiles = 1
+			if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
+				# not sure how / if texture arrays are packed for PC - this works for flat textures
+				tile_datas = (buffer_data, )
+			else:
+				tile_datas = dds_file.unpack_mips(buffer_data)
+			# set to no tiles for dds export
 			dds_file.dx_10.num_tiles = 1
-		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
-			# not sure how / if texture arrays are packed for PC - this works for flat textures
-			tile_datas = (buffer_data, )
+			# export all tiles as separate dds files
+			for tile_i, tile_name, tile_data in zip(tiles, self.get_tile_names(tiles, basename), tile_datas):
+				dds_file.buffer = tile_data
+				dds_file.linear_size = len(buffer_data)
+				dds_path = out_dir(f"{tile_name}.dds")
+				# write dds
+				dds_file.save(dds_path)
+				dds_paths.append(dds_path)
 		else:
-			tile_datas = dds_file.unpack_mips(buffer_data)
-		# set to no tiles for dds export
-		dds_file.dx_10.num_tiles = 1
-		# export all tiles as separate dds files
-		for tile_i, tile_name, tile_data in zip(tiles, self.get_tile_names(tiles, basename), tile_datas):
-			dds_file.buffer = tile_data
-			dds_file.linear_size = len(buffer_data)
-			dds_path = out_dir(f"{tile_name}.dds")
-			# write dds
-			dds_file.save(dds_path)
-			out_files.append(dds_path)
+			texbuffer_path = out_dir(f"{self.basename}.texbuffer")
+			with io.BytesIO(buffer_data) as f:
+				texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
+			with texbuffer.to_xml_file(texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
+				pass
+			out_files.append(texbuffer_path)
+
+			# get texel file from ovl
+			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
+
+			# ensure that aux files are where they should be
+			for aux_suffix in texel_loader.aux_entries:
+				assert aux_suffix == ""
+				# aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
+				aux_path = self.get_aux_file()
+				# print(aux_path)
+				with open(aux_path, "rb") as f:
+					# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
+					# that seems to change the counts though
+					# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
+					f.seek(texbuffer.mips[0].offset)
+					tex_buffer_data = f.read(texbuffer.buffer_size)
+				dds_file.buffer = tex_buffer_data
+				dds_file.linear_size = len(tex_buffer_data)
+				dds_path = out_dir(f"{self.basename}.dds")
+				# write dds
+				dds_file.save(dds_path)
+				dds_paths.append(dds_path)
+		# decompress dds to png
+		for dds_path in dds_paths:
 			try:
 				# convert the dds to png
 				png_path = texconv.dds_to_png(dds_path, self.compression_name)
@@ -336,7 +369,15 @@ class DdsLoader(MemStructLoader):
 					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
-		return out_files
+		return out_files + dds_paths
+
+	def get_aux_file(self):
+		aux_files = [os.path.join(self.ovl.dir, file) for file in os.listdir(self.ovl.dir) if file.endswith(".aux")]
+		if len(aux_files) > 1:
+			logging.warning(f"Found more than one .aux file for {self.name}, taking the first!")
+		# if not os.path.isfile(aux_path):
+		# 	logging.error(f"External .aux file '{aux_suffix}' was not found at {aux_path}")
+		return aux_files[0]
 
 	@property
 	def compression_name(self):
@@ -352,3 +393,8 @@ class DdsLoader(MemStructLoader):
 		else:
 			tiles = (0,)
 		return tiles
+
+
+class TexelLoader(BaseFile):
+	extension = ".texel"
+
