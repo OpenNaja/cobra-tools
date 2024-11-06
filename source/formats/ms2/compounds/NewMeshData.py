@@ -236,6 +236,7 @@ class NewMeshData(MeshData):
 
 	def resize_vertices(self, model_info, fac):
 		self.vertices *= fac
+		self.pack_base = model_info.pack_base
 		pack_swizzle_vectorized(self.vertices)
 		scale_pack_vectorized(self.vertices, self.pack_base)
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
