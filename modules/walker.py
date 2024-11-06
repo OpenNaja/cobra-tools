@@ -333,7 +333,7 @@ def ovls_in_path(gui, start_dir, only_types):
 	for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Walking OVL files")):
 		try:
 			# read ovl file
-			ovl_data.load(ovl_path, commands={"only_types": only_types})
+			ovl_data.load(ovl_path, commands={"only_types": only_types, "game": gui.ovl_game_choice.entry.currentText()})
 			yield ovl_data, ovl_path
 		except Exception as ex:
 			logging.exception(f"Opening OVL failed: {ovl_path}")
