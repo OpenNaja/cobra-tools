@@ -414,6 +414,7 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 		undiscovered_shaders = game_shaders.copy()
 
 		context = OvlContext()
+		context.mime_version = 6  # just a dummy to make PC2 import work
 		fgm_files = walk_type(walk_dir, extension=".fgm")
 		for mf_index, fgm_path in enumerate(gui.reporter.iter_progress(fgm_files, "Walking FGM files")):
 			if official_only and not filter_accept_official(fgm_path):
