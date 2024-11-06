@@ -29,3 +29,6 @@ for k, vs in sorted(all_tex.items()):
 	s = f"# '{k}': {{{infix}}},"
 	# print(k, v)
 	print(s)
+
+# store in constants folder
+# then, populate it manually using the shorthand codes defined in \plugin\utils\texture_settings.py
