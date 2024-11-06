@@ -251,7 +251,7 @@ class BaseStruct(metaclass=StructMetaClass):
                 type(self).set_field(self, target_f_name, field_value)
                 return field_value
         else:
-            logging.warning(f"Field {target_f_name} was not evaluated to be on type {type(self).__name__}")
+            logging.debug(f"Field {target_f_name} was not evaluated to be on type {type(self).__name__}")
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template):

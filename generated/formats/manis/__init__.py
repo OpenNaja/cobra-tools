@@ -348,7 +348,8 @@ class ManisFile(InfoHeader, IoFile):
                 # if mi.root_ori_bone != 255:
                 # 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 
-    def update_key_indices(self, k, m_dtype):
+    def update_key_indices(self, mani_info, m_dtype):
+        k = mani_info.keys
         ms2_bone_names = self.sorted_ms2_bone_names
         m_names = getattr(k, f"{m_dtype}_bones_names")
         # logging.debug(f"Updating key indices for {m_dtype}")
@@ -365,11 +366,16 @@ class ManisFile(InfoHeader, IoFile):
         # map bones from selected range in skeleton to index in keyed manis bones
         if indices:
             # get the boundary indices in ms2 bones
-            bone_0 = min(indices)
-            bone_1 = max(indices) + 1
+            setattr(mani_info, f"{m_dtype}_bone_min", min(indices))
+            setattr(mani_info, f"{m_dtype}_bone_max", max(indices))
             key_lut = {name: i for i, name in enumerate(m_names)}
             # logging.debug(f"Limits [{bone_0}:{bone_1}]")
-            getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in ms2_bone_names[bone_0:bone_1]]
+            k.reset_field(f"{m_dtype}_bone_to_channel")
+            getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in ms2_bone_names[min(indices): max(indices)+1]]
+        else:
+            setattr(mani_info, f"{m_dtype}_bone_min", 255)
+            setattr(mani_info, f"{m_dtype}_bone_max", 0)
+            k.reset_field(f"{m_dtype}_bone_to_channel")
 
     def save(self, filepath):
 
@@ -414,10 +420,9 @@ class ManisFile(InfoHeader, IoFile):
 
         for mani_info in self.mani_infos:
             logging.debug(f"Updating {mani_info.name}")
-            k = mani_info.keys
-            self.update_key_indices(k, POS)
-            self.update_key_indices(k, ORI)
-            self.update_key_indices(k, SCL)
+            self.update_key_indices(mani_info, POS)
+            self.update_key_indices(mani_info, ORI)
+            self.update_key_indices(mani_info, SCL)
         super().save(filepath)
 
     def get_mani(self, name):

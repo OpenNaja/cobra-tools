@@ -72,20 +72,11 @@ def needs_keyframes(keys):
 				yield ch_i
 
 
-def index_min_max(indices):
-	if indices:
-		return min(indices), max(indices)
-	return 255, 0
-
-
 def set_mani_info_counts(mani_info, channel_storage, m_dtype):
 	# get count of all keyframed bones that appear in the bone index lut
 	m_bone_names = [bone_name for bone_name, channels in channel_storage.items() if m_dtype in channels and bone_name in mani_info.context.bones_lut]
 	for s in (f"{m_dtype}_bone_count", f"{m_dtype}_bone_count_repeat", f"{m_dtype}_bone_count_related"):
 		setattr(mani_info, s, len(m_bone_names))
-	indices = [mani_info.context.bones_lut[bone_name] for bone_name in m_bone_names]
-	for s, v in zip((f"{m_dtype}_bone_min", f"{m_dtype}_bone_max"), index_min_max(indices)):
-		setattr(mani_info, s, v)
 	return m_bone_names
 
 
