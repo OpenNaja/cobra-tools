@@ -31,7 +31,7 @@ class TestOVLSaveCreate:
 	"""create a new empty OVL, save the ovl with diff formats, and try loading it again"""
 
 	@pytest.fixture(scope="class", params=["Planet Zoo", "Planet Coaster",
-					"Jurassic World Evolution", "Jurassic World Evolution 2"])
+										   "Jurassic World Evolution", "Jurassic World Evolution 2"])
 	def ovl_file(self, request: FixtureRequest, tmp: Path) -> OVLInfo:
 		ovl = OvlFile()
 		ovl.load_hash_table()
@@ -40,7 +40,7 @@ class TestOVLSaveCreate:
 		filepath = tmp.with_name(f"{abbrev}.ovl")
 		return ovl, game, str(filepath)
 
-	@pytest.fixture(scope="class", params=["tests/Files/",])
+	@pytest.fixture(scope="class", params=["tests/Files/", ])
 	def files(self, request: FixtureRequest) -> FileInfo:
 		dir_path = str(request.param)
 		count = len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])
@@ -52,11 +52,12 @@ class TestOVLSaveCreate:
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()
 		ovl.save(filepath)
-		ovl.load(filepath)
+		# supply the intended game to resolve ambiguities when GUI does not provide the context
+		ovl.load(filepath, commands={"game": game})
 		assert game == ovl.game
 		assert context.version == ovl.context.version
 		assert context.user_version == ovl.context.user_version
-		assert sorted_loaders == ovl.context.sorted_loaders 
+		assert sorted_loaders == ovl.context.sorted_loaders
 
 	def test_ovl_create(self, ovl_file: OVLInfo, files: FileInfo):
 		ovl, game, filepath = ovl_file

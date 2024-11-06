@@ -8,14 +8,14 @@ from generated.formats.ovl import OvlFile, get_game
 @pytest.fixture(scope="function")
 def empty_ovl_file() -> OvlFile:
 	ovlfile = OvlFile()
-	ovlfile.load('tests/ovldata/Empty/EmptyPZ.ovl')
+	ovlfile.load('tests/ovldata/Empty/EmptyPZ.ovl', commands={"game": "Planet Zoo"})
 	return ovlfile
 
 
 @pytest.fixture(scope="function")
 def ovl_file() -> OvlFile:
 	ovlfile = OvlFile()
-	ovlfile.load('tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl')
+	ovlfile.load('tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl', commands={"game": "Planet Zoo"})
 	return ovlfile
 
 
