@@ -67,6 +67,7 @@ class TestOVLSaveCreate:
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()
 		ovl.save(filepath)
-		ovl.load(filepath)
+		# supply the intended game to resolve ambiguities when GUI does not provide the context
+		ovl.load(filepath, commands={"game": game})
 		assert game == ovl.game
 		assert ovl.context.sorted_loaders == sorted_loaders
