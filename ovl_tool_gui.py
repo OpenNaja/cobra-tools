@@ -84,10 +84,10 @@ class MainWindow(widgets.MainWindow):
 		# toggles
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setPlaceholderText("Find")
-		self.e_name_old.setToolTip("Old strings - one item per line")
+		self.e_name_old.setToolTip("Old strings - one item per line, case-sensitive")
 		self.e_name_new = QtWidgets.QTextEdit("")
 		self.e_name_new.setPlaceholderText("Replace")
-		self.e_name_new.setToolTip("New strings - one item per line")
+		self.e_name_new.setToolTip("New strings - one item per line, case-sensitive")
 		self.e_name_new.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 		self.e_name_old.setTabChangesFocus(True)

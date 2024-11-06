@@ -307,15 +307,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						joint_info.bone_name = self._rename(joint_info.bone_name, name_tups)
 
 	def _rename(self, s, name_tups):
-		# first a cases sensitive pass
 		for old, new in name_tups:
 			if old in s:
 				logging.debug(f"Match for '{old}' in '{s}'")
 				s = s.replace(old, new)
-		for old, new in name_tups:
-			if old.lower() in s.lower():
-				logging.debug(f"Case-insensitive match '{old}' in '{s}'")
-				s = s.lower().replace(old, new)
 		return s
 
 	def get_name_index(self, name, arr):
