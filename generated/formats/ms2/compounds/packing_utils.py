@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 
 UBYTE_SCALE = 127
@@ -25,18 +23,6 @@ def has_nan(a):
 def get_bitmask(num_bits):
     """Returns num_bits toggled on"""
     return (1 << num_bits) - 1
-
-# high level access - while more readable, these are noticeably slower for dino meshes than working on the whole array
-def decode_oct(decoded, encoded):
-    decoded[:, :2] = encoded
-    oct_to_vec3(decoded)
-    unpack_swizzle_vectorized(decoded)
-
-
-def encode_oct(decoded, encoded):
-    pack_swizzle_vectorized(decoded)
-    vec3_to_oct(decoded)
-    encoded[:] = decoded[:, :2]
 
 
 def unpack_ubyte_vector(arr, normalize=True):
@@ -77,14 +63,14 @@ def pack_ushort_vector_impostor(arr):
 
 
 def pack_swizzle_collision(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	return -vec[1], vec[2], vec[0]
+    # swizzle to avoid a matrix multiplication for global axis correction
+    return -vec[1], vec[2], vec[0]
 
 
 def unpack_swizzle_collision(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	# Z, -X, Y
-	return vec[2], -vec[0], vec[1]
+    # swizzle to avoid a matrix multiplication for global axis correction
+    # Z, -X, Y
+    return vec[2], -vec[0], vec[1]
 
 
 def unpack_swizzle(vec):
@@ -209,7 +195,7 @@ def oct_to_vec3(arr, unpack=True):
     # return normalize(v);
     # }
     if unpack:
-        unpack_ubyte_vector(arr, normalize=False)
+        unpack_ubyte_vector(arr[:, :2], normalize=False)
     arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
     # note that advanced indexing like this creates a copy instead of a view, which makes this messy
     arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, :2]))[arr[:, 2] < 0]

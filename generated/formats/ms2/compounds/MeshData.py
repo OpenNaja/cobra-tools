@@ -102,21 +102,20 @@ class MeshData(MemStruct):
 		# self.validate_tris()
 
 	def init_arrays(self):
-		# create arrays for this mesh
-		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.normals = np.empty((self.vertex_count, 3), np.float32)
-		self.normals_custom = np.empty((self.vertex_count, 3), np.float32)
-		self.tangents = np.empty((self.vertex_count, 3), np.float32)
-		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
-		self.shape_residues = np.empty(self.vertex_count, np.uint8)
-		self.negate_bitangents = np.empty(self.vertex_count, np.uint8)
-		self.wind = np.empty(self.vertex_count, np.float32)
-		self.whatever = np.empty(self.vertex_count, np.float32)
-		self.uvs = np.empty((self.vertex_count, self.get_uv_count(), 2), np.float32)
-		self.colors = np.empty((self.vertex_count, 4), np.float32)
-		# self.floats = np.empty((self.vertex_count, 4), np.float32)
-		self.center_keys = np.empty((self.vertex_count, 3), np.float32)
-		self.lod_keys = np.empty((self.vertex_count, 3), np.float32)
+		# create arrays for this mesh, set to zero to avoid underflow errors when unpacking arrays that weren't filled
+		self.vertices = np.zeros((self.vertex_count, 3), np.float32)
+		self.normals = np.zeros((self.vertex_count, 3), np.float32)
+		self.normals_custom = np.zeros((self.vertex_count, 3), np.float32)
+		self.tangents = np.zeros((self.vertex_count, 3), np.float32)
+		self.use_blended_weights = np.zeros(self.vertex_count, np.uint8)
+		self.shape_residues = np.zeros(self.vertex_count, np.uint8)
+		self.negate_bitangents = np.zeros(self.vertex_count, np.uint8)
+		self.wind = np.zeros(self.vertex_count, np.float32)
+		self.whatever = np.zeros(self.vertex_count, np.float32)
+		self.uvs = np.zeros((self.vertex_count, self.get_uv_count(), 2), np.float32)
+		self.colors = np.zeros((self.vertex_count, 4), np.float32)
+		self.center_keys = np.zeros((self.vertex_count, 3), np.float32)
+		self.lod_keys = np.zeros((self.vertex_count, 3), np.float32)
 		self.weights_info = {}
 
 	def set_verts(self, verts):

@@ -147,9 +147,6 @@ class ChunkedMesh(MeshData):
 		# max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		# logging.debug(f"max_verts {max_verts}")
 
-		# slower
-		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
-		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
 		oct_to_vec3(self.normals)
 		oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
