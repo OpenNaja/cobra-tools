@@ -23,6 +23,7 @@ type_module_name_map = {
 	'FixedString': 'generated.formats.base.compounds.FixedString',
 	'Vector2': 'generated.formats.base.compounds.Vector2',
 	'Vector3': 'generated.formats.base.compounds.Vector3',
+	'Vector3Half': 'generated.formats.base.compounds.Vector3Half',
 	'Vector4': 'generated.formats.base.compounds.Vector4',
 	'FourCC': 'generated.formats.dds.enums.FourCC',
 	'DxgiFormat': 'generated.formats.dds.enums.DxgiFormat',

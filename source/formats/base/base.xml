@@ -111,6 +111,13 @@
 		<field name="z" type="float">Third coordinate.</field>
 	</compound>
 
+	<compound name="Vector3Half" size="6">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="hfloat">First coordinate.</field>
+		<field name="y" type="hfloat">Second coordinate.</field>
+		<field name="z" type="hfloat">Third coordinate.</field>
+	</compound>
+
     <compound name="Vector4" size="16">
         A vector in 3D space (x,y,z).
         <field name="x" type="float">First coordinate.</field>

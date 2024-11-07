@@ -68,7 +68,7 @@ class ChunkedMesh(MeshData):
 		self.bones_sets = []
 		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
-			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
+			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
 			# logging.debug(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
 			# logging.debug(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
@@ -83,7 +83,7 @@ class ChunkedMesh(MeshData):
 				tri_chunk.tri_indices += offs
 			else:
 				tri_chunk.tri_indices = self.tri_indices[tri_chunk.tris_index*3: tri_chunk.tris_index*3+index_count]
-				logging.debug(tri_chunk.tri_indices)
+				# logging.debug(tri_chunk.tri_indices)
 				tri_chunk.tri_indices += tri_chunk.value_min
 			# self.tri_indices[tris_start: tris_start+index_count] = tri_chunk.tri_indices
 
@@ -128,7 +128,7 @@ class ChunkedMesh(MeshData):
 			offs += vert_chunk.vertex_count
 			# logging.debug(vert_chunk.vertices)
 			# logging.debug(vert_chunk.meta)
-		logging.debug(self.tri_indices)
+		# logging.debug(self.tri_indices)
 		# since malta dlc, one mesh can have several mesh formats
 		# assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
