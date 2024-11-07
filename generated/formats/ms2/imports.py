@@ -52,6 +52,7 @@ type_module_name_map = {
 	'MeshFormat': 'generated.formats.ms2.enums.MeshFormat',
 	'WeightsFlag': 'generated.formats.ms2.bitfields.WeightsFlag',
 	'WeightsFlagMalta': 'generated.formats.ms2.bitfields.WeightsFlagMalta',
+	'WeightsFlagPC2': 'generated.formats.ms2.bitfields.WeightsFlagPC2',
 	'ModelFlag': 'generated.formats.ms2.bitfields.ModelFlag',
 	'ChunkedModelFlag': 'generated.formats.ms2.bitfields.ChunkedModelFlag',
 	'ModelFlagZT': 'generated.formats.ms2.bitfields.ModelFlagZT',

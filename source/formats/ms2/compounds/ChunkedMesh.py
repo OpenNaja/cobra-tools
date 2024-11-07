@@ -69,6 +69,7 @@ class ChunkedMesh(MeshData):
 		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
+			# logging.debug(vert_chunk.weights_flag)
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
 			# logging.debug(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
 			# logging.debug(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
@@ -209,9 +210,9 @@ class ChunkedMesh(MeshData):
 				self.buffer_info.verts.readinto(vert_chunk.packed_weights)
 				# logging.info(vert_chunk.packed_weights)
 				unpack_int64_weights(vert_chunk.packed_weights, vert_chunk.weights)
+				# logging.info(vert_chunk.weights)
 			else:
 				self.buffer_info.verts.readinto(vert_chunk.weights)
-			# logging.info(vert_chunk.weights)
 			for vertex_index, (bone_indices, bone_weights) in enumerate(
 					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
 				for bone_index, weight in zip(bone_indices, bone_weights):

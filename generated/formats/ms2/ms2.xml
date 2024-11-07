@@ -201,6 +201,13 @@
 		<member width="8" pos="4" name="bone_index" type="int"/>
 	</bitfield>
 
+	<bitfield name="WeightsFlagPC2" storage="ushort">
+		<member width="2" pos="0" name="mesh_format" type="MeshFormat"/>
+		<member width="1" pos="3" name="unk" type="bool"/>
+		<member width="1" pos="4" name="has_weights" type="bool"/>
+		<member width="8" pos="5" name="bone_index" type="int"/>
+	</bitfield>
+
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
 		<member width="3" pos="0" name="unk" type="int">?</member>
@@ -618,7 +625,8 @@
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>
 		<add name="weights_flag" type="WeightsFlag" until="51">determines if weights are used by this chunk</add>
-		<add name="weights_flag" type="WeightsFlagMalta" since="52">determines if weights are used by this chunk</add>
+		<add name="weights_flag" type="WeightsFlagMalta" since="52" until="53">determines if weights are used by this chunk</add>
+		<add name="weights_flag" type="WeightsFlagPC2" since="54">determines if weights are used by this chunk</add>
 		<add name="zero" type="ubyte"/>always
 	</compound>
 

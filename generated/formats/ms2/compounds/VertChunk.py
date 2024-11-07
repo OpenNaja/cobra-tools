@@ -25,7 +25,7 @@ class VertChunk(BaseStruct):
 		self.vertex_count = name_type_map['Ubyte'](self.context, 0, None)
 
 		# determines if weights are used by this chunk
-		self.weights_flag = name_type_map['WeightsFlagMalta'](self.context, 0, None)
+		self.weights_flag = name_type_map['WeightsFlagPC2'](self.context, 0, None)
 		self.zero = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -38,7 +38,8 @@ class VertChunk(BaseStruct):
 		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None), (lambda context: context.version <= 51, None)
-		yield 'weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None), (lambda context: 52 <= context.version <= 53, None)
+		yield 'weights_flag', name_type_map['WeightsFlagPC2'], (0, None), (False, None), (lambda context: context.version >= 54, None)
 		yield 'zero', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 
 	@classmethod
@@ -50,6 +51,8 @@ class VertChunk(BaseStruct):
 		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None)
 		if instance.context.version <= 51:
 			yield 'weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None)
-		if instance.context.version >= 52:
+		if 52 <= instance.context.version <= 53:
 			yield 'weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None)
+		if instance.context.version >= 54:
+			yield 'weights_flag', name_type_map['WeightsFlagPC2'], (0, None), (False, None)
 		yield 'zero', name_type_map['Ubyte'], (0, None), (False, None)
