@@ -24,7 +24,7 @@ class TriChunk(BaseStruct):
 		self.tris_index = name_type_map['Uint'](self.context, 0, None)
 		self.value_min = name_type_map['Uint'](self.context, 0, None)
 		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
-		self.unused = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'].from_value(0)
 
 		# can be 0,0,0, no obvious range, not always within range of bounds
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
@@ -46,7 +46,7 @@ class TriChunk(BaseStruct):
 		yield 'tris_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
 		yield 'value_min', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
 		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unused', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, 0), (lambda context: context.version >= 54, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None), (None, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -65,7 +65,7 @@ class TriChunk(BaseStruct):
 			yield 'value_min', name_type_map['Uint'], (0, None), (False, None)
 		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 54:
-			yield 'unused', name_type_map['Uint'], (0, None), (False, None)
+			yield 'zero', name_type_map['Uint'], (0, None), (False, 0)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None)

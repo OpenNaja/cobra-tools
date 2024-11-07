@@ -50,13 +50,13 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					mesh_dict[m_ob.mesh_index] = b_me
 					import_mesh_properties(b_me, mesh)
-					try:
-						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
-					except:
-						logging.exception("import_mesh_layers failed")
-				# import_chunk_bounds(b_me, mesh, lod_coll)
-				# link material to mesh
-				import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
+				# 	try:
+				# 		import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
+				# 	except:
+				# 		logging.exception("import_mesh_layers failed")
+				# # import_chunk_bounds(b_me, mesh, lod_coll)
+				# # link material to mesh
+				# import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
 
 				if m_ob.mesh_index in ob_dict:
 					b_ob = ob_dict[m_ob.mesh_index]
@@ -64,22 +64,22 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_ob = create_ob(scene, f"{model_info.name}_ob{ob_i}_L{lod_i}", b_me, coll=lod_coll)
 					b_ob.parent = b_armature_obj
 					ob_dict[m_ob.mesh_index] = b_ob
-					try:
-						import_vertex_groups(b_ob, mesh, bone_names)
-						import_shapekeys(b_ob, mesh)
-						# link to armature, only after mirror so the order is good and weights are mirrored
-						append_armature_modifier(b_ob, b_armature_obj)
-						if mirror_mesh:
-							append_mirror_modifier(b_ob)
-						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-					# from plugin.modules_import.tangents import visualize_tangents
-					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
-					except:
-						logging.exception("Some mesh data failed")
-				# we can't assume that the first ob referencing this mesh has fur already
-				if ms2.context.version > 32 and is_shell(b_ob):
-					logging.debug(f"{b_ob.name} has shells, adding psys")
-					add_psys(b_ob, mesh.fur_length)
+				# 	try:
+				# 		import_vertex_groups(b_ob, mesh, bone_names)
+				# 		import_shapekeys(b_ob, mesh)
+				# 		# link to armature, only after mirror so the order is good and weights are mirrored
+				# 		append_armature_modifier(b_ob, b_armature_obj)
+				# 		if mirror_mesh:
+				# 			append_mirror_modifier(b_ob)
+				# 		ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+				# 	# from plugin.modules_import.tangents import visualize_tangents
+				# 	# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
+				# 	except:
+				# 		logging.exception("Some mesh data failed")
+				# # we can't assume that the first ob referencing this mesh has fur already
+				# if ms2.context.version > 32 and is_shell(b_ob):
+				# 	logging.debug(f"{b_ob.name} has shells, adding psys")
+				# 	add_psys(b_ob, mesh.fur_length)
 			# show lod 0, hide the others
 			set_collection_visibility(scene, lod_coll.name, lod_i != 0)
 		gauge_uv_scale_wrapper(reporter)

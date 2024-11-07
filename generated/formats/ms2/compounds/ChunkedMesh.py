@@ -115,9 +115,12 @@ class ChunkedMesh(MeshData):
 		offs = 0
 
 		# tris reading has changed since v54
-		# first create the consistent output buffer
-		# todo investigate performance penalty of separate reading over reading once and then processing per chunk
-		self.tri_indices = np.empty(dtype=np.uint32, shape=self.tris_count * 3)
+		self.buffer_info.tris.seek(self.tri_chunks[0].tris_offset)
+		index_count = self.tris_count * 3  # // self.shell_count
+		# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
+		_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
+		self.buffer_info.tris.readinto(_tri_indices)
+		self.tri_indices = _tri_indices.astype(np.uint32)
 
 		self.weights_info = {}
 		self.face_maps = {}
@@ -132,20 +135,16 @@ class ChunkedMesh(MeshData):
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
 
-			# read tri indices for this chunk
 			index_count = tri_chunk.tris_count * 3
-			_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
-			self.buffer_info.tris.seek(tri_chunk.tris_offset)
-			# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
-			self.buffer_info.tris.readinto(_tri_indices)
-			tri_chunk.tri_indices = _tri_indices.astype(np.uint32)
 			if self.context.version < 54:
+				tris_start = tri_chunk.tris_offset - first_tris_offs
+				tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+index_count]
 				tri_chunk.tri_indices += offs
 			else:
+				tri_chunk.tri_indices = self.tri_indices[tri_chunk.tris_index*3: tri_chunk.tris_index*3+index_count]
+				logging.debug(tri_chunk.tri_indices)
 				tri_chunk.tri_indices += tri_chunk.value_min
-			tris_start = tri_chunk.tris_offset - first_tris_offs
-			# logging.debug(tri_chunk.tri_indices)
-			self.tri_indices[tris_start: tris_start+index_count] = tri_chunk.tri_indices
+			# self.tri_indices[tris_start: tris_start+index_count] = tri_chunk.tri_indices
 
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			try:
@@ -188,7 +187,7 @@ class ChunkedMesh(MeshData):
 			offs += vert_chunk.vertex_count
 			# logging.debug(vert_chunk.vertices)
 			# logging.debug(vert_chunk.meta)
-		# logging.debug(self.tri_indices)
+		logging.debug(self.tri_indices)
 		# since malta dlc, one mesh can have several mesh formats
 		# assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
