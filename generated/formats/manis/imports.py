@@ -44,6 +44,7 @@ type_module_name_map = {
 	'ChannelName': 'generated.formats.manis.basic',
 	'BoneIndex': 'generated.formats.manis.basic',
 	'ManisDtype': 'generated.formats.manis.bitfields.ManisDtype',
+	'ManisDtypePC2': 'generated.formats.manis.bitfields.ManisDtypePC2',
 	'StoreKeys': 'generated.formats.manis.bitfields.StoreKeys',
 	'ManisRoot': 'generated.formats.manis.compounds.ManisRoot',
 	'ManiInfo': 'generated.formats.manis.compounds.ManiInfo',
@@ -73,6 +74,7 @@ type_module_name_map = {
 	'LimbTrackDataZT': 'generated.formats.manis.compounds.LimbTrackDataZT',
 	'LimbTrackData': 'generated.formats.manis.compounds.LimbTrackData',
 	'UshortLut': 'generated.formats.manis.compounds.UshortLut',
+	'Pc2Data': 'generated.formats.manis.compounds.Pc2Data',
 	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 }
 

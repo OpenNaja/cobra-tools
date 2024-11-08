@@ -10,6 +10,7 @@ import numpy as np
 
 from modules.formats.shared import djb2
 
+np.seterr(all='warn')
 np.set_printoptions(precision=4, suppress=True)
 
 from ovl_util.logs import logging_setup
@@ -1166,8 +1167,8 @@ def test_get_scale_fac():
 
 if __name__ == "__main__":
     logging_setup("mani")
-    # for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
-    #     print(ManisDtype.from_value(k))
+    for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
+        print(ManisDtype.from_value(k))
     mani = ManisFile()
     # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset48183260.manis")
     # mani.parse_keys("giganotosaurusjw@walk", dump=True)
@@ -1205,10 +1206,10 @@ if __name__ == "__main__":
     # # mani.parse_keys("acrocanthosaurus@standidle01")
     # mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
 
-    mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset85c65403.manis")  # locomotion
+    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset85c65403.manis")  # locomotion
     # # todo debug acrocanthosaurus@walk - def_horselink_joint_IKBlend.L segment[0] loc, segment[1] is fine
     # maybe create a dedicated copy of walk that includes just that bone?
-    mani.parse_keys("acrocanthosaurus@walk")
+    # mani.parse_keys("acrocanthosaurus@walk")
 
     # # JWE1
     # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting

@@ -50,13 +50,13 @@ def set_pc(context):
 
 
 def is_pc2(context):
-	if context.version == 20 and context.user_version in (8340, 8724, 8212):
+	if context.version == 262 and context.mani_version == 282:
 		return True
 
 
 def set_pc2(context):
-	context.version = 20
-	context.user_version._value = 8340
+	context.version = 262
+	context.mani_version = 282
 
 
 def is_pz(context):
@@ -171,7 +171,7 @@ jwe = ManisVersion(id='JWE', version=(258,), primary_games=[], all_games=[games.
 jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = ManisVersion(id='JWE2DEV', version=(261,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PLANET_COASTER])
-pc2 = ManisVersion(id='PC2', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_COASTER_2])
+pc2 = ManisVersion(id='PC2', version=(262,), primary_games=[], all_games=[games.PLANET_COASTER_2])
 pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PLANET_ZOO])
 pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 war = ManisVersion(id='WAR', version=(262,), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])

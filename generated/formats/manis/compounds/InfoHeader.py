@@ -14,7 +14,8 @@ class InfoHeader(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.version = name_type_map['Uint'](self.context, 0, None)
+		self.version = name_type_map['Ushort'](self.context, 0, None)
+		self.mani_version = name_type_map['Ushort'](self.context, 0, None)
 		self.mani_count = name_type_map['Uint'](self.context, 0, None)
 		self.stream = name_type_map['ZString'](self.context, 0, None)
 		self.names = Array(self.context, 0, None, (0,), name_type_map['ZString'])
@@ -28,7 +29,8 @@ class InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'version', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'version', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'mani_version', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'mani_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'stream', name_type_map['ZString'], (0, None), (False, None), (None, None)
 		yield 'names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
@@ -40,7 +42,8 @@ class InfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'version', name_type_map['Uint'], (0, None), (False, None)
+		yield 'version', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'mani_version', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'mani_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'stream', name_type_map['ZString'], (0, None), (False, None)
 		yield 'names', Array, (0, None, (instance.mani_count,), name_type_map['ZString']), (False, None)

@@ -9,6 +9,7 @@ class ManiInfo(BaseStruct):
 	288 bytes for JWE (last member is not padded at end in stock) / PZ
 	304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
 	320 bytes for war
+	304 bytes for PC2, possibly different manis dtype apparently use_ushort has moved
 	"""
 
 	__name__ = 'ManiInfo'
@@ -19,9 +20,7 @@ class ManiInfo(BaseStruct):
 		self.ref = name_type_map['Empty'](self.context, 0, None)
 		self.duration = name_type_map['Float'](self.context, 0, None)
 		self.frame_count = name_type_map['Uint'](self.context, 0, None)
-
-		# determines the format of keys data
-		self.dtype = name_type_map['ManisDtype'](self.context, 0, None)
+		self.dtype = name_type_map['ManisDtypePC2'](self.context, 0, None)
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.extra_pc_1 = name_type_map['Ushort'](self.context, 0, None)
 		self.pos_bone_count = name_type_map['Ushort'](self.context, 0, None)
@@ -30,6 +29,7 @@ class ManiInfo(BaseStruct):
 		self.unk_count_0 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_count_1 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_count_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.extra_count = name_type_map['Ushort'](self.context, 0, None)
 		self.float_count = name_type_map['Ushort'](self.context, 0, None)
 		self.pos_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
 		self.ori_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
@@ -47,6 +47,9 @@ class ManiInfo(BaseStruct):
 		self.unk_5 = name_type_map['Ushort'](self.context, 0, None)
 		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.unk_5 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_6 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_7 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_8 = name_type_map['Ushort'](self.context, 0, None)
 
 		# 216 bytes
 		self.pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
@@ -75,7 +78,8 @@ class ManiInfo(BaseStruct):
 		yield 'ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'duration', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None), (None, None)
+		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), None)
+		yield 'dtype', name_type_map['ManisDtypePC2'], (0, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 258, None)
 		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -84,6 +88,7 @@ class ManiInfo(BaseStruct):
 		yield 'unk_count_0', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk_count_1', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk_count_2', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'extra_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
 		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'ori_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
@@ -99,6 +104,9 @@ class ManiInfo(BaseStruct):
 		yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
 		yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 260, None)
+		yield 'unk_6', name_type_map['Ushort'], (0, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
+		yield 'unk_7', name_type_map['Ushort'], (0, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
+		yield 'unk_8', name_type_map['Ushort'], (0, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
 		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None), (None, None)
 		yield 'extra_for_use_ushort', Array, (0, None, (7,), name_type_map['Ushort']), (False, None), (None, True)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
@@ -123,7 +131,10 @@ class ManiInfo(BaseStruct):
 		yield 'ref', name_type_map['Empty'], (0, None), (False, None)
 		yield 'duration', name_type_map['Float'], (0, None), (False, None)
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None)
+		if not ((instance.context.version == 262) and (instance.context.mani_version == 282)):
+			yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None)
+		if (instance.context.version == 262) and (instance.context.mani_version == 282):
+			yield 'dtype', name_type_map['ManisDtypePC2'], (0, None), (False, None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 		if instance.context.version <= 258:
 			yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None)
@@ -133,6 +144,8 @@ class ManiInfo(BaseStruct):
 		yield 'unk_count_0', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk_count_1', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk_count_2', name_type_map['Ushort'], (0, None), (False, None)
+		if (instance.context.version == 262) and (instance.context.mani_version == 282):
+			yield 'extra_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
@@ -151,6 +164,10 @@ class ManiInfo(BaseStruct):
 			yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None)
 		if instance.context.version >= 260:
 			yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None)
+		if (instance.context.version == 262) and (instance.context.mani_version == 282):
+			yield 'unk_6', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'unk_7', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'unk_8', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None)
 		if instance.dtype.use_ushort:
 			yield 'extra_for_use_ushort', Array, (0, None, (7,), name_type_map['Ushort']), (False, None)
