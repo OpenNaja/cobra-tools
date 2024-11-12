@@ -542,8 +542,6 @@ def get_manis_values(gui, start_dir, walk_ovls=True, official_only=True):
 				for loader in ovl_data.loaders.values():
 					# print(loader.name)
 					if loader.ext == ".manis":
-						mani_names = [c.name for c in loader.children]
-						# data[loader.header.mani_files_size] = mani_names
 						stream = io.BytesIO(loader.data_entry.buffers[0].data + b"\x00\x00")
 						mani_infos = Array.from_stream(stream, loader.context, 0, None, (len(loader.children), ), ManiInfo)
 

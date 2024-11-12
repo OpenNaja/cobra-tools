@@ -7,7 +7,7 @@ from generated.formats.base.basic import Uint
 class ManisDtypePC2(BasicBitfield):
 
 	"""
-	# PC2: 48, 112, 113, 114, more?
+	# PC2: 0, 48, 49, 112, 113, 114 (2024-11-12)
 	"""
 
 	__name__ = 'ManisDtypePC2'

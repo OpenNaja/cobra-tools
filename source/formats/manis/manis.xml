@@ -58,7 +58,7 @@
 	</bitfield>
 
 	<bitfield name="ManisDtypePC2" storage="uint">
-		# PC2: 48, 112, 113, 114, more?
+		# PC2: 0, 48, 49, 112, 113, 114 (2024-11-12)
 		<member width="3" pos="0" name="unk" type="int"/>
 		<member width="1" pos="3" name="use_ushort" type="int"/>
 		<member width="1" pos="4" name="compression" type="int"/>

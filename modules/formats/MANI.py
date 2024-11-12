@@ -21,6 +21,7 @@ class ManiLoader(BaseFile):
 class MimeContext:
 	def __init__(self):
 		self.version = 260
+		self.mani_version = 260
 
 
 class ManisLoader(MemStructLoader):
@@ -33,12 +34,10 @@ class ManisLoader(MemStructLoader):
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 
+		self.get_version()
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			mime_version = self.mime_version
-			if is_dla(self.ovl):
-				mime_version = 256
-			outfile.write(struct.pack("<HHI", mime_version, self.children[0].mime_version, len(self.children)))
+			outfile.write(struct.pack("<HHI", self.context.version, self.context.mani_version, len(self.children)))
 			# store external datastream name
 			ovs_name = [o for o in self.data_entries if o != "STATIC"][0] if len(self.data_entries) > 1 else ""
 			outfile.write(as_bytes(ovs_name))
@@ -78,6 +77,9 @@ class ManisLoader(MemStructLoader):
 	def get_version(self):
 		self.context = MimeContext()
 		self.context.version = self.mime_version
+		if is_dla(self.ovl):
+			self.context.version = 256
+		self.context.mani_version = self.children[0].mime_version
 
 	def collect(self):
 		self.get_version()
