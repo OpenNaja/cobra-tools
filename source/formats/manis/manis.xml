@@ -344,15 +344,16 @@
 		the uncompressed keys that follow appear to be interleaved with some kind of lut
     </compound>
 
-    <compound name="PC2Data" >
-		in seemingly uncompressed manis
+    <compound name="CompressedManiDataPC2" >
+		in compressed manis
+<!--		<add name="padst" type="ubyte" arr1="4" /> door - 4 bytes padding at start when uncompressed_pad is off-->
 		<add name="z0" type="uint64" arr1="3" />
 		<add name="c0" type="uint64" />
 		<add name="z1" type="uint64" arr1="3" />
 		<add name="c2" type="uint64" />
 		<add name="z2" type="uint64" arr1="7" />
-		<add name="c3" type="uint64" />
-		<add name="z3" type="uint64" />
+		<add name="target_bone_count" type="uint64" />
+<!--		<add name="z3" type="uint64" />--> 8 bytes of padding? on pigeon when uncompressed_pad is off
 		<add name="following_size" type="ushort" />
 		<add name="ref" type="Empty"/>
 		<add name="databytes" type="ubyte" arr1="following_size" />apparently includes the two 00 00 after following_size or it oversteps the padding bounds
@@ -386,10 +387,10 @@
 		<add name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		always uncompressed, possibly because ACL didn't support scalars
 		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" vercond="!#PC2#" />
-		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16" vercond="!#PC2#"/>
-		<add name="new_stuff" type="PC2Data" vercond="#PC2#" arg="#SELF#"/>varies between the two janitor manis, padding just before 'frame count'
+		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
 		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
-		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" vercond="!#PC2#"/>
+		<add name="compressed" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
+		<add name="compressed" type="CompressedManiData" vercond="!#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
 		# aligned to 16
 		<add name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#" vercond="!#PC2#"/>
 		# might be aligned to 8

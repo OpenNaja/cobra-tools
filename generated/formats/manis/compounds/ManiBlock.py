@@ -34,7 +34,6 @@ class ManiBlock(BaseStruct):
 		self.scl_bones = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.uncompressed_pad = name_type_map['PadAlign'](self.context, 16, self.ref)
-		self.new_stuff = name_type_map['Pc2Data'](self.context, self, None)
 		self.extra_war = name_type_map['WarExtra'](self.context, self, None)
 		self.compressed = name_type_map['CompressedManiData'](self.context, self, None)
 		self.limb_track_data = name_type_map['LimbTrackDataZT'](self.context, 0, None)
@@ -63,9 +62,9 @@ class ManiBlock(BaseStruct):
 		yield 'shr_bones', Array, (0, None, (None, None, 2,), name_type_map['Float']), (False, None), (None, True)
 		yield 'scl_bones', Array, (0, None, (None, None, 3,), name_type_map['Float']), (False, None), (None, True)
 		yield 'floats', Array, (0, None, (None, None,), name_type_map['Float']), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), None)
-		yield 'uncompressed_pad', name_type_map['PadAlign'], (16, None), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), None)
-		yield 'new_stuff', name_type_map['Pc2Data'], (None, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
+		yield 'uncompressed_pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'extra_war', name_type_map['WarExtra'], (None, None), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), True)
+		yield 'compressed', name_type_map['CompressedManiDataPC2'], (None, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), True)
 		yield 'compressed', name_type_map['CompressedManiData'], (None, None), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), True)
 		yield 'limb_track_data', name_type_map['LimbTrackData'], (None, None), (False, None), (lambda context: not ((context.version == 262) and (context.mani_version == 282)), True)
 		yield 'limb_track_data', name_type_map['LimbTrackDataZT'], (0, None), (False, None), (lambda context: context.version <= 257 and not ((context.version == 262) and (context.mani_version == 282)), True)
@@ -98,11 +97,11 @@ class ManiBlock(BaseStruct):
 			yield 'scl_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.scl_bone_count, 3,), name_type_map['Float']), (False, None)
 		if not ((instance.context.version == 262) and (instance.context.mani_version == 282)):
 			yield 'floats', Array, (0, None, (instance.arg.frame_count, instance.arg.float_count,), name_type_map['Float']), (False, None)
-			yield 'uncompressed_pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)
-		if (instance.context.version == 262) and (instance.context.mani_version == 282):
-			yield 'new_stuff', name_type_map['Pc2Data'], (instance, None), (False, None)
+		yield 'uncompressed_pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)
 		if not ((instance.context.version == 262) and (instance.context.mani_version == 282)) and instance.arg.dtype.use_ushort == 1:
 			yield 'extra_war', name_type_map['WarExtra'], (instance, None), (False, None)
+		if (instance.context.version == 262) and (instance.context.mani_version == 282) and instance.arg.dtype.compression > 0:
+			yield 'compressed', name_type_map['CompressedManiDataPC2'], (instance, None), (False, None)
 		if not ((instance.context.version == 262) and (instance.context.mani_version == 282)) and instance.arg.dtype.compression > 0:
 			yield 'compressed', name_type_map['CompressedManiData'], (instance, None), (False, None)
 		if not ((instance.context.version == 262) and (instance.context.mani_version == 282)) and instance.arg.dtype.has_list > 0:
