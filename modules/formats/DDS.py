@@ -344,9 +344,7 @@ class DdsLoader(MemStructLoader):
 			# ensure that aux files are where they should be
 			for aux_suffix in texel_loader.aux_entries:
 				assert aux_suffix == ""
-				# aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
-				aux_path = self.get_aux_file()
-				# print(aux_path)
+				aux_path = texel_loader.get_aux_path(aux_suffix)
 				with open(aux_path, "rb") as f:
 					# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
 					# that seems to change the counts though
@@ -370,14 +368,6 @@ class DdsLoader(MemStructLoader):
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files + dds_paths
-
-	def get_aux_file(self):
-		aux_files = [os.path.join(self.ovl.dir, file) for file in os.listdir(self.ovl.dir) if file.endswith(".aux")]
-		if len(aux_files) > 1:
-			logging.warning(f"Found more than one .aux file for {self.name}, taking the first!")
-		# if not os.path.isfile(aux_path):
-		# 	logging.error(f"External .aux file '{aux_suffix}' was not found at {aux_path}")
-		return aux_files[0]
 
 	@property
 	def compression_name(self):

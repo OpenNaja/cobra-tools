@@ -962,9 +962,9 @@ class OvlFile(Header):
 			self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
 
 			self.aux_entries_names = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
-			for f_i, aux_name in zip(self.aux_entries["file_index"], self.aux_entries_names):
+			for f_i, aux_size, aux_name in zip(self.aux_entries["file_index"], self.aux_entries["size"], self.aux_entries_names):
 				file_name = self.files_name[f_i]
-				self.loaders[file_name].aux_entries.append(aux_name)
+				self.loaders[file_name].pick_aux(aux_name, aux_size)
 			self.load_archives()
 
 	def get_dep_name(self, h, ext, using_file):

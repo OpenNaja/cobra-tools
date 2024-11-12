@@ -14,6 +14,7 @@ class BnkLoader(BaseFile):
 	def create(self, file_path):
 		bnk_file = BnkFile()
 		bnk_file.load(file_path)
+		bnk_name = os.path.splitext(self.name)[0]
 		# ensure update of bnk_file.bnk_header.size_b
 		if bnk_file.bnk_header.external_aux_b_count:
 			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
@@ -30,19 +31,12 @@ class BnkLoader(BaseFile):
 		# print(bnk_file)
 		self.write_root_bytes(b"\x00" * 16)
 		self.create_data_entry(buffers)
-		self.aux_entries = []
+		self.aux_entries = {}
+		# todo this needs an update for older than PC2 to be updated when ovl name changes
 		if bnk_file.bnk_header.external_b_suffix:
-			self.aux_entries.append(bnk_file.bnk_header.external_b_suffix)
+			self.aux_entries[bnk_file.bnk_header.external_b_suffix] = f"{self.ovl.basename}_{bnk_name}_bnk_b.aux"
 		if bnk_file.bnk_header.external_s_suffix:
-			self.aux_entries.append(bnk_file.bnk_header.external_s_suffix)
-
-	def get_aux_size(self, aux_basename):
-		bnkpath = f"{self.ovl.path_no_ext}_{self.basename}_bnk_{aux_basename.lower()}.aux"
-		if os.path.isfile(bnkpath):
-			return os.path.getsize(bnkpath)
-		else:
-			logging.warning(f"Could not find {bnkpath} to update .aux file size")
-			return 0
+			self.aux_entries[bnk_file.bnk_header.external_s_suffix] = f"{self.ovl.basename}_{bnk_name}_bnk_s.aux"
 
 	def extract(self, out_dir):
 		bnk_name = os.path.splitext(self.name)[0]
@@ -59,7 +53,7 @@ class BnkLoader(BaseFile):
 			bnk_header = BnkBufferData.from_stream(stream, self.context)
 
 		# ensure that aux files are where they should be
-		for aux_suffix in self.aux_entries:
+		for aux_suffix, aux_name in self.aux_entries.items():
 			aux_suffix = aux_suffix.lower()
 			if aux_suffix == "b":
 				assert bnk_header.external_b_suffix.lower() == "b"
@@ -68,7 +62,6 @@ class BnkLoader(BaseFile):
 			else:
 				logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
 				continue
-			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
 			aux_path = os.path.join(self.ovl.dir, aux_name)
 			if not os.path.isfile(aux_path):
 				logging.error(f"External .aux file '{aux_suffix}' was not found at {aux_path}")

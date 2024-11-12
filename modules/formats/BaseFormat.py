@@ -36,7 +36,7 @@ class BaseFile:
 
 		# defined in ovl
 		self.dependencies = []
-		self.aux_entries = []
+		self.aux_entries = {}
 		self.streams = []
 		self.extra_loaders = []
 
@@ -48,6 +48,32 @@ class BaseFile:
 		self.root_ptr = (None, 0)
 
 		self.same = False
+
+	def pick_aux(self, aux_name, aux_size):
+		"""Register a suitable aux path in the loader's aux_entries dict"""
+		logging.info(f"Picking .aux file for type '{aux_name}' ({aux_size} bytes)")
+		aux_files = [os.path.join(self.ovl.dir, file) for file in os.listdir(self.ovl.dir) if file.endswith(".aux")]
+		for aux_path in aux_files:
+			size = os.path.getsize(aux_path)
+			if size == aux_size:
+				self.aux_entries[aux_name] = os.path.basename(aux_path)
+				break
+		else:
+			logging.warning(f"Found more than one .aux file for {self.name}, taking the first!")
+
+	def get_aux_path(self, aux_suffix):
+		"""Get path of aux file from loader's aux_entries dict"""
+		aux_name = self.aux_entries[aux_suffix]
+		return os.path.join(self.ovl.dir, aux_name)
+
+	def get_aux_size(self, aux_suffix):
+		"""Get size of aux file, as stored on the loader's aux_entries dict, from disk"""
+		aux_path = self.get_aux_path(aux_suffix)
+		if os.path.isfile(aux_path):
+			return os.path.getsize(aux_path)
+		else:
+			logging.warning(f"Could not find {aux_path} to update .aux file size")
+			return 0
 
 	@property
 	def controlled_loaders(self):
@@ -292,7 +318,8 @@ class BaseFile:
 			entry.name = self._rename(name_tuples, entry.name)
 		self.target_name = self._rename(name_tuples, self.target_name)
 		self.name = self._rename(name_tuples, self.name)
-		self.aux_entries = [self._rename(name_tuples, aux) for aux in self.aux_entries]
+		# todo aux handling might need a change
+		self.aux_entries = {self._rename(name_tuples, aux): self._rename(name_tuples, aux_path) for aux, aux_path in self.aux_entries.items()}
 		self.dependencies = [(self._rename(name_tuples, dep), ptr) for dep, ptr in self.dependencies]
 		# dependencies in stack & pools' link tables
 		for (p_pool, p_offset), children in self.stack.items():
