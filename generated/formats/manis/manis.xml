@@ -61,8 +61,8 @@
 		# PC2: 48, 112, 113, 114, more?
 		<member width="3" pos="0" name="unk" type="int"/>
 		<member width="1" pos="3" name="use_ushort" type="int"/>
-		<member width="2" pos="4" name="has_list" type="int"/>only on if compressed
-		<member width="1" pos="6" name="compression" type="int"/>
+		<member width="1" pos="4" name="compression" type="int"/>
+		<member width="2" pos="5" name="has_list" type="int"/>only on if compressed
 	</bitfield>
 
 	<bitfield name="StoreKeys" storage="ubyte">
@@ -346,11 +346,17 @@
 
     <compound name="PC2Data" >
 		in seemingly uncompressed manis
-		<add name="a" type="ubyte" arr1="4" />
+		<add name="z0" type="uint64" arr1="3" />
+		<add name="c0" type="uint64" />
+		<add name="z1" type="uint64" arr1="3" />
+		<add name="c2" type="uint64" />
+		<add name="z2" type="uint64" arr1="7" />
+		<add name="c3" type="uint64" />
+		<add name="z3" type="uint64" />
+		<add name="following_size" type="ushort" />
 		<add name="ref" type="Empty"/>
-		<add name="a" type="ubyte" arr1="144" />
-<!--		<add name="pad" type="PadAlign" template="#ARG#\pad" arg="16"/>-->
-		<add name="pad" type="PadAlign" template="ref" arg="16"/>
+		<add name="databytes" type="ubyte" arr1="following_size" />apparently includes the two 00 00 after following_size or it oversteps the padding bounds
+		<add name="ref2" type="Empty"/>
     </compound>
 
 	<compound name="ManiBlock" >
@@ -379,15 +385,15 @@
 		<add name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
 		<add name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		always uncompressed, possibly because ACL didn't support scalars
-		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
-		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
+		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" vercond="!#PC2#" />
+		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16" vercond="!#PC2#"/>
 		<add name="new_stuff" type="PC2Data" vercond="#PC2#" arg="#SELF#"/>varies between the two janitor manis, padding just before 'frame count'
-		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1"/>
-		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
+		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
+		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" vercond="!#PC2#"/>
 		# aligned to 16
-		<add name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#"/>
+		<add name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#" vercond="!#PC2#"/>
 		# might be aligned to 8
-		<add name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 2" until="257"/>
+		<add name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 2" until="257" vercond="!#PC2#"/>
     </compound>
 
 </niftoolsxml>

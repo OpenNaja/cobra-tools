@@ -14,8 +14,8 @@ class ManisDtypePC2(BasicBitfield):
 	_storage = Uint
 	unk = BitfieldMember(pos=0, mask=0x7, return_type=Int.from_value)
 	use_ushort = BitfieldMember(pos=3, mask=0x8, return_type=Int.from_value)
-	has_list = BitfieldMember(pos=4, mask=0x30, return_type=Int.from_value)
-	compression = BitfieldMember(pos=6, mask=0x40, return_type=Int.from_value)
+	compression = BitfieldMember(pos=4, mask=0x10, return_type=Int.from_value)
+	has_list = BitfieldMember(pos=5, mask=0x60, return_type=Int.from_value)
 
 	def set_defaults(self):
 		pass

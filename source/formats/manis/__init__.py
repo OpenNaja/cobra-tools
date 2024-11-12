@@ -349,16 +349,15 @@ class ManisFile(InfoHeader, IoFile):
                 # 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 
     def update_key_indices(self, mani_info, m_dtype):
+        # logging.debug(f"Updating key indices for {m_dtype}")
         k = mani_info.keys
         ms2_bone_names = self.sorted_ms2_bone_names
         m_names = getattr(k, f"{m_dtype}_bones_names")
-        # logging.debug(f"Updating key indices for {m_dtype}")
-        # logging.debug(ms2_bone_names)
         logging.debug(m_names)
         try:
             indices = [self.context.bones_lut[bone_name] for bone_name in m_names]
         except KeyError:
-            logging.debug(self.context.bones_lut)
+            logging.warning(self.context.bones_lut)
             raise
         # map key data index to bone
         getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
@@ -369,7 +368,6 @@ class ManisFile(InfoHeader, IoFile):
             setattr(mani_info, f"{m_dtype}_bone_min", min(indices))
             setattr(mani_info, f"{m_dtype}_bone_max", max(indices))
             key_lut = {name: i for i, name in enumerate(m_names)}
-            # logging.debug(f"Limits [{bone_0}:{bone_1}]")
             k.reset_field(f"{m_dtype}_bone_to_channel")
             getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in ms2_bone_names[min(indices): max(indices)+1]]
         else:
@@ -400,7 +398,6 @@ class ManisFile(InfoHeader, IoFile):
                         dummy_name = f"DummyBone{i}"
                         logging.debug(f"Adding {dummy_name}")
                         self.context.bones_lut[dummy_name] = i
-            # raise LookupError(f"Bones LUT is empty, can't save {filepath}")
 
         self.mani_count = len(self.mani_infos)
         self.names[:] = [mani.name for mani in self.mani_infos]
