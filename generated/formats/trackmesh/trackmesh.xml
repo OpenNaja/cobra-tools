@@ -2,7 +2,7 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+    <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="TrackMeshRoot" inherit="MemStruct">
         PC: 80 bytes
@@ -40,7 +40,7 @@
         <add name="file" type="Pointer" template="ZString"/> -- can be a prefab, a model, an object, hitcheck, an audio.. 
         <add name="type" type="uint" /> -- this is what defines what the string 'file' means
         <add name="b" type="uint" />
-        <add name="c" type="uint64" />
+        <add name="c" type="uint64" /> 
         <add name="offset_id" type="Pointer" template="ZString"/>
         <add name="d" type="uint64" />
     </compound>
@@ -56,8 +56,8 @@
         <add name="start_1_count" type="uint64" />
         <add name="start_2" type="Pointer" template="ZStringList" arg="start_2_count" />
         <add name="start_2_count" type="uint64" />
-        <add name="f" type="uint64" />
-        <add name="g" type="uint64" />
+        <add name="start_3" type="Pointer" template="ZStringList" arg="start_3_count" />
+        <add name="start_3_count" type="uint64" />
         <add name="stop_1" type="Pointer" template="ZStringList" arg="stop_1_count" />
         <add name="stop_1_count" type="uint64" />
         <add name="stop_2" type="Pointer" template="ZStringList" arg="stop_2_count" />
