@@ -2,6 +2,8 @@ from generated.formats.base.basic import ZString
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from io import BytesIO
+
+from generated.formats.ovl_base import OvlContext
 from modules.formats.BaseFormat import MemStructLoader
 
 attrib_sizes = {
@@ -19,7 +21,9 @@ class FgmLoader(MemStructLoader):
 	extension = ".fgm"
 
 	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
+		context = OvlContext()
+		context.mime_version = 6  # just a dummy to make PC2 import work
+		self.header = self.target_class.from_xml_file(file_path, context)
 		self.create_data_entry((self.update_names_buffer(),))
 		# need to update before writing ptrs
 		self.write_memory_data()
