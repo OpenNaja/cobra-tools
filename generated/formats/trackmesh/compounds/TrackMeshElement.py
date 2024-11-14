@@ -5,7 +5,8 @@ from generated.formats.trackmesh.imports import name_type_map
 class TrackMeshElement(MemStruct):
 
 	"""
-	PC: 120 bytes
+	PC : 120 bytes
+	PC2: 128 bytes
 	"""
 
 	__name__ = 'TrackMesh_Element'
@@ -20,6 +21,7 @@ class TrackMeshElement(MemStruct):
 		self.start_3_count = name_type_map['Uint64'](self.context, 0, None)
 		self.stop_1_count = name_type_map['Uint64'](self.context, 0, None)
 		self.stop_2_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unknown_1 = name_type_map['Uint64'].from_value(0)
 		self.element_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.objects_list = name_type_map['Pointer'](self.context, self.objects_list_count, name_type_map['ZStringList'])
 		self.flanges = name_type_map['Pointer'](self.context, self.flanges_count, name_type_map['ZStringList'])
@@ -49,6 +51,7 @@ class TrackMeshElement(MemStruct):
 		yield 'stop_1_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'stop_2', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
 		yield 'stop_2_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unknown_1', name_type_map['Uint64'], (0, None), (False, 0), (lambda context: context.is_pc_2, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -68,3 +71,5 @@ class TrackMeshElement(MemStruct):
 		yield 'stop_1_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'stop_2', name_type_map['Pointer'], (instance.stop_2_count, name_type_map['ZStringList']), (False, None)
 		yield 'stop_2_count', name_type_map['Uint64'], (0, None), (False, None)
+		if instance.context.is_pc_2:
+			yield 'unknown_1', name_type_map['Uint64'], (0, None), (False, 0)

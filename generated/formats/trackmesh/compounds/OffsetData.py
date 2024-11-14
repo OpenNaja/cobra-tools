@@ -5,7 +5,9 @@ from generated.formats.trackmesh.imports import name_type_map
 class OffsetData(MemStruct):
 
 	"""
-	PC: 64 bytes
+	-- Rename this to TrackMesh_Offset
+	PC : 64 bytes
+	PC2: 72 bytes
 	"""
 
 	__name__ = 'OffsetData'
@@ -21,6 +23,7 @@ class OffsetData(MemStruct):
 		self.count = name_type_map['Uint'](self.context, 0, None)
 		self.z_4 = name_type_map['Uint'](self.context, 0, None)
 		self.z_5 = name_type_map['Uint'](self.context, 0, None)
+		self.z_6 = name_type_map['Uint64'](self.context, 0, None)
 		self.offset_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.mdl_2_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.bone_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
@@ -41,6 +44,7 @@ class OffsetData(MemStruct):
 		yield 'count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_4', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_5', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'z_6', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.is_pc_2, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -56,3 +60,5 @@ class OffsetData(MemStruct):
 		yield 'count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'z_4', name_type_map['Uint'], (0, None), (False, None)
 		yield 'z_5', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.is_pc_2:
+			yield 'z_6', name_type_map['Uint64'], (0, None), (False, None)
