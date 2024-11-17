@@ -2,7 +2,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.trackmesh.imports import name_type_map
 
 
-class OffsetData(MemStruct):
+class TrackMeshOffset(MemStruct):
 
 	"""
 	-- Rename this to TrackMesh_Offset
@@ -10,7 +10,7 @@ class OffsetData(MemStruct):
 	PC2: 72 bytes
 	"""
 
-	__name__ = 'OffsetData'
+	__name__ = 'TrackMesh_Offset'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -18,9 +18,9 @@ class OffsetData(MemStruct):
 		self.relative_offset = name_type_map['Vector3'](self.context, 0, None)
 		self.spacing = name_type_map['Float'](self.context, 0, None)
 		self.one = name_type_map['Uint'](self.context, 0, None)
-		self.a = name_type_map['Float'](self.context, 0, None)
-		self.b = name_type_map['Float'](self.context, 0, None)
-		self.count = name_type_map['Uint'](self.context, 0, None)
+		self.min_pitch = name_type_map['Float'](self.context, 0, None)
+		self.min_yaw = name_type_map['Float'](self.context, 0, None)
+		self.flags = name_type_map['Uint'](self.context, 0, None)
 		self.z_4 = name_type_map['Uint'](self.context, 0, None)
 		self.z_5 = name_type_map['Uint'](self.context, 0, None)
 		self.z_6 = name_type_map['Uint64'](self.context, 0, None)
@@ -39,9 +39,9 @@ class OffsetData(MemStruct):
 		yield 'relative_offset', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'spacing', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'one', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'a', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'b', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'min_pitch', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'min_yaw', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_4', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_5', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_6', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.is_pc_2, None)
@@ -55,9 +55,9 @@ class OffsetData(MemStruct):
 		yield 'relative_offset', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'spacing', name_type_map['Float'], (0, None), (False, None)
 		yield 'one', name_type_map['Uint'], (0, None), (False, None)
-		yield 'a', name_type_map['Float'], (0, None), (False, None)
-		yield 'b', name_type_map['Float'], (0, None), (False, None)
-		yield 'count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'min_pitch', name_type_map['Float'], (0, None), (False, None)
+		yield 'min_yaw', name_type_map['Float'], (0, None), (False, None)
+		yield 'flags', name_type_map['Uint'], (0, None), (False, None)
 		yield 'z_4', name_type_map['Uint'], (0, None), (False, None)
 		yield 'z_5', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.is_pc_2:

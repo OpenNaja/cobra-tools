@@ -17,13 +17,13 @@ class TrackMeshObject(MemStruct):
 		self.type = name_type_map['Uint'](self.context, 0, None)
 		self.b = name_type_map['Uint'](self.context, 0, None)
 		self.c = name_type_map['Uint'](self.context, 0, None)
-		self.xtra_1 = name_type_map['Uint'].from_value(0)
+		self.xtra_1 = name_type_map['Float'].from_value(1.0)
 		self.xtra_2 = name_type_map['Uint64'](self.context, 0, None)
-		self.d = name_type_map['Uint64'](self.context, 0, None)
 		self.e = name_type_map['Uint64'](self.context, 0, None)
 		self.place_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.file = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.offset_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.attachment_start = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.attachment_end = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -35,10 +35,10 @@ class TrackMeshObject(MemStruct):
 		yield 'type', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'b', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'c', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'xtra_1', name_type_map['Uint'], (0, None), (False, 0), (None, None)
+		yield 'xtra_1', name_type_map['Float'], (0, None), (False, 1.0), (None, None)
 		yield 'xtra_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.is_pc_2, None)
-		yield 'offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'd', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'attachment_start', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'attachment_end', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'e', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.is_pc_2, None)
 
 	@classmethod
@@ -49,10 +49,10 @@ class TrackMeshObject(MemStruct):
 		yield 'type', name_type_map['Uint'], (0, None), (False, None)
 		yield 'b', name_type_map['Uint'], (0, None), (False, None)
 		yield 'c', name_type_map['Uint'], (0, None), (False, None)
-		yield 'xtra_1', name_type_map['Uint'], (0, None), (False, 0)
+		yield 'xtra_1', name_type_map['Float'], (0, None), (False, 1.0)
 		if instance.context.is_pc_2:
 			yield 'xtra_2', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'd', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'attachment_start', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'attachment_end', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		if instance.context.is_pc_2:
 			yield 'e', name_type_map['Uint64'], (0, None), (False, None)

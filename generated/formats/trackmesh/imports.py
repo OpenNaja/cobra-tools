@@ -42,7 +42,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TrackMeshRoot': 'generated.formats.trackmesh.compounds.TrackMeshRoot',
-	'OffsetData': 'generated.formats.trackmesh.compounds.OffsetData',
+	'TrackMeshOffset': 'generated.formats.trackmesh.compounds.TrackMeshOffset',
 	'TrackMeshObject': 'generated.formats.trackmesh.compounds.TrackMeshObject',
 	'TrackMeshElement': 'generated.formats.trackmesh.compounds.TrackMeshElement',
 	'Lod': 'generated.formats.trackmesh.compounds.Lod',
