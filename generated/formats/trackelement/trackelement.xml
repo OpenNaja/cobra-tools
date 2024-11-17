@@ -8,8 +8,8 @@
         PC: 32 bytes
         <add name="track_data" type="ArrayPointer" arg="track_data_count" template="TrackElementData"/>
         <add name="track_data_count" type="uint64" />
-		<add name="support_prefab_name_1" type="pointer" template="ZString" />
-		<add name="support_prefab_name_2" type="pointer" template="ZString" />
+		<add name="visual_prefab_name" type="pointer" template="ZString" /> Used as visual prefab
+		<add name="support_prefab_name" type="pointer" template="ZString" /> Used as support prefab
     </compound>
 
     <compound name="TrackElementData" inherit="MemStruct">

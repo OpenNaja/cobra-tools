@@ -15,8 +15,8 @@ class TrackElementRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.track_data_count = name_type_map['Uint64'](self.context, 0, None)
 		self.track_data = name_type_map['ArrayPointer'](self.context, self.track_data_count, name_type_map['TrackElementData'])
-		self.support_prefab_name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.support_prefab_name_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.visual_prefab_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.support_prefab_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -25,13 +25,13 @@ class TrackElementRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'track_data', name_type_map['ArrayPointer'], (None, name_type_map['TrackElementData']), (False, None), (None, None)
 		yield 'track_data_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'support_prefab_name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'support_prefab_name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'visual_prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'support_prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'track_data', name_type_map['ArrayPointer'], (instance.track_data_count, name_type_map['TrackElementData']), (False, None)
 		yield 'track_data_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'support_prefab_name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'support_prefab_name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'visual_prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'support_prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
