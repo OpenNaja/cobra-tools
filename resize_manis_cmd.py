@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from ovl_util.logs import logging_setup
 from generated.formats.manis import ManisFile
 from generated.formats.ms2 import Ms2File
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
@@ -71,6 +72,7 @@ def resize(folder, fac=1.0):
 
 
 if __name__ == '__main__':
+	logging_setup("resize_manis_cmd")
 	parser = argparse.ArgumentParser(prog='codegen')
 	parser.add_argument('dir', nargs='?', help='Folder containing all ms2, manis and wsm files')
 	parser.add_argument('fac', nargs='?', default=1.0, type=float, help='Scale factor to scale by, as used in Blender')
