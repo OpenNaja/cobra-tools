@@ -12,7 +12,7 @@ from generated.formats.manis.compounds.ManiInfo import ManiInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ovl_base import OvlContext
 
-from generated.formats.ms2 import Ms2File
+from generated.formats.ms2 import Ms2File, is_pc
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
 from constants import Mime, Shader, ConstantsProvider
@@ -266,8 +266,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
 											classification_name.add(hit.classification_name)
 											surface_name.add(hit.surface_name)
-											# surface_name2.add((hit.surface_name, int(hit.surface_name_2)))
-											surface_name2.add((hit.surface_name, hit.surface_name_2))
+											if is_pc(hit.context):
+												# surface_name2.add((hit.surface_name, int(hit.surface_name_2)))
+												surface_name2.add((hit.surface_name, hit.surface_name_2))
 											if hit.dtype == CollisionType.MESH_COLLISION:
 												mesh_collision.add(ms2_path_rel)
 							else:
