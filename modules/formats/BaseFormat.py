@@ -51,7 +51,7 @@ class BaseFile:
 
 	def pick_aux(self, aux_name, aux_size):
 		"""Register a suitable aux path in the loader's aux_entries dict"""
-		logging.info(f"Picking .aux file for type '{aux_name}' ({aux_size} bytes)")
+		logging.debug(f"Picking .aux file for type '{aux_name}' ({aux_size} bytes)")
 		aux_files = [os.path.join(self.ovl.dir, file) for file in os.listdir(self.ovl.dir) if file.endswith(".aux")]
 		for aux_path in aux_files:
 			size = os.path.getsize(aux_path)

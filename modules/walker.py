@@ -32,6 +32,7 @@ def walk_type(start_dir, extension=".ovl"):
 
 
 def content_folder(filepath: Path):
+	"""Return the Content folder in filepath"""
 	if filepath.parent.name in ("ovldata", "walker_export"):
 		return filepath
 	for p in filepath.parents:
@@ -199,7 +200,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 		if walk_models:
 			with gui.reporter.log_duration("Walking MS2 files"):
 				ms2_files = walk_type(export_dir, extension=".ms2")
-				for mf_index, ms2_path in enumerate(gui.reporter.iter_progress(ms2_files, "Walking MS2 files")):
+				for ms2_path in gui.reporter.iter_progress(ms2_files, "Walking MS2 files"):
 					if official_only and not filter_accept_official(ms2_path):
 						continue
 					ms2_path_rel = ms2_path.replace(export_dir, "")
@@ -416,7 +417,7 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 		context = OvlContext()
 		context.mime_version = 6  # just a dummy to make PC2 import work
 		fgm_files = walk_type(walk_dir, extension=".fgm")
-		for mf_index, fgm_path in enumerate(gui.reporter.iter_progress(fgm_files, "Walking FGM files")):
+		for fgm_path in gui.reporter.iter_progress(fgm_files, "Walking FGM files"):
 			if official_only and not filter_accept_official(fgm_path):
 				continue
 			try:
