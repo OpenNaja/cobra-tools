@@ -4,13 +4,13 @@ import logging
 from collections import Counter
 from pathlib import Path
 
+from modules.formats.FGM import FgmContext
 from ovl_util.logs import ANSI
 from constants.converter import write_mimes_dict, write_hashes_dict
 from generated.array import Array
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.manis.compounds.ManiInfo import ManiInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
-from generated.formats.ovl_base import OvlContext
 
 from generated.formats.ms2 import Ms2File, is_pc
 from generated.formats.ovl import OvlFile
@@ -415,8 +415,7 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 		# To remove shaders as they are discovered
 		undiscovered_shaders = game_shaders.copy()
 
-		context = OvlContext()
-		context.mime_version = 6  # just a dummy to make PC2 import work
+		context = FgmContext()
 		fgm_files = walk_type(walk_dir, extension=".fgm")
 		for fgm_path in gui.reporter.iter_progress(fgm_files, "Walking FGM files"):
 			if official_only and not filter_accept_official(fgm_path):

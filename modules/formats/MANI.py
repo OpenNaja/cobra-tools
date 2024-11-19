@@ -18,7 +18,7 @@ class ManiLoader(BaseFile):
 		self.root_ptr = (None, 0)
 
 
-class MimeContext:
+class ManiContext:
 	def __init__(self):
 		self.version = 260
 		self.mani_version = 260
@@ -75,7 +75,7 @@ class ManisLoader(MemStructLoader):
 		return out_path,
 
 	def get_version(self):
-		self.context = MimeContext()
+		self.context = ManiContext()
 		self.context.version = self.mime_version
 		if is_dla(self.ovl):
 			self.context.version = 256

@@ -16,14 +16,18 @@ attrib_sizes = {
 }
 
 
+class FgmContext(OvlContext):
+	def __init__(self):
+		super(FgmContext, self).__init__()
+		self.mime_version = 6  # just a dummy to make PC2 import work
+
+
 class FgmLoader(MemStructLoader):
 	target_class = FgmHeader
 	extension = ".fgm"
 
 	def create(self, file_path):
-		context = OvlContext()
-		context.mime_version = 6  # just a dummy to make PC2 import work
-		self.header = self.target_class.from_xml_file(file_path, context)
+		self.header = self.target_class.from_xml_file(file_path, FgmContext())
 		self.create_data_entry((self.update_names_buffer(),))
 		# need to update before writing ptrs
 		self.write_memory_data()

@@ -1,12 +1,12 @@
 import logging
 import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from modules.formats.FGM import FgmContext
 from ovl_util.config import read_str_dict
 from typing import Any, Optional
 
 from constants import ConstantsProvider
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
-from generated.formats.ovl_base import OvlContext
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.compounds.TexIndex import TexIndex
 from generated.formats.fgm.compounds.TextureInfo import TextureInfo
@@ -35,7 +35,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.context = OvlContext()
+		self.context = FgmContext()
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
 		self.tooltips = read_str_dict("gui/tooltips/fgm.txt")

@@ -1,23 +1,20 @@
 import contextlib
-import inspect
 import logging
-import sys
-
-import bpy
 import os
 
+import bpy
 import numpy as np
 
-from generated.formats.ovl import get_game
-from ovl_util.shared import check_any
-from plugin.utils.texture_settings import tex_slots
 from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
-from generated.formats.ovl_base import OvlContext
+from generated.formats.ovl import get_game
+from modules.formats.FGM import FgmContext
+from ovl_util.shared import check_any
+from plugin.utils import texture_settings
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
-from plugin.utils import texture_settings
+from plugin.utils.texture_settings import tex_slots
 
 
 def append_shader(name):
@@ -337,10 +334,8 @@ def create_material(reporter, in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
-	context = OvlContext()
-	context.mime_version = 6  # just a dummy to make PC2 import work
 	try:
-		fgm_data = FgmHeader.from_xml_file(fgm_path, context)
+		fgm_data = FgmHeader.from_xml_file(fgm_path, FgmContext())
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
