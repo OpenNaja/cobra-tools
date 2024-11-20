@@ -9,6 +9,7 @@ from generated.formats.tex.compounds.Pc2TexBuffer import Pc2TexBuffer
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
+from modules.formats.shared import fnv64, encode_int64_base32
 
 from ovl_util import texconv, imarray
 
@@ -388,3 +389,21 @@ class DdsLoader(MemStructLoader):
 class TexelLoader(BaseFile):
 	extension = ".texel"
 
+	def get_aux_path(self, aux_suffix):
+		"""Get path of aux file from ovl name and texel name"""
+		# Full Archive path:
+		#   Win64\ovldata\Content0\Worlds\DefaultSandbox.ovl
+		# File in Archive:
+		#   /zz159oeel9rhs8ex.texel
+		# File in tex header:
+		#   zz159oeel9rhs8ex
+		# Input Text
+		# text = b"defaultsandbox_/zz159oeel9rhs8ex_texel"
+		# Resulting Lookup:
+		#   XERY2OUE5ECDC_.aux
+		# Result:
+		# XERY2OUE5ECDC
+		assert not aux_suffix
+		text = f"{self.ovl.basename}_{self.name.replace('.', '_')}".lower().encode()
+		hash_value = fnv64(text)
+		return os.path.join(self.ovl.dir, f"{encode_int64_base32(hash_value)}_.aux")

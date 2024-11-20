@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import logging
+import os
 import struct
 import time
 
@@ -26,6 +27,28 @@ def djb2(s):
     for x in s:
         n = ((n << 5) + n) + ord(x)
     return n & 0xFFFFFFFF
+
+
+def fnv64(data):
+    hash_ = 0xcbf29ce484222325
+    for b in data:
+        hash_ *= 0x100000001b3
+        hash_ &= 0xffffffffffffffff
+        hash_ ^= b
+    return hash_
+
+
+def encode_int64_base32(integer, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"):
+    """Encodes a 64-bit integer into a base32 string with a custom charset."""
+    encoded = ""
+    while integer > 0:
+        index = integer & 0x1F
+        encoded += charset[index]
+        integer >>= 5
+
+    return encoded
+
+
 
 
 def fmt_hash(id_hash):
