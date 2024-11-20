@@ -324,19 +324,9 @@ class DdsLoader(MemStructLoader):
 			with texbuffer.to_xml_file(texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 				pass
 			out_files.append(texbuffer_path)
-
-			# get texel file from ovl
+			# get texel file from ovl to read external image buffer from aux
 			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
-
-			# ensure that aux files are where they should be
-			for aux_suffix in texel_loader.aux_entries:
-				assert aux_suffix == ""
-			with open(texel_loader.get_aux_path(""), "rb") as f:
-				# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
-				# that seems to change the counts though
-				# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
-				f.seek(texbuffer.mips[0].offset)
-				image_buffer = f.read(texbuffer.buffer_size)
+			image_buffer = texel_loader.get_image_buffer(texbuffer.mips[0].offset, texbuffer.buffer_size)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
@@ -384,6 +374,19 @@ class DdsLoader(MemStructLoader):
 
 class TexelLoader(BaseFile):
 	extension = ".texel"
+
+	def get_image_buffer(self, offset, size):
+		# ensure that aux files are where they should be
+		for aux_suffix in self.aux_entries:
+			assert aux_suffix == ""
+		# todo only open aux once, keep handle open as needed
+		with open(self.get_aux_path(""), "rb") as f:
+			# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
+			# that seems to change the counts though
+			# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
+			f.seek(offset)
+			image_buffer = f.read(size)
+		return image_buffer
 
 	def get_aux_path(self, aux_suffix):
 		"""Get path of aux file from ovl name and texel name"""
