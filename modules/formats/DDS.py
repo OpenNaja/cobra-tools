@@ -308,29 +308,15 @@ class DdsLoader(MemStructLoader):
 		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		# set compression
 		dds_file.dx_10.dxgi_format = compression_type
-		if not self.context.is_pc_2:
-			tiles = self.get_tiles(size_info)
-			# set num_tiles to unpack the mips
-			if hasattr(size_info, "num_tiles"):
-				dds_file.dx_10.num_tiles = size_info.num_tiles
-			else:
-				# DLA has no num_tiles
-				dds_file.dx_10.num_tiles = 1
-			if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
-				# not sure how / if texture arrays are packed for PC - this works for flat textures
-				tile_datas = (buffer_data, )
-			else:
-				tile_datas = dds_file.unpack_mips(buffer_data)
-			# set to no tiles for dds export
+		tiles = self.get_tiles(size_info)
+		# set num_tiles to unpack the mips
+		if hasattr(size_info, "num_tiles"):
+			dds_file.dx_10.num_tiles = size_info.num_tiles
+		else:
+			# DLA has no num_tiles
 			dds_file.dx_10.num_tiles = 1
-			# export all tiles as separate dds files
-			for tile_i, tile_name, tile_data in zip(tiles, self.get_tile_names(tiles, basename), tile_datas):
-				dds_file.buffer = tile_data
-				dds_file.linear_size = len(buffer_data)
-				dds_path = out_dir(f"{tile_name}.dds")
-				# write dds
-				dds_file.save(dds_path)
-				dds_paths.append(dds_path)
+		if not self.context.is_pc_2:
+			image_buffer = buffer_data
 		else:
 			texbuffer_path = out_dir(f"{self.basename}.texbuffer")
 			with io.BytesIO(buffer_data) as f:
@@ -338,26 +324,26 @@ class DdsLoader(MemStructLoader):
 			with texbuffer.to_xml_file(texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 				pass
 			out_files.append(texbuffer_path)
-
-			# get texel file from ovl
+			# get texel file from ovl to read external image buffer from aux
 			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
+			image_buffer = texel_loader.get_image_buffer(texbuffer.mips[0].offset, texbuffer.buffer_size)
 
-			# ensure that aux files are where they should be
-			for aux_suffix in texel_loader.aux_entries:
-				assert aux_suffix == ""
-				aux_path = texel_loader.get_aux_path(aux_suffix)
-				with open(aux_path, "rb") as f:
-					# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
-					# that seems to change the counts though
-					# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
-					f.seek(texbuffer.mips[0].offset)
-					tex_buffer_data = f.read(texbuffer.buffer_size)
-				dds_file.buffer = tex_buffer_data
-				dds_file.linear_size = len(tex_buffer_data)
-				dds_path = out_dir(f"{self.basename}.dds")
-				# write dds
-				dds_file.save(dds_path)
-				dds_paths.append(dds_path)
+		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
+			# not sure how / if texture arrays are packed for PC - this works for flat textures
+			tile_datas = (image_buffer,)
+		else:
+			tile_datas = dds_file.unpack_mips(image_buffer)
+		# set to no tiles for dds export
+		dds_file.dx_10.num_tiles = 1
+		# export all tiles as separate dds files
+		for tile_i, tile_name, tile_data in zip(tiles, self.get_tile_names(tiles, basename), tile_datas):
+			dds_file.buffer = tile_data
+			dds_file.linear_size = len(tile_data)
+			dds_path = out_dir(f"{tile_name}.dds")
+			# write dds
+			dds_file.save(dds_path)
+			dds_paths.append(dds_path)
+
 		# decompress dds to png
 		for dds_path in dds_paths:
 			try:
@@ -388,6 +374,19 @@ class DdsLoader(MemStructLoader):
 
 class TexelLoader(BaseFile):
 	extension = ".texel"
+
+	def get_image_buffer(self, offset, size):
+		# ensure that aux files are where they should be
+		for aux_suffix in self.aux_entries:
+			assert aux_suffix == ""
+		# todo only open aux once, keep handle open as needed
+		with open(self.get_aux_path(""), "rb") as f:
+			# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
+			# that seems to change the counts though
+			# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
+			f.seek(offset)
+			image_buffer = f.read(size)
+		return image_buffer
 
 	def get_aux_path(self, aux_suffix):
 		"""Get path of aux file from ovl name and texel name"""
