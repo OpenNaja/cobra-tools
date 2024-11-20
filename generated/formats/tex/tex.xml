@@ -221,21 +221,25 @@
 		<add name="height" type="uint" >y size in pixels</add>
 		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>
 		<add name="num_tiles" type="uint" default="1" optional="True"/>
-		<add name="num mips" type="ubyte" arr1="4" />
-		<add name="unk_256_a" type="uint"/>
+		<add name="enum related" type="ubyte" default="96"/>
+		<add name="num mips" type="ubyte" />
+		<add name="num mips low" type="ubyte" default="7" />
+		<add name="num mips high" type="ubyte" default="9" />
+		<add name="unk_256_a" type="uint"/>can be 512
 		<add name="unk_256_b" type="uint"/>
 		<add name="unk_1" type="uint"/>
 		<add name="buffer_size" type="uint"/>
 		<add name="unk_0" type="uint"/>
 		<add name="main" type="Pc2TexMip" arr1="2"/>
-		<add name="mips" type="Pc2TexMip" arr1="14"/>
+		<add name="mip infos" type="Pc2TexMip" arr1="14"/>
     </compound>
 
     <compound name="Pc2TexMip" inherit="MemStruct">
 		<add name="offset" type="uint"/>
 		<add name="size" type="uint"/>
-		<add name="unk" type="uint"/>used in wrs_bodyflume_decal001
-		<add name="zero_1" type="short"/>
+		<add name="mip_index_0" type="ushort"/>
+		<add name="mip_index_0" type="ushort"/>
+		<add name="needs_mips" type="short"/>
 		<add name="ff" type="short"/>
     </compound>
 

@@ -11,8 +11,8 @@ class Pc2TexMip(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = name_type_map['Uint'](self.context, 0, None)
 		self.size = name_type_map['Uint'](self.context, 0, None)
-		self.unk = name_type_map['Uint'](self.context, 0, None)
-		self.zero_1 = name_type_map['Short'](self.context, 0, None)
+		self.mip_index_0 = name_type_map['Ushort'](self.context, 0, None)
+		self.needs_mips = name_type_map['Short'](self.context, 0, None)
 		self.ff = name_type_map['Short'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -22,8 +22,9 @@ class Pc2TexMip(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'size', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unk', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zero_1', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'mip_index_0', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'mip_index_0', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'needs_mips', name_type_map['Short'], (0, None), (False, None), (None, None)
 		yield 'ff', name_type_map['Short'], (0, None), (False, None), (None, None)
 
 	@classmethod
@@ -31,6 +32,7 @@ class Pc2TexMip(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'size', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zero_1', name_type_map['Short'], (0, None), (False, None)
+		yield 'mip_index_0', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'mip_index_0', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'needs_mips', name_type_map['Short'], (0, None), (False, None)
 		yield 'ff', name_type_map['Short'], (0, None), (False, None)

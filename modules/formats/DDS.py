@@ -326,7 +326,7 @@ class DdsLoader(MemStructLoader):
 			out_files.append(texbuffer_path)
 			# get texel file from ovl to read external image buffer from aux
 			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
-			image_buffer = texel_loader.get_image_buffer(texbuffer.mips[0].offset, texbuffer.buffer_size)
+			image_buffer = texel_loader.get_image_buffer(texbuffer.mip_infos[0].offset, texbuffer.buffer_size)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
