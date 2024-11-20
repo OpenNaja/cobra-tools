@@ -1,7 +1,5 @@
 import contextlib
-import functools
 import logging
-import os
 import struct
 import time
 
@@ -47,8 +45,6 @@ def encode_int64_base32(integer, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"):
         integer >>= 5
 
     return encoded
-
-
 
 
 def fmt_hash(id_hash):
@@ -116,4 +112,3 @@ class DummyReporter:
         yield
         duration = time.time() - start_time
         logging.debug(f"{operation} took {duration:.2f} seconds")
-
