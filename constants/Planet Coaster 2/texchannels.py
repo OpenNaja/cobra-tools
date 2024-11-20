@@ -1,4 +1,5 @@
 texchannels = {
+	'png': {"": ""}, # default png UI icons
 	'pAOTexture': {"": "AO"},
 	# 'pAOTextureDetailBase': {"": ""},
 	# 'pAOTextureDetailBlend': {"": ""},
