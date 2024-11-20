@@ -37,14 +37,13 @@ def fnv64(b: bytes):
     return n
 
 
-def encode_int64_base32(integer, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"):
+def encode_int64_base32(integer: int, charset: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"):
     """Encodes a 64-bit integer into a base32 string with a custom charset."""
     encoded = ""
-    while integer > 0:
+    for _ in range(13):
         index = integer & 0x1F
         encoded += charset[index]
         integer >>= 5
-
     return encoded
 
 
