@@ -18,8 +18,8 @@ def get_padding(size, alignment=16):
     return b""
 
 
-def djb2(s):
-    # calculates djb2 hash for string s
+def djb2(s: str):
+    """calculates djb2 hash for string s"""
     # from https://gist.github.com/mengzhuo/180cd6be8ba9e2743753#file-hash_djb2-py
     n = 5381
     for x in s:
@@ -27,13 +27,14 @@ def djb2(s):
     return n & 0xFFFFFFFF
 
 
-def fnv64(data):
-    hash_ = 0xcbf29ce484222325
-    for b in data:
-        hash_ *= 0x100000001b3
-        hash_ &= 0xffffffffffffffff
-        hash_ ^= b
-    return hash_
+def fnv64(b: bytes):
+    """calculates fnv64 hash for bytes b"""
+    n = 0xcbf29ce484222325
+    for b in b:
+        n *= 0x100000001b3
+        n &= 0xffffffffffffffff
+        n ^= b
+    return n
 
 
 def encode_int64_base32(integer, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"):
