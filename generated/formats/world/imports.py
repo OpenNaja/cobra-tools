@@ -42,6 +42,8 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'WorldHeader': 'generated.formats.world.compounds.WorldHeader',
+	'WorldSharedSettingsHeader': 'generated.formats.world.compounds.WorldSharedSettingsHeader',
+	'WorldArtSettingsHeader': 'generated.formats.world.compounds.WorldArtSettingsHeader',
 }
 
 name_type_map = {}
