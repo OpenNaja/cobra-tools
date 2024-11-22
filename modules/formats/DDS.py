@@ -152,7 +152,7 @@ class DdsLoader(MemStructLoader):
 			size_info.reset_field("mip_maps")
 			# pack the different tiles into the tex buffer, pad the mips
 			# create list of bytes for each buffer
-			tex_buffers = self.header.buffer_infos.data
+			texbuffers = self.header.buffer_infos.data
 			if is_pc(self.ovl):
 				# todo create self.header.buffer_infos.data for PC
 				#  however note that size_info = self.get_tex_structs() is the first entry of the array
@@ -165,7 +165,7 @@ class DdsLoader(MemStructLoader):
 				# 		<texbufferpc width="1024" height="1024" num_tiles="1" num_mips="11" />
 				# 		<texbufferpc width="128" height="128" num_tiles="1" num_mips="8" />
 				# todo how to pack PC array textures
-				return dds_files[0].pack_mips_pc(tex_buffers)
+				return dds_files[0].pack_mips_pc(texbuffers)
 			else:
 				# padding depends on io_size being updated
 				size_info.io_size = size_info.get_size(size_info, size_info.context)
@@ -184,11 +184,11 @@ class DdsLoader(MemStructLoader):
 					packed = tex.getvalue()
 				size_info.data_size = sum(m.size_array for m in size_info.mip_maps)
 				# update tex buffer infos - all but the last correspond to one mip level
-				for buffer_i, buffer in enumerate(tex_buffers):
+				for buffer_i, buffer in enumerate(texbuffers):
 					mip = size_info.mip_maps[buffer_i]
 					buffer.first_mip = buffer_i
 					# last tex buffer gets all remaining mips
-					if buffer_i == len(tex_buffers) - 1:
+					if buffer_i == len(texbuffers) - 1:
 						buffer.mip_count = len(size_info.mip_maps) - buffer.first_mip
 						buffer.size = size_info.data_size - mip.offset
 					else:
@@ -196,7 +196,7 @@ class DdsLoader(MemStructLoader):
 						buffer.size = mip.size_array
 					buffer.offset = mip.offset
 				# slice packed bytes according to tex header buffer specifications
-				return [packed[b.offset: b.offset + b.size] for b in tex_buffers]
+				return [packed[b.offset: b.offset + b.size] for b in texbuffers]
 
 	def get_dds_file(self, tile_name, in_dir, tmp_dir):
 		"""Returns a valid dds file object, or None"""
@@ -326,7 +326,8 @@ class DdsLoader(MemStructLoader):
 			out_files.append(texbuffer_path)
 			# get texel file from ovl to read external image buffer from aux
 			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
-			image_buffer = texel_loader.get_image_buffer(texbuffer.mip_infos[0].offset, texbuffer.buffer_size)
+			# image_buffer = texel_loader.get_image_buffer(texbuffer.mip_infos[0].offset, texbuffer.buffer_size)
+			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_infos, dds_file, texbuffer)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
@@ -386,6 +387,50 @@ class TexelLoader(BaseFile):
 			# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
 			f.seek(offset)
 			image_buffer = f.read(size)
+		return image_buffer
+
+	def get_mip_buffers(self, mips, dds_file, texbuffer):
+		# ensure that aux files are where they should be
+		for aux_suffix in self.aux_entries:
+			assert aux_suffix == ""
+		# todo only open aux once, keep handle open as needed
+		mip_data = []
+		dds_file.get_pixel_fmt()
+		with open(self.get_aux_path(""), "rb") as f:
+			height = texbuffer.height
+			width = texbuffer.width
+			for mip_i, mip in enumerate(mips):
+				# print(f"MIP{mip_i}")
+				f.seek(mip.offset)
+				mip_buffer = f.read(mip.size)
+				out = bytearray(mip_buffer)
+				if mip.tiles_x > 1 and mip.tiles_y > 1:
+					block_row_c = height // texbuffer.tile_height
+					block_col_c = width // texbuffer.tile_width
+					# todo parametrize counts, may vary per mip level!
+					row_c = 16
+					col_c = 4
+					# chunk size of a line
+					b_size = int(round(texbuffer.tile_width * dds_file.pixels_per_byte))
+					seek = 0
+					line_size = col_c * b_size
+					block_size = line_size * col_c
+					block_row_size = block_size * row_c
+					for block_row_i in range(block_row_c):
+						for block_col_i in range(block_col_c):
+							for row_i in range(row_c):
+								for col_i in range(col_c):
+									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+									targ_off = (block_row_size * block_row_i) + (row_i * block_size) + (col_i * line_size) + (block_col_i * b_size)
+									# print(f"seek {seek} targ_off {targ_off}")
+									out[targ_off:targ_off + b_size] = mip_buffer[seek:seek+b_size]
+									seek += b_size
+					if len(mip_buffer) != len(out):
+						logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+				mip_data.append(out)
+				height //= 2
+				width //= 2
+		image_buffer = b"".join(mip_data)
 		return image_buffer
 
 	def get_aux_path(self, aux_suffix):

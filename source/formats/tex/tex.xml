@@ -225,8 +225,8 @@
 		<add name="num mips" type="ubyte" />
 		<add name="num mips low" type="ubyte" default="7" />
 		<add name="num mips high" type="ubyte" default="9" />
-		<add name="unk_256_a" type="uint"/>can be 512
-		<add name="unk_256_b" type="uint"/>
+		<add name="tile_width" type="uint"/>can be 512
+		<add name="tile_height" type="uint"/>
 		<add name="unk_1" type="uint"/>
 		<add name="buffer_size" type="uint"/>
 		<add name="unk_0" type="uint"/>
@@ -237,9 +237,9 @@
     <compound name="Pc2TexMip" inherit="MemStruct">
 		<add name="offset" type="uint"/>
 		<add name="size" type="uint"/>
-		<add name="mip_index_0" type="ushort"/>
-		<add name="mip_index_0" type="ushort"/>
-		<add name="needs_mips" type="short"/>
+		<add name="tiles_x" type="ushort"/>
+		<add name="tiles_y" type="ushort"/>
+		<add name="is_tiled" type="short"/>
 		<add name="ff" type="short"/>
     </compound>
 
