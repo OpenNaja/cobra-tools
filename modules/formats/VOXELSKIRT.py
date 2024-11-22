@@ -8,9 +8,12 @@ import numpy as np
 from generated.array import Array
 from generated.formats.base.basic import Ubyte, Float, ZString
 from generated.formats.ovl import is_pc
-from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_padding
+from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
+from generated.formats.voxelskirt.compounds.VoxelTerrainMaterialLayerSpecRoot import VoxelTerrainMaterialLayerSpecRoot
+from generated.formats.voxelskirt.compounds.VoxelTerrainMaterialAssetPackagesRoot import VoxelTerrainMaterialAssetPackagesRoot
+
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
@@ -162,3 +165,12 @@ class VoxelskirtLoader(MemStructLoader):
 			Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (data_slot._count, ), data_slot.data.dtype)
 		else:
 			data_slot._offset = 0
+
+
+class VoxelTerrainMaterialLayerSpecLoader(MemStructLoader):
+	extension = ".vtmls"
+	target_class = VoxelTerrainMaterialLayerSpecRoot
+
+class VoxelTerrainMaterialAssetPackagesRootLoader(MemStructLoader):
+	extension = ".vtmap"
+	target_class = VoxelTerrainMaterialAssetPackagesRoot

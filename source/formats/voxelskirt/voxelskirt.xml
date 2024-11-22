@@ -80,4 +80,32 @@
         <add name="ff or zero" type="int" >-1, 0 for PC</add>
     </compound>
 
+
+    <compound name="VoxelTerrainMaterialLayerSpecRoot" inherit="MemStruct">
+        # Currently only tested in PC2
+        <add name="Unknown Name" type="Pointer" template="ZString">Invisible value, note: could be the brush name?</add>
+        <add name="Tile Size" type="float" >unknown</add>
+        <add name="Float 2" type="float" >invisible value</add>
+
+        <add name="Flags" type="uint" >Not entirely sure, check again</add>
+        <add name="Float 3" type="float" >invisible value</add>
+        <add name="Parallax" type="float"/>
+        <add name="Macro Amount" type="float"/>
+        
+        <add name="Water Permeability" type="float"/>
+        <add name="Macro Albedo" type="float"/>
+        <add name="Detail Normal" type="float"/>
+        <add name="Macro Roughness" type="float"/>
+        <add name="Macro Full" type="float"/>
+        <add name="Smoothness" type="float"/>
+        <add name="Float 10" type="float" >invisible value</add>
+        <add name="Float 11" type="float" >invisible value</add>
+    </compound>
+
+    <compound name="VoxelTerrainMaterialAssetPackagesRoot" inherit="MemStruct">
+        # Currently only tested in PC2
+        <add name="Package Name" type="Pointer" template="ZString">It is not a list of strings</add>
+        <add name="unk_1" type="uint64" default="0">Could be padding.</add>
+    </compound>
+
 </niftoolsxml>

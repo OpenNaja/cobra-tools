@@ -51,6 +51,8 @@ type_module_name_map = {
 	'EntityInstance': 'generated.formats.voxelskirt.compounds.EntityInstance',
 	'Material': 'generated.formats.voxelskirt.compounds.Material',
 	'EntityGroup': 'generated.formats.voxelskirt.compounds.EntityGroup',
+	'VoxelTerrainMaterialLayerSpecRoot': 'generated.formats.voxelskirt.compounds.VoxelTerrainMaterialLayerSpecRoot',
+	'VoxelTerrainMaterialAssetPackagesRoot': 'generated.formats.voxelskirt.compounds.VoxelTerrainMaterialAssetPackagesRoot',
 }
 
 name_type_map = {}
