@@ -5,24 +5,74 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="TrackStationRoot" inherit="MemStruct">
-        PC and PZ: 128 bytes
-        <add name="unk floats" type="float" arr1="2"/>
-        <add name="unk ints" type="uint" arr1="2"/>
-		# only seen either one of the two structs below used simultaneously
-        <add name="CornerEdgeTrack" type="Pointer" template="CornerEdgeTrack"/>
-		<add name="TrackOnly" type="Pointer" template="TrackOnly"/>
-		<add name="ControlBox_FrontPanel" type="Pointer" template="ZString"/>
-		<add name="ControlBox_LeftPanel" type="Pointer" template="ZString"/>
-		<add name="ControlBox_RightPanel" type="Pointer" template="ZString"/>
-		<add name="EntranceGate" type="Pointer" template="ZString"/>
-		<add name="ExitGate" type="Pointer" template="ZString"/>
-        <add name="unk ints2" type="uint" arr1="2"/>
-		<add name="FenceExt" type="Pointer" template="ZString"/>
-		<add name="SmallFenceExt" type="Pointer" template="ZString"/>
-		<add name="FenceCap" type="Pointer" template="ZString"/>
-        <add name="unk floats2" type="float" arr1="4"/>
-        <add name="unk ints3" type="uint" arr1="2"/>
+
+        <!-- PC2 1.0.7.434846 .trackstation is 80 bytes -->
+        <!-- PZ and PC .trackstation is 128 bytes -->
+        <add name="Station Grid Sizes" type="float" arr1="2"/>
+        <add name="Unknown Ints" type="uint" arr1="2"/>
+
+        <!-- offset 16 First diff, in PZ2 this ptr seems empty --> 
+        <add name="Unknown Ptr" type="uint64" vercond="is_PC2"/> 
+        <add name="Corner Edge Track" type="Pointer" template="CornerEdgeTrack" vercond="!is_PC2"/>
+
+		<!-- Offset 24 --> 
+        <add name="Corner Edge Track" type="Pointer" template="CornerEdgeTrack" vercond="is_PC2"/>
+		<add name="Track Only" type="Pointer" template="TrackOnly" vercond="!is_PC2"/>
+
+		<!-- Offset 32 --> 
+		<add name="Track Only" type="Pointer" template="TrackOnly" vercond="is_PC2"/>
+		<add name="Control Box Front Panel" type="Pointer" template="ZString" vercond="!is_PC2"/>
+
+		<!-- Offset 40 --> 
+		<add name="Control Box Info" type="Pointer" template="ControlBoxInfo" vercond="is_PC2"/>
+		<add name="Control Box Left Panel" type="Pointer" template="ZString" vercond="!is_PC2"/>
+
+		<!-- Offset 48 --> 
+		<add name="Gate Info" type="Pointer" template="GateInfo" vercond="is_PC2"/>
+		<add name="Control Box Right Panel" type="Pointer" template="ZString" vercond="!is_PC2"/>
+
+		<!-- Offset 56 --> 
+		<add name="Unknown 56" type="uint64" vercond="is_PC2"/>
+		<add name="Entrance Gate" type="Pointer" template="ZString" vercond="!is_PC2"/>
+
+		<!-- Offset 64 --> 
+		<add name="Unknown 64" type="uint64" vercond="is_PC2"/>
+		<add name="Exit Gate" type="Pointer" template="ZString" vercond="!is_PC2"/>
+
+		<!-- Offset 72 --> 
+		<add name="Unknown 72" type="uint64" vercond="is_PC2"/>
+        <add name="unk ints2" type="uint" arr1="2" vercond="!is_PC2"/>
+
+
+		<!-- Offset 80, no more PC2 --> 
+		<add name="Fence Ext" type="Pointer" template="ZString" vercond="!is_PC2"/>
+		<add name="Small Fence Ext" type="Pointer" template="ZString" vercond="!is_PC2"/>
+		<add name="Fence Cap" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="unk floats2" type="float" arr1="4" vercond="!is_PC2"/>
+        <add name="unk floats3" type="uint" arr1="2" vercond="!is_PC2"/>
+
     </compound>
+
+
+	<compound name="GateInfo" inherit="MemStruct">
+        <!-- PC2 1.0.7.434846 64 bytes -->
+		<add name="Entrance" type="Pointer" template="ZString"/>
+		<add name="Exit" type="Pointer" template="ZString"/>
+        <add name="unk ints2" type="uint" arr1="2"/>
+		<add name="Unk 1" type="Pointer" template="ZString"/>
+		<add name="Unk 2" type="Pointer" template="ZString"/>
+		<add name="Unk 3" type="Pointer" template="ZString"/>
+        <add name="Floats" type="float" arr1="4"/>
+    </compound>
+
+	<compound name="ControlBoxInfo" inherit="MemStruct">
+        <!-- PC2 1.0.7.434846 48 bytes -->
+		<add name="Front" type="Pointer" template="ZString"/>
+		<add name="Mid" type="Pointer" template="ZString"/>
+		<add name="Back" type="Pointer" template="ZString"/>
+        <add name="Floats" type="float" arr1="7"/>
+    </compound>
+
 
 	<compound name="FrontMidBack" inherit="MemStruct">
 		<add name="front" type="Pointer" template="ZString"/>
@@ -33,12 +83,12 @@
 	<compound name="CommonChunk" inherit="MemStruct">
         PZ and PC: 104 bytes, core
         PZ and PC: 112 bytes, wrapped
-		<add name="float1" type="float"/>
-		<add name="float2" type="float"/>
+		<add name="float1" type="float"/> <!-- station piece width -->
+		<add name="float2" type="float"/> 
 		<add name="top" type="FrontMidBack"/>
-		<add name="unk flags0" type="ubyte" arr1="8"/>
+		<add name="unk flags0" type="ubyte" arr1="8"/> <!-- we know now these are 90 degree rotations -->
 		<add name="base" type="FrontMidBack"/>
-		<add name="unk flags1" type="ubyte" arr1="8"/>
+		<add name="unk flags1" type="ubyte" arr1="8"/> <!-- we know now these are 90 degree rotations -->
 		<add name="supports" type="FrontMidBack"/>
 		<add name="zero1" type="uint64"/>
 	</compound>
@@ -49,7 +99,8 @@
 	</compound>
 	
 	<compound name="CornerEdgeTrack" inherit="MemStruct">
-        PC: 320 bytes
+        PC:  320 bytes
+        PC2: 320 bytes
 		unused on PZ
 		<add name="corner" type="CommonChunk"/>
 		<add name="edge" type="CommonChunk"/>

@@ -5,7 +5,8 @@ from generated.formats.trackstation.imports import name_type_map
 class CornerEdgeTrack(MemStruct):
 
 	"""
-	PC: 320 bytes
+	PC:  320 bytes
+	PC2: 320 bytes
 	unused on PZ
 	"""
 

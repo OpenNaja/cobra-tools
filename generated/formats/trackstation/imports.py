@@ -42,6 +42,8 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TrackStationRoot': 'generated.formats.trackstation.compounds.TrackStationRoot',
+	'GateInfo': 'generated.formats.trackstation.compounds.GateInfo',
+	'ControlBoxInfo': 'generated.formats.trackstation.compounds.ControlBoxInfo',
 	'FrontMidBack': 'generated.formats.trackstation.compounds.FrontMidBack',
 	'CommonChunk': 'generated.formats.trackstation.compounds.CommonChunk',
 	'TrackOnly': 'generated.formats.trackstation.compounds.TrackOnly',
