@@ -2221,7 +2221,7 @@ class GamesWidget(QWidget):
         # if current_game has been set, assume it exists in the games dict too (from steam)
         if dir_game:
             self.set_root(dir_game)
-            self.set_selected_dir(self.cfg.get("last_ovl_in", None))
+            self.set_selected_path(self.cfg.get("last_ovl_in", None))
             self.entry.setText(game)
             self.game_chosen(game)
 
@@ -2268,10 +2268,10 @@ class GamesWidget(QWidget):
         # if a file is selected, get its containing dir
         return file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
 
-    def set_selected_dir(self, dir_path: str) -> None:
-        """Show dir_path in dirs"""
+    def set_selected_path(self, file_path: str) -> None:
+        """Select file_path in dirs view"""
         try:
-            self.dirs.setCurrentIndex(self.dirs.file_model.index(dir_path))
+            self.dirs.setCurrentIndex(self.dirs.file_model.index(file_path))
         except:
             logging.exception("Setting dir failed")
 

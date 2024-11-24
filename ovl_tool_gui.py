@@ -392,6 +392,7 @@ class MainWindow(widgets.MainWindow):
 			# logging.debug(f"Loading threaded {threaded}")
 			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
 			if not self.suppress_popups:
+				self.installed_games.set_selected_path(filepath)
 				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, ), filepath, commands)
 			else:
 				try:
