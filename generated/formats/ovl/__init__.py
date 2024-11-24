@@ -443,23 +443,23 @@ class OvsFile(OvsHeader):
 		"""for development; dumps the stack of selected files per file extension"""
 		for ext, loaders in self.ovl.get_loaders_by_ext().items():
 			# skip writing this stack if no file should be dumped
-			if not any(loader.name in only_files for loader in loaders):
+			# only dump loaders that are valid for this ovs, are in only_files and have a root_ptr
+			valid_loaders = [loader for loader in loaders if loader.ovs == self and loader.name in only_files and loader.root_ptr[0]]
+			if not valid_loaders:
 				continue
 			# write stack for ext
 			with open(f"{fp}_{ext[1:]}.stack", "w", encoding="utf-8") as f:
-				for loader in loaders:
-					if loader.ovs == self and loader.name in only_files:
-						pool, offset = loader.root_ptr
-						if pool:
-							size = pool.size_map[offset]
-							f.write("\n\n\n")
-							f.write(f"FILE {pool.i} | {offset} ({size: 4}) {loader.name}")
-							f.write(loader.get_hex_dump(pool, offset, size))
-							try:
-								loader.dump_ptr_stack(f, loader.root_ptr, set())
-							except AttributeError:
-								logging.exception(f"Dumping {loader.name} failed")
-								f.write("\n!FAILED!")
+				for loader in valid_loaders:
+					pool, offset = loader.root_ptr
+					size = pool.size_map[offset]
+					f.write("\n\n\n")
+					f.write(f"FILE {pool.i} | {offset} ({size: 4}) {loader.name}")
+					f.write(loader.get_hex_dump(pool, offset, size))
+					try:
+						loader.dump_ptr_stack(f, loader.root_ptr, set())
+					except AttributeError:
+						logging.exception(f"Dumping {loader.name} failed")
+						f.write("\n!FAILED!")
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
