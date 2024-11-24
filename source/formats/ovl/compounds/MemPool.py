@@ -19,6 +19,7 @@ class MemPool:
 		self.size_map = {}
 		self.offsets = set()
 		self.link_offsets = None
+		self.debug_dump = None
 
 	def get_ptrs_in_struct(self, p_offset, p_size):
 		"""find all link offsets that are within the parent struct using a boolean mask"""
@@ -33,18 +34,12 @@ class MemPool:
 			first_offset = sorted(self.offsets)[0]
 			return first_offset
 
-	def get_debug_dmp(self, offset=0, size=None):
+	def get_debug_dump(self):
 		"""write a pointer marker at each offset"""
-		if size is None:
-			size = self.get_size()
-		self.data.seek(offset)
-		pool_data = bytearray(self.data.read(size))
+		self.data.seek(0)
+		self.debug_dump = bytearray(self.data.read())
 		for offs, entry in self.offset_2_link.items():
-			if offset <= offs:
-				rel_off = offs - offset
-				if 0 <= rel_off < size:
-					pool_data[rel_off: rel_off + 8] = b"@POINTER" if isinstance(entry, tuple) else b"@DEPENDS"
-		return pool_data
+			self.debug_dump[offs: offs + 8] = b"@POINTER" if isinstance(entry, tuple) else b"@DEPENDS"
 
 	def calc_size_map(self):
 		"""Store size of every struct_ptr in size_map"""

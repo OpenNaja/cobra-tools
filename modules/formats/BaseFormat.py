@@ -417,7 +417,7 @@ class BaseFile:
 		if size > int(16 * 1024 * 1024):
 			dump_hex = False
 		if dump_hex:
-			pool_data = pool.get_debug_dmp(offset, size)
+			pool_data = pool.debug_dump[offset: offset+size]
 			return f"\n{hex_dump(pool_data, size > 1024, True, indent=indent, line_width=min(size, 16))}"
 		return ""
 

@@ -424,7 +424,8 @@ class OvsFile(OvsHeader):
 				f.write(f"\nPool {i} (type: {pool.type})")
 		for pool in self.pools:
 			with open(f"{fp}_pool[{pool.i}].dmp", "wb") as f:
-				f.write(pool.get_debug_dmp())
+				pool.get_debug_dump()
+				f.write(pool.debug_dump)
 
 	def dump_buffer_groups_log(self, fp):
 		with open(f"{fp}_buffers.log", "w") as f:
@@ -1410,9 +1411,9 @@ class OvlFile(Header):
 		for archive_entry in self.archives:
 			fp = os.path.join(out_dir, f"{self.name}_{archive_entry.name}")
 			try:
+				archive_entry.content.dump_pools(fp)
 				archive_entry.content.dump_stack(fp, only_files)
 				archive_entry.content.dump_buffer_groups_log(fp)
-				archive_entry.content.dump_pools(fp)
 			except:
 				logging.exception("Dumping failed")
 		try:
