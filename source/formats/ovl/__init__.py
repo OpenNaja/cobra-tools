@@ -422,7 +422,7 @@ class OvsFile(OvsHeader):
 			for i, pool in enumerate(self.pools):
 				f.write(f"\nPool {i} (type: {pool.type})")
 		for pool in self.pools:
-			with open(f"{fp}_pool[{pool.i}].dmp", "wb") as f:
+			with open(f"{fp}_{pool.i}.pool", "wb") as f:
 				pool.get_debug_dump()
 				f.write(pool.debug_dump)
 
@@ -1408,7 +1408,7 @@ class OvlFile(Header):
 		os.makedirs(out_dir, exist_ok=True)
 		# todo - ensure every pool has valid pool.i in ovl.pools for created ovls
 		for archive_entry in self.archives:
-			fp = os.path.join(out_dir, f"{self.name}_{archive_entry.name}")
+			fp = os.path.join(out_dir, f"{self.basename}_{archive_entry.name}")
 			try:
 				archive_entry.content.dump_pools(fp)
 				archive_entry.content.dump_stack(fp, only_files)
@@ -1429,7 +1429,7 @@ class OvlFile(Header):
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
-		log_path = out_dir_func(f"{self.name}_buffer_info.log")
+		log_path = out_dir_func(f"{self.basename}_buffer_info.log")
 		with open(log_path, "w") as f:
 			for loader_name in only_files:
 				loader = self.loaders[loader_name]
