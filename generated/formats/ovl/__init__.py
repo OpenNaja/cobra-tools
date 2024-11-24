@@ -1417,7 +1417,7 @@ class OvlFile(Header):
 			except:
 				logging.exception("Dumping failed")
 		try:
-			self.dump_buffer_info(out_dir)
+			self.dump_buffer_info(out_dir, only_files)
 		except:
 			logging.exception("Dumping failed")
 
@@ -1425,17 +1425,17 @@ class OvlFile(Header):
 	def sorted_loaders(self):
 		return sorted(self.loaders.values(), key=lambda l: l.name)
 
-	def dump_buffer_info(self, out_dir):
+	def dump_buffer_info(self, out_dir, only_files):
 		"""for development; collect info about fragment types"""
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 		log_path = out_dir_func(f"{self.name}_buffer_info.log")
 		with open(log_path, "w") as f:
-			for loader in self.sorted_loaders:
+			for loader_name in only_files:
+				loader = self.loaders[loader_name]
 				loader.dump_buffer_infos(f)
-		for loader in self.sorted_loaders:
-			loader.dump_buffers(out_dir_func)
+				loader.dump_buffers(out_dir_func)
 
 	def save(self, filepath, use_threads=True):
 		self.store_filepath(filepath)
