@@ -367,8 +367,7 @@ class TableView(QTableView):
 
         # handle column width
         header = self.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setStretchLastSection(True)
 
         # The number of selected items in the model
         self.selected_count = 0
