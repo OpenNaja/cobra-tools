@@ -1,9 +1,7 @@
-from generated.formats.ovl.imports import name_type_map
 import itertools
 import logging
 import os
 import re
-import struct
 import zlib
 import math
 from concurrent.futures import ProcessPoolExecutor
@@ -21,6 +19,7 @@ from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2, DummyReporter
+from ovl_util.shared import hex_dump
 
 try:
 	from ovl_util.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
@@ -419,16 +418,12 @@ class OvsFile(OvsHeader):
 
 	def dump_pools(self, fp):
 		"""for debugging"""
+		with open(f"{fp}.pools", "w", encoding="utf-8") as f:
+			for i, pool in enumerate(self.pools):
+				f.write(f"\nPool {i} (type: {pool.type})")
 		for pool in self.pools:
 			with open(f"{fp}_pool[{pool.i}].dmp", "wb") as f:
-				f.write(pool.data.getvalue())
-				# write a pointer marker at each offset
-				for offset, entry in pool.offset_2_link.items():
-					f.seek(offset)
-					if isinstance(entry, tuple):
-						f.write(b"@POINTER")
-					else:
-						f.write(b"@DEPENDS")
+				f.write(pool.get_debug_dmp())
 
 	def dump_buffer_groups_log(self, fp):
 		with open(f"{fp}_buffers.log", "w") as f:
@@ -443,23 +438,27 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	def dump_stack(self, fp):
-		"""for development; collect info about fragment types"""
-		with open(f"{fp}.stack", "w") as f:
-			for i, pool in enumerate(self.pools):
-				f.write(f"\nPool {i} (type: {pool.type})")
-			for loader in self.ovl.loaders.values():
-				if loader.ovs == self:
-					pool, offset = loader.root_ptr
-					if pool:
-						size = pool.size_map[offset]
-						debug_str = f"\n\nFILE {pool.i} | {offset} ({size: 4}) {loader.name}"
-						f.write(debug_str)
-						try:
-							loader.dump_ptr_stack(f, loader.root_ptr, set())
-						except AttributeError:
-							logging.exception(f"Dumping {loader.name} failed")
-							f.write("\n!FAILED!")
+	def dump_stack(self, fp, only_files):
+		"""for development; dumps the stack of selected files per file extension"""
+		for ext, loaders in self.ovl.get_loaders_by_ext().items():
+			# skip writing this stack if no file should be dumped
+			if not any(loader.name in only_files for loader in loaders):
+				continue
+			# write stack for ext
+			with open(f"{fp}_{ext[1:]}.stack", "w", encoding="utf-8") as f:
+				for loader in loaders:
+					if loader.ovs == self and loader.name in only_files:
+						pool, offset = loader.root_ptr
+						if pool:
+							size = pool.size_map[offset]
+							f.write("\n\n\n")
+							f.write(f"FILE {pool.i} | {offset} ({size: 4}) {loader.name}")
+							f.write(loader.get_hex_dump(pool, offset, size))
+							try:
+								loader.dump_ptr_stack(f, loader.root_ptr, set())
+							except AttributeError:
+								logging.exception(f"Dumping {loader.name} failed")
+								f.write("\n!FAILED!")
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
@@ -1106,15 +1105,7 @@ class OvlFile(Header):
 		# update file hashes and extend entries per loader
 		# self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		# sorted_loaders = sorted(self.loaders, key=lambda x: (x.ext, x.file_hash))
-		# map all files by their extension
-		loaders_by_extension = {}
-		for loader in self.loaders.values():
-			# force an update on the loader's data for older versions' data
-			# and link entries like bani to banis
-			loader.update()
-			if loader.ext not in loaders_by_extension:
-				loaders_by_extension[loader.ext] = []
-			loaders_by_extension[loader.ext].append(loader)
+		loaders_by_extension = self.get_loaders_by_ext()
 		mimes_ext = sorted(loaders_by_extension)
 		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
@@ -1230,6 +1221,18 @@ class OvlFile(Header):
 		self.aux_entries["size"] = [loader.get_aux_size(aux) for aux, loader in loaders_and_aux]
 
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
+
+	def get_loaders_by_ext(self):
+		"""Return dict of all extensions and the loaders that use them"""
+		loaders_by_extension = {}
+		for loader in self.loaders.values():
+			# force an update on the loader's data for older versions' data
+			# and link entries like bani to banis
+			loader.update()
+			if loader.ext not in loaders_by_extension:
+				loaders_by_extension[loader.ext] = []
+			loaders_by_extension[loader.ext].append(loader)
+		return loaders_by_extension
 
 	def rebuild_ovs_arrays(self, flat_sorted_loaders, ext_lut):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
@@ -1395,16 +1398,18 @@ class OvlFile(Header):
 			# some JWE2 dino archives have no stream_files, just extra data_entries
 			stream_files_offset += len(archive_streams)
 
-	def dump_debug_data(self):
+	def dump_debug_data(self, only_files):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
+		if not only_files:
+			only_files = list(self.loaders.keys())
 		out_dir = os.path.join(self.dir, f"{self.basename}_dump")
-		logging.info(f"Dumping debug data to {self.dir}")
+		logging.info(f"Dumping debug data for {len(only_files)} files to {self.dir}")
 		os.makedirs(out_dir, exist_ok=True)
-		# todo - ensure every pool has valid pool.i in ovl.pools, in all cases; loading is good
+		# todo - ensure every pool has valid pool.i in ovl.pools for created ovls
 		for archive_entry in self.archives:
 			fp = os.path.join(out_dir, f"{self.name}_{archive_entry.name}")
 			try:
-				archive_entry.content.dump_stack(fp)
+				archive_entry.content.dump_stack(fp, only_files)
 				archive_entry.content.dump_buffer_groups_log(fp)
 				archive_entry.content.dump_pools(fp)
 			except:

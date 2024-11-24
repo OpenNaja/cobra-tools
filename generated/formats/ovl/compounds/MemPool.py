@@ -94,6 +94,19 @@ class MemPool(BaseStruct):
 			first_offset = sorted(self.offsets)[0]
 			return first_offset
 
+	def get_debug_dmp(self, offset=0, size=None):
+		"""write a pointer marker at each offset"""
+		if size is None:
+			size = self.get_size()
+		self.data.seek(offset)
+		pool_data = bytearray(self.data.read(size))
+		for offs, entry in self.offset_2_link.items():
+			if offset <= offs:
+				rel_off = offs - offset
+				if 0 <= rel_off < size:
+					pool_data[rel_off: rel_off + 8] = b"@POINTER" if isinstance(entry, tuple) else b"@DEPENDS"
+		return pool_data
+
 	def calc_size_map(self):
 		"""Store size of every struct_ptr in size_map"""
 		self.size_map = {}

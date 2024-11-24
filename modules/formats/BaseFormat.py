@@ -12,6 +12,7 @@ from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.DataEntry import DataEntry
 from modules.formats.shared import djb2
+from ovl_util.shared import hex_dump
 
 TAB = '  '
 
@@ -407,9 +408,23 @@ class BaseFile:
 					if s_offset is not None:
 						self.check_for_ptrs(s_pool, s_offset)
 
+	def get_hex_dump(self, pool, offset, size, indent=1):
+		dump_hex = False
+		# TODO: Test if dump_stack or dump_ptr_stack was the None crash here
+		if offset is not None:
+			dump_hex = True
+		# TODO: Configurable max size?
+		if size > int(16 * 1024 * 1024):
+			dump_hex = False
+		if dump_hex:
+			pool_data = pool.get_debug_dmp(offset, size)
+			return f"\n{hex_dump(pool_data, size > 1024, True, indent=indent, line_width=min(size, 16))}"
+		return ""
+
 	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
 		children = self.stack.get(parent_struct_ptr, {})
+
 		# sort by offset
 		for rel_offset, target in sorted(children.items()):
 			# get the relative offset of this pointer to its struct
@@ -417,12 +432,18 @@ class BaseFile:
 				# points to a child struct
 				s_pool, s_offset = target
 				data_size = s_pool.size_map.get(s_offset, -1)
+
+				hex_string = self.get_hex_dump(s_pool, s_offset, data_size, indent=indent+1)
+
+				f.write("\n\n")
 				if target in rec_check:
 					# pointer refers to a known entry - stop here to avoid recursion
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_pool.i} | {s_offset} ({data_size: 4})")
+					f.write(f"{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_pool.i} | {s_offset} ({data_size: 4})")
+					f.write(hex_string)
 				else:
 					rec_check.add(target)
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_pool.i} | {s_offset} ({data_size: 4})")
+					f.write(f"{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_pool.i} | {s_offset} ({data_size: 4})")
+					f.write(hex_string)
 					self.dump_ptr_stack(f, target, rec_check, indent=indent + 1)
 			# dependency
 			else:
