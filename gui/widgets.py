@@ -240,13 +240,13 @@ class TableModel(QAbstractTableModel):
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         dtype = self._data[index.row()]
-        d_n_d = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | Qt.ItemFlag.ItemIsSelectable))
-        renamable = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled))
+        drag_n_drop = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled))
+        renamable = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsEditable))
         state = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.NoItemFlags))
         if index.column() in self.editable_columns:
             state |= renamable
         if len(dtype) and dtype[1] not in self.ignore_types:
-            state |= d_n_d
+            state |= drag_n_drop
         return state
 
 
@@ -333,6 +333,7 @@ class TableView(QTableView):
     files_dropped = pyqtSignal(list)
     file_selected = pyqtSignal(int)
     file_selected_count = pyqtSignal(int)
+    file_double_clicked = pyqtSignal(list)
 
     def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str, actions={}, editable_columns=("Name",)) -> None:
         super().__init__()
@@ -362,6 +363,7 @@ class TableView(QTableView):
         self.proxy_model.setFilterKeyColumn(0)
         self.inverted = False
         self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
+        self.doubleClicked.connect(self.on_double_click)
 
         # handle column width
         header = self.horizontalHeader()
@@ -376,6 +378,10 @@ class TableView(QTableView):
         if self.selected:
             self.file_selected.emit(self.selected[-1])
         self.file_selected_count.emit(self.selected_count)
+
+    def on_double_click(self, index: QModelIndex):
+        row_i = self.proxy_model.mapToSource(index).row()
+        self.file_double_clicked.emit(self.table_model._data[row_i])
 
     def update_filter_function(self) -> None:
         if self.inverted:

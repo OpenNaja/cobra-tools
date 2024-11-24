@@ -16,7 +16,7 @@ from typing import Optional
 
 class MainWindow(widgets.MainWindow):
 
-	search_files = QtCore.pyqtSignal(tuple)
+	search_files = QtCore.pyqtSignal(list)
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
@@ -218,7 +218,8 @@ class MainWindow(widgets.MainWindow):
 				actions={
 					QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
 					QtWidgets.QAction("Show in Explorer"): self.search_result_show,
-				})
+				}, editable_columns=())
+			results_container.table.file_double_clicked.connect(self.search_result_open)
 			results_container.setWindowTitle(f"Results for: {search_str}")
 			results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
 			results_container.show()
