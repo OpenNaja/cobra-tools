@@ -3,6 +3,7 @@ import math
 import logging
 import os
 
+from modules.formats.FGM import FgmContext
 from plugin.modules_import.material import get_group_node
 from plugin.utils.node_arrange import nodes_iterate, get_input_nodes
 from plugin.utils.node_util import load_tex_node, get_tree
@@ -10,7 +11,6 @@ from plugin.utils.node_util import load_tex_node, get_tree
 from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.ovl_base import OvlContext
 
 
 channels = ("R", "G", "B", "A")
@@ -21,7 +21,7 @@ MATCOL = ".materialcollection"
 class LayeredMaterial:
 
 	def __init__(self):
-		self.context = OvlContext()
+		self.context = FgmContext()
 		self.slots = []
 
 	def create_node(self):
