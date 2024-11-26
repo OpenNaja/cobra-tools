@@ -467,8 +467,10 @@ class BaseFile:
 			for i, b in enumerate(self.data_entry.buffer_datas):
 				name = f"{self.name}_{i}.dmp"
 				out_path = out_dir(name)
+				# ui files eg. uigameface/img/workshop/workshopmap_artworkmask.png.tex
 				if "/" in name:
-					os.makedirs(out_path, exist_ok=True)
+					# create subfolder for dump
+					os.makedirs(os.path.dirname(out_path), exist_ok=True)
 				paths.append(out_path)
 				with open(out_path, 'wb') as outfile:
 					outfile.write(b)
