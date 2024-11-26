@@ -173,7 +173,7 @@ class MainWindow(widgets.MainWindow):
 			self.game_choice.entry.setText(self.manis_file.game)
 			self.stream_entry.setText(self.manis_file.stream)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-			self.set_msg_temporarily("Operation completed!")
+			self.set_progress_message("Operation completed!")
 		except:
 			self.handle_error("GUI update failed, see log!")
 
@@ -182,7 +182,7 @@ class MainWindow(widgets.MainWindow):
 			self.manis_file.stream = self.stream_entry.text()
 			self.manis_file.save(filepath)
 			self.set_file_modified(False)
-			self.set_msg_temporarily(f"Saved {self.manis_file.name}")
+			self.set_progress_message(f"Saved {self.manis_file.name}")
 		except:
 			self.handle_error("Saving MANIS failed, see log!")
 

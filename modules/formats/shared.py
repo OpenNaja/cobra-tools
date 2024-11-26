@@ -68,19 +68,25 @@ class DummyReporter:
     files_list = DummySignal()  # type: ignore
     included_ovls_list = DummySignal()  # type: ignore
     progress_percentage = DummySignal()  # type: ignore
+    progress_total = DummySignal()  # type: ignore
     current_action = DummySignal()  # type: ignore
 
     def iter_progress(self, iterable, message):
         self.current_action.emit(message)
-        self._percentage = 0
-        v_max = len(iterable) - 1
+        self._percentage = -1
+        if len(iterable) > 1:
+            self.progress_total.emit(100)
+        else:
+            self.progress_total.emit(0)
         for i, item in enumerate(iterable):
+            p = round(i / len(iterable) * 100)
+            if p != self._percentage:
+                self.progress_percentage.emit(p)
+                self._percentage = p
             yield item
-            if i and v_max:
-                p = round(i / v_max * 100)
-                if p != self._percentage:
-                    self.progress_percentage.emit(p)
-                    self._percentage = p
+        # clear both to also make indeterminate processes appear complete
+        self.progress_percentage.emit(100)
+        self.progress_total.emit(100)
         msg = f"Finished {message}"
         self.current_action.emit(msg)
         # logging.success(msg)

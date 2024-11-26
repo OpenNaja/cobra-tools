@@ -146,7 +146,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			self.bnk_file.save(filepath)
 			self.set_file_modified(False)
-			self.set_msg_temporarily(f"Saved {self.bnk_file.bnk_name}")
+			self.set_progress_message(f"Saved {self.bnk_file.bnk_name}")
 		except:
 			self.handle_error("Loading failed, see log!")
 
@@ -172,7 +172,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				error_files = self.inject_wem(files)
 				self.set_file_modified(True)
-				self.set_msg_temporarily("Injection completed")
+				self.set_progress_message("Injection completed")
 			except:
 				self.handle_error("Injecting failed, see log!")
 

@@ -3155,7 +3155,7 @@ class MainWindow(FramelessMainWindow):
 
         self.status_timer = QTimer()
         self.status_timer.setSingleShot(True)
-        self.status_timer.setInterval(3500)
+        self.status_timer.setInterval(6000)
         self.status_timer.timeout.connect(self.reset_progress)
 
         self.cfg: Config[str, Any] = Config(root_dir)
@@ -3398,20 +3398,23 @@ class MainWindow(FramelessMainWindow):
         self.version_info.hide()
 
     def set_progress(self, value: int) -> None:
-        if self.progress.isHidden() and value > 0:
-            self.show_progress()
-
         self.progress.setValue(value)
         if self.progress.value() >= self.progress.maximum():
             self.status_timer.start()
 
+    def set_progress_total(self, value: int) -> None:
+        if self.progress.isHidden():
+            self.show_progress()
+        self.progress.setMaximum(value)
+
     def reset_progress(self) -> None:
         self.progress.hide()
         self.progress.setValue(0)
+        self.status_bar.clearMessage()
         self.version_info.show()
 
-    def set_msg_temporarily(self, message: str) -> None:
-        self.status_bar.showMessage(message, 3500)
+    def set_progress_message(self, message: str) -> None:
+        self.status_bar.showMessage(message, 0)
 
     def run_in_parallel(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
         pass
@@ -3585,6 +3588,7 @@ class Reporter(DummyReporter, QObject):
     files_list = pyqtSignal(list)  # type: ignore
     included_ovls_list = pyqtSignal(list)  # type: ignore
     progress_percentage = pyqtSignal(int)  # type: ignore
+    progress_total = pyqtSignal(int)  # type: ignore
     current_action = pyqtSignal(str)  # type: ignore
 
 

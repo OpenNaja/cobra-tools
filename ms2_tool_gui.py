@@ -136,7 +136,7 @@ class MainWindow(widgets.MainWindow):
 			self.files_container.set_data([[m.name, ".mdl2", m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
 			self.game_choice.entry.setText(self.ms2_file.game)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-			self.set_msg_temporarily("Operation completed!")
+			self.set_progress_message("Operation completed!")
 		except:
 			self.handle_error("GUI update failed, see log!")
 
@@ -144,7 +144,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			self.ms2_file.save(filepath)
 			self.set_file_modified(False)
-			self.set_msg_temporarily(f"Saved {self.ms2_file.name}")
+			self.set_progress_message(f"Saved {self.ms2_file.name}")
 		except:
 			self.handle_error("Saving MS2 failed, see log!")
 

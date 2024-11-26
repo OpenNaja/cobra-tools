@@ -161,8 +161,9 @@ class MainWindow(widgets.MainWindow):
 		reporter.included_ovls_list.connect(self.included_ovls_view.set_data)
 		reporter.warning_msg.connect(self.notify_user)
 		reporter.progress_percentage.connect(self.set_progress)
-		reporter.success_msg.connect(self.set_msg_temporarily)
-		reporter.current_action.connect(self.set_msg_temporarily)
+		reporter.progress_total.connect(self.set_progress_total)
+		reporter.success_msg.connect(self.set_progress_message)
+		reporter.current_action.connect(self.set_progress_message)
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
 		self.preferences_widget = None
 
@@ -557,7 +558,7 @@ class MainWindow(widgets.MainWindow):
 					with open(filelist_src, 'w') as f:
 						f.write("\n".join(file_names))
 
-					self.set_msg_temporarily("Saved file list")
+					self.set_progress_message("Saved file list")
 				except:
 					self.handle_error("Writing file list failed, see log!")
 
@@ -570,7 +571,7 @@ class MainWindow(widgets.MainWindow):
 			if filepath:
 				try:
 					self.ovl_data.save_included_ovls(filepath)
-					self.set_msg_temporarily("Saved included OVLs")
+					self.set_progress_message("Saved included OVLs")
 				except:
 					self.handle_error("Writing included OVLs failed, see log!")
 
@@ -582,7 +583,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.ovl_data.load_included_ovls(filepath)
 				self.set_dirty()
-				self.set_msg_temporarily("Loaded included OVLs")
+				self.set_progress_message("Loaded included OVLs")
 			except:
 				self.handle_error("Opening included OVLs failed, see log!")
 
