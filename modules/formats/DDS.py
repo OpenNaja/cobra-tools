@@ -400,31 +400,47 @@ class TexelLoader(BaseFile):
 			height = texbuffer.height
 			width = texbuffer.width
 			for mip_i, mip in enumerate(mips):
-				# print(f"MIP{mip_i}")
 				f.seek(mip.offset)
 				mip_buffer = f.read(mip.size)
+				if mip.size == 0:
+					continue
+				logging.debug(f"MIP{mip_i}")
 				out = bytearray(mip_buffer)
 				if mip.tiles_x > 1 and mip.tiles_y > 1:
-					block_row_c = height // texbuffer.tile_height
-					block_col_c = width // texbuffer.tile_width
-					# todo parametrize counts, may vary per mip level!
-					row_c = 16
-					col_c = 4
-					# chunk size of a line
-					b_size = int(round(texbuffer.tile_width * dds_file.pixels_per_byte))
 					seek = 0
-					line_size = col_c * b_size
-					block_size = line_size * col_c
-					block_row_size = block_size * row_c
-					for block_row_i in range(block_row_c):
-						for block_col_i in range(block_col_c):
-							for row_i in range(row_c):
-								for col_i in range(col_c):
+					tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
+					tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
+					if tile_row_count != mip.tiles_y:
+						logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
+					if tile_col_count != mip.tiles_x:
+						logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
+
+					tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
+					tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
+					scanline_size = tile_col_count * tile_scanline_size
+
+					tile_size = scanline_size * tile_col_count
+					tile_row_size = tile_size * tile_scanline_count
+
+					logging.debug(f"tile_row_count = {tile_row_count}")
+					logging.debug(f"tile_col_count = {tile_col_count}")
+					logging.debug(f"tile_col_count = {tile_col_count}")
+					logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+					logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+					logging.debug(f"tile_row_size = {tile_row_size}")
+					logging.debug(f"tile_size = {tile_size}")
+					logging.debug(f"scanline_size = {scanline_size}")
+					for block_row_i in range(tile_row_count):
+						for block_col_i in range(tile_col_count):
+							for row_i in range(tile_scanline_count):
+								for col_i in range(tile_col_count):
 									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-									targ_off = (block_row_size * block_row_i) + (row_i * block_size) + (col_i * line_size) + (block_col_i * b_size)
-									# print(f"seek {seek} targ_off {targ_off}")
-									out[targ_off:targ_off + b_size] = mip_buffer[seek:seek+b_size]
-									seek += b_size
+									target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (
+												col_i * scanline_size) + (block_col_i * tile_scanline_size)
+									# print(f"seek {seek} target_offset {target_offset}")
+									out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
+																							seek:seek + tile_scanline_size]
+									seek += tile_scanline_size
 					if len(mip_buffer) != len(out):
 						logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
 				mip_data.append(out)
