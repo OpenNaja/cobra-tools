@@ -254,7 +254,7 @@ class MainWindow(widgets.MainWindow):
 			self.actions[action_name.lower()].setEnabled(enable)
 
 	def dump_debug_data(self, ):
-		self.ovl_data.dump_debug_data(self.files_container.table.get_selected_files())
+		self.run_in_threadpool(self.ovl_data.dump_debug_data, (), self.files_container.table.get_selected_files())
 
 	def compare_ovls(self):
 		selected_file_names = self.files_container.table.get_selected_files()
