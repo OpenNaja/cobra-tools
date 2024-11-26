@@ -150,7 +150,7 @@ class ZString:
 
 	@staticmethod
 	def from_xml(target, elem, prop, arg=0, template=None):
-		return elem[prop]
+		return elem.attrib[prop]
 
 	@staticmethod
 	def to_xml(elem, prop, instance, arg, template, debug):
