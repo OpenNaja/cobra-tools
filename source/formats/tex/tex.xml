@@ -231,7 +231,7 @@
 		<add name="buffer_size" type="uint"/>
 		<add name="unk_0" type="uint"/>
 		<add name="main" type="Pc2TexMip" arr1="2"/>
-		<add name="mip infos" type="Pc2TexMip" arr1="14"/>
+		<add name="mip_maps" type="Pc2TexMip" arr1="14"/>
     </compound>
 
     <compound name="Pc2TexMip" inherit="MemStruct">
@@ -240,7 +240,7 @@
 		<add name="tiles_x" type="ushort"/>
 		<add name="tiles_y" type="ushort"/>
 		<add name="is_tiled" type="short"/>
-		<add name="ff" type="short"/>
+		<add name="ff" type="short" default="0"/>
     </compound>
 
     <compound name="TexturestreamHeader" inherit="MemStruct">
@@ -248,6 +248,11 @@
         JWE2: 16 bytes
 		<add name="zero" type="uint64" default="0" optional="True"/>
 		<add name="lod_index" type="uint64" vercond="#JWE2#"/>
+    </compound>
+
+    <compound name="TexelHeader" inherit="MemStruct">
+		PC2: 8 bytes
+		<add name="zero" type="uint64" default="0" optional="True"/>
     </compound>
 </fileformat>
 

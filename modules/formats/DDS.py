@@ -7,9 +7,11 @@ from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex.compounds.Pc2TexBuffer import Pc2TexBuffer
 from generated.formats.tex.compounds.TexHeader import TexHeader
+from generated.formats.tex.compounds.TexelHeader import TexelHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.formats.shared import fnv64, encode_int64_base32
+from modules.helpers import as_bytes
 
 from ovl_util import texconv, imarray
 
@@ -58,6 +60,9 @@ class DdsLoader(MemStructLoader):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
 		# don't write header yet, might make changes to it
 		self.header = self.target_class.from_xml_file(file_path, self.context)
+		# override ovs membership
+		if self.context.is_pc_2:
+			self.set_ovs(self.header.ovs)
 		logging.debug(f"Creating image {name_ext}")
 		# create the image before creating the streams
 		buffer_bytes = self.get_image_bytes(file_path)
@@ -67,41 +72,51 @@ class DdsLoader(MemStructLoader):
 		self.prepare_buffers_and_streams(basename, buffer_bytes, name_ext)
 
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
-		# there's one empty buffer at the end!
-		buffers = [b"" for _ in range(self.header.stream_count + 1)]
-		# decide where to store the buffers
-		static_lods = 2
-		streamed_lods = len(buffers) - static_lods
-		# logging.debug(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-		buffer_i = 0
-		# generate ovs and lod names - highly idiosyncratic
-		# checked for PZ, JWE2, PC
-		if streamed_lods == 0:
-			indices = ()
-		elif streamed_lods == 1:
-			# 1 lod: lod0 -> L1
-			indices = ((0, 1),)
-		elif streamed_lods == 2:
-			# 2 lods: lod0 -> L0, lod1 -> L1
-			indices = ((0, 0), (1, 1),)
+		if self.context.is_pc_2:
+			logging.warning("super experimental")
+			texel_loader = self.get_texel()
+			# todo - instead directly register/remove texel as needed;
+			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
+			self.extra_loaders = [texel_loader, ]
+			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
+			# both root and data are in the same ovs
+			self.create_data_entry(texbuffer_bytes, self.ovs.arg.name)
 		else:
-			raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
-		for lod_i, ovs_i in indices:
-			ovs_name = f"Textures_L{ovs_i}"
-			# create texturestream file - dummy_dir is ignored
-			texstream_name = f"{basename}_lod{lod_i}.texturestream"
-			texstream_loader = self.ovl.create_file(f"dummy_dir/{texstream_name}", texstream_name, ovs_name=ovs_name)
-			self.streams.append(texstream_loader)
-			buffer_i = self.increment_buffers(texstream_loader, buffer_i)
-		self.create_data_entry(buffers[streamed_lods:])
-		self.increment_buffers(self, buffer_i)
-		# set data on the buffers
-		for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
-			buffer_entry.update_data(b_slice)
-		# fix as we don't use the data.update_data api here
-		for data_entry in self.get_sorted_datas():
-			data_entry.size_1 = 0
-			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
+			# there's one empty buffer at the end!
+			buffers = [b"" for _ in range(self.header.stream_count + 1)]
+			# decide where to store the buffers
+			static_lods = 2
+			streamed_lods = len(buffers) - static_lods
+			# logging.debug(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+			buffer_i = 0
+			# generate ovs and lod names - highly idiosyncratic
+			# checked for PZ, JWE2, PC1
+			if streamed_lods == 0:
+				indices = ()
+			elif streamed_lods == 1:
+				# 1 lod: lod0 -> L1
+				indices = ((0, 1),)
+			elif streamed_lods == 2:
+				# 2 lods: lod0 -> L0, lod1 -> L1
+				indices = ((0, 0), (1, 1),)
+			else:
+				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
+			for lod_i, ovs_i in indices:
+				ovs_name = f"Textures_L{ovs_i}"
+				# create texturestream file - dummy_dir is ignored
+				texstream_name = f"{basename}_lod{lod_i}.texturestream"
+				texstream_loader = self.ovl.create_file(f"dummy_dir/{texstream_name}", texstream_name, ovs_name=ovs_name)
+				self.streams.append(texstream_loader)
+				buffer_i = self.increment_buffers(texstream_loader, buffer_i)
+			self.create_data_entry(buffers[streamed_lods:])
+			self.increment_buffers(self, buffer_i)
+			# set data on the buffers
+			for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
+				buffer_entry.update_data(b_slice)
+			# fix as we don't use the data.update_data api here
+			for data_entry in self.get_sorted_datas():
+				data_entry.size_1 = 0
+				data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
 
 	def get_image_bytes(self, tex_path):
 		"""Returns a list of packed dds bytes, split for tex and texturestream buffers"""
@@ -166,6 +181,43 @@ class DdsLoader(MemStructLoader):
 				# 		<texbufferpc width="128" height="128" num_tiles="1" num_mips="8" />
 				# todo how to pack PC array textures
 				return dds_files[0].pack_mips_pc(texbuffers)
+			elif self.context.is_pc_2:
+				# pack mips for all array tiles
+				self.texbuffer = Pc2TexBuffer(self.context, self.header)
+				self.texbuffer.compression_type = size_info.compression_type
+				self.texbuffer.width = size_info.width
+				self.texbuffer.height = size_info.height
+				self.texbuffer.depth = size_info.depth
+				self.texbuffer.num_tiles = size_info.num_tiles
+				self.texbuffer.num_mips = size_info.num_mips
+				# todo - tiles, interleaving
+				# self.texbuffer.tile_width
+				# self.texbuffer.tile_height
+				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
+				with io.BytesIO() as tex:
+					# write the packed tex buffer: for each mip level, write all its tiles consecutively
+					for mip_level, mip_info in zip(zip(*mips_per_tiles), self.texbuffer.mip_maps):
+						mip_info.offset = tex.tell()
+						for tile in mip_level:
+							tex.write(tile)
+						mip_info.size = len(tile)
+						# todo - clear mip_info after num_mips cutoff
+					packed = tex.getvalue()
+				# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
+				self.texbuffer.num_mips_high = size_info.num_mips
+				self.texbuffer.num_mips_low = size_info.num_mips
+				mip0 = self.texbuffer.mip_maps[0]
+				for lod in self.texbuffer.main:
+					lod.offset = mip0.offset
+					lod.size = mip0.size
+					lod.tiles_x = mip0.tiles_x
+					lod.tiles_y = mip0.tiles_y
+					lod.is_tiled = mip0.is_tiled
+					lod.ff = 0
+
+				self.texbuffer.buffer_size = len(packed)
+				# print(self.texbuffer)
+				return [packed, ]
 			else:
 				# padding depends on io_size being updated
 				size_info.io_size = size_info.get_size(size_info, size_info.context)
@@ -286,8 +338,32 @@ class DdsLoader(MemStructLoader):
 			tile_names.append(tile_name)
 		return tile_names
 
+	def get_texel(self):
+		# get texel file from ovl to read external image buffer from aux
+		texel_name = f"/{self.header.texel}.texel"
+		if texel_name in self.ovl.loaders:
+			texel_loader = self.ovl.loaders[texel_name]
+		else:
+			texel_loader = self.ovl.create_file(f"dummy_dir/{texel_name}", texel_name)
+		return texel_loader
+
 	def extract(self, out_dir):
-		out_files = list(super().extract(out_dir))
+		# override super to store ovs name for PC2
+		# out_files = list(super().extract(out_dir))
+		if self.header:
+			out_path = out_dir(self.name)
+			with self.header.to_xml_file(self.header, out_path, debug=self.ovl.do_debug) as xml_root:
+				if self.ovl.do_debug:
+					pool, offset = self.root_ptr
+					xml_root.set("_address", f"{pool.i} | {offset}")
+					xml_root.set("_size", f"{pool.size_map.get(offset, -1)}")
+				if self.context.is_pc_2:
+					xml_root.set("ovs", self.ovs.arg.name)
+			out_files = [out_path, ]
+		else:
+			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
+			return ()
+
 		dds_paths = []
 		tex_name = self.name
 		basename = os.path.splitext(tex_name)[0]
@@ -325,9 +401,9 @@ class DdsLoader(MemStructLoader):
 				pass
 			out_files.append(texbuffer_path)
 			# get texel file from ovl to read external image buffer from aux
-			texel_loader = self.ovl.loaders[f"/{self.header.texel}.texel"]
-			# image_buffer = texel_loader.get_image_buffer(texbuffer.mip_infos[0].offset, texbuffer.buffer_size)
-			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_infos, dds_file, texbuffer)
+			texel_loader = self.get_texel()
+			# image_buffer = texel_loader.get_image_buffer(texbuffer.mip_maps[0].offset, texbuffer.buffer_size)
+			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_maps, dds_file, texbuffer)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
@@ -373,8 +449,10 @@ class DdsLoader(MemStructLoader):
 		return tiles
 
 
-class TexelLoader(BaseFile):
+class TexelLoader(MemStructLoader):
 	extension = ".texel"
+	can_extract = False
+	target_class = TexelHeader
 
 	def get_image_buffer(self, offset, size):
 		# ensure that aux files are where they should be
@@ -467,3 +545,9 @@ class TexelLoader(BaseFile):
 		text = f"{self.ovl.basename}_{self.name.replace('.', '_')}".lower().encode()
 		hash_value = fnv64(text)
 		return os.path.join(self.ovl.dir, f"{encode_int64_base32(hash_value)}_.aux")
+
+	def create(self, file_path):
+		self.header = self.target_class(self.context)
+		self.write_memory_data()
+		# data entry, assign buffer
+		# self.create_data_entry((b"", ))

@@ -14,7 +14,7 @@ class Pc2TexMip(MemStruct):
 		self.tiles_x = name_type_map['Ushort'](self.context, 0, None)
 		self.tiles_y = name_type_map['Ushort'](self.context, 0, None)
 		self.is_tiled = name_type_map['Short'](self.context, 0, None)
-		self.ff = name_type_map['Short'](self.context, 0, None)
+		self.ff = name_type_map['Short'].from_value(0)
 		if set_default:
 			self.set_defaults()
 
@@ -26,7 +26,7 @@ class Pc2TexMip(MemStruct):
 		yield 'tiles_x', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'tiles_y', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'is_tiled', name_type_map['Short'], (0, None), (False, None), (None, None)
-		yield 'ff', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'ff', name_type_map['Short'], (0, None), (False, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,4 +36,4 @@ class Pc2TexMip(MemStruct):
 		yield 'tiles_x', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'tiles_y', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'is_tiled', name_type_map['Short'], (0, None), (False, None)
-		yield 'ff', name_type_map['Short'], (0, None), (False, None)
+		yield 'ff', name_type_map['Short'], (0, None), (False, 0)

@@ -52,6 +52,7 @@ type_module_name_map = {
 	'Pc2TexBuffer': 'generated.formats.tex.compounds.Pc2TexBuffer',
 	'Pc2TexMip': 'generated.formats.tex.compounds.Pc2TexMip',
 	'TexturestreamHeader': 'generated.formats.tex.compounds.TexturestreamHeader',
+	'TexelHeader': 'generated.formats.tex.compounds.TexelHeader',
 }
 
 name_type_map = {}

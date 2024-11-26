@@ -57,7 +57,7 @@ class Pc2TexBuffer(MemStruct):
 		yield 'buffer_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'main', Array, (0, None, (2,), name_type_map['Pc2TexMip']), (False, None), (None, None)
-		yield 'mip_infos', Array, (0, None, (14,), name_type_map['Pc2TexMip']), (False, None), (None, None)
+		yield 'mip_maps', Array, (0, None, (14,), name_type_map['Pc2TexMip']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -78,4 +78,4 @@ class Pc2TexBuffer(MemStruct):
 		yield 'buffer_size', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'main', Array, (0, None, (2,), name_type_map['Pc2TexMip']), (False, None)
-		yield 'mip_infos', Array, (0, None, (14,), name_type_map['Pc2TexMip']), (False, None)
+		yield 'mip_maps', Array, (0, None, (14,), name_type_map['Pc2TexMip']), (False, None)
