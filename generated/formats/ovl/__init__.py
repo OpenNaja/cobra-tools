@@ -19,7 +19,7 @@ from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2, DummyReporter
+from modules.formats.shared import djb2, DummyReporter, walk_type
 from ovl_util.shared import hex_dump
 
 try:
@@ -716,18 +716,21 @@ class OvlFile(Header):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		self.store_filepath(f"{ovl_dir}.ovl")
 		self.create_archive(name="STATIC")
-		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
+		# todo - resolve redundancy to walk in add_files
+		# also catch subfolders for ui images in newer games
+		file_paths = [os.path.join(ovl_dir, file_name) for file_name in walk_type(ovl_dir, "")]
 		self.loaders = {}
-		self.add_files(file_paths)
+		self.add_files(file_paths, common_root_dir=ovl_dir)
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
-	def add_files(self, file_paths):
+	def add_files(self, file_paths, common_root_dir=None):
 		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
 		logging.debug(file_paths)
 		if not file_paths:
 			return
-		# file_paths must be direct children of the same folder
-		common_root = os.path.dirname(file_paths[0])
+		if not common_root_dir:
+			# file_paths must be direct children of the same folder
+			common_root_dir = os.path.dirname(file_paths[0])
 		file_paths = {os.path.normpath(file_path) for file_path in file_paths}
 		inject_paths = set()
 		# process the children of root
@@ -783,7 +786,7 @@ class OvlFile(Header):
 						logging.debug(f"Ignoring {file_path} - not a cobra format")
 						continue
 				# make relative to the common root, use forward slash as separator
-				file_name = os.path.relpath(file_path, common_root).replace("\\", "/")
+				file_name = os.path.relpath(file_path, common_root_dir).replace("\\", "/")
 				try:
 					loader = self.create_file(file_path, file_name)
 					self.register_loader(loader)

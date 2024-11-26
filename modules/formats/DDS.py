@@ -75,6 +75,15 @@ class DdsLoader(MemStructLoader):
 		if self.context.is_pc_2:
 			logging.warning("super experimental")
 			texel_loader = self.get_texel()
+			# todo - refactor to move actual writing of aux to disk into OvlFile.save,
+			#  as doing it here would require ovl name + dir to be set which isn't safe
+			# create aux file
+			with open(texel_loader.get_aux_path(""), "wb") as f:
+				# write bytes to it
+				f.write(buffer_bytes[0])
+				# todo update offsets in mip infos accordingly
+				# for buf, mip in zip(buffer_bytes, self.texbuffer.mip_maps):
+				# 	pass
 			# todo - instead directly register/remove texel as needed;
 			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
 			self.extra_loaders = [texel_loader, ]
@@ -400,7 +409,6 @@ class DdsLoader(MemStructLoader):
 			with texbuffer.to_xml_file(texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 				pass
 			out_files.append(texbuffer_path)
-			# get texel file from ovl to read external image buffer from aux
 			texel_loader = self.get_texel()
 			# image_buffer = texel_loader.get_image_buffer(texbuffer.mip_maps[0].offset, texbuffer.buffer_size)
 			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_maps, dds_file, texbuffer)

@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from modules.formats.FGM import FgmContext
+from modules.formats.shared import walk_type
 from ovl_util.logs import ANSI
 from constants.converter import write_mimes_dict, write_hashes_dict
 from generated.array import Array
@@ -19,16 +20,6 @@ from constants import Mime, Shader, ConstantsProvider
 
 # get this huge dict from fgm walker, use in ms2 walker
 shader_map = {}
-
-
-def walk_type(start_dir, extension=".ovl"):
-	logging.info(f"Scanning {Path(start_dir)} for {extension} files")
-	ret = []
-	for root, dirs, files in os.walk(start_dir, topdown=False):
-		for name in files:
-			if name.lower().endswith(extension):
-				ret.append(os.path.join(root, name))
-	return ret
 
 
 def content_folder(filepath: Path):

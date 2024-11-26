@@ -8,6 +8,7 @@ from pathlib import PurePath
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.logs import get_stdout_handler
 from modules import walker
+import modules.formats.shared
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -295,7 +296,7 @@ class MainWindow(widgets.MainWindow):
 		if batch:
 			with self.no_popups():
 				with self.log_level_override("WARNING"):
-					for ovl_path in walker.walk_type(self.walk_root(), extension=".ovl"):
+					for ovl_path in modules.formats.shared.walk_type(self.walk_root(), extension=".ovl"):
 						# open ovl file
 						self.open(ovl_path)
 						# todo clear logger after each file, using self.file_widget.open_file would do that
@@ -483,9 +484,11 @@ class MainWindow(widgets.MainWindow):
 	def inject_files(self, files):
 		"""Tries to inject files into self.ovl_data"""
 		if files:
-			self.cfg["dir_inject"] = os.path.dirname(files[0])
+			# any path added from the gui is necessarily at the same folder level, dirs need to be expanded
+			common_root_dir = os.path.dirname(files[0])
+			self.cfg["dir_inject"] = common_root_dir
 			self.set_dirty()
-			self.run_in_threadpool(self.ovl_data.add_files, (), files)
+			self.run_in_threadpool(self.ovl_data.add_files, (), files, common_root_dir)
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):

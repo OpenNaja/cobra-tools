@@ -1,7 +1,9 @@
 import contextlib
 import logging
+import os
 import struct
 import time
+from pathlib import Path
 
 
 def get_padding_size(size, alignment=16):
@@ -118,3 +120,15 @@ class DummyReporter:
         yield
         duration = time.time() - start_time
         logging.debug(f"{operation} took {duration:.2f} seconds")
+
+
+def walk_type(start_dir, extension=".ovl"):
+    logging.info(f"Scanning {Path(start_dir)} for {extension} files")
+    ret = []
+    for root, dirs, files in os.walk(start_dir, topdown=False):
+        for name in files:
+            if extension and not name.lower().endswith(extension):
+                continue
+            ret.append(os.path.join(root, name))
+    logging.info(ret)
+    return ret
