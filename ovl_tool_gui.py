@@ -249,6 +249,12 @@ class MainWindow(widgets.MainWindow):
 	def enable_gui_options(self, enable=True):
 		self.compression_choice.setEnabled(enable)
 		self.installed_games.play_button.setEnabled(enable)
+		self.installed_games.dirs.setEnabled(enable)
+		self.installed_games.search.setEnabled(enable)
+		self.file_widget.setEnabled(enable)
+		self.file_widget.icon.setEnabled(enable)
+		self.file_widget.entry.setEnabled(enable)
+		self.files_container.table.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
 		for action_name in self.actions.keys():
