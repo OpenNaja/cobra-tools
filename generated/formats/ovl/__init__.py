@@ -864,22 +864,6 @@ class OvlFile(Header):
 		else:
 			raise NotImplementedError(f"Unsupported game {game}")
 
-	def get_hash(self, h, ext, using_file):
-		game = self.game
-		fallback = f"{UNK_HASH}_{h}"
-		if game in self.constants:
-			game_lut = self.constants[game]
-			if h in game_lut["hashes"]:
-				return game_lut["hashes"][h]
-		logging.warning(f"{using_file} can't find the original name of {fallback}{ext}", extra={"details":
-							f"""
-							An unknown hash means the tools cannot ascertain the original filename.
-							This means {using_file} likely will not work correctly without editing 
-							it to fix the unknown hash.
-							"""
-						})
-		return fallback
-
 	def load(self, filepath, commands={}):
 		# store commands
 		self.commands = commands
@@ -931,7 +915,7 @@ class OvlFile(Header):
 			self.files_ext = [f".{self.mimes_ext[i]}" for i in self.files["extension"]]
 			# remove any quotation chars, eg. homalocephale@huntkilledcarnotaurusin_srb".wsm
 			self.files_name = [f"{b}{e}".replace('"', "") for b, e in zip(self.files_basename, self.files_ext)]
-			self.dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
+			dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 			self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
 			self.loaders = {}
@@ -943,7 +927,7 @@ class OvlFile(Header):
 				deps_exts = self.commands["generate_hash_table"]
 				filtered_hash_table = {h: basename for h, basename, ext in zip(
 					self.files["file_hash"], self.files_basename, self.files_ext) if ext in deps_exts}
-				return filtered_hash_table, set(self.dependencies_ext)
+				return filtered_hash_table, set(dependencies_ext)
 			elif "generate_names" in self.commands:
 				return self.files_name
 			else:
@@ -960,21 +944,32 @@ class OvlFile(Header):
 			self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
 			self.reporter.included_ovls_list.emit(self.included_ovl_names)
 
-			self.dependencies_basename = [self.get_dep_name(h, ext, self.files_name[f_i]) for h, ext, f_i in zip(
-				self.dependencies["file_hash"], self.dependencies_ext, self.dependencies["file_index"])]
-			self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
+			self.dependencies_name = [self.get_dep_name(h, ext, self.files_name[f_i]) for h, ext, f_i in zip(
+				self.dependencies["file_hash"], dependencies_ext, self.dependencies["file_index"])]
 
-			self.aux_entries_names = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
-			for f_i, aux_size, aux_name in zip(self.aux_entries["file_index"], self.aux_entries["size"], self.aux_entries_names):
+			aux_suffices = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
+			for f_i, aux_size, aux_suffix in zip(self.aux_entries["file_index"], self.aux_entries["size"], aux_suffices):
 				file_name = self.files_name[f_i]
-				self.loaders[file_name].pick_aux(aux_name, aux_size)
+				self.loaders[file_name].read_aux_from_disk(aux_suffix, aux_size)
 			self.load_archives()
 
 	def get_dep_name(self, h, ext, using_file):
+		"""Gets the name for a dependency identified by hash h"""
 		if h in self.hash_table_local:
-			return self.hash_table_local[h]
+			return self.hash_table_local[h]+ext
 		else:
-			return self.get_hash(h, ext, using_file)
+			game = self.game
+			fallback = f"{UNK_HASH}_{h}"
+			if game in self.constants:
+				game_lut = self.constants[game]
+				if h in game_lut["hashes"]:
+					return game_lut["hashes"][h]+ext
+			logging.warning(f"{using_file} can't find the original name of {fallback}{ext}", extra={"details": f"""
+								An unknown hash means the tools cannot ascertain the original filename.
+								This means {using_file} likely will not work correctly without editing 
+								it to fix the unknown hash.
+								"""})
+			return fallback+ext
 
 	def load_archives(self):
 		with self.reporter.log_duration("Loading archives"):
@@ -1119,7 +1114,7 @@ class OvlFile(Header):
 		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_entries]
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
-		loaders_and_aux = [(aux, loader) for loader in loaders_with_aux for aux in loader.aux_entries]
+		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_entries]
 		ovl_includes = sorted(set(self.included_ovl_names))
 		ovl_includes = [ovl_path.replace(".ovl", "") for ovl_path in ovl_includes]
 
@@ -1141,12 +1136,12 @@ class OvlFile(Header):
 		else:
 			deps_basename = deps_ext = ()
 		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
-		aux_names = [aux for aux, loader in loaders_and_aux]
+		aux_suffices = [aux_suffix for aux_suffix, loader in loaders_and_aux]
 		names_list = [
 			*sorted(set(deps_ext)),
 			*ovl_includes,
 			*mimes_name,
-			*aux_names,
+			*aux_suffices,
 			*sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
@@ -1220,10 +1215,9 @@ class OvlFile(Header):
 
 		self.included_ovls["basename"] = [self.names.offset_dic[name] for name in ovl_includes]
 
-		# self.aux_entries.sort(key=lambda x: x.file_index)
-		self.aux_entries["file_index"] = [loader.file_index for aux, loader in loaders_and_aux]
-		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_names]
-		self.aux_entries["size"] = [loader.get_aux_size(aux) for aux, loader in loaders_and_aux]
+		self.aux_entries["file_index"] = [loader.file_index for aux_suffix, loader in loaders_and_aux]
+		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_suffices]
+		self.aux_entries["size"] = [loader.write_aux_to_disk(aux_suffix) for aux_suffix, loader in loaders_and_aux]
 
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 

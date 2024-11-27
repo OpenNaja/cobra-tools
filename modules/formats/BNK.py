@@ -11,10 +11,13 @@ from modules.formats.BaseFormat import BaseFile
 class BnkLoader(BaseFile):
 	extension = ".bnk"
 
+	def get_aux_name(self, aux_suffix, aux_size=0):
+		bnk_barename = os.path.splitext(self.name)[0]
+		return f"{self.ovl.basename}_{bnk_barename}_bnk_{aux_suffix}.aux"
+
 	def create(self, file_path):
 		bnk_file = BnkFile()
 		bnk_file.load(file_path)
-		bnk_name = os.path.splitext(self.name)[0]
 		# ensure update of bnk_file.bnk_header.size_b
 		if bnk_file.bnk_header.external_aux_b_count:
 			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
@@ -31,15 +34,12 @@ class BnkLoader(BaseFile):
 		# print(bnk_file)
 		self.write_root_bytes(b"\x00" * 16)
 		self.create_data_entry(buffers)
-		self.aux_entries = {}
-		# todo this needs an update for older than PC2 to be updated when ovl name changes
-		if bnk_file.bnk_header.external_b_suffix:
-			self.aux_entries[bnk_file.bnk_header.external_b_suffix] = f"{self.ovl.basename}_{bnk_name}_bnk_b.aux"
-		if bnk_file.bnk_header.external_s_suffix:
-			self.aux_entries[bnk_file.bnk_header.external_s_suffix] = f"{self.ovl.basename}_{bnk_name}_bnk_s.aux"
+		self.aux_data = {}
+		for suffix in (bnk_file.bnk_header.external_b_suffix, bnk_file.bnk_header.external_s_suffix):
+			if suffix:
+				self.aux_data[suffix] = self.get_content(self.get_aux_path(suffix))
 
 	def extract(self, out_dir):
-		bnk_name = os.path.splitext(self.name)[0]
 		out_path = out_dir(self.name)
 		out_files = [out_path, ]
 		buffer_datas = self.data_entry.buffer_datas
@@ -53,7 +53,7 @@ class BnkLoader(BaseFile):
 			bnk_header = BnkBufferData.from_stream(stream, self.context)
 
 		# ensure that aux files are where they should be
-		for aux_suffix, aux_name in self.aux_entries.items():
+		for aux_suffix in self.aux_data:
 			aux_suffix = aux_suffix.lower()
 			if aux_suffix == "b":
 				assert bnk_header.external_b_suffix.lower() == "b"
@@ -62,18 +62,18 @@ class BnkLoader(BaseFile):
 			else:
 				logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
 				continue
-			aux_path = os.path.join(self.ovl.dir, aux_name)
+			aux_path = self.get_aux_path(aux_suffix)
 			if not os.path.isfile(aux_path):
 				logging.error(f"External .aux file '{aux_suffix}' was not found at {aux_path}")
 			# copy to tmp path so we leave the original file intact
-			copy_aux_path = out_dir(aux_name)
+			copy_aux_path = out_dir(os.path.basename(aux_path))
 			shutil.copy(aux_path, copy_aux_path)
 			out_files.append(copy_aux_path)
 
 		# check if an aux 'file' is stored as second buffer in ovl
 		if len(buffer_datas) > 1:
 			# always type b
-			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_b.aux"
+			aux_name = self.get_aux_name("b")
 			# extract to tmp path
 			aux_path = out_dir(aux_name)
 			logging.debug(f"Extracted internal .aux to {aux_path}")

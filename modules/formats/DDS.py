@@ -410,7 +410,6 @@ class DdsLoader(MemStructLoader):
 				pass
 			out_files.append(texbuffer_path)
 			texel_loader = self.get_texel()
-			# image_buffer = texel_loader.get_image_buffer(texbuffer.mip_maps[0].offset, texbuffer.buffer_size)
 			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_maps, dds_file, texbuffer)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
@@ -462,80 +461,65 @@ class TexelLoader(MemStructLoader):
 	can_extract = False
 	target_class = TexelHeader
 
-	def get_image_buffer(self, offset, size):
-		# ensure that aux files are where they should be
-		for aux_suffix in self.aux_entries:
-			assert aux_suffix == ""
-		# todo only open aux once, keep handle open as needed
-		with open(self.get_aux_path(""), "rb") as f:
-			# items in main need not be in order and can be split up, eg. parkbounds.popacitytexture
-			# that seems to change the counts though
-			# wrs_bodyflume_decal001.pnormaltexture doesn't have the main lods in there, just far ones
-			f.seek(offset)
-			image_buffer = f.read(size)
-		return image_buffer
-
 	def get_mip_buffers(self, mips, dds_file, texbuffer):
 		# ensure that aux files are where they should be
-		for aux_suffix in self.aux_entries:
+		for aux_suffix in self.aux_data:
 			assert aux_suffix == ""
-		# todo only open aux once, keep handle open as needed
 		mip_data = []
 		dds_file.get_pixel_fmt()
-		with open(self.get_aux_path(""), "rb") as f:
-			height = texbuffer.height
-			width = texbuffer.width
-			for mip_i, mip in enumerate(mips):
-				f.seek(mip.offset)
-				mip_buffer = f.read(mip.size)
-				if mip.size == 0:
-					continue
-				logging.debug(f"MIP{mip_i}")
-				out = bytearray(mip_buffer)
-				if mip.tiles_x > 1 and mip.tiles_y > 1:
-					seek = 0
-					tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
-					tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
-					if tile_row_count != mip.tiles_y:
-						logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
-					if tile_col_count != mip.tiles_x:
-						logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
+		aux_data = self.aux_data[""]
+		height = texbuffer.height
+		width = texbuffer.width
+		for mip_i, mip in enumerate(mips):
+			mip_buffer = aux_data[mip.offset:mip.offset+mip.size]
+			if mip.size == 0:
+				continue
+			logging.debug(f"MIP{mip_i}")
+			out = bytearray(mip_buffer)
+			if mip.tiles_x > 1 and mip.tiles_y > 1:
+				seek = 0
+				tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
+				tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
+				if tile_row_count != mip.tiles_y:
+					logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
+				if tile_col_count != mip.tiles_x:
+					logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
 
-					tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
-					tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
-					scanline_size = tile_col_count * tile_scanline_size
+				tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
+				tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
+				scanline_size = tile_col_count * tile_scanline_size
 
-					tile_size = scanline_size * tile_col_count
-					tile_row_size = tile_size * tile_scanline_count
+				tile_size = scanline_size * tile_col_count
+				tile_row_size = tile_size * tile_scanline_count
 
-					logging.debug(f"tile_row_count = {tile_row_count}")
-					logging.debug(f"tile_col_count = {tile_col_count}")
-					logging.debug(f"tile_col_count = {tile_col_count}")
-					logging.debug(f"tile_scanline_count = {tile_scanline_count}")
-					logging.debug(f"tile_scanline_size = {tile_scanline_size}")
-					logging.debug(f"tile_row_size = {tile_row_size}")
-					logging.debug(f"tile_size = {tile_size}")
-					logging.debug(f"scanline_size = {scanline_size}")
-					for block_row_i in range(tile_row_count):
-						for block_col_i in range(tile_col_count):
-							for row_i in range(tile_scanline_count):
-								for col_i in range(tile_col_count):
-									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-									target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (
-												col_i * scanline_size) + (block_col_i * tile_scanline_size)
-									# print(f"seek {seek} target_offset {target_offset}")
-									out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
-																							seek:seek + tile_scanline_size]
-									seek += tile_scanline_size
-					if len(mip_buffer) != len(out):
-						logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
-				mip_data.append(out)
-				height //= 2
-				width //= 2
+				logging.debug(f"tile_row_count = {tile_row_count}")
+				logging.debug(f"tile_col_count = {tile_col_count}")
+				logging.debug(f"tile_col_count = {tile_col_count}")
+				logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+				logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+				logging.debug(f"tile_row_size = {tile_row_size}")
+				logging.debug(f"tile_size = {tile_size}")
+				logging.debug(f"scanline_size = {scanline_size}")
+				for block_row_i in range(tile_row_count):
+					for block_col_i in range(tile_col_count):
+						for row_i in range(tile_scanline_count):
+							for col_i in range(tile_col_count):
+								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+								target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (
+											col_i * scanline_size) + (block_col_i * tile_scanline_size)
+								# print(f"seek {seek} target_offset {target_offset}")
+								out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
+																						seek:seek + tile_scanline_size]
+								seek += tile_scanline_size
+				if len(mip_buffer) != len(out):
+					logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+			mip_data.append(out)
+			height //= 2
+			width //= 2
 		image_buffer = b"".join(mip_data)
 		return image_buffer
 
-	def get_aux_path(self, aux_suffix):
+	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""
 		# Full Archive path:
 		#   Win64\ovldata\Content0\Worlds\DefaultSandbox.ovl
@@ -552,7 +536,7 @@ class TexelLoader(MemStructLoader):
 		assert not aux_suffix
 		text = f"{self.ovl.basename}_{self.name.replace('.', '_')}".lower().encode()
 		hash_value = fnv64(text)
-		return os.path.join(self.ovl.dir, f"{encode_int64_base32(hash_value)}_.aux")
+		return f"{encode_int64_base32(hash_value)}_.aux"
 
 	def create(self, file_path):
 		self.header = self.target_class(self.context)

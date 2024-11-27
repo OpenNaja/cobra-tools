@@ -37,7 +37,6 @@ class BaseFile:
 
 		# defined in ovl
 		self.dependencies = []
-		self.aux_entries = {}
 		self.streams = []
 		self.extra_loaders = []
 
@@ -49,32 +48,34 @@ class BaseFile:
 		self.root_ptr = (None, 0)
 
 		self.same = False
+		self.aux_data = {}
 
-	def pick_aux(self, aux_name, aux_size):
-		"""Register a suitable aux path in the loader's aux_entries dict"""
-		logging.debug(f"Picking .aux file for type '{aux_name}' ({aux_size} bytes)")
-		aux_files = [os.path.join(self.ovl.dir, file) for file in os.listdir(self.ovl.dir) if file.endswith(".aux")]
-		for aux_path in aux_files:
-			size = os.path.getsize(aux_path)
-			if size == aux_size:
-				self.aux_entries[aux_name] = os.path.basename(aux_path)
-				break
+	def read_aux_from_disk(self, aux_suffix, aux_size=0):
+		"""Store aux bytes in loader's aux_data dict"""
+		self.aux_data[aux_suffix] = self.get_content(self.get_aux_path(aux_suffix, aux_size))
+
+	def get_aux_path(self, aux_suffix, aux_size=0):
+		"""Get path of aux file on disk"""
+		return os.path.join(self.ovl.dir, self.get_aux_name(aux_suffix, aux_size))
+
+	def get_aux_name(self, aux_suffix, aux_size=0):
+		"""Get name of aux file from aux file of matching size"""
+		logging.debug(f"Picking .aux file for type '{aux_suffix}' ({aux_size} bytes)")
+		for file_name in os.listdir(self.ovl.dir):
+			if file_name.endswith(".aux"):
+				aux_path = os.path.join(self.ovl.dir, file_name)
+				if os.path.getsize(aux_path) == aux_size:
+					return file_name
 		else:
-			logging.warning(f"Found more than one .aux file for {self.name}, taking the first!")
+			raise LookupError(f"Found no matching .aux file for {self.name}!")
 
-	def get_aux_path(self, aux_suffix):
-		"""Get path of aux file from loader's aux_entries dict"""
-		aux_name = self.aux_entries[aux_suffix]
-		return os.path.join(self.ovl.dir, aux_name)
-
-	def get_aux_size(self, aux_suffix):
-		"""Get size of aux file, as stored on the loader's aux_entries dict, from disk"""
+	def write_aux_to_disk(self, aux_suffix):
+		"""Get aux file from aux_data, write to disk and return size"""
 		aux_path = self.get_aux_path(aux_suffix)
-		if os.path.isfile(aux_path):
-			return os.path.getsize(aux_path)
-		else:
-			logging.warning(f"Could not find {aux_path} to update .aux file size")
-			return 0
+		aux_data = self.aux_data[aux_suffix]
+		with open(aux_path, "wb") as f:
+			f.write(aux_data)
+		return len(aux_data)
 
 	@property
 	def controlled_loaders(self):
@@ -319,8 +320,6 @@ class BaseFile:
 			entry.name = self._rename(name_tuples, entry.name)
 		self.target_name = self._rename(name_tuples, self.target_name)
 		self.name = self._rename(name_tuples, self.name)
-		# todo aux handling might need a change
-		self.aux_entries = {self._rename(name_tuples, aux): self._rename(name_tuples, aux_path) for aux, aux_path in self.aux_entries.items()}
 		self.dependencies = [(self._rename(name_tuples, dep), ptr) for dep, ptr in self.dependencies]
 		# dependencies in stack & pools' link tables
 		for (p_pool, p_offset), children in self.stack.items():
