@@ -1110,10 +1110,10 @@ class OvlFile(Header):
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
 		# clear ovl lists
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
-		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_entries]
+		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_data]
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
-		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_entries]
+		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_data]
 		ovl_includes = sorted(set(self.included_ovl_names))
 		ovl_includes = [ovl_path.replace(".ovl", "") for ovl_path in ovl_includes]
 
