@@ -75,15 +75,12 @@ class DdsLoader(MemStructLoader):
 		if self.context.is_pc_2:
 			logging.warning("super experimental")
 			texel_loader = self.get_texel()
-			# todo - refactor to move actual writing of aux to disk into OvlFile.save,
-			#  as doing it here would require ovl name + dir to be set which isn't safe
-			# create aux file
-			with open(texel_loader.get_aux_path(""), "wb") as f:
-				# write bytes to it
-				f.write(buffer_bytes[0])
-				# todo update offsets in mip infos accordingly
-				# for buf, mip in zip(buffer_bytes, self.texbuffer.mip_maps):
-				# 	pass
+			self.aux_data = {}
+			self.aux_data[""] = buffer_bytes[0]
+			# todo update offsets in mip infos accordingly
+			# for buf, mip in zip(buffer_bytes, self.texbuffer.mip_maps):
+			# 	pass
+
 			# todo - instead directly register/remove texel as needed;
 			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
 			self.extra_loaders = [texel_loader, ]
@@ -541,5 +538,3 @@ class TexelLoader(MemStructLoader):
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
 		self.write_memory_data()
-		# data entry, assign buffer
-		# self.create_data_entry((b"", ))
