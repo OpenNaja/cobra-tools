@@ -76,10 +76,28 @@ class DdsLoader(MemStructLoader):
 			logging.warning("super experimental")
 			texel_loader = self.get_texel()
 			texel_loader.aux_data = {}
-			texel_loader.aux_data[""] = buffer_bytes[0]
-			# todo update offsets in mip infos accordingly
-			# for buf, mip in zip(buffer_bytes, self.texbuffer.mip_maps):
-			# 	pass
+			writer = io.BytesIO()
+			for mip_i, (mip_bytes, mip_info) in enumerate(zip(buffer_bytes, self.texbuffer.mip_maps)):
+				# only set size + offset on valid mips
+				if mip_i < self.texbuffer.num_mips:
+					mip_info.offset = writer.tell()
+					writer.write(mip_bytes)
+					mip_info.size = len(mip_bytes)
+				mip_info.ff = -1
+			# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
+			self.texbuffer.num_mips_high = self.texbuffer.num_mips
+			self.texbuffer.num_mips_low = self.texbuffer.num_mips
+			mip0 = self.texbuffer.mip_maps[0]
+			for lod in self.texbuffer.main:
+				lod.offset = mip0.offset
+				lod.size = mip0.size
+				lod.tiles_x = mip0.tiles_x
+				lod.tiles_y = mip0.tiles_y
+				lod.is_tiled = mip0.is_tiled
+				lod.ff = 0
+
+			# todo - store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
+			texel_loader.aux_data[""] = writer.getvalue()
 
 			# todo - instead directly register/remove texel as needed;
 			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
@@ -200,30 +218,16 @@ class DdsLoader(MemStructLoader):
 				# self.texbuffer.tile_width
 				# self.texbuffer.tile_height
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
-				with io.BytesIO() as tex:
-					# write the packed tex buffer: for each mip level, write all its tiles consecutively
-					for mip_level, mip_info in zip(zip(*mips_per_tiles), self.texbuffer.mip_maps):
-						mip_info.offset = tex.tell()
-						for tile in mip_level:
-							tex.write(tile)
-						mip_info.size = len(tile)
-						# todo - clear mip_info after num_mips cutoff
-					packed = tex.getvalue()
-				# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
-				self.texbuffer.num_mips_high = size_info.num_mips
-				self.texbuffer.num_mips_low = size_info.num_mips
-				mip0 = self.texbuffer.mip_maps[0]
-				for lod in self.texbuffer.main:
-					lod.offset = mip0.offset
-					lod.size = mip0.size
-					lod.tiles_x = mip0.tiles_x
-					lod.tiles_y = mip0.tiles_y
-					lod.is_tiled = mip0.is_tiled
-					lod.ff = 0
-
-				self.texbuffer.buffer_size = len(packed)
+				packed_mips = []
+				# write the packed tex buffer: for each mip level, write all its tiles consecutively
+				for mip_level in zip(*mips_per_tiles):
+					# for tile in mip_level:
+					# 	tex.write(tile)
+					mip_bytes = b"".join(mip_level)
+					packed_mips.append(mip_bytes)
+				self.texbuffer.buffer_size = sum(len(mip_bytes) for mip_bytes in packed_mips)
 				# print(self.texbuffer)
-				return [packed, ]
+				return packed_mips
 			else:
 				# padding depends on io_size being updated
 				size_info.io_size = size_info.get_size(size_info, size_info.context)
