@@ -75,8 +75,8 @@ class DdsLoader(MemStructLoader):
 		if self.context.is_pc_2:
 			logging.warning("super experimental")
 			texel_loader = self.get_texel()
-			self.aux_data = {}
-			self.aux_data[""] = buffer_bytes[0]
+			texel_loader.aux_data = {}
+			texel_loader.aux_data[""] = buffer_bytes[0]
 			# todo update offsets in mip infos accordingly
 			# for buf, mip in zip(buffer_bytes, self.texbuffer.mip_maps):
 			# 	pass
