@@ -327,7 +327,7 @@ class OvsFile(OvsHeader):
 		logging.info("Updating pool names, deleting unused pools")
 		# map the pool types to pools
 		pools_by_type = {}
-		for pool_index, pool in enumerate(self.ovl.reporter.iter_progress(self.pools, "Updating pools")):
+		for pool_index, pool in enumerate(self.ovl.reporter.iter_progress(self.pools, "Rebuilding pools", cond=len(self.pools) > 1)):
 			if pool.offsets:
 				# store pool in pool_groups map
 				if pool.type not in pools_by_type:
@@ -1096,14 +1096,15 @@ class OvlFile(Header):
 		if UNK_HASH in name:
 			logging.warning(f"Won't update hash {name}")
 			return int(name.replace(f"{UNK_HASH}_", ""))
+		elif UNK_HASH.lower() in name:
+			logging.warning(f"Won't update hash {name}")
+			return int(name.replace(f"{UNK_HASH.lower()}_", ""))
 		return djb2(name)
 
 	def rebuild_ovl_arrays(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
 
 		# update file hashes and extend entries per loader
-		# self.files.sort(key=lambda x: (x.ext, x.file_hash))
-		# sorted_loaders = sorted(self.loaders, key=lambda x: (x.ext, x.file_hash))
 		loaders_by_extension = self.get_loaders_by_ext()
 		mimes_ext = sorted(loaders_by_extension)
 		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
@@ -1137,10 +1138,10 @@ class OvlFile(Header):
 		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
 		aux_suffices = [aux_suffix for aux_suffix, loader in loaders_and_aux]
 		names_list = [
+			*aux_suffices,
 			*sorted(set(deps_ext)),
 			*ovl_includes,
 			*mimes_name,
-			*aux_suffices,
 			*sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
@@ -1198,7 +1199,7 @@ class OvlFile(Header):
 		# update all pools before indexing anything that points into pools
 		pools_offset = 0
 		self.archives.sort(key=lambda a: a.name)
-		for archive in self.archives:
+		for archive in self.reporter.iter_progress(self.archives, "Rebuilding pools"):
 			ovs = archive.content
 			ovs.clear_ovs_arrays()
 			ovs.rebuild_pools()
@@ -1245,7 +1246,7 @@ class OvlFile(Header):
 					logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
 					raise
 			# remove all entries to rebuild them from the loaders
-			for archive in self.archives:
+			for archive in self.reporter.iter_progress(self.archives, "Updating headers"):
 				ovs = archive.content
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
@@ -1306,7 +1307,7 @@ class OvlFile(Header):
 
 			pools_byte_offset = 0
 			# make a temporary copy so we can delete archive if needed
-			for archive in tuple(self.archives):
+			for archive in self.reporter.iter_progress(tuple(self.archives), "Updating archives"):
 
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
@@ -1440,8 +1441,12 @@ class OvlFile(Header):
 			self.rebuild_ovl_arrays()
 			# these need to be done after the rest
 			self.update_stream_files()
-			ovs_types = {archive.name for archive in self.archives if "Textures_L" not in archive.name}
-			ovs_types.discard("STATIC")
+			ovs_types = set()
+			for loader in self.loaders.values():
+				if loader.ovs.arg.name != "STATIC" and loader.ext not in (".tex", ".texturestream"):
+					ovs_types.add(loader.ovs.arg.name)
+			# ovs_types = {archive.name for archive in self.archives if "Textures_L" not in archive.name}
+			# ovs_types.discard("STATIC")
 			self.num_ovs_types = len(ovs_types)
 			ovl_compressed = b""
 			self.reset_field("archives_meta")

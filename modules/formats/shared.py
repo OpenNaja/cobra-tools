@@ -73,25 +73,29 @@ class DummyReporter:
     progress_total = DummySignal()  # type: ignore
     current_action = DummySignal()  # type: ignore
 
-    def iter_progress(self, iterable, message):
-        self.current_action.emit(message)
-        self._percentage = -1
-        if len(iterable) > 1:
+    def iter_progress(self, iterable, message, cond=True):
+        if cond:
+            self.current_action.emit(message)
+            self._percentage = -1
+            if len(iterable) > 1:
+                self.progress_total.emit(100)
+            else:
+                self.progress_total.emit(0)
+            for i, item in enumerate(iterable):
+                p = round(i / len(iterable) * 100)
+                if p != self._percentage:
+                    self.progress_percentage.emit(p)
+                    self._percentage = p
+                yield item
+            # clear both to also make indeterminate processes appear complete
+            self.progress_percentage.emit(100)
             self.progress_total.emit(100)
+            msg = f"Finished {message}"
+            self.current_action.emit(msg)
+            # logging.success(msg)
         else:
-            self.progress_total.emit(0)
-        for i, item in enumerate(iterable):
-            p = round(i / len(iterable) * 100)
-            if p != self._percentage:
-                self.progress_percentage.emit(p)
-                self._percentage = p
-            yield item
-        # clear both to also make indeterminate processes appear complete
-        self.progress_percentage.emit(100)
-        self.progress_total.emit(100)
-        msg = f"Finished {message}"
-        self.current_action.emit(msg)
-        # logging.success(msg)
+            for item in iterable:
+                yield item
 
     @contextlib.contextmanager
     def report_error_files(self, operation):

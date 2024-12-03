@@ -236,7 +236,7 @@ class JointData(BaseStruct):
 		instance.context.joint_names = instance.joint_names
 		# if instance.context.version <= 32:
 		# set arg = instance.joint_names
-		strings = list(instance.get_strings())
+		strings = sorted(instance.get_strings())
 		instance.joint_names.update_strings(strings)
 		# at least PC+PZ store the length without the 8 byte alignment padding at the end
 		# however the end of ZStringBuffer is aligned to 8 and may be padded additionally

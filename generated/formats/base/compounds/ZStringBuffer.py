@@ -49,17 +49,20 @@ class ZStringBuffer(BaseStruct):
 	def update_strings(self, list_of_strs):
 		"""Updates this name buffer with a list of names"""
 		# logging.debug(f"Updating name buffer, data = {len(self.data)} bytes {self.data}")
-		self.strings = sorted(set(list_of_strs))
+		self.strings = []
 		self.offset_dic = {}
 		self.offset_2_str = {}
 		with BytesIO() as stream:
-			for name in self.strings:
+			for name in list_of_strs:
 				if not isinstance(name, str):
 					logging.warning(f"Name '{name}' is not a string, skipping")
+					continue
+				if name in self.offset_dic:
 					continue
 				# store offset and write zstring
 				self.offset_dic[name] = stream.tell()
 				self.offset_2_str[stream.tell()] = name
+				self.strings.append(name)
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
