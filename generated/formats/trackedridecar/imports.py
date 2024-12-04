@@ -22,7 +22,7 @@ type_module_name_map = {
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
 	'Vector2': 'generated.formats.base.compounds.Vector2',
-	'Vector3': 'generated.formats.trackedridecar.compounds.Vector3',
+	'Vector3': 'generated.formats.base.compounds.Vector3',
 	'Vector3Half': 'generated.formats.base.compounds.Vector3Half',
 	'Vector4': 'generated.formats.base.compounds.Vector4',
 	'Bool': 'generated.formats.ovl_base.basic',
@@ -42,7 +42,8 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TrackedRideCarRoot': 'generated.formats.trackedridecar.compounds.TrackedRideCarRoot',
-	'TrackedRideCarSub': 'generated.formats.trackedridecar.compounds.TrackedRideCarSub',
+	'Row': 'generated.formats.trackedridecar.compounds.Row',
+	'Seat': 'generated.formats.trackedridecar.compounds.Seat',
 }
 
 name_type_map = {}
