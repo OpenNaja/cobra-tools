@@ -7,7 +7,7 @@ from copy import copy
 from io import BytesIO
 import shutil
 
-from generated.formats.ovl import UNK_HASH
+from generated.formats.ovl import UNK_HASH, is_jwe2
 from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.DataEntry import DataEntry
@@ -295,6 +295,15 @@ class BaseFile:
 			# different files may have a struct at this offset
 			if s_offset in s_pool.offsets:
 				s_pool.offsets.remove(s_offset)
+
+	def increment_buffers(self, buffer_i):
+		"""Linearly increments buffer indices for games that need it"""
+		# create increasing buffer indices for PZ (still needed 22-05-10), JWE
+		if not is_jwe2(self.ovl):
+			for buff in self.data_entry.buffers:
+				buff.index = buffer_i
+				buffer_i += 1
+		return buffer_i
 
 	@staticmethod
 	def _rename(name_tuples, s):

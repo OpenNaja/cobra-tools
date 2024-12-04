@@ -172,7 +172,9 @@ class DdsFile(Header, IoFile):
                 data = tex.read(data_size)
                 # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
                 out[tile_i].append(data)
-                assert len(data) == data_size, f"Tex buffer is shorter than expected, ends at {tex.tell()}"
+                if len(data) != data_size:
+                    logging.warning(f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}")
+                # assert len(data) == data_size, f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}"
                 padding = tex.read(padding_size)
                 if debug and padding != b"\x00" * len(padding):
                     logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")

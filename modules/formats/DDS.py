@@ -47,14 +47,18 @@ class DdsLoader(MemStructLoader):
 		"""Collect other loaders"""
 		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
 
-	def increment_buffers(self, loader, buffer_i):
-		"""Linearly increments buffer indices for games that need it"""
-		# create increasing buffer indices for PZ (still needed 22-05-10), JWE
-		if not is_jwe2(self.ovl):
-			for buff in loader.data_entry.buffers:
-				buff.index = buffer_i
-				buffer_i += 1
-		return buffer_i
+	def collect(self):
+		super(DdsLoader, self).collect()
+
+		if self.context.is_pc_2:
+			# texbuffer data is in the second buffer (index 2)
+			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
+			with io.BytesIO(buffer_data) as f:
+				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
+				# print(self.texbuffer.flag, self.name)
+				# print(self.texbuffer.unk, self.name)
+				# gamemain self.texbuffer.unk = 0 | 1
+				# gamemain self.texbuffer.flag = 0
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
@@ -105,6 +109,7 @@ class DdsLoader(MemStructLoader):
 			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
 			# both root and data are in the same ovs
 			self.create_data_entry(texbuffer_bytes, self.ovs.arg.name)
+			self.increment_buffers(1)
 		else:
 			# there's one empty buffer at the end!
 			buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -131,9 +136,9 @@ class DdsLoader(MemStructLoader):
 				texstream_name = f"{basename}_lod{lod_i}.texturestream"
 				texstream_loader = self.ovl.create_file(f"dummy_dir/{texstream_name}", texstream_name, ovs_name=ovs_name)
 				self.streams.append(texstream_loader)
-				buffer_i = self.increment_buffers(texstream_loader, buffer_i)
+				buffer_i = texstream_loader.increment_buffers(buffer_i)
 			self.create_data_entry(buffers[streamed_lods:])
-			self.increment_buffers(self, buffer_i)
+			self.increment_buffers(buffer_i)
 			# set data on the buffers
 			for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
 				buffer_entry.update_data(b_slice)
@@ -217,6 +222,8 @@ class DdsLoader(MemStructLoader):
 				# todo - tiles, interleaving
 				# self.texbuffer.tile_width
 				# self.texbuffer.tile_height
+				# self.texbuffer.flag
+				# self.texbuffer.unk
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
 				packed_mips = []
 				# write the packed tex buffer: for each mip level, write all its tiles consecutively
@@ -405,13 +412,11 @@ class DdsLoader(MemStructLoader):
 			image_buffer = buffer_data
 		else:
 			texbuffer_path = out_dir(f"{self.basename}.texbuffer")
-			with io.BytesIO(buffer_data) as f:
-				texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
-			with texbuffer.to_xml_file(texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
+			with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 				pass
 			out_files.append(texbuffer_path)
 			texel_loader = self.get_texel()
-			image_buffer = texel_loader.get_mip_buffers(texbuffer.mip_maps, dds_file, texbuffer)
+			image_buffer = texel_loader.get_mip_buffers(self.texbuffer.mip_maps, dds_file, self.texbuffer)
 
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
@@ -472,7 +477,7 @@ class TexelLoader(MemStructLoader):
 		height = texbuffer.height
 		width = texbuffer.width
 		for mip_i, mip in enumerate(mips):
-			mip_buffer = aux_data[mip.offset:mip.offset+mip.size]
+			mip_buffer = aux_data[mip.offset:mip.offset+(mip.size * texbuffer.num_tiles)]
 			if mip.size == 0:
 				continue
 			logging.debug(f"MIP{mip_i}")
@@ -501,17 +506,18 @@ class TexelLoader(MemStructLoader):
 				logging.debug(f"tile_row_size = {tile_row_size}")
 				logging.debug(f"tile_size = {tile_size}")
 				logging.debug(f"scanline_size = {scanline_size}")
-				for block_row_i in range(tile_row_count):
-					for block_col_i in range(tile_col_count):
-						for row_i in range(tile_scanline_count):
-							for col_i in range(tile_col_count):
-								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-								target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (
-											col_i * scanline_size) + (block_col_i * tile_scanline_size)
-								# print(f"seek {seek} target_offset {target_offset}")
-								out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
-																						seek:seek + tile_scanline_size]
-								seek += tile_scanline_size
+				for array_i in range(texbuffer.num_tiles):
+					for block_row_i in range(tile_row_count):
+						for block_col_i in range(tile_col_count):
+							for row_i in range(tile_scanline_count):
+								for col_i in range(tile_col_count):
+									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+									target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (row_i * tile_size) + (
+												col_i * scanline_size) + (block_col_i * tile_scanline_size)
+									# print(f"seek {seek} target_offset {target_offset}")
+									out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
+																							seek:seek + tile_scanline_size]
+									seek += tile_scanline_size
 				if len(mip_buffer) != len(out):
 					logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
 			mip_data.append(out)
