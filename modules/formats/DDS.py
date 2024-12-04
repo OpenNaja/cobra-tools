@@ -51,10 +51,14 @@ class DdsLoader(MemStructLoader):
 		super(DdsLoader, self).collect()
 
 		if self.context.is_pc_2:
+			dds_file = DdsFile()
+			dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
 			# texbuffer data is in the second buffer (index 2)
 			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 			with io.BytesIO(buffer_data) as f:
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
+				texel_loader = self.get_texel()
+				self.mip_data = texel_loader.get_mip_buffers(self.texbuffer.mip_maps, dds_file, self.texbuffer)
 				# print(self.texbuffer.flag, self.name)
 				# print(self.texbuffer.unk, self.name)
 				# gamemain self.texbuffer.unk = 0 | 1
@@ -75,31 +79,36 @@ class DdsLoader(MemStructLoader):
 		# print(self.header)
 		self.prepare_buffers_and_streams(basename, buffer_bytes, name_ext)
 
+	def flush_to_texel(self, texel_writer):
+		"""Writes PC2 mips to texel_writer and updates sizes and offsets"""
+		for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
+			# only set size + offset on valid mips
+			if mip_i < self.texbuffer.num_mips:
+				mip_info.offset = texel_writer.tell()
+				texel_writer.write(mip_bytes)
+				# todo account for num_tiles
+				mip_info.size = len(mip_bytes)
+			mip_info.ff = -1
+		# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
+		self.texbuffer.num_mips_high = self.texbuffer.num_mips
+		self.texbuffer.num_mips_low = self.texbuffer.num_mips
+		mip0 = self.texbuffer.mip_maps[0]
+		for lod in self.texbuffer.main:
+			lod.offset = mip0.offset
+			lod.size = mip0.size
+			lod.tiles_x = mip0.tiles_x
+			lod.tiles_y = mip0.tiles_y
+			lod.is_tiled = mip0.is_tiled
+			lod.ff = 0
+
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		if self.context.is_pc_2:
 			logging.warning("super experimental")
 			texel_loader = self.get_texel()
 			texel_loader.aux_data = {}
 			writer = io.BytesIO()
-			for mip_i, (mip_bytes, mip_info) in enumerate(zip(buffer_bytes, self.texbuffer.mip_maps)):
-				# only set size + offset on valid mips
-				if mip_i < self.texbuffer.num_mips:
-					mip_info.offset = writer.tell()
-					writer.write(mip_bytes)
-					mip_info.size = len(mip_bytes)
-				mip_info.ff = -1
-			# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
-			self.texbuffer.num_mips_high = self.texbuffer.num_mips
-			self.texbuffer.num_mips_low = self.texbuffer.num_mips
-			mip0 = self.texbuffer.mip_maps[0]
-			for lod in self.texbuffer.main:
-				lod.offset = mip0.offset
-				lod.size = mip0.size
-				lod.tiles_x = mip0.tiles_x
-				lod.tiles_y = mip0.tiles_y
-				lod.is_tiled = mip0.is_tiled
-				lod.ff = 0
-
+			self.mip_data = buffer_bytes
+			self.flush_to_texel(writer)
 			# todo - store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
 			texel_loader.aux_data[""] = writer.getvalue()
 
@@ -395,12 +404,10 @@ class DdsLoader(MemStructLoader):
 		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
 
-		compression_type = DxgiFormat[self.compression_name]
-
 		# get joined output buffer
 		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		# set compression
-		dds_file.dx_10.dxgi_format = compression_type
+		dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
 		tiles = self.get_tiles(size_info)
 		# set num_tiles to unpack the mips
 		if hasattr(size_info, "num_tiles"):
@@ -415,9 +422,7 @@ class DdsLoader(MemStructLoader):
 			with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 				pass
 			out_files.append(texbuffer_path)
-			texel_loader = self.get_texel()
-			image_buffer = texel_loader.get_mip_buffers(self.texbuffer.mip_maps, dds_file, self.texbuffer)
-
+			image_buffer = b"".join(self.mip_data)
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
 			tile_datas = (image_buffer,)
@@ -523,8 +528,7 @@ class TexelLoader(MemStructLoader):
 			mip_data.append(out)
 			height //= 2
 			width //= 2
-		image_buffer = b"".join(mip_data)
-		return image_buffer
+		return mip_data
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""
