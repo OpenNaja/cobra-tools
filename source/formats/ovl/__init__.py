@@ -1112,6 +1112,10 @@ class OvlFile(Header):
 		# clear ovl lists
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
 		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_data]
+		for loader in loaders_with_aux:
+			loader.init_aux_writers()
+		for loader in self.loaders.values():
+			loader.flush_to_aux()
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
 		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_data]
@@ -1217,7 +1221,9 @@ class OvlFile(Header):
 
 		self.aux_entries["file_index"] = [loader.file_index for aux_suffix, loader in loaders_and_aux]
 		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_suffices]
-		self.aux_entries["size"] = [loader.write_aux_to_disk(aux_suffix) for aux_suffix, loader in loaders_and_aux]
+		self.aux_entries["size"] = [loader.get_aux_size(aux_suffix) for aux_suffix, loader in loaders_and_aux]
+		for loader in loaders_with_aux:
+			loader.init_aux_writers()
 
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 

@@ -1,4 +1,5 @@
 import contextlib
+import io
 import logging
 import os
 import struct
@@ -50,9 +51,40 @@ class BaseFile:
 		self.same = False
 		self.aux_data = {}
 
+	def flush_to_aux(self):
+		pass
+
+	def init_aux_writers(self):
+		"""Close existing aux readers / writers, then clear aux_data"""
+		for aux_suffix, aux_handle in self.aux_data.items():
+			# self.aux_data[aux_suffix] = io.BytesIO()
+			aux_handle.close()
+		self.aux_data.clear()
+
+	def get_aux_handle(self, aux_suffix, aux_size, mode):
+		"""init reader if it doesn't exist"""
+		if aux_suffix not in self.aux_data:
+			self.aux_data[aux_suffix] = open(self.get_aux_path(aux_suffix, aux_size), mode)
+		return self.aux_data[aux_suffix]
+
 	def read_aux_from_disk(self, aux_suffix, aux_size=0):
 		"""Store aux bytes in loader's aux_data dict"""
-		self.aux_data[aux_suffix] = self.get_content(self.get_aux_path(aux_suffix, aux_size))
+		self.get_aux_handle(aux_suffix, aux_size, "rb")
+
+	def write_aux_data(self, aux_suffix, data):
+		"""Write data to aux_data, return offset and size"""
+		aux_writer = self.get_aux_handle(aux_suffix, len(data), "wb")
+		offset = aux_writer.tell()
+		aux_writer.write(data)
+		return offset, len(data)
+
+	def get_aux_data(self, aux_suffix, offset, size):
+		"""Get aux data from storage"""
+		aux_reader = self.aux_data[aux_suffix]
+		aux_reader.seek(offset)
+		data = aux_reader.read(size)
+		assert len(data) == size
+		return data
 
 	def get_aux_path(self, aux_suffix, aux_size=0):
 		"""Get path of aux file on disk"""
@@ -69,13 +101,10 @@ class BaseFile:
 		else:
 			raise LookupError(f"Found no matching .aux file for {self.name}!")
 
-	def write_aux_to_disk(self, aux_suffix):
-		"""Get aux file from aux_data, write to disk and return size"""
-		aux_path = self.get_aux_path(aux_suffix)
-		aux_data = self.aux_data[aux_suffix]
-		with open(aux_path, "wb") as f:
-			f.write(aux_data)
-		return len(aux_data)
+	def get_aux_size(self, aux_suffix):
+		"""Return aux file size from aux_data"""
+		aux_handle = self.aux_data[aux_suffix]
+		return aux_handle.tell()
 
 	@property
 	def controlled_loaders(self):

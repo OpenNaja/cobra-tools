@@ -79,46 +79,44 @@ class DdsLoader(MemStructLoader):
 		# print(self.header)
 		self.prepare_buffers_and_streams(basename, buffer_bytes, name_ext)
 
-	def flush_to_texel(self, texel_writer):
-		"""Writes PC2 mips to texel_writer and updates sizes and offsets"""
-		for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
-			# only set size + offset on valid mips
-			if mip_i < self.texbuffer.num_mips:
-				mip_info.offset = texel_writer.tell()
-				texel_writer.write(mip_bytes)
-				# todo account for num_tiles
-				mip_info.size = len(mip_bytes)
-			mip_info.ff = -1
-		# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
-		self.texbuffer.num_mips_high = self.texbuffer.num_mips
-		self.texbuffer.num_mips_low = self.texbuffer.num_mips
-		mip0 = self.texbuffer.mip_maps[0]
-		for lod in self.texbuffer.main:
-			lod.offset = mip0.offset
-			lod.size = mip0.size
-			lod.tiles_x = mip0.tiles_x
-			lod.tiles_y = mip0.tiles_y
-			lod.is_tiled = mip0.is_tiled
-			lod.ff = 0
-
-	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
+	def flush_to_aux(self):
+		"""Writes PC2 mips to texel's aux and updates sizes and offsets"""
 		if self.context.is_pc_2:
-			logging.warning("super experimental")
 			texel_loader = self.get_texel()
-			texel_loader.aux_data = {}
-			writer = io.BytesIO()
-			self.mip_data = buffer_bytes
-			self.flush_to_texel(writer)
-			# todo - store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
-			texel_loader.aux_data[""] = writer.getvalue()
-
-			# todo - instead directly register/remove texel as needed;
-			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
-			self.extra_loaders = [texel_loader, ]
+			for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
+				# only set size + offset on valid mips
+				if mip_i < self.texbuffer.num_mips:
+					mip_info.offset, mip_info.size = texel_loader.write_aux_data("", mip_bytes)
+					# account for num_tiles
+					mip_info.size //= self.texbuffer.num_tiles
+				mip_info.ff = -1
+			# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
+			self.texbuffer.num_mips_high = self.texbuffer.num_mips
+			self.texbuffer.num_mips_low = self.texbuffer.num_mips
+			mip0 = self.texbuffer.mip_maps[0]
+			for lod in self.texbuffer.main:
+				lod.offset = mip0.offset
+				lod.size = mip0.size
+				lod.tiles_x = mip0.tiles_x
+				lod.tiles_y = mip0.tiles_y
+				lod.is_tiled = mip0.is_tiled
+				lod.ff = 0
+			# update buffer data of tex
 			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
 			# both root and data are in the same ovs
 			self.create_data_entry(texbuffer_bytes, self.ovs.arg.name)
 			self.increment_buffers(1)
+
+	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
+		if self.context.is_pc_2:
+			logging.warning("super experimental")
+			# store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
+			self.mip_data = buffer_bytes
+
+			# todo - instead directly register/remove texel as needed;
+			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
+			texel_loader = self.get_texel()
+			self.extra_loaders = [texel_loader, ]
 		else:
 			# there's one empty buffer at the end!
 			buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -473,16 +471,12 @@ class TexelLoader(MemStructLoader):
 	target_class = TexelHeader
 
 	def get_mip_buffers(self, mips, dds_file, texbuffer):
-		# ensure that aux files are where they should be
-		for aux_suffix in self.aux_data:
-			assert aux_suffix == ""
 		mip_data = []
 		dds_file.get_pixel_fmt()
-		aux_data = self.aux_data[""]
 		height = texbuffer.height
 		width = texbuffer.width
 		for mip_i, mip in enumerate(mips):
-			mip_buffer = aux_data[mip.offset:mip.offset+(mip.size * texbuffer.num_tiles)]
+			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
 			if mip.size == 0:
 				continue
 			logging.debug(f"MIP{mip_i}")
@@ -544,7 +538,7 @@ class TexelLoader(MemStructLoader):
 		#   XERY2OUE5ECDC_.aux
 		# Result:
 		# XERY2OUE5ECDC
-		assert not aux_suffix
+		assert aux_suffix == ""
 		text = f"{self.ovl.basename}_{self.name.replace('.', '_')}".lower().encode()
 		hash_value = fnv64(text)
 		return f"{encode_int64_base32(hash_value)}_.aux"
