@@ -476,9 +476,9 @@ class TexelLoader(MemStructLoader):
 		height = texbuffer.height
 		width = texbuffer.width
 		for mip_i, mip in enumerate(mips):
-			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
 			if mip.size == 0:
 				continue
+			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
 			logging.debug(f"MIP{mip_i}")
 			out = bytearray(mip_buffer)
 			if mip.tiles_x > 1 and mip.tiles_y > 1:

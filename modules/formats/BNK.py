@@ -6,6 +6,7 @@ from io import BytesIO
 from generated.formats.bnk import BnkFile
 from generated.formats.bnk.compounds.BnkBufferData import BnkBufferData
 from modules.formats.BaseFormat import BaseFile
+from modules.helpers import as_bytes
 
 
 class BnkLoader(BaseFile):
@@ -15,6 +16,17 @@ class BnkLoader(BaseFile):
 		bnk_barename = os.path.splitext(self.name)[0]
 		return f"{self.ovl.basename}_{bnk_barename}_bnk_{aux_suffix}.aux"
 
+	def collect(self):
+		super(BnkLoader, self).collect()
+		self.aux_external = {}
+		# read intermediate aux to flush back to disk on saving
+		for aux_suffix, aux_handle in self.aux_data.items():
+			self.aux_external[aux_suffix] = self.get_aux_data(aux_suffix, 0, -1)
+
+	def flush_to_aux(self):
+		for aux_suffix, aux_bytes in self.aux_external.items():
+			self.write_aux_data(aux_suffix, aux_bytes)
+
 	def create(self, file_path):
 		bnk_file = BnkFile()
 		bnk_file.load(file_path)
@@ -22,22 +34,19 @@ class BnkLoader(BaseFile):
 		if bnk_file.bnk_header.external_aux_b_count:
 			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
 			logging.debug(f"bnk_file.bnk_header.size_b = {bnk_file.bnk_header.size_b}")
-		with BytesIO() as stream:
-			BnkBufferData.to_stream(bnk_file.bnk_header, stream, self.context)
-			buffers = [stream.getvalue(), ]
+		buffers = [as_bytes(bnk_file.bnk_header), ]
 		if bnk_file.bnk_header.external_aux_b_count:
 			logging.info(f"Loaded bnk {bnk_file.aux_b_name_bare} into OVL buffers")
-
 			with open(bnk_file.aux_b_path, "rb") as f:
 				buffers.append(f.read())
 
 		# print(bnk_file)
 		self.write_root_bytes(b"\x00" * 16)
 		self.create_data_entry(buffers)
-		self.aux_data = {}
-		for suffix in (bnk_file.bnk_header.external_b_suffix, bnk_file.bnk_header.external_s_suffix):
-			if suffix:
-				self.aux_data[suffix] = self.get_content(self.get_aux_path(suffix))
+		self.aux_external = {}
+		for aux_suffix in (bnk_file.bnk_header.external_b_suffix, bnk_file.bnk_header.external_s_suffix):
+			if aux_suffix:
+				self.aux_external[aux_suffix] = self.get_content(self.get_aux_path(aux_suffix))
 
 	def extract(self, out_dir):
 		out_path = out_dir(self.name)

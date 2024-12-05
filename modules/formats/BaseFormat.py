@@ -83,7 +83,8 @@ class BaseFile:
 		aux_reader = self.aux_data[aux_suffix]
 		aux_reader.seek(offset)
 		data = aux_reader.read(size)
-		assert len(data) == size
+		if size >= 0:
+			assert len(data) == size
 		return data
 
 	def get_aux_path(self, aux_suffix, aux_size=0):
