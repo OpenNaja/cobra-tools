@@ -6,7 +6,7 @@
 
 <!--    fgm version is annoying, because there are changes for the same mime version, differing per ovl version, but also vice versa-->
 <!--    <version id="DLA" version="3">Disneyland Adventures</version>-->
-<!--    <version id="ZTUAC" version="3">Zoo Tycoon Ultimate Animal Collection</version>-->
+<!--    <version id="ZTUAC" version="3">Zoo Tycoon</version>-->
 <!--    <version id="PC" version="6">Planet Coaster</version>-->
 <!--    <version id="PC2" version="7">Planet Coaster 2</version>-->
 <!--    <version id="PZ" version="6">Planet Zoo</version>-->

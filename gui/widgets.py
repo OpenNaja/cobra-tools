@@ -2238,7 +2238,7 @@ class GamesWidget(QWidget):
             "Planet Coaster": 493340,
             "Planet Zoo": 703080,
             "Disneyland Adventures": 630610,
-            "Zoo Tycoon Ultimate Animal Collection": 613880,
+            "Zoo Tycoon": 613880,
             }
         steam_game_id = id_map.get(selected_game)
         if steam_game_id:

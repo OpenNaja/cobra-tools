@@ -23,7 +23,7 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 	<version id="DLA" version="256" >Disneyland Adventures</version>mock version defined on extraction
-	<version id="ZTUAC" version="257" >Zoo Tycoon Ultimate Animal Collection</version>
+	<version id="ZTUAC" version="257" >Zoo Tycoon</version>
 	<version id="PC" version="257" >Planet Coaster</version>
 	<version id="JWE" version="258" >Jurassic World Evolution</version>
 	<version id="PZ" version="260" >Planet Zoo</version>

@@ -136,7 +136,7 @@ def usage(msg):
 	print("  - Planet Coaster")
 	print("  - Planet Zoo")
 	print("  - Planet Zoo pre-1.6")
-	print("  - Zoo Tycoon Ultimate Animal Collection")
+	print("  - Zoo Tycoon")
 	print("  - Unknown Game")
 	print("ACTION is one of the following:")
 	print("  - PACK")

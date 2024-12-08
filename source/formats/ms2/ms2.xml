@@ -26,7 +26,7 @@
 
 	set latest occurence of a version number in a game first so that that is set by the setters
 	<version id="DLA" version="7" >Disneyland Adventures</version>
-	<version id="ZTUAC" version="13" >Zoo Tycoon Ultimate Animal Collection</version>
+	<version id="ZTUAC" version="13" >Zoo Tycoon</version>
 	<version id="PC" version="32" >Planet Coaster</version>
 	<version id="JWE" version="47 39" >Jurassic World Evolution</version>
 	<version id="PZ" version="50 48" >Planet Zoo</version>
