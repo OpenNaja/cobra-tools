@@ -30,7 +30,8 @@ def write_mimes_dict(out_fp, mimes):
 	with open(out_fp, "w") as f:
 		f.write(f"from constants import Mime\n\n")
 		f.write("mimes = {\n")
-		f.write(",\n".join(f"\t\"{k}\": {v}" for k, v in sorted(mimes.items())))
+		# for np 2.0, cast scalars to str manually
+		f.write(",\n".join(f"\t\"{k}\": {str(v)}" for k, v in sorted(mimes.items())))
 		f.write("\n}\n")
 
 
