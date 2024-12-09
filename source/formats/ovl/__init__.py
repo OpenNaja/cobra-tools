@@ -1153,15 +1153,14 @@ class OvlFile(Header):
 		triplet_offset = 0
 		self.mimes["name"] = [self.names.offset_dic[name] for name in mimes_name]
 		self.mimes["mime_version"] = [self.get_mime(ext, "version") for ext in mimes_ext]
-		self.mimes["mime_hash"] = [self.get_mime(ext, "hash") for ext in mimes_ext]
+		if self.context.version >= 18:
+			self.mimes["mime_hash"] = [self.get_mime(ext, "hash") for ext in mimes_ext]
 		for i, (mime, name, ext, triplets,) in enumerate(
 				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets)):
 			mime.name = self.names.offset_dic[name]
-			try:
+			if self.context.version >= 20:
 				mime.triplet_offset = triplet_offset
 				mime.triplet_count = len(triplets)
-			except:
-				pass
 			self.triplets[triplet_offset: triplet_offset+len(triplets)] = triplets
 			# get the loaders using this ext
 			loaders = loaders_by_extension[ext]
