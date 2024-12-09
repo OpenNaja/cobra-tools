@@ -100,7 +100,7 @@ def generate_hash_table(gui, start_dir):
 					for list_id, attribs in lists.items():
 						array = getattr(ovl_data, list_id)
 						if attribs:
-							arrays = {att: array[att] for att in attribs if att in array}
+							arrays = {att: array[att] for att in attribs if att in array.dtype.fields}
 						else:
 							arrays = {list_id: array}
 						exts = [f".{ext}" for ext in ovl_data.mimes_ext] if "mimes" in list_id else ovl_data.files_ext
