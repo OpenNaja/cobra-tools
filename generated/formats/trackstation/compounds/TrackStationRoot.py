@@ -19,7 +19,7 @@ class TrackStationRoot(MemStruct):
 		self.unk_floats_2 = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.unk_floats_3 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.corner_edge_track = name_type_map['Pointer'](self.context, 0, name_type_map['CornerEdgeTrack'])
-		self.track_only = name_type_map['Pointer'](self.context, 0, name_type_map['TrackOnly'])
+		self.track_only = name_type_map['Pointer'](self.context, 0, name_type_map['CommonChunk'])
 		self.control_box_front_panel = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.control_box_info = name_type_map['Pointer'](self.context, 0, name_type_map['ControlBoxInfo'])
 		self.control_box_left_panel = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
@@ -42,8 +42,8 @@ class TrackStationRoot(MemStruct):
 		yield 'unknown_ptr', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: context.is_pc_2, None)
 		yield 'corner_edge_track', name_type_map['Pointer'], (0, name_type_map['CornerEdgeTrack']), (False, None), (lambda context: not context.is_pc_2, None)
 		yield 'corner_edge_track', name_type_map['Pointer'], (0, name_type_map['CornerEdgeTrack']), (False, None), (lambda context: context.is_pc_2, None)
-		yield 'track_only', name_type_map['Pointer'], (0, name_type_map['TrackOnly']), (False, None), (lambda context: not context.is_pc_2, None)
-		yield 'track_only', name_type_map['Pointer'], (0, name_type_map['TrackOnly']), (False, None), (lambda context: context.is_pc_2, None)
+		yield 'track_only', name_type_map['Pointer'], (0, name_type_map['CommonChunk']), (False, None), (lambda context: not context.is_pc_2, None)
+		yield 'track_only', name_type_map['Pointer'], (0, name_type_map['CommonChunk']), (False, None), (lambda context: context.is_pc_2, None)
 		yield 'control_box_front_panel', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: not context.is_pc_2, None)
 		yield 'control_box_info', name_type_map['Pointer'], (0, name_type_map['ControlBoxInfo']), (False, None), (lambda context: context.is_pc_2, None)
 		yield 'control_box_left_panel', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: not context.is_pc_2, None)
@@ -73,9 +73,9 @@ class TrackStationRoot(MemStruct):
 		if instance.context.is_pc_2:
 			yield 'corner_edge_track', name_type_map['Pointer'], (0, name_type_map['CornerEdgeTrack']), (False, None)
 		if not instance.context.is_pc_2:
-			yield 'track_only', name_type_map['Pointer'], (0, name_type_map['TrackOnly']), (False, None)
+			yield 'track_only', name_type_map['Pointer'], (0, name_type_map['CommonChunk']), (False, None)
 		if instance.context.is_pc_2:
-			yield 'track_only', name_type_map['Pointer'], (0, name_type_map['TrackOnly']), (False, None)
+			yield 'track_only', name_type_map['Pointer'], (0, name_type_map['CommonChunk']), (False, None)
 		if not instance.context.is_pc_2:
 			yield 'control_box_front_panel', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		if instance.context.is_pc_2:

@@ -17,10 +17,10 @@
 
 		<!-- Offset 24 --> 
         <add name="Corner Edge Track" type="Pointer" template="CornerEdgeTrack" vercond="is_PC2"/>
-		<add name="Track Only" type="Pointer" template="TrackOnly" vercond="!is_PC2"/>
+		<add name="Track Only" type="Pointer" template="CommonChunk" vercond="!is_PC2"/>
 
 		<!-- Offset 32 --> 
-		<add name="Track Only" type="Pointer" template="TrackOnly" vercond="is_PC2"/>
+		<add name="Track Only" type="Pointer" template="CommonChunk" vercond="is_PC2"/>
 		<add name="Control Box Front Panel" type="Pointer" template="ZString" vercond="!is_PC2"/>
 
 		<!-- Offset 40 --> 
@@ -128,7 +128,7 @@
 
 	<compound name="TrackOnly" inherit="CommonChunk">
         PZ and PC: 112 bytes
-		<add name="zero2" type="uint64"/>
+		<!--<add name="zero2" type="uint64"/>-->
 	</compound>
 	
 	<compound name="CornerEdgeTrack" inherit="MemStruct">
