@@ -13,6 +13,7 @@ from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Optional
+from gui.qt_theme import palettes, PRIMARY, SECONDARY, TERTIARY, save_color_config
 
 
 class MainWindow(widgets.MainWindow):
@@ -172,6 +173,65 @@ class MainWindow(widgets.MainWindow):
 		self.preferences_widget = widgets.ConfigWindow(self)
 		self.preferences_widget.setWindowTitle(f"Preferences")
 		self.preferences_widget.show()
+		# Add color selectors for PRIMARY, SECONDARY, and TERTIARY colors
+		color_button_primary = QtWidgets.QPushButton("Select Primary Color")
+		color_button_primary.clicked.connect(self.select_primary_color)
+		self.preferences_widget.layout().addWidget(color_button_primary)
+
+		color_button_secondary = QtWidgets.QPushButton("Select Secondary Color")
+		color_button_secondary.clicked.connect(self.select_secondary_color)
+		self.preferences_widget.layout().addWidget(color_button_secondary)
+
+		color_button_tertiary = QtWidgets.QPushButton("Select Tertiary Color")
+		color_button_tertiary.clicked.connect(self.select_tertiary_color)
+		self.preferences_widget.layout().addWidget(color_button_tertiary)
+
+		reset_button = QtWidgets.QPushButton("Reset Colors to Default")
+		reset_button.clicked.connect(self.reset_colors_to_default)
+		self.preferences_widget.layout().addWidget(reset_button)
+
+		self.preferences_widget.show()
+
+	def select_primary_color(self):
+		color = QtWidgets.QColorDialog.getColor(PRIMARY)
+		if color.isValid():
+			PRIMARY.setRgb(color.red(), color.green(), color.blue())
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Window, PRIMARY)
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Button, PRIMARY)
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.AlternateBase, PRIMARY)
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Light, PRIMARY)
+			self.apply_palette()
+			save_color_config()
+
+	def select_secondary_color(self):
+		color = QtWidgets.QColorDialog.getColor(SECONDARY)
+		if color.isValid():
+			SECONDARY.setRgb(color.red(), color.green(), color.blue())
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Base, SECONDARY)
+			self.apply_palette()
+			save_color_config()
+
+	def select_tertiary_color(self):
+		color = QtWidgets.QColorDialog.getColor(TERTIARY)
+		if color.isValid():
+			TERTIARY.setRgb(color.red(), color.green(), color.blue())
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Link, TERTIARY)
+			palettes["dark"].setColor(QtGui.QPalette.ColorRole.Highlight, TERTIARY)
+			self.apply_palette()
+			save_color_config()
+	def reset_colors_to_default(self):
+		PRIMARY.setNamedColor("#353535")  # Use the color from qt_theme.py
+		SECONDARY.setNamedColor("#232323")  # Use the color from qt_theme.py
+		TERTIARY.setNamedColor("#2A82DA")  # Use the color from qt_theme.py
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Window, PRIMARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Button, PRIMARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.AlternateBase, PRIMARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Light, PRIMARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Base, SECONDARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Link, TERTIARY)
+		palettes["dark"].setColor(QtGui.QPalette.ColorRole.Highlight, TERTIARY)
+		self.apply_palette()
+		save_color_config()
 
 	def abs_path_from_row(self, row_data):
 		start_dir = self.installed_games.get_root()

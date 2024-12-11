@@ -1,5 +1,7 @@
 
 from PyQt5 import QtGui
+import json
+import os
 
 dark_palette = QtGui.QPalette()
 WHITE =     QtGui.QColor(255, 255, 255)
@@ -27,6 +29,33 @@ dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRo
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.WindowText, DISABLED)
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Text, DISABLED)
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Light, PRIMARY)
+
+
+CONFIG_FILE = "color_config.json"
+
+def save_color_config():
+    config = {
+        "PRIMARY": PRIMARY.name(),
+        "SECONDARY": SECONDARY.name(),
+        "TERTIARY": TERTIARY.name()
+    }
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(config, f)
+
+def load_color_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+            PRIMARY.setNamedColor(config.get("PRIMARY", PRIMARY.name()))
+            SECONDARY.setNamedColor(config.get("SECONDARY", SECONDARY.name()))
+            TERTIARY.setNamedColor(config.get("TERTIARY", TERTIARY.name()))
+
+load_color_config()
+
+dark_palette.setColor(QtGui.QPalette.ColorRole.Window, PRIMARY)
+dark_palette.setColor(QtGui.QPalette.ColorRole.Button, PRIMARY)
+dark_palette.setColor(QtGui.QPalette.ColorRole.AlternateBase, PRIMARY)
+dark_palette.setColor(QtGui.QPalette.ColorRole.Light, PRIMARY)
 
 palettes: dict[str, QtGui.QPalette] = {
     "dark": dark_palette,
