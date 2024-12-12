@@ -233,6 +233,12 @@ class MainWindow(widgets.MainWindow):
 		self.apply_palette()
 		save_color_config()
 
+	def apply_palette(self):
+		"""Apply the current color palette to the application."""
+		app = QtWidgets.QApplication.instance()
+		if app:
+			app.setPalette(palettes["dark"])
+
 	def abs_path_from_row(self, row_data):
 		start_dir = self.installed_games.get_root()
 		full_path = os.path.join(start_dir, row_data[2])
