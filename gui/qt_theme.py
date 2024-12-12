@@ -1,4 +1,3 @@
-
 from PyQt5 import QtGui
 import json
 import os
@@ -30,25 +29,28 @@ dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRo
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Text, DISABLED)
 dark_palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Light, PRIMARY)
 
-
-CONFIG_FILE = "color_config.json"
+CONFIG_FILE = "config.json"
 
 def save_color_config():
-    config = {
-        "PRIMARY": PRIMARY.name(),
-        "SECONDARY": SECONDARY.name(),
-        "TERTIARY": TERTIARY.name()
-    }
-    with open(CONFIG_FILE, 'w') as f:
-        json.dump(config, f)
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+        config["colors"] = {
+            "PRIMARY": PRIMARY.name(),
+            "SECONDARY": SECONDARY.name(),
+            "TERTIARY": TERTIARY.name()
+        }
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=4)
 
 def load_color_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
             config = json.load(f)
-            PRIMARY.setNamedColor(config.get("PRIMARY", PRIMARY.name()))
-            SECONDARY.setNamedColor(config.get("SECONDARY", SECONDARY.name()))
-            TERTIARY.setNamedColor(config.get("TERTIARY", TERTIARY.name()))
+            colors = config.get("colors", {})
+            PRIMARY.setNamedColor(colors.get("PRIMARY", PRIMARY.name()))
+            SECONDARY.setNamedColor(colors.get("SECONDARY", SECONDARY.name()))
+            TERTIARY.setNamedColor(colors.get("TERTIARY", TERTIARY.name()))
 
 load_color_config()
 
@@ -61,7 +63,6 @@ palettes: dict[str, QtGui.QPalette] = {
     "dark": dark_palette,
     "light": QtGui.QPalette()
 }
-
 
 def style_modern_scrollbar(handle_color: str, view_bg_color: str) -> str:
     return RF"""
