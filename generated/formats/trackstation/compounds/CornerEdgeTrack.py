@@ -18,7 +18,7 @@ class CornerEdgeTrack(MemStruct):
 		self.corner = name_type_map['CommonChunk'](self.context, 0, None)
 		self.edge = name_type_map['CommonChunk'](self.context, 0, None)
 		self.track = name_type_map['CommonChunk'](self.context, 0, None)
-		self.zero = name_type_map['Uint64'](self.context, 0, None)
+		self.zero = name_type_map['Uint64'].from_value(0)
 		if set_default:
 			self.set_defaults()
 
@@ -28,7 +28,7 @@ class CornerEdgeTrack(MemStruct):
 		yield 'corner', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
 		yield 'edge', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
 		yield 'track', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
-		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,4 +36,4 @@ class CornerEdgeTrack(MemStruct):
 		yield 'corner', name_type_map['CommonChunk'], (0, None), (False, None)
 		yield 'edge', name_type_map['CommonChunk'], (0, None), (False, None)
 		yield 'track', name_type_map['CommonChunk'], (0, None), (False, None)
-		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0)
