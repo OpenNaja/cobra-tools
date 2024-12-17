@@ -19,8 +19,7 @@ from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2, DummyReporter, walk_type
-from ovl_util.shared import hex_dump
+from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path
 
 try:
 	from ovl_util.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
@@ -658,7 +657,7 @@ class OvlFile(Header):
 
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
-			out_path = os.path.normpath(os.path.join(out_dir, n))
+			out_path = os.path.normpath(os.path.join(out_dir, escape_path(n)))
 			# create output dir
 			os.makedirs(os.path.dirname(out_path), exist_ok=True)
 			return out_path
@@ -692,7 +691,7 @@ class OvlFile(Header):
 	def create_file(self, file_path, file_name, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
 		file_path = os.path.normpath(file_path)
-		file_name = file_name.lower()
+		file_name = unescape_path(file_name.lower())
 		_, ext = os.path.splitext(file_name)
 		logging.info(f"Creating {file_name} in {ovs_name}")
 		try:
@@ -1487,8 +1486,3 @@ class OvlFile(Header):
 
 if __name__ == "__main__":
 	ovl = OvlFile()
-	#ovl.load_hash_table()
-	#ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-	#ovl.extract('C:/Users/ilo/Documents/GitHub/cobra-tools/', ['database.contentpdlc2luadatabase.lua'])
-	#ovl.add_files( ['C:/Users/ilo/Documents/GitHub/cobra-tools/version.txt'] )
-	#ovl.save("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot1.ovl", use_threads=False)

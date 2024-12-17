@@ -128,7 +128,7 @@
 
 	<compound name="TrackOnly" inherit="CommonChunk">
         PZ and PC: 112 bytes
-		<!--<add name="zero2" type="uint64"/>-->
+		<add name="zero2" type="uint64"/>
 	</compound>
 	
 	<compound name="CornerEdgeTrack" inherit="MemStruct">
