@@ -1710,16 +1710,16 @@
 <span class="c1">--/  @brief  Boilerplate template for a park manager script</span>
 <span class="c1">--/  @see    https://github.com/OpenNaja/ACSE</span>
 <span class="c1">-----------------------------------------------------------------------</span>
-<span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">api</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span>
-<span class="kd">local</span> <span class="nb">pairs</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">pairs</span>
-<span class="kd">local</span> <span class="nb">require</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">require</span>
-<span class="kd">local</span> <span class="n">module</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">module</span>
-<span class="kd">local</span> <span class="n">Object</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.object&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">Mutators</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Environment.ModuleMutators&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">pairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">require</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">module</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.object&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Mutators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Environment.ModuleMutators&quot;</span><span class="p">)</span>
 
 <span class="c1">--/ Main class definition</span>
-<span class="kd">local</span> <span class="n">CustomManager</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...,</span> <span class="n">Mutators</span><span class="p">.</span><span class="n">Manager</span><span class="p">())</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">CustomManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...,</span><span class="w"> </span><span class="nv">Mutators</span><span class="p">.</span><span class="nf">Manager</span><span class="p">())</span>
 
 <span class="c1">--</span>
 <span class="c1">-- @Brief Init function for this manager</span>
@@ -1730,8 +1730,8 @@
 <span class="c1">-- This function is used to initialize all the custom data required, however at this</span>
 <span class="c1">-- stage the rest of the managers might not be available.</span>
 <span class="c1">--</span>
-<span class="n">CustomManager</span><span class="p">.</span><span class="n">Init</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_tProperties</span><span class="p">,</span> <span class="n">_tEnvironment</span><span class="p">)</span>
-    <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Init()&quot;</span><span class="p">)</span>
+<span class="nv">CustomManager</span><span class="p">.</span><span class="py">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">,</span><span class="w"> </span><span class="nv">_tProperties</span><span class="p">,</span><span class="w"> </span><span class="nv">_tEnvironment</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Init()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1741,8 +1741,8 @@
 <span class="c1">-- and it is safe to assume that access to the rest of the game managers is guaranteed to</span>
 <span class="c1">-- work.</span>
 <span class="c1">--</span>
-<span class="n">CustomManager</span><span class="p">.</span><span class="n">Activate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-    <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Activate()&quot;</span><span class="p">)</span>
+<span class="nv">CustomManager</span><span class="p">.</span><span class="py">Activate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Activate()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1750,8 +1750,8 @@
 <span class="c1">--</span>
 <span class="c1">-- Advance is called on every frame tick.</span>
 <span class="c1">--</span>
-<span class="n">CustomManager</span><span class="p">.</span><span class="n">Advance</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_nDeltaTime</span><span class="p">,</span> <span class="n">_nUnscaledDeltaTime</span><span class="p">)</span>
-    <span class="c1">--api.debug.Trace(&quot;CustomManager:Advance()&quot;)</span>
+<span class="nv">CustomManager</span><span class="p">.</span><span class="py">Advance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">,</span><span class="w"> </span><span class="nv">_nDeltaTime</span><span class="p">,</span><span class="w"> </span><span class="nv">_nUnscaledDeltaTime</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">--api.debug.Trace(&quot;CustomManager:Advance()&quot;)</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1761,8 +1761,8 @@
 <span class="c1">-- to perform any deinitialization that still requires access to the current world data</span>
 <span class="c1">-- or other Managers.</span>
 <span class="c1">-- </span>
-<span class="n">CustomManager</span><span class="p">.</span><span class="n">Deactivate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-    <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Deactivate()&quot;</span><span class="p">)</span>
+<span class="nv">CustomManager</span><span class="p">.</span><span class="py">Deactivate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Deactivate()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1770,13 +1770,13 @@
 <span class="c1">--</span>
 <span class="c1">-- Shutdown is called when the current world is shutting down.</span>
 <span class="c1">--</span>
-<span class="n">CustomManager</span><span class="p">.</span><span class="n">Shutdown</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
-    <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Shutdown()&quot;</span><span class="p">)</span>
+<span class="nv">CustomManager</span><span class="p">.</span><span class="py">Shutdown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;CustomManager:Shutdown()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">--/ Validate class methods and interfaces, the game needs</span>
 <span class="c1">--/ to validate the Manager conform to the module requirements.</span>
-<span class="n">Mutators</span><span class="p">.</span><span class="n">VerifyManagerModule</span><span class="p">(</span><span class="n">CustomManager</span><span class="p">)</span>
+<span class="nv">Mutators</span><span class="p">.</span><span class="nf">VerifyManagerModule</span><span class="p">(</span><span class="nv">CustomManager</span><span class="p">)</span>
 </code></pre></div>
 <p>Not all the Manager calls are required, in fact, none of them are required. You could have a Manager that only runs a piece of code on the Init() step of the world loading so you can just implement Init() and remove all the other functions. Regardless of how simple your Manager is, it still needs to be validated as a Manager at the end by the Mutators object or it will not load.</p>
 <h2 id="exporting-methods-manager-interface">Exporting Methods: Manager Interface<a class="headerlink" href="#exporting-methods-manager-interface" title="Permanent link">&para;</a></h2>
@@ -1789,13 +1789,13 @@
 <span class="c1">--/</span>
 <span class="c1">--/  @brief  Interface file for the CameraShake Manager </span>
 <span class="c1">--</span>
-<span class="kd">local</span> <span class="n">Mutators</span>    <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.mutators&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">Interface</span>   <span class="o">=</span> <span class="n">module</span><span class="p">(...,</span> <span class="n">Mutators</span><span class="p">.</span><span class="n">Interface</span><span class="p">)</span>
-<span class="n">Interface</span><span class="p">.</span><span class="n">Methods</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ShakeCamera&quot;</span><span class="p">,</span> 
-    <span class="s2">&quot;SetPeriodicShakeParams&quot;</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Mutators</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.mutators&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Interface</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...,</span><span class="w"> </span><span class="nv">Mutators</span><span class="p">.</span><span class="py">Interface</span><span class="p">)</span>
+<span class="nv">Interface</span><span class="p">.</span><span class="py">Methods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;ShakeCamera&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="s2">&quot;SetPeriodicShakeParams&quot;</span>
 <span class="p">}</span>
-<span class="n">Mutators</span><span class="p">.</span><span class="n">VerifyInterfaceModule</span><span class="p">(</span><span class="n">Interface</span><span class="p">)</span>
+<span class="nv">Mutators</span><span class="p">.</span><span class="nf">VerifyInterfaceModule</span><span class="p">(</span><span class="nv">Interface</span><span class="p">)</span>
 </code></pre></div>
 <p>This interface is exporting two methods, called: <strong>ShakeCamera</strong> (to start the shaking action) and <strong>SetPeriodicShakeParams</strong> (to configure how the shaking will perform).</p>
 <p>Creating the interface file is not the only thing required for a Manager to export functions to the game. The interface also needs to be defined in the Manager file:</p>
@@ -1805,40 +1805,40 @@
 <span class="c1">--/</span>
 <span class="c1">--/  @brief  Interface file for the CameraShake Manager </span>
 <span class="c1">--</span>
-<span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">api</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span>
-<span class="kd">local</span> <span class="nb">pairs</span> <span class="o">=</span> <span class="nb">pairs</span>
-<span class="kd">local</span> <span class="n">math</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">math</span>
-<span class="kd">local</span> <span class="n">table</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.tableplus&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">Vector3</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector3&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">Object</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.object&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">mathUtils</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.MathUtils&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">Mutators</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Environment.ModuleMutators&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">math</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">math</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.tableplus&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector3&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.object&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">mathUtils</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Common.MathUtils&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Mutators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Environment.ModuleMutators&quot;</span><span class="p">)</span>
 
 <span class="c1">-- Define our Manager class using a specific interface file</span>
-<span class="kd">local</span> <span class="n">CameraShakeManager</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...,</span> <span class="n">Mutators</span><span class="p">.</span><span class="n">Manager</span><span class="p">(</span><span class="s2">&quot;Interfaces.ICameraShakeManager&quot;</span><span class="p">))</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">CameraShakeManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...,</span><span class="w"> </span><span class="nv">Mutators</span><span class="p">.</span><span class="nf">Manager</span><span class="p">(</span><span class="s2">&quot;Interfaces.ICameraShakeManager&quot;</span><span class="p">))</span>
 
 <span class="c1">-- ... rest of the file follows</span>
 </code></pre></div>
 <p>That is the difference between a Manager with and without and interfaces, the interface file needs to be specified on the module creation code. With this parameter, during the validation of the Manager, the game will check that the two exposed functions: "ShakeCamera" and "SetPeriodicShakeParams" exist in the Manager class. In that file (Managers.CameraShakeManager.lua) you will find the following code:</p>
-<div class="highlight"><pre><span></span><code><span class="n">CameraShakeManager</span><span class="p">.</span><span class="n">ShakeCamera</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_tParams</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nv">CameraShakeManager</span><span class="p">.</span><span class="py">ShakeCamera</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">,</span><span class="w"> </span><span class="nv">_tParams</span><span class="p">)</span>
 <span class="c1">-- ...</span>
 <span class="kr">end</span>
 
-<span class="n">CameraShakeManager</span><span class="p">.</span><span class="n">SetPeriodicShakeParams</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_tParams</span><span class="p">)</span>
+<span class="nv">CameraShakeManager</span><span class="p">.</span><span class="py">SetPeriodicShakeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">,</span><span class="w"> </span><span class="nv">_tParams</span><span class="p">)</span>
 <span class="c1">-- ...</span>
 <span class="kr">end</span>
 </code></pre></div>
 <p>To finalize this point, if we want to expose functions to other part of the game, we will need to create an interface. So, the next question is then: how do we <em>use</em> an existing interface? </p>
 <h2 id="using-manager-interfaces">Using Manager Interfaces<a class="headerlink" href="#using-manager-interfaces" title="Permanent link">&para;</a></h2>
 <p>If we want to use some other Manager interface, all we need to do is request the interface from the running Environment. The Environment class is responsible for the life cycle all the Managers present in the game mode we are in:</p>
-<div class="highlight"><pre><span></span><code>  <span class="c1">-- the _tEnvironment table is passed to the manager during the Init() call.</span>
-  <span class="kd">local</span> <span class="n">iCameraShakeManager</span> <span class="o">=</span> <span class="n">_tEnvironment</span><span class="p">:</span><span class="n">RequestInterface</span><span class="p">(</span><span class="s2">&quot;Interfaces.ICameraShakeManager&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="c1">-- the _tEnvironment table is passed to the manager during the Init() call.</span>
+<span class="w">  </span><span class="kd">local</span><span class="w"> </span><span class="nv">iCameraShakeManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">_tEnvironment</span><span class="p">:</span><span class="nf">RequestInterface</span><span class="p">(</span><span class="s2">&quot;Interfaces.ICameraShakeManager&quot;</span><span class="p">)</span>
 
-  <span class="c1">-- Now we just need to call the exported method with the appropriate expected data. Note: the</span>
-  <span class="c1">-- data to call each exported method is different and requires looking at the inputs of the function </span>
-  <span class="c1">-- we are calling.</span>
-  <span class="n">iCameraShakeManager</span><span class="p">:</span><span class="n">ShakeCamera</span><span class="p">(</span> <span class="n">tCameraShakeData</span> <span class="p">)</span>
+<span class="w">  </span><span class="c1">-- Now we just need to call the exported method with the appropriate expected data. Note: the</span>
+<span class="w">  </span><span class="c1">-- data to call each exported method is different and requires looking at the inputs of the function </span>
+<span class="w">  </span><span class="c1">-- we are calling.</span>
+<span class="w">  </span><span class="nv">iCameraShakeManager</span><span class="p">:</span><span class="nf">ShakeCamera</span><span class="p">(</span><span class="w"> </span><span class="nv">tCameraShakeData</span><span class="w"> </span><span class="p">)</span>
 </code></pre></div>
 <p>The current Game managers already export a lot of interesting functions you can use if you just request the corresponding interfaces. These functions include full control of the playing Cinematic video, communications, popups, full access to the Park rating, etcetera. Before going into coding any of this logic, first find out what Manager is responsible for what functionality, and then see what is exposed in the manager interface that you can use in your own scripts. </p>
 <h2 id="complex-manager-initialization">Complex Manager Initialization<a class="headerlink" href="#complex-manager-initialization" title="Permanent link">&para;</a></h2>
@@ -1846,24 +1846,24 @@
 <p>A good example for this particular case is the Ingen Database UI Manager of JWE2. This manager is responsible for preparing the data to be displayed in the Ingen Database tab, however this information is different for each user because it depends on a) Gene unlocks achieved by the player, b) the current techtree defined for the game. This is why, the IngenDatabaseUIManager Manager specifies the following phase ordering and requirements:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- ..</span>
 <span class="c1">-- Define this Manager class using a custom Interface:</span>
-<span class="kd">local</span> <span class="n">InGenDatabaseUIManager</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...,</span> <span class="n">Mutators</span><span class="p">.</span><span class="n">Manager</span><span class="p">(</span><span class="s2">&quot;Interfaces.IInGenDatabaseUIManager&quot;</span><span class="p">))</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">InGenDatabaseUIManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...,</span><span class="w"> </span><span class="nv">Mutators</span><span class="p">.</span><span class="nf">Manager</span><span class="p">(</span><span class="s2">&quot;Interfaces.IInGenDatabaseUIManager&quot;</span><span class="p">))</span>
 
 <span class="c1">-- Execute our Init() function after Managers.GeneLibraryManager:Init()</span>
-<span class="n">InGenDatabaseUIManager</span><span class="p">.</span><span class="n">PhaseDependencies</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="n">Init</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s2">&quot;Managers.GeneLibraryManager&quot;</span>
-  <span class="p">}</span>
+<span class="nv">InGenDatabaseUIManager</span><span class="p">.</span><span class="py">PhaseDependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nv">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="s2">&quot;Managers.GeneLibraryManager&quot;</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">-- Execute our Init() function after Managers.TechTreeManager:Init() if possible</span>
 <span class="c1">-- Execute our Activate() function after Managers.TechTreeManager:Activate() if possible</span>
-<span class="n">InGenDatabaseUIManager</span><span class="p">.</span><span class="n">OptionalPhaseDependencies</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="n">Init</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Managers.TechTreeManager&quot;</span>
-  <span class="p">},</span> 
-  <span class="n">Activate</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Managers.TechTreeManager&quot;</span>
-  <span class="p">}</span>
+<span class="nv">InGenDatabaseUIManager</span><span class="p">.</span><span class="py">OptionalPhaseDependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nv">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;Managers.TechTreeManager&quot;</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span>
+<span class="w">  </span><span class="nv">Activate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;Managers.TechTreeManager&quot;</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Using the PHaseDependencies table, a Manager can instruct the Environment to execute its functions (e.g. Init or Activate) after the other Managers functions have been executed (in this case GeneLibraryManager and TechTreeManager). While the OptionalPhaseDependencies is not an enforced execution order, it will be honored by the game if it is defined and possible. This is because in some cases, other Managers might have other phase dependencies and circular references can ocurr at some point (Manager A requiring Manager B and viceversa).</p>
@@ -1872,58 +1872,58 @@
 <p>ACSE needs to know what environment you want your Managers to be injected into. ACSE has three different methods to add Managers, two of them are specific for the main common Environments (Start Screen and Park), and the third allows any other Environment specified.</p>
 <p>This is a code snippet to add Managers with ACSE, and can be pasted in any of the Database Lua scripts of your mod (ACSE will find them and use them):</p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- List of custom managers to force injection on the starting screen</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">tStartScreenManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">[</span><span class="s2">&quot;Managers.MyCustomStartManager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="p">},</span> <span class="c1">-- Add your custom settings inside the table.</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tStartScreenManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;Managers.MyCustomStartManager&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">-- Add your custom settings inside the table.</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the starting screen</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">AddStartScreenManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">YourModLoader</span><span class="p">.</span><span class="n">tStartScreenManagers</span>
-    <span class="kr">for</span> <span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">AddStartScreenManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tStartScreenManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">-- List of custom managers to force injection on a park</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">tParkManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">[</span><span class="s2">&quot;Managers.MyCustomParkManager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="p">},</span>  <span class="c1">-- Add your custom settings inside the table.</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tParkManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;Managers.MyCustomParkManager&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">-- Add your custom settings inside the table.</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the starting screen</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">AddParkManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">YourModLoader</span><span class="p">.</span><span class="n">tParkManagers</span>
-    <span class="kr">for</span> <span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">AddParkManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tParkManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 </code></pre></div>
 <p>Usually this is enough to have your Managers added to the game. For the case where you want your Manager added to a different environment, you can use the following piece of code:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- List of custom managers to force injection on a custom Environment</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">tManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">[</span><span class="s2">&quot;Environments.WhateverEnvironment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="p">[</span><span class="s2">&quot;Managers.CustomEnvironmentManager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="p">},</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;Environments.WhateverEnvironment&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">&quot;Managers.CustomEnvironmentManager&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the different environments</span>
-<span class="n">YourModLoader</span><span class="p">.</span><span class="n">AddManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">YourModLoader</span><span class="p">.</span><span class="n">tManagers</span>
-    <span class="kr">for</span> <span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">YourModLoader</span><span class="p">.</span><span class="py">AddManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 </code></pre></div>
 <h2 id="argument-passing">Argument Passing<a class="headerlink" href="#argument-passing" title="Permanent link">&para;</a></h2>
 <p>The Manager gets initialized by the Environment through the <code>Init()</code> function like so:</p>
-<div class="highlight"><pre><span></span><code><span class="n">CustomManager</span><span class="p">.</span><span class="n">Init</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">_tProperties</span><span class="p">,</span> <span class="n">_tEnvironment</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nv">CustomManager</span><span class="p">.</span><span class="py">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">self</span><span class="p">,</span><span class="w"> </span><span class="nv">_tProperties</span><span class="p">,</span><span class="w"> </span><span class="nv">_tEnvironment</span><span class="p">)</span>
 <span class="c1">-- ...</span>
 </code></pre></div>
 <p>The <code>_tProperties</code> attribute used during the <code>Init()</code> call correspond to whatever settings you used to inject the Manager through ACSE. If this was your ACSE Manager definition:</p>
-<div class="highlight"><pre><span></span><code><span class="n">YourModLoader</span><span class="p">.</span><span class="n">tStartScreenManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">[</span><span class="s2">&quot;Managers.MyCustomStartManager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> 
-       <span class="n">bBooleanValue</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span> 
-       <span class="n">sCustomString</span> <span class="o">=</span> <span class="s2">&quot;Testing String&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
+<div class="highlight"><pre><span></span><code><span class="nv">YourModLoader</span><span class="p">.</span><span class="py">tStartScreenManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;Managers.MyCustomStartManager&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">       </span><span class="nv">bBooleanValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span>
+<span class="w">       </span><span class="nv">sCustomString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Testing String&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>You will receive these parameters as <code>_tProperties</code> when the Manager gets initialized. the <code>_tProperties</code> table allows to have functionality enabled or disabled specifically for each different environment (or game).</p>

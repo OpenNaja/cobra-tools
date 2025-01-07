@@ -1670,13 +1670,13 @@
 <span class="c1">--/  This file is added by ACSE as a Database manager, exposing all</span>
 <span class="c1">--/  it CallOnContent methods to the game.</span>
 <span class="c1">-----------------------------------------------------------------------</span>
-<span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">api</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span>
-<span class="kd">local</span> <span class="nb">pairs</span> <span class="o">=</span> <span class="nb">pairs</span>
-<span class="kd">local</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">type</span>
-<span class="kd">local</span> <span class="nb">ipairs</span> <span class="o">=</span> <span class="nb">ipairs</span>
-<span class="kd">local</span> <span class="nb">next</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">next</span>
-<span class="kd">local</span> <span class="n">string</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">string</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">type</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">ipairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ipairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">next</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">string</span>
 
 <span class="c1">-- Include additiona lua modules as required.</span>
 <span class="c1">-- local table = require(&quot;Common.tableplus&quot;)</span>
@@ -1684,78 +1684,78 @@
 <span class="c1">-- local GameDatabase = require(&quot;Database.GameDatabase&quot;)</span>
 
 <span class="c1">-- @brief main module definition</span>
-<span class="kd">local</span> <span class="n">Dev</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
 <span class="c1">-- @brief Database after Init setup. This function is called after Dev:Init() and can</span>
 <span class="c1">-- be used to alter the setup of your mod if needed.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">Setup</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Setup()&quot;</span><span class="p">)</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">Setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Setup()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Database soft restart. This function is called when the game is doing a restart</span>
 <span class="c1">-- of the Lua module, meaning after :Shutdown() it will call :Init(). Use this function</span>
 <span class="c1">-- to cache any data you dont want/need to reinitialize.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">ShutdownForReInit</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:ShutdownForReInit()&quot;</span><span class="p">)</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">ShutdownForReInit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:ShutdownForReInit()&quot;</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Database Shutdown. This function is called when the database system is being shutdown,</span>
 <span class="c1">-- usually when the game is closing. You can add your own custom shutdown commands here.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">Shutdown</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Shutdown()&quot;</span><span class="p">)</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">Shutdown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Shutdown()&quot;</span><span class="p">)</span>
 
-    <span class="c1">-- Remove custom commands. Note: tShellCommand is</span>
-    <span class="c1">-- created during Init.</span>
-    <span class="kr">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">oCommand</span> <span class="kr">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">Dev</span><span class="p">.</span><span class="n">tShellCommands</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">UnregisterShellCommand</span><span class="p">(</span><span class="n">oCommand</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- Remove custom commands. Note: tShellCommand is</span>
+<span class="w">    </span><span class="c1">-- created during Init.</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">i</span><span class="p">,</span><span class="w"> </span><span class="nv">oCommand</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">ipairs</span><span class="p">(</span><span class="nv">Dev</span><span class="p">.</span><span class="py">tShellCommands</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">UnregisterShellCommand</span><span class="p">(</span><span class="nv">oCommand</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="n">Dev</span><span class="p">.</span><span class="n">tShellCommands</span> <span class="o">=</span> <span class="kc">nil</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Shutdown() Finished&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tShellCommands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Shutdown() Finished&quot;</span><span class="p">)</span>
 
-    <span class="c1">-- Add your custom shutdown code after this line.</span>
+<span class="w">    </span><span class="c1">-- Add your custom shutdown code after this line.</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Database init</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">Init</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Init()&quot;</span><span class="p">)</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:Init()&quot;</span><span class="p">)</span>
 
-    <span class="c1">-- Register our own custom shell commands in this section. Custom shell commands can be</span>
-    <span class="c1">-- executed through Lua scripting or using the ACSEDebug console window. To run a shell</span>
-    <span class="c1">-- command from Lua you can call the debug API:</span>
-    <span class="c1">-- local _, sResult = global.api.debug.RunShellCommand(&quot;Echo &quot; .. sStringToEcho)</span>
-    <span class="c1">--</span>
-    <span class="n">Dev</span><span class="p">.</span><span class="n">tShellCommands</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c1">--</span>
-        <span class="c1">-- Custom command to echo a string back. The input string will be displayed in the</span>
-        <span class="c1">-- UI console or added to the game log. Note, this command include a example of how</span>
-        <span class="c1">-- to add and process arguments to a command.</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-            <span class="c1">-- Function to run</span>
-            <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-                <span class="kr">if</span> <span class="o">#</span><span class="n">tArgs</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="kr">then</span>
-                    <span class="kr">return</span> <span class="kc">false</span><span class="p">,</span> <span class="s2">&quot;Needs at least one argument.&quot;</span>
-                <span class="kr">end</span>
-                <span class="kr">return</span> <span class="kc">true</span><span class="p">,</span> <span class="n">global</span><span class="p">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="kr">end</span><span class="p">,</span>
-            <span class="s2">&quot;Echo {string}&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Writes the input string back to the console.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="p">),</span>
-        <span class="c1">--</span>
-        <span class="c1">-- Crash to desktop. Simple command that will cause Lua to fail forcing a game crash.</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-            <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-                <span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="n">tArgs</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="n">value</span><span class="p">())</span>
-            <span class="kr">end</span><span class="p">,</span>
-            <span class="s2">&quot;&amp;Crash&amp;To&amp;Desktop&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Crash the game.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="p">),</span>
+<span class="w">    </span><span class="c1">-- Register our own custom shell commands in this section. Custom shell commands can be</span>
+<span class="w">    </span><span class="c1">-- executed through Lua scripting or using the ACSEDebug console window. To run a shell</span>
+<span class="w">    </span><span class="c1">-- command from Lua you can call the debug API:</span>
+<span class="w">    </span><span class="c1">-- local _, sResult = global.api.debug.RunShellCommand(&quot;Echo &quot; .. sStringToEcho)</span>
+<span class="w">    </span><span class="c1">--</span>
+<span class="w">    </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tShellCommands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">--</span>
+<span class="w">        </span><span class="c1">-- Custom command to echo a string back. The input string will be displayed in the</span>
+<span class="w">        </span><span class="c1">-- UI console or added to the game log. Note, this command include a example of how</span>
+<span class="w">        </span><span class="c1">-- to add and process arguments to a command.</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">            </span><span class="c1">-- Function to run</span>
+<span class="w">            </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">                </span><span class="kr">if</span><span class="w"> </span><span class="o">#</span><span class="nv">tArgs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">                    </span><span class="kr">return</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Needs at least one argument.&quot;</span>
+<span class="w">                </span><span class="kr">end</span>
+<span class="w">                </span><span class="kr">return</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="nf">tostring</span><span class="p">(</span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">            </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;Echo {string}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;Writes the input string back to the console.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">        </span><span class="c1">--</span>
+<span class="w">        </span><span class="c1">-- Crash to desktop. Simple command that will cause Lua to fail forcing a game crash.</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">            </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">                </span><span class="kd">local</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="nf">value</span><span class="p">())</span>
+<span class="w">            </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;&amp;Crash&amp;To&amp;Desktop&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;Crash the game.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="p">),</span>
 
-        <span class="c1">-- Add more commands after this line.</span>
+<span class="w">        </span><span class="c1">-- Add more commands after this line.</span>
 
-    <span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 
-    <span class="c1">-- Add any custom additional Init() code after this line.</span>
+<span class="w">    </span><span class="c1">-- Add any custom additional Init() code after this line.</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1769,21 +1769,21 @@
 <span class="c1">--</span>
 
 <span class="c1">-- Definition of our own database methods</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tDatabaseMethods</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">--</span>
-    <span class="c1">-- Example of custom database method, can be called using:</span>
-    <span class="c1">-- local nResult = GameDatabase.DevTest()</span>
-    <span class="n">DevTest</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-        <span class="kr">return</span> <span class="mi">42</span>
-    <span class="kr">end</span>
-    <span class="c1">-- ...</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tDatabaseMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">--</span>
+<span class="w">    </span><span class="c1">-- Example of custom database method, can be called using:</span>
+<span class="w">    </span><span class="c1">-- local nResult = GameDatabase.DevTest()</span>
+<span class="w">    </span><span class="nv">DevTest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="mi">42</span>
+<span class="w">    </span><span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- ...</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief adds our custom database methods to the main game database</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddDatabaseFunctions</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tDatabaseFunctions</span><span class="p">)</span>
-    <span class="kr">for</span> <span class="n">sName</span><span class="p">,</span> <span class="n">fnFunction</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">Dev</span><span class="p">.</span><span class="n">tDatabaseMethods</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_tDatabaseFunctions</span><span class="p">[</span><span class="n">sName</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnFunction</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddDatabaseFunctions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tDatabaseFunctions</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sName</span><span class="p">,</span><span class="w"> </span><span class="nv">fnFunction</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">Dev</span><span class="p">.</span><span class="py">tDatabaseMethods</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">_tDatabaseFunctions</span><span class="p">[</span><span class="nv">sName</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">fnFunction</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1795,21 +1795,21 @@
 <span class="c1">--</span>
 
 <span class="c1">-- Definition of our own player methods</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tPlayerMethods</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">--</span>
-    <span class="c1">-- Example new player method, can be called using:</span>
-    <span class="c1">-- tPlayer:DevPlayerTest(true)</span>
-    <span class="n">DevPlayerTest</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayer</span><span class="p">,</span> <span class="n">bTest</span><span class="p">)</span>
-        <span class="n">_tPlayer</span><span class="p">.</span><span class="n">bTestingBooleanValue</span> <span class="o">=</span> <span class="n">bTest</span>
-    <span class="kr">end</span>
-    <span class="c1">-- ...</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tPlayerMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">--</span>
+<span class="w">    </span><span class="c1">-- Example new player method, can be called using:</span>
+<span class="w">    </span><span class="c1">-- tPlayer:DevPlayerTest(true)</span>
+<span class="w">    </span><span class="nv">DevPlayerTest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayer</span><span class="p">,</span><span class="w"> </span><span class="nv">bTest</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">_tPlayer</span><span class="p">.</span><span class="py">bTestingBooleanValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">bTest</span>
+<span class="w">    </span><span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- ...</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief adds our custom methods to the player table</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddPlayerMethods</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayerMethods</span><span class="p">)</span>
-    <span class="kr">for</span> <span class="n">sMethod</span><span class="p">,</span> <span class="n">fnMethod</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">Dev</span><span class="p">.</span><span class="n">tPlayerMethods</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_tPlayerMethods</span><span class="p">[</span><span class="n">sMethod</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnMethod</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddPlayerMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayerMethods</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sMethod</span><span class="p">,</span><span class="w"> </span><span class="nv">fnMethod</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">Dev</span><span class="p">.</span><span class="py">tPlayerMethods</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">_tPlayerMethods</span><span class="p">[</span><span class="nv">sMethod</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">fnMethod</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1822,33 +1822,33 @@
 
 <span class="c1">-- @brief Allows adding attributes to a new player, called when a new player save</span>
 <span class="c1">-- file is being created. Add your own attributes here.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddPlayer</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayer</span><span class="p">)</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:AddPlayer()&quot;</span><span class="p">)</span>
-    <span class="c1">--_tPlayer.bBooleanValue = false</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddPlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayer</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:AddPlayer()&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">--_tPlayer.bBooleanValue = false</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Allows saving information to file in this player profile. Called when the</span>
 <span class="c1">-- player data is being saved to disk, allows to store your own data for this player</span>
 <span class="c1">-- persistently.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">SavePlayer</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayer</span><span class="p">,</span> <span class="n">_saver</span><span class="p">)</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:SavePlayer()&quot;</span><span class="p">)</span>
-    <span class="c1">-- _saver is the table being saved with our data.</span>
-    <span class="c1">--_saver.bBooleanValue = _tPlayer.bBooleanValue</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">SavePlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayer</span><span class="p">,</span><span class="w"> </span><span class="nv">_saver</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:SavePlayer()&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- _saver is the table being saved with our data.</span>
+<span class="w">    </span><span class="c1">--_saver.bBooleanValue = _tPlayer.bBooleanValue</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Allows loading information from file of this player profile. Called when a</span>
 <span class="c1">-- a player save is being loaded, allows you to read data saved previsouly.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">LoadPlayer</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayer</span><span class="p">,</span> <span class="n">_loader</span><span class="p">)</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:LoadPlayer()&quot;</span><span class="p">)</span>
-    <span class="c1">-- _loader is the table loaded from the file with our data</span>
-    <span class="c1">--_tPlayer.bBooleanValue = _loader.bBooleanValue</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">LoadPlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayer</span><span class="p">,</span><span class="w"> </span><span class="nv">_loader</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:LoadPlayer()&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- _loader is the table loaded from the file with our data</span>
+<span class="w">    </span><span class="c1">--_tPlayer.bBooleanValue = _loader.bBooleanValue</span>
 <span class="kr">end</span>
 
 <span class="c1">-- @brief Notifies a player is removed. Called when a player save is being deleted (</span>
 <span class="c1">-- usually on a player reset) allows you to read data before it will get destroyed.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">RemovePlayer</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tPlayer</span><span class="p">)</span>
-    <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:RemovePlayer()&quot;</span><span class="p">)</span>
-    <span class="c1">--_tPlayer.bBooleanValue = _loader.bBooleanValue</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">RemovePlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tPlayer</span><span class="p">)</span>
+<span class="w">    </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Dev:RemovePlayer()&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">--_tPlayer.bBooleanValue = _loader.bBooleanValue</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1870,35 +1870,35 @@
 <span class="c1">-- List of custom managers to force injection on the starting screen. It requires the</span>
 <span class="c1">-- manager lua files to be available in the following location:</span>
 <span class="c1">-- Dev\Lua\Managers\MyCustomStartManager.lua</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tStartScreenManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">--[&#39;Managers.MyCustomStartManager&#39;] = {},</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tStartScreenManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">--[&#39;Managers.MyCustomStartManager&#39;] = {},</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the starting screen. If required, the lua modules</span>
 <span class="c1">-- will be imported from the file system.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddStartScreenManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">Dev</span><span class="p">.</span><span class="n">tStartScreenManagers</span>
-    <span class="kr">for</span> <span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span> <span class="o">..</span> <span class="n">sManagerName</span><span class="p">)</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddStartScreenManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tStartScreenManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">)</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">-- List of custom managers to force injection on a park. It requires the</span>
 <span class="c1">-- manager lua files to be available in the following location:</span>
 <span class="c1">-- Dev\Lua\Managers\MyCustomParkManager.lua</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tParkManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">--[&#39;Managers.MyCustomParkManager&#39;] = {},</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tParkManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">--[&#39;Managers.MyCustomParkManager&#39;] = {},</span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the park/zoo/island game. If required, the lua</span>
 <span class="c1">-- modules will be imported from the file system.</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddParkManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">Dev</span><span class="p">.</span><span class="n">tParkManagers</span>
-    <span class="kr">for</span> <span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span> <span class="o">..</span> <span class="n">sManagerName</span><span class="p">)</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sManagerName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddParkManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tParkManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">sManagerName</span><span class="p">)</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sManagerName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1909,18 +1909,18 @@
 <span class="c1">-- Note, you will need to know the exact name of the environment script. The lua</span>
 <span class="c1">-- manager module file has to be available at:</span>
 <span class="c1">-- Dev\Lua\Managers\CustomEnvironmentManager.lua</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tManagers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">-- [&quot;Environments.WhateverEnvironment&quot;] = {</span>
-    <span class="c1">--    [&quot;Managers.CustomEnvironmentManager&quot;] = {},</span>
-    <span class="c1">--},    </span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">-- [&quot;Environments.WhateverEnvironment&quot;] = {</span>
+<span class="w">    </span><span class="c1">--    [&quot;Managers.CustomEnvironmentManager&quot;] = {},</span>
+<span class="w">    </span><span class="c1">--},    </span>
 <span class="p">}</span>
 
 <span class="c1">-- @brief Add our custom Manager to the starting screen</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddManagers</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">Dev</span><span class="p">.</span><span class="n">tManagers</span>
-    <span class="kr">for</span> <span class="n">sEnvironmentName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sEnvironmentName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddManagers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tManagers</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sEnvironmentName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sEnvironmentName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1936,16 +1936,16 @@
 <span class="c1">-- commands added by the mod.</span>
 
 <span class="c1">-- List of custom prefabs</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tPrefabs</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tPrefabs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
 
 <span class="c1">-- @brief add custom prefabs to the game</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddLuaPrefabs</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">Dev</span><span class="p">.</span><span class="n">tPrefabs</span>
-    <span class="kr">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">tInfo</span> <span class="kr">in</span> <span class="n">global</span><span class="p">.</span><span class="n">ipairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="kr">for</span> <span class="n">sPrefabName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tInfo</span><span class="p">)</span> <span class="kr">do</span>
-            <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sPrefabName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-        <span class="kr">end</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddLuaPrefabs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tPrefabs</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">k</span><span class="p">,</span><span class="w"> </span><span class="nv">tInfo</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="nf">ipairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="kr">for</span><span class="w"> </span><span class="nv">sPrefabName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tInfo</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">            </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sPrefabName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">end</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">--</span>
@@ -1961,15 +1961,15 @@
 <span class="c1">-- List of custom components to inject into the game. It requires the</span>
 <span class="c1">-- manager lua files to be available in the following location:</span>
 <span class="c1">-- Dev\Lua\Components\MyCustomComponent.lua</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">tComponents</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">tComponents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
 
 <span class="c1">-- @brief add custom components to the game</span>
-<span class="n">Dev</span><span class="p">.</span><span class="n">AddLuaComponents</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_fnAdd</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">tData</span> <span class="o">=</span> <span class="n">Dev</span><span class="p">.</span><span class="n">tComponents</span>
-    <span class="kr">for</span> <span class="n">sComponentName</span><span class="p">,</span> <span class="n">tParams</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">tData</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span> <span class="o">..</span> <span class="n">sComponentName</span><span class="p">)</span>
-        <span class="n">_fnAdd</span><span class="p">(</span><span class="n">sComponentName</span><span class="p">,</span> <span class="n">tParams</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="nv">Dev</span><span class="p">.</span><span class="py">AddLuaComponents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Dev</span><span class="p">.</span><span class="py">tComponents</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sComponentName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">tData</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;ImportModule &quot;</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">sComponentName</span><span class="p">)</span>
+<span class="w">        </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="nv">sComponentName</span><span class="p">,</span><span class="w"> </span><span class="nv">tParams</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 <span class="c1">-- EOF</span>
 </code></pre></div>

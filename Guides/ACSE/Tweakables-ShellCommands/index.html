@@ -1716,9 +1716,9 @@
 <p>Tweakable variables (from now on Tweakables) is a method to define a variable for your Mod that can be altered with ACSE debug functions. ACSE will register all the Tweakables created by any Manager, Component or database, and exposed them through the ACSE Debug UI. They can later be list and modified from the Debug console with the 'ListTweakables' and 'SetTweakable' commands.</p>
 <h3 id="creating-a-tweakable-variable">Creating a Tweakable variable.<a class="headerlink" href="#creating-a-tweakable-variable" title="Permanent link">&para;</a></h3>
 <p>Tweakables can have different types, and currently ACSE supports: Integer, Float and Boolean. These are some examples of how to define Tweakable variables:</p>
-<p><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">f_MyFloatValue1</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">CreateDebugTweakable</span><span class="p">(</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Tweakable_Float</span><span class="p">,</span> <span class="s2">&quot;Testing.variables.floatvalue1&quot;</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">b_MyBoolValue1</span>  <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">CreateDebugTweakable</span><span class="p">(</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Tweakable_Bool</span><span class="p">,</span> <span class="s2">&quot;Testing.variables.Boolean1&quot;</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">i_MyIntValue1</span>   <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">CreateDebugTweakable</span><span class="p">(</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Tweakable_Int32</span><span class="p">,</span> <span class="s2">&quot;Testing.OtherCategory.Intval1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">f_MyFloatValue1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">CreateDebugTweakable</span><span class="p">(</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="py">Tweakable_Float</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Testing.variables.floatvalue1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">b_MyBoolValue1</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">CreateDebugTweakable</span><span class="p">(</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="py">Tweakable_Bool</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Testing.variables.Boolean1&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">i_MyIntValue1</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">CreateDebugTweakable</span><span class="p">(</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="py">Tweakable_Int32</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Testing.OtherCategory.Intval1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div>
 The arguments to create a Tweakable are:
 - Type: any of Tweakable_Float, Tweakable_Bool, Tweakable_Int32, Tweakable_UInt32, Tweakable_Int64, Tweakable_UInt64, Tweakable_fVector1
@@ -1733,11 +1733,11 @@ The arguments to create a Tweakable are:
 - GetValue() will return the current value casted to the Tweakable type.
 - SetValue(value) will store a new value. Needs to be casted to the right type.</p>
 <p>So, following with our previous examples, valid ways to access the Tweakables we just created are:</p>
-<p><div class="highlight"><pre><span></span><code>  <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot; The value of f_MyFloatValue1 is &quot;</span> <span class="o">..</span> <span class="nb">tostring</span><span class="p">(</span> <span class="n">f_MyFloatValue1</span><span class="p">:</span><span class="n">GetValue</span><span class="p">()</span> <span class="p">))</span>
+<p><div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot; The value of f_MyFloatValue1 is &quot;</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nb">tostring</span><span class="p">(</span><span class="w"> </span><span class="nv">f_MyFloatValue1</span><span class="p">:</span><span class="nf">GetValue</span><span class="p">()</span><span class="w"> </span><span class="p">))</span>
 
-  <span class="kd">local</span> <span class="n">int</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">i_MyIntValue1</span><span class="p">:</span><span class="n">GetValue</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">local</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">i_MyIntValue1</span><span class="p">:</span><span class="nf">GetValue</span><span class="p">()</span>
 
-  <span class="kr">if</span> <span class="n">b_MyBoolValue1</span><span class="p">:</span><span class="n">GetValue</span><span class="p">()</span> <span class="o">==</span> <span class="kc">true</span> <span class="kr">then</span> <span class="n">b_MyBoolValue1</span><span class="p">:</span><span class="n">SetValue</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">  </span><span class="kr">if</span><span class="w"> </span><span class="nv">b_MyBoolValue1</span><span class="p">:</span><span class="nf">GetValue</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="nv">b_MyBoolValue1</span><span class="p">:</span><span class="nf">SetValue</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
 </code></pre></div>
 You are just free to use them in your code as normal variables. The only difference is that they are global and can be modified from outside your code, for example through the ACSEDebug console. Example of the commands to modify these Tweakables are:</p>
 <div class="highlight"><pre><span></span><code> SetTweakable Testing.OtherCategory.Intval1 15
@@ -1758,82 +1758,82 @@ You are just free to use them in your code as normal variables. The only differe
 <p>To get more information about a command you can type <code>Help commandName</code> in the debug console, and it will return a detailed description of the command and its arguments. For example, ListTweakables will display the entire list of known Tweakables, and if you specify a string it will use that string to filter the output to include only Tweakables that have that string in their name. Other commands require all their arguments to work, for example DisplaySubtitle requires both a subtitle name and the time in seconds to keep the text displayed.</p>
 <h3 id="creating-a-shell-command">Creating a Shell Command<a class="headerlink" href="#creating-a-shell-command" title="Permanent link">&para;</a></h3>
 <p>To create a shell command you will need to call the api.debug.RegisterShellCommand function:</p>
-<p><div class="highlight"><pre><span></span><code>   <span class="kd">local</span> <span class="n">command1</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-      <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-        <span class="c1">-- do something</span>
-        <span class="kr">return</span> 
-      <span class="kr">end</span><span class="p">,</span>
-      <span class="s2">&quot;ResetCurrentIsland&quot;</span><span class="p">,</span> 
-      <span class="s2">&quot;Reset the state of the current island to its starting state</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="w">   </span><span class="kd">local</span><span class="w"> </span><span class="nv">command1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">      </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">-- do something</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span>
+<span class="w">      </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;ResetCurrentIsland&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="s2">&quot;Reset the state of the current island to its starting state</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 The arguments for RegisterShellCommand are:
 - Function to be executed when the command is issued.
 - Command definition string: will include the command Name and/or any arguments required defined by type.
 - Command description text.</p>
 <p>This is a more complex definition of a command including optional and required arguments:
-<div class="highlight"><pre><span></span><code>   <span class="kd">local</span> <span class="n">command2</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-      <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-        <span class="c1">-- do something</span>
-        <span class="kr">return</span> 
-      <span class="kr">end</span><span class="p">,</span>
-      <span class="s2">&quot;Storm start|stop {string} [{float}]&quot;</span><span class="p">,</span> 
-      <span class="s2">&quot;Starts the storm specified by name in the first argument or stops the current active storm</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="kd">local</span><span class="w"> </span><span class="nv">command2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">      </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">-- do something</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span>
+<span class="w">      </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;Storm start|stop {string} [{float}]&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="s2">&quot;Starts the storm specified by name in the first argument or stops the current active storm</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 It is important to save the shell command object returned by RegisterShellCommand and destroy when the code wont be available anymore (e.g. if you have a manager or a database controller, you will create your Shell Commands on Init() and destroy then on Shutdown(), or any attempt to execute the commands will fail and possible crash the game.</p>
 <h3 id="removing-a-shell-command">Removing a shell command<a class="headerlink" href="#removing-a-shell-command" title="Permanent link">&para;</a></h3>
 <p>When your code wont be available anymore, you can destroy the existing commands by calling api.debug.UnregisterShellCommand( CommandObject ). The argument for this function is the object created by RegisterShellCommand. Following up with the examples, you will destroy these commands by calling:</p>
-<p><div class="highlight"><pre><span></span><code><span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">UnregisterShellCommand</span><span class="p">(</span> <span class="n">command1</span> <span class="p">)</span> 
-<span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">UnregisterShellCommand</span><span class="p">(</span> <span class="n">command2</span> <span class="p">)</span> 
+<p><div class="highlight"><pre><span></span><code><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">UnregisterShellCommand</span><span class="p">(</span><span class="w"> </span><span class="nv">command1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
+<span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">UnregisterShellCommand</span><span class="p">(</span><span class="w"> </span><span class="nv">command2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
 </code></pre></div>
 Note: it is important to unregister all the Shell Commands you have created.</p>
 <h3 id="executing-a-shell-command">Executing a shell command<a class="headerlink" href="#executing-a-shell-command" title="Permanent link">&para;</a></h3>
 <p>You can execute Shell Commands from either the debug console or through code, calling api.debug.RunShellCommand( commandString). Some examples could be (assuming the commands do exist):</p>
-<p><div class="highlight"><pre><span></span><code>  <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;SetTweakable Testing.OtherCategory.Intval1 15&quot;</span><span class="p">)</span>
-  <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;Game.Quit&quot;</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;SetTweakable Testing.OtherCategory.Intval1 15&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RunShellCommand</span><span class="p">(</span><span class="s2">&quot;Game.Quit&quot;</span><span class="p">)</span>
 </code></pre></div>
 In the debug console all you have to do is type the command and press enter.</p>
 <h3 id="anatomy-of-a-shell-command">Anatomy of a shell command.<a class="headerlink" href="#anatomy-of-a-shell-command" title="Permanent link">&para;</a></h3>
 <p>Lets go back for a second to the definition of a shell command</p>
-<div class="highlight"><pre><span></span><code>   <span class="kd">local</span> <span class="n">command2</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-      <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-        <span class="c1">-- do something</span>
-        <span class="kr">return</span> 
-      <span class="kr">end</span><span class="p">,</span>
-      <span class="s2">&quot;Storm start|stop {string} [{float}]&quot;</span><span class="p">,</span> 
-      <span class="s2">&quot;Starts the storm specified by name in the first argument or stops the current active &quot;</span> <span class="o">..</span>
-      <span class="s2">&quot;storm immediately or after the seconds specified by the second argument</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="w">   </span><span class="kd">local</span><span class="w"> </span><span class="nv">command2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">      </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">-- do something</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span>
+<span class="w">      </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;Storm start|stop {string} [{float}]&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="s2">&quot;Starts the storm specified by name in the first argument or stops the current active &quot;</span><span class="w"> </span><span class="o">..</span>
+<span class="w">      </span><span class="s2">&quot;storm immediately or after the seconds specified by the second argument</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 <p>This command is defined to accept two or there arguments, if there is a second argument it will be a string name of the storm type, if there is a third argument it will be a float value. The command function will receive the arguments in the tArgs table, and will also receive a copy of the current world Environment table in case it needs to access any of the current active managers through their interfaces.</p>
 <p>Imagine a different command, one that actually uses the game API and is easier to implement.</p>
-<p><div class="highlight"><pre><span></span><code>   <span class="kd">local</span> <span class="n">command3</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">RegisterShellCommand</span><span class="p">(</span>
-      <span class="kr">function</span><span class="p">(</span><span class="n">tEnv</span><span class="p">,</span> <span class="n">tArgs</span><span class="p">)</span>
-        <span class="kr">if</span> <span class="o">#</span><span class="n">tArgs</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="kr">then</span>
-            <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;ParkControl requires an action between: open or close&quot;</span><span class="p">)</span>
-            <span class="kr">return</span>
-        <span class="kr">end</span>
-        <span class="kr">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">~=</span> <span class="s2">&quot;string&quot;</span> <span class="ow">or</span> <span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">~=</span> <span class="s1">&#39;open&#39;</span> <span class="ow">or</span> <span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">~=</span> <span class="s1">&#39;close&#39;</span> <span class="kr">then</span>
-            <span class="n">api</span><span class="p">.</span><span class="n">debug</span><span class="p">.</span><span class="n">Trace</span><span class="p">(</span><span class="s2">&quot;Wrong door control command, use open or close&quot;</span><span class="p">)</span>
-            <span class="kr">return</span>
-        <span class="kr">end</span>
+<p><div class="highlight"><pre><span></span><code><span class="w">   </span><span class="kd">local</span><span class="w"> </span><span class="nv">command3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">RegisterShellCommand</span><span class="p">(</span>
+<span class="w">      </span><span class="kr">function</span><span class="p">(</span><span class="nv">tEnv</span><span class="p">,</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="o">#</span><span class="nv">tArgs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">            </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;ParkControl requires an action between: open or close&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="kr">return</span>
+<span class="w">        </span><span class="kr">end</span>
+<span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="nb">type</span><span class="p">(</span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">~=</span><span class="w"> </span><span class="s1">&#39;open&#39;</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="s1">&#39;close&#39;</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">            </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span><span class="p">.</span><span class="nf">Trace</span><span class="p">(</span><span class="s2">&quot;Wrong door control command, use open or close&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="kr">return</span>
+<span class="w">        </span><span class="kr">end</span>
 
-        <span class="c1">-- perform action:</span>
-        <span class="kd">local</span> <span class="n">worldAPI</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">world</span><span class="p">.</span><span class="n">GetWorldAPIs</span><span class="p">()</span>
-        <span class="kd">local</span> <span class="n">parkAPI</span>  <span class="o">=</span> <span class="n">worldAPI</span><span class="p">.</span><span class="n">park</span>
+<span class="w">        </span><span class="c1">-- perform action:</span>
+<span class="w">        </span><span class="kd">local</span><span class="w"> </span><span class="nv">worldAPI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">world</span><span class="p">.</span><span class="nf">GetWorldAPIs</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">local</span><span class="w"> </span><span class="nv">parkAPI</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">worldAPI</span><span class="p">.</span><span class="py">park</span>
 
-        <span class="kr">if</span> <span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;open&#39;</span> <span class="kr">then</span>
-           <span class="n">ParkAPI</span><span class="p">:</span><span class="n">SetParkOpenForGuests</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
-        <span class="kr">end</span>
-        <span class="kr">if</span> <span class="n">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;close&#39;</span> <span class="kr">then</span>
-           <span class="n">ParkAPI</span><span class="p">:</span><span class="n">SetParkOpenForGuests</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
-        <span class="kr">end</span>
-        <span class="kr">return</span> 
-      <span class="kr">end</span><span class="p">,</span>
-      <span class="s2">&quot;ParkControl open|closed&quot;</span><span class="p">,</span> 
-      <span class="s2">&quot;opens or closes the park for guests</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+<span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;open&#39;</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">           </span><span class="nv">ParkAPI</span><span class="p">:</span><span class="nf">SetParkOpenForGuests</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">end</span>
+<span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="nv">tArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;close&#39;</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">           </span><span class="nv">ParkAPI</span><span class="p">:</span><span class="nf">SetParkOpenForGuests</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">end</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span>
+<span class="w">      </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;ParkControl open|closed&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="s2">&quot;opens or closes the park for guests</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 In your custom commands you want to have at least the minimum fail safe for argument checking so you don't crash the game for using a command incorrectly. </p>
 <p>You can add as many commands as you want, but ideally you want to have commands that helps you speeding up your modding requirements. For example, a command to control storms is useful if you plan to develop a mod that adds or modifies the existing storm system, or if you are working on a mod that modifies the storm damage. This way you don't need to wait for a storm to come randomly to check your modding results.</p>

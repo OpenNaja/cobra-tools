@@ -1746,8 +1746,8 @@
 <h2 id="using-the-game-database">Using the Game Database<a class="headerlink" href="#using-the-game-database" title="Permanent link">&para;</a></h2>
 <p>There are different ways to interact with the database and perform <a href="https://en.wikipedia.org/wiki/CRUD">CRUD</a> operations on it while the game is running, but this will happen outside of the context of the main database and will be covered later.</p>
 <p>For now, to access the Game Database through the exposed game API, all you need to do is require the corresponding module and call its functions; however, the content of the database depends on the game title. For example, we can get an <code>Island</code> definition from the database in Jurassic World Evolution 2 with this code:</p>
-<p><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">GameDatabase</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">tIslandData</span> <span class="o">=</span> <span class="n">GameDatabase</span><span class="p">.</span><span class="n">GetIslandTable</span><span class="p">(</span><span class="s1">&#39;Challenge_01_Taiga&#39;</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">tIslandData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="p">.</span><span class="nf">GetIslandTable</span><span class="p">(</span><span class="s1">&#39;Challenge_01_Taiga&#39;</span><span class="p">)</span>
 </code></pre></div>
 The Game Database will return the <code>Island</code> information that we can now modify at our own will. There are more <code>Island</code> related functions in Jurassic World Evolution 2 available, like <code>AddIsland</code>, <code>RemoveIsland</code>, <code>RemoveAllIslands</code>, <code>SaveIsland</code>, and <code>LoadIsland</code>. These functions have been added to the Game Database by the <code>Island</code> Database Manager, which has been loaded as part of a Content Pack.</p>
 <p>At this point, we still do not have a Lua context to run our code in.</p>
@@ -1761,23 +1761,23 @@ The Game Database will return the <code>Island</code> information that we can no
 <span class="c1">-- This script will hook into the GameDatabase content merging process</span>
 
 <span class="c1">-- This little block is required for non-compiled Lua scripts. It re-defines some globals for use within the script</span>
-<span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">api</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span>
-<span class="kd">local</span> <span class="n">debug</span> <span class="o">=</span> <span class="n">api</span><span class="p">.</span><span class="n">debug</span>
-<span class="kd">local</span> <span class="n">table</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">table</span>
-<span class="kd">local</span> <span class="nb">require</span> <span class="o">=</span> <span class="nb">require</span>
-<span class="kd">local</span> <span class="n">string</span> <span class="o">=</span> <span class="n">string</span>
-<span class="kd">local</span> <span class="n">ExampleContentPackDatabase</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">debug</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">table</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">string</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">ExampleContentPackDatabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
-<span class="kd">local</span> <span class="n">tConfig</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
-    <span class="n">tLoad</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="c1">-- Tell the game to create and/or merge the in-Game Databases </span>
-    <span class="n">tCreateAndMerge</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">tConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
+<span class="w">    </span><span class="nv">tLoad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">    </span><span class="c1">-- Tell the game to create and/or merge the in-Game Databases </span>
+<span class="w">    </span><span class="nv">tCreateAndMerge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
 <span class="p">}</span>
 
-<span class="n">ExampleContentPackDatabase</span><span class="p">.</span><span class="n">GetDatabaseConfig</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="kr">return</span> <span class="n">tConfig</span>
+<span class="nv">ExampleContentPackDatabase</span><span class="p">.</span><span class="py">GetDatabaseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">tConfig</span>
 <span class="kr">end</span>
 </code></pre></div></p>
 <p>This Lua script will be executed and the function GetDatabaseConfig called once during the Game Database merging process. It is still too early to have access to most of the game features, as the game data is still being loaded; however, this gives you the scaffolding to modify some of the game information without replacing the original files. </p>
@@ -1794,37 +1794,37 @@ The Game Database will return the <code>Island</code> information that we can no
 - Edit the PowerOutput in that row to 300.
 - Commit and save the changes in the database.</p>
 <p>Now we need to instruct the game to load this file and merge its contents with the existing database. Back to your Databases.ExampleContentPack.lua it is time to add information to the tConfig table. Replace the previous tConfig Table with this one and save the lua file.</p>
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">tConfig</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
-    <span class="c1">-- where sSymbol is the FDB name, and the key is the name we will use</span>
-    <span class="c1">-- to reference this FDB name. We are loading TestBuildings.fdb as &#39;TestBuildingsFile&#39;.</span>
-    <span class="c1">-- You can load different tables at this point</span>
-    <span class="n">tLoad</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">TestBuildingsFile</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">sSymbol</span> <span class="o">=</span> <span class="s2">&quot;TestBuildings&quot;</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">tConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
+<span class="w">    </span><span class="c1">-- where sSymbol is the FDB name, and the key is the name we will use</span>
+<span class="w">    </span><span class="c1">-- to reference this FDB name. We are loading TestBuildings.fdb as &#39;TestBuildingsFile&#39;.</span>
+<span class="w">    </span><span class="c1">-- You can load different tables at this point</span>
+<span class="w">    </span><span class="nv">tLoad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">TestBuildingsFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">sSymbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TestBuildings&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
 
-    <span class="c1">-- Additionally, we need to tell the game to create the in-game runtime database</span>
-    <span class="c1">-- and merge its content. To interact with the database we need to specify the</span>
-    <span class="c1">-- tables to look from and the prepared</span>
-    <span class="c1">-- statements to use (the PSCollection name):</span>
-    <span class="c1">-- If the runtime database already exists, the current data will be</span>
-    <span class="c1">-- merged with the existing one based on the table/colum rules defined</span>
-    <span class="c1">-- in the database.</span>
-    <span class="n">tCreateAndMerge</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
-        <span class="c1">-- We are modifying the original database called &#39;Buildings&#39; by the game created in content0.</span>
-        <span class="c1">-- The in-Game Databases can be found in the content0\Init\Databases.content0.lua file.</span>
-        <span class="n">Buildings</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1">-- Specify our merging content, we loaded as TestBuildingsFile before. You can merge</span>
-            <span class="c1">-- several databases here as long as they have the same structure. For now we just merge</span>
-            <span class="c1">-- our single file.</span>
-            <span class="n">tChildrenToMerge</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;TestBuildingsFile&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">-- Additionally, we need to tell the game to create the in-game runtime database</span>
+<span class="w">    </span><span class="c1">-- and merge its content. To interact with the database we need to specify the</span>
+<span class="w">    </span><span class="c1">-- tables to look from and the prepared</span>
+<span class="w">    </span><span class="c1">-- statements to use (the PSCollection name):</span>
+<span class="w">    </span><span class="c1">-- If the runtime database already exists, the current data will be</span>
+<span class="w">    </span><span class="c1">-- merged with the existing one based on the table/colum rules defined</span>
+<span class="w">    </span><span class="c1">-- in the database.</span>
+<span class="w">    </span><span class="nv">tCreateAndMerge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
+<span class="w">        </span><span class="c1">-- We are modifying the original database called &#39;Buildings&#39; by the game created in content0.</span>
+<span class="w">        </span><span class="c1">-- The in-Game Databases can be found in the content0\Init\Databases.content0.lua file.</span>
+<span class="w">        </span><span class="nv">Buildings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">-- Specify our merging content, we loaded as TestBuildingsFile before. You can merge</span>
+<span class="w">            </span><span class="c1">-- several databases here as long as they have the same structure. For now we just merge</span>
+<span class="w">            </span><span class="c1">-- our single file.</span>
+<span class="w">            </span><span class="nv">tChildrenToMerge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;TestBuildingsFile&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Now we need to pack both the <code>Init</code> folder into Init.ovl and the <code>Main</code> folder into Main.ovl again and launch the game, the power generated by the backup generator has changed to the value of your choice.</p>
@@ -1854,60 +1854,60 @@ The Game Database will return the <code>Island</code> information that we can no
 | 1002 | Name2 | Value2 |</p>
 <p>Note: these values and Ids are not relevant, they are just to showcase the use of a custom database.</p>
 <p>Back to our <code>ExampleContentPack\Init\Databases.ExampleContentPack.lua</code> file, it is time to introduce the new FDB file in the game. Edit the lua file and modify the tConfig table to include the following:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">tConfig</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
-    <span class="c1">-- where sSymbol is the FDB name, and the key is the name we will use</span>
-    <span class="c1">-- to reference this FDB name. We are loading TestBuildings.fdb as &#39;TestBuildingsFile&#39;.</span>
-    <span class="c1">-- Additionally, we are loading our custom FDB file as well</span>
-    <span class="n">tLoad</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">TestBuildingsFile</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">sSymbol</span> <span class="o">=</span> <span class="s2">&quot;TestBuildings&quot;</span>
-        <span class="p">},</span>
-        <span class="n">TestCustomDataFile</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">sSymbol</span> <span class="o">=</span> <span class="s2">&quot;TestCustomData&quot;</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">tConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">-- Tell the main Game Database controller to load the following FDB files</span>
+<span class="w">    </span><span class="c1">-- where sSymbol is the FDB name, and the key is the name we will use</span>
+<span class="w">    </span><span class="c1">-- to reference this FDB name. We are loading TestBuildings.fdb as &#39;TestBuildingsFile&#39;.</span>
+<span class="w">    </span><span class="c1">-- Additionally, we are loading our custom FDB file as well</span>
+<span class="w">    </span><span class="nv">tLoad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">TestBuildingsFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">sSymbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TestBuildings&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nv">TestCustomDataFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">sSymbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TestCustomData&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
 
-    <span class="c1">-- Additionally, we need to tell the game to create the in-game runtime database</span>
-    <span class="c1">-- and merge its content. To interact with the database we need to specify the</span>
-    <span class="c1">-- tables to look from and the prepared</span>
-    <span class="c1">-- statements to use (the PSCollection name):</span>
-    <span class="c1">-- If the runtime database already exists, the current data will be</span>
-    <span class="c1">-- merged with the existing one based on the table/colum rules defined</span>
-    <span class="c1">-- in the database.</span>
-    <span class="n">tCreateAndMerge</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
-        <span class="c1">-- We are modifying the original database called &#39;Buildings&#39; by the game created in content0.</span>
-        <span class="c1">-- The in-Game Databases can be found in the content0\Init\Databases.content0.lua file.</span>
-        <span class="n">Buildings</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1">-- Specify our merging content, we loaded as TestBuildingsFile before. You can merge</span>
-            <span class="c1">-- several databases here as long as they have the same structure. For now we just merge</span>
-            <span class="c1">-- our single file.</span>
-            <span class="n">tChildrenToMerge</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;TestBuildingsFile&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
+<span class="w">    </span><span class="c1">-- Additionally, we need to tell the game to create the in-game runtime database</span>
+<span class="w">    </span><span class="c1">-- and merge its content. To interact with the database we need to specify the</span>
+<span class="w">    </span><span class="c1">-- tables to look from and the prepared</span>
+<span class="w">    </span><span class="c1">-- statements to use (the PSCollection name):</span>
+<span class="w">    </span><span class="c1">-- If the runtime database already exists, the current data will be</span>
+<span class="w">    </span><span class="c1">-- merged with the existing one based on the table/colum rules defined</span>
+<span class="w">    </span><span class="c1">-- in the database.</span>
+<span class="w">    </span><span class="nv">tCreateAndMerge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
+<span class="w">        </span><span class="c1">-- We are modifying the original database called &#39;Buildings&#39; by the game created in content0.</span>
+<span class="w">        </span><span class="c1">-- The in-Game Databases can be found in the content0\Init\Databases.content0.lua file.</span>
+<span class="w">        </span><span class="nv">Buildings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">-- Specify our merging content, we loaded as TestBuildingsFile before. You can merge</span>
+<span class="w">            </span><span class="c1">-- several databases here as long as they have the same structure. For now we just merge</span>
+<span class="w">            </span><span class="c1">-- our single file.</span>
+<span class="w">            </span><span class="nv">tChildrenToMerge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;TestBuildingsFile&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
 
-        <span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
-        <span class="c1">-- This time are creating a new database instead of modifying an existing one, so the entry</span>
-        <span class="c1">-- will look a bit different.</span>
-        <span class="c1">-- ExampleTestData is the name of table the game will create for us.</span>
-        <span class="n">ExampleTestData</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1">-- Specify Which one of the database files is to be considered the first one</span>
-            <span class="c1">-- One to which other databases can merge to. We associated our custom FDB file </span>
-            <span class="c1">-- to the key: &#39;TestCustomDataFile&#39;</span>
-            <span class="n">FirstChild</span> <span class="o">=</span> <span class="s2">&quot;TestCustomDataFile&quot;</span>
-            <span class="c1">-- Specify one or more Prepared Statement Collections to operate with</span>
-            <span class="c1">-- this database. For the game to access the data in the FDB file, it needs a set of </span>
-            <span class="c1">-- Prepared Statements. This list of statements will be associated to the table</span>
-            <span class="c1">-- internally by the Game Database</span>
-            <span class="n">tCollections</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ExampleContentPackPSList&quot;</span><span class="p">},</span>            
-            <span class="c1">-- Additionally, we could just specify specific Prepared Statements to be assigned </span>
-            <span class="c1">-- to this database adding their names to the statements table.</span>
-            <span class="c1">-- tStatements = { &quot;PreparedStatementName&quot;}</span>
-        <span class="p">}</span>
+<span class="w">        </span><span class="c1">-- Define the new entry here. This Key will give the name to the table in the Game Database.</span>
+<span class="w">        </span><span class="c1">-- This time are creating a new database instead of modifying an existing one, so the entry</span>
+<span class="w">        </span><span class="c1">-- will look a bit different.</span>
+<span class="w">        </span><span class="c1">-- ExampleTestData is the name of table the game will create for us.</span>
+<span class="w">        </span><span class="nv">ExampleTestData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">-- Specify Which one of the database files is to be considered the first one</span>
+<span class="w">            </span><span class="c1">-- One to which other databases can merge to. We associated our custom FDB file </span>
+<span class="w">            </span><span class="c1">-- to the key: &#39;TestCustomDataFile&#39;</span>
+<span class="w">            </span><span class="nv">FirstChild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TestCustomDataFile&quot;</span>
+<span class="w">            </span><span class="c1">-- Specify one or more Prepared Statement Collections to operate with</span>
+<span class="w">            </span><span class="c1">-- this database. For the game to access the data in the FDB file, it needs a set of </span>
+<span class="w">            </span><span class="c1">-- Prepared Statements. This list of statements will be associated to the table</span>
+<span class="w">            </span><span class="c1">-- internally by the Game Database</span>
+<span class="w">            </span><span class="nv">tCollections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;ExampleContentPackPSList&quot;</span><span class="p">},</span><span class="w">            </span>
+<span class="w">            </span><span class="c1">-- Additionally, we could just specify specific Prepared Statements to be assigned </span>
+<span class="w">            </span><span class="c1">-- to this database adding their names to the statements table.</span>
+<span class="w">            </span><span class="c1">-- tStatements = { &quot;PreparedStatementName&quot;}</span>
+<span class="w">        </span><span class="p">}</span>
 
-    <span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>With this new config table in our database merging code, the game will load an FDB, assign it a table and associate the Prepared Statements with the database. But before we can use this new database, we need to create the Prepared Statement Collection.</p>
@@ -1962,30 +1962,30 @@ The Game Database will return the <code>Island</code> information that we can no
 <p>To provide the game with support for the different data, Content Packs can inject custom Database Managers into the main game. Each one of these managers will be responsible for their data, whether it is in a FDB file or a Lua table, or every other method available. The main game script will define a set of 'hardcoded' Database Managers it is expecting, however; additional Database Managers can be provided from a Content Pack. In this example we have added a custom FDB file to the game, now it is time to provide the game with access to this information through a custom Database Manager. </p>
 <h3 id="creating-a-database-main-loader">Creating a Database Main Loader<a class="headerlink" href="#creating-a-database-main-loader" title="Permanent link">&para;</a></h3>
 <p>After the early initialization content merging process, the Game Database will later look for Content Pack Lua database controllers through its modular system. Each Content Pack can define one or more Database Managers but initially it will look for a default one. It is time we go back to our Main content folder and create the <code>ExampleContentPack\Main\Database.ExampleContentPackLuaDatabase.lua</code> file, with the following content:
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">table</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">table</span>
-<span class="kd">local</span> <span class="nb">require</span> <span class="o">=</span> <span class="nb">require</span>
-<span class="kd">local</span> <span class="n">ExampleContentPackLuaDatabase</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">table</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">ExampleContentPackLuaDatabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
 <span class="c1">-- AddContentToCall is the hot-plug mechanism used by the Game Database to help Content Packs</span>
 <span class="c1">-- attach their own Database Managers to the game.</span>
-<span class="n">ExampleContentPackLuaDatabase</span><span class="p">.</span><span class="n">AddContentToCall</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tContentToCall</span><span class="p">)</span>
-    <span class="c1">-- We tell the Database Manager to load our custom Database Manager by its Lua name</span>
-    <span class="c1">-- You can add as many as you want, ideally separating each manager for each content type you add</span>
-    <span class="nb">table.insert</span><span class="p">(</span><span class="n">_tContentToCall</span><span class="p">,</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.ExampleContentDatabaseManager&quot;</span><span class="p">))</span>
+<span class="nv">ExampleContentPackLuaDatabase</span><span class="p">.</span><span class="py">AddContentToCall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tContentToCall</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- We tell the Database Manager to load our custom Database Manager by its Lua name</span>
+<span class="w">    </span><span class="c1">-- You can add as many as you want, ideally separating each manager for each content type you add</span>
+<span class="w">    </span><span class="nb">table.insert</span><span class="p">(</span><span class="nv">_tContentToCall</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.ExampleContentDatabaseManager&quot;</span><span class="p">))</span>
 <span class="kr">end</span>
 </code></pre></div></p>
 <p>With this file, the Game Database now Knows it needs to look for a file called: Database.ExampleContentDatabaseManager, so go ahead and create the <code>ExampleContentPack\Main\Database.ExampleContentDatabaseManager.lua</code> file, with the following content:
 <div class="highlight"><pre><span></span><code><span class="c1">-- This file is responsible of managing the data inside the TestCustomData.fdb and providing it to the game</span>
-<span class="kd">local</span> <span class="n">global</span> <span class="o">=</span> <span class="nb">_G</span>
-<span class="kd">local</span> <span class="n">api</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span>
-<span class="kd">local</span> <span class="nb">pairs</span> <span class="o">=</span> <span class="nb">pairs</span>
-<span class="kd">local</span> <span class="nb">ipairs</span> <span class="o">=</span> <span class="nb">ipairs</span>
-<span class="kd">local</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">type</span>
-<span class="kd">local</span> <span class="n">table</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">table</span>
-<span class="kd">local</span> <span class="nb">tostring</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">tostring</span>
-<span class="kd">local</span> <span class="n">GameDatabase</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">ExampleContentDatabaseManager</span> <span class="o">=</span> <span class="n">module</span><span class="p">(...)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">_G</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">ipairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">ipairs</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">type</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">table</span>
+<span class="kd">local</span><span class="w"> </span><span class="nb">tostring</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">tostring</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">ExampleContentDatabaseManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
 <span class="c1">--</span>
 <span class="c1">-- Initialization functions. These functions are called during the initialization process only</span>
@@ -1994,24 +1994,24 @@ The Game Database will return the <code>Island</code> information that we can no
 <span class="c1">-- This method will be called when our manager gets initialized, early in the game launch after</span>
 <span class="c1">-- all data has been merged for all the Content Packs. This method allows our manager to know</span>
 <span class="c1">-- the database is getting initialized.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">Init</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">Init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span>
 
 <span class="c1">-- This table contains the list of functions our module wants to add to the Game Database.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">tDatabaseFunctions</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">tDatabaseFunctions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
 
 <span class="c1">-- This method will be called when our manager gets initialized to inject custom functions </span>
 <span class="c1">-- in the Game Database. These functions will be available for the rest of the game Lua modules.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">AddDatabaseFunctions</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_tDatabaseFunctions</span><span class="p">)</span>
-    <span class="kr">for</span> <span class="n">sMethod</span><span class="p">,</span><span class="n">fnMethod</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">tDatabaseFunctions</span><span class="p">)</span> <span class="kr">do</span>
-        <span class="n">_tDatabaseFunctions</span><span class="p">[</span><span class="n">sMethod</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnMethod</span>
-    <span class="kr">end</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">AddDatabaseFunctions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_tDatabaseFunctions</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">sMethod</span><span class="p">,</span><span class="nv">fnMethod</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">pairs</span><span class="p">(</span><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">tDatabaseFunctions</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<span class="w">        </span><span class="nv">_tDatabaseFunctions</span><span class="p">[</span><span class="nv">sMethod</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">fnMethod</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="kr">end</span>
 
 <span class="c1">-- This method will be called after our manager gets initialized, all Database and Player methods have </span>
 <span class="c1">-- been added to the main Game Databases.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">Setup</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">Setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span>
 
@@ -2028,13 +2028,13 @@ The Game Database will return the <code>Island</code> information that we can no
 <span class="c1">-- This method will be called when the Game Database is shutting down for re-initialization. It is a soft Re-Init</span>
 <span class="c1">-- of the database. We don&#39;t need to close or free resources if we don&#39;t want, but remember we have them open when</span>
 <span class="c1">-- the Game Database calls our :Init() function again.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">ShutdownForReInit</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">ShutdownForReInit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span>
 
 <span class="c1">-- This method will be called when the Game Database is shutting down and we need to close any </span>
 <span class="c1">-- or free any resource we have open. The module will be unloaded after.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">Shutdown</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">Shutdown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
 
 <span class="kr">end</span>
 </code></pre></div></p>
@@ -2054,23 +2054,23 @@ The Game Database will return the <code>Island</code> information that we can no
 </ol>
 <p>We will create four functions to provide this functionality through the Game Database.</p>
 <p>Start with populating the <code>ExampleContentDatabaseManager.tDatabaseFunctions</code> table in the <code>ExampleContentPack\Main\Database.ExampleContentDatabaseManager.lua</code> file with the following content:
-<div class="highlight"><pre><span></span><code><span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">tDatabaseFunctions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">-- This function will return all the Ids inside TestTable1 of TestCustomData.fdb</span>
-    <span class="n">GetAllTestDataIds</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-        <span class="kr">return</span> <span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetAllTestDataIds</span><span class="p">()</span>
-    <span class="kr">end</span><span class="p">,</span>
-    <span class="c1">-- This function will return the Id for a name inside TestTable1 of TestCustomData.fdb</span>
-    <span class="n">GetTestDataIdFromName</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_sName</span><span class="p">)</span>
-        <span class="kr">return</span> <span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetTestDataIdFromName</span><span class="p">(</span><span class="n">_sName</span><span class="p">)</span>
-    <span class="kr">end</span><span class="p">,</span>
-    <span class="c1">-- This function will return the value for an Id inside TestTable1 of TestCustomData.fdb</span>
-    <span class="n">GetTestDataValueFromId</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_nId</span><span class="p">)</span>
-        <span class="kr">return</span> <span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetTestDataValueFromId</span><span class="p">(</span><span class="n">_nId</span><span class="p">)</span>
-    <span class="kr">end</span><span class="p">,</span>
-    <span class="c1">-- This function will set the value for an Id inside TestTable1 of TestCustomData.fdb</span>
-    <span class="n">SetTestDataValueFromId</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_nId</span><span class="p">,</span> <span class="n">_sValue</span><span class="p">)</span>
-        <span class="kr">return</span> <span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_SetTestDataValueFromId</span><span class="p">(</span><span class="n">_nId</span><span class="p">,</span> <span class="n">_sValue</span><span class="p">)</span>
-    <span class="kr">end</span>
+<div class="highlight"><pre><span></span><code><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">tDatabaseFunctions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">-- This function will return all the Ids inside TestTable1 of TestCustomData.fdb</span>
+<span class="w">    </span><span class="nv">GetAllTestDataIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="nf">_GetAllTestDataIds</span><span class="p">()</span>
+<span class="w">    </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">-- This function will return the Id for a name inside TestTable1 of TestCustomData.fdb</span>
+<span class="w">    </span><span class="nv">GetTestDataIdFromName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_sName</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="nf">_GetTestDataIdFromName</span><span class="p">(</span><span class="nv">_sName</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">-- This function will return the value for an Id inside TestTable1 of TestCustomData.fdb</span>
+<span class="w">    </span><span class="nv">GetTestDataValueFromId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_nId</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="nf">_GetTestDataValueFromId</span><span class="p">(</span><span class="nv">_nId</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">-- This function will set the value for an Id inside TestTable1 of TestCustomData.fdb</span>
+<span class="w">    </span><span class="nv">SetTestDataValueFromId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_nId</span><span class="p">,</span><span class="w"> </span><span class="nv">_sValue</span><span class="p">)</span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="nf">_SetTestDataValueFromId</span><span class="p">(</span><span class="nv">_nId</span><span class="p">,</span><span class="w"> </span><span class="nv">_sValue</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 <span class="p">}</span>
 </code></pre></div>
 Each one of these GameDatabase functions calls another function (defined below) to perform each custom database query through the Prepared Statements we added before. </p>
@@ -2081,93 +2081,93 @@ Each one of these GameDatabase functions calls another function (defined below) 
 <span class="c1">-- Custom Database API</span>
 <span class="c1">--</span>
 
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetAllTestDataIds</span><span class="p">()</span> <span class="o">=</span> <span class="kr">function</span>
-    <span class="nf">local</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">nil</span>
-    <span class="kd">local</span> <span class="n">database</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">database</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="nf">_GetAllTestDataIds</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span>
+<span class="w">    </span><span class="nf">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">database</span>
 
-    <span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
-    <span class="c1">-- We created a Prepared Statement called &#39;GetAllIdFromTestTable1&#39;</span>
-    <span class="kd">local</span> <span class="n">cPSInstance</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="s2">&quot;GetAllIdFromTestTable1&quot;</span><span class="p">)</span>
-    <span class="kr">if</span> <span class="n">cPSInstance</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="kr">then</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindComplete</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">Step</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetAllResults</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
+<span class="w">    </span><span class="c1">-- We created a Prepared Statement called &#39;GetAllIdFromTestTable1&#39;</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;GetAllIdFromTestTable1&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindComplete</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetAllResults</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="kr">return</span> <span class="n">result</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">result</span>
 <span class="kr">end</span>
 
 <span class="c1">-- This function will search the database for rows with the name = _sName and return</span>
 <span class="c1">-- the first match. _sName has to be a string.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetTestDataIdFromName</span>  <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_sName</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">nil</span>
-    <span class="kd">local</span> <span class="n">database</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">database</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">_GetTestDataIdFromName</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_sName</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">database</span>
 
-    <span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
-    <span class="c1">-- We created a Prepared Statement called &#39;GetTestTable1IdFromName&#39;</span>
-     <span class="kd">local</span> <span class="n">cPSInstance</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="s2">&quot;GetTestTable1IdFromName&quot;</span><span class="p">)</span>
-     <span class="kr">if</span> <span class="n">cPSInstance</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="kr">then</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_sName</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindComplete</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">Step</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="kd">local</span> <span class="n">tRows</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetAllResults</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">tRows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">nil</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
+<span class="w">    </span><span class="c1">-- We created a Prepared Statement called &#39;GetTestTable1IdFromName&#39;</span>
+<span class="w">     </span><span class="kd">local</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;GetTestTable1IdFromName&quot;</span><span class="p">)</span>
+<span class="w">     </span><span class="kr">if</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">_sName</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindComplete</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">local</span><span class="w"> </span><span class="nv">tRows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetAllResults</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tRows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="kr">return</span> <span class="n">result</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">result</span>
 <span class="kr">end</span>
 
 <span class="c1">-- This function will search the database for rows with the Id = _sId and return</span>
 <span class="c1">-- the first match. _sId has to be a number.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_GetTestDataValueFromId</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_nId</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">nil</span>
-    <span class="kd">local</span> <span class="n">database</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">database</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">_GetTestDataValueFromId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_nId</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">database</span>
 
-    <span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
-    <span class="c1">-- We created a Prepared Statement called &#39;GetTestTable1ValueFromId&#39;</span>
-     <span class="kd">local</span> <span class="n">cPSInstance</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="s2">&quot;GetTestTable1ValueFromId&quot;</span><span class="p">)</span>
-     <span class="kr">if</span> <span class="n">cPSInstance</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="kr">then</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_sId</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindComplete</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">Step</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="kd">local</span> <span class="n">tRows</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetAllResults</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">tRows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">nil</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
+<span class="w">    </span><span class="c1">-- We created a Prepared Statement called &#39;GetTestTable1ValueFromId&#39;</span>
+<span class="w">     </span><span class="kd">local</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;GetTestTable1ValueFromId&quot;</span><span class="p">)</span>
+<span class="w">     </span><span class="kr">if</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">_sId</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindComplete</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">local</span><span class="w"> </span><span class="nv">tRows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetAllResults</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tRows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="kr">return</span> <span class="n">result</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">result</span>
 <span class="kr">end</span>
 
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">_SetTestDataValueFromId</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">_nId</span><span class="p">,</span> <span class="n">_sValue</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">nil</span>
-    <span class="kd">local</span> <span class="n">database</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">database</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">_SetTestDataValueFromId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_nId</span><span class="p">,</span><span class="w"> </span><span class="nv">_sValue</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">database</span>
 
-    <span class="c1">-- Before we try to change the database we need to enable writing mode to it.</span>
-    <span class="c1">-- By default all databases are Read-Only after they are being loaded and merged.</span>
-    <span class="n">database</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- Before we try to change the database we need to enable writing mode to it.</span>
+<span class="w">    </span><span class="c1">-- By default all databases are Read-Only after they are being loaded and merged.</span>
+<span class="w">    </span><span class="nv">database</span><span class="p">.</span><span class="nf">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
 
-    <span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
-    <span class="c1">-- We created a Prepared Statement called &#39;SetTestTable1ValueForId&#39;</span>
-     <span class="kd">local</span> <span class="n">cPSInstance</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="s2">&quot;SetTestTable1ValueForId&quot;</span><span class="p">)</span>
-     <span class="kr">if</span> <span class="n">cPSInstance</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="kr">then</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_sId</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_sName</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindComplete</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">Step</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="kd">local</span> <span class="n">tRows</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetAllResults</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">tRows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">nil</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We called our database &#39;ExampleTestData&#39; in the Databases.ExampleContentPack.Lua file</span>
+<span class="w">    </span><span class="c1">-- We created a Prepared Statement called &#39;SetTestTable1ValueForId&#39;</span>
+<span class="w">     </span><span class="kd">local</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SetTestTable1ValueForId&quot;</span><span class="p">)</span>
+<span class="w">     </span><span class="kr">if</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">_sId</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nv">_sName</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindComplete</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">local</span><span class="w"> </span><span class="nv">tRows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetAllResults</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tRows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="c1">-- Before returning, lock the database again.</span>
-    <span class="n">database</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- Before returning, lock the database again.</span>
+<span class="w">    </span><span class="nv">database</span><span class="p">.</span><span class="nf">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;ExampleTestData&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 
-    <span class="kr">return</span> <span class="n">result</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">result</span>
 <span class="kr">end</span>
 </code></pre></div>
 <p>With this finished, re-pack the Init.ovl and Main.ovl files and try again. We have modified the Game Database API, with newly created functions provided by our own custom Database Manager module.</p>
 <p>Once our module has been initialized, our API methods will be added to the main Game Database, and any module can use them with the following code snippet:
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">GameDatabase</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
-<span class="kd">local</span> <span class="n">tIds</span> <span class="o">=</span> <span class="n">GameDatabase</span><span class="p">.</span><span class="n">GetAllTestDataIds</span><span class="p">()</span>
-<span class="kd">local</span> <span class="n">tId</span>  <span class="o">=</span> <span class="n">GameDatabase</span><span class="p">.</span><span class="n">GetTestDataIdFromName</span><span class="p">(</span><span class="s2">&quot;Name1&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.GameDatabase&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">tIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="p">.</span><span class="nf">GetAllTestDataIds</span><span class="p">()</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">tId</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">GameDatabase</span><span class="p">.</span><span class="nf">GetTestDataIdFromName</span><span class="p">(</span><span class="s2">&quot;Name1&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <h2 id="modifying-other-content-pack-databases">Modifying Other Content Pack Databases<a class="headerlink" href="#modifying-other-content-pack-databases" title="Permanent link">&para;</a></h2>
 <p>We have seen before how to merge our custom content data into another Content Pack database. However due to the merging process, another Content Pack can overwrite our changes if it is loaded after our Content Pack. With the use of Prepared Statements it is possible to have access to other databases after the content merging process has been completed. </p>
@@ -2187,31 +2187,31 @@ Each one of these GameDatabase functions calls another function (defined below) 
 <p>Now, back to our <code>ExampleContentPack\Main\Database.ExampleContentDatabaseManager.lua</code>, we will modify our <code>Setup()</code> to update the Building's power after the merging process has completed. It should look like this:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">-- This method will be called after our manager gets initialized, all Database and Player methods have </span>
 <span class="c1">-- been added to the main Game Databases.</span>
-<span class="n">ExampleContentDatabaseManager</span><span class="p">.</span><span class="n">Setup</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-    <span class="c1">-- Get access to the Game Database interface</span>
-    <span class="kd">local</span> <span class="n">database</span> <span class="o">=</span> <span class="n">global</span><span class="p">.</span><span class="n">api</span><span class="p">.</span><span class="n">database</span>
+<span class="nv">ExampleContentDatabaseManager</span><span class="p">.</span><span class="py">Setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
+<span class="w">    </span><span class="c1">-- Get access to the Game Database interface</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">database</span>
 
-    <span class="c1">-- Before we try to change the database we need to enable writing mode to it.</span>
-    <span class="c1">-- By default all databases are Read-Only after they are being loaded and merged.</span>
-    <span class="n">database</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- Before we try to change the database we need to enable writing mode to it.</span>
+<span class="w">    </span><span class="c1">-- By default all databases are Read-Only after they are being loaded and merged.</span>
+<span class="w">    </span><span class="nv">database</span><span class="p">.</span><span class="nf">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
 
-    <span class="c1">-- We need to bind our new Prepared Statement Collection to the Buildings database before</span>
-    <span class="c1">-- we can use any of its statements.</span>
-    <span class="kd">local</span> <span class="n">bSuccess</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">BindPreparedStatementCollection</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span> <span class="s2">&quot;ExampleBuildingsPSList&quot;</span><span class="p">)</span>
-    <span class="kr">if</span> <span class="n">bSuccess</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span> <span class="kr">return</span> <span class="kc">nil</span> <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We need to bind our new Prepared Statement Collection to the Buildings database before</span>
+<span class="w">    </span><span class="c1">-- we can use any of its statements.</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">bSuccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindPreparedStatementCollection</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ExampleBuildingsPSList&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="nv">bSuccess</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="kr">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">end</span>
 
-    <span class="c1">-- We created a Prepared Statement called &#39;SetTestTable1ValueForId&#39;</span>
-    <span class="kd">local</span> <span class="n">cPSInstance</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span> <span class="s2">&quot;SetPowerOutputForBuildingName&quot;</span><span class="p">)</span>
-    <span class="kr">if</span> <span class="n">cPSInstance</span> <span class="o">~=</span> <span class="kc">nil</span> <span class="kr">then</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;PWR_Generator&quot;</span><span class="p">)</span> <span class="c1">-- first argument, string</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindParameter</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">123</span><span class="p">)</span>             <span class="c1">-- second argument, number</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">BindComplete</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">Step</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">)</span>
-        <span class="n">database</span><span class="p">.</span><span class="n">GetAllResults</span><span class="p">(</span><span class="n">cPSInstance</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="kr">end</span>
+<span class="w">    </span><span class="c1">-- We created a Prepared Statement called &#39;SetTestTable1ValueForId&#39;</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetPreparedStatementInstance</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SetPowerOutputForBuildingName&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="nv">cPSInstance</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="kr">then</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PWR_Generator&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">-- first argument, string</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindParameter</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">123</span><span class="p">)</span><span class="w">             </span><span class="c1">-- second argument, number</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">BindComplete</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">Step</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">)</span>
+<span class="w">        </span><span class="nv">database</span><span class="p">.</span><span class="nf">GetAllResults</span><span class="p">(</span><span class="nv">cPSInstance</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">end</span>
 
-    <span class="c1">-- Before returning, lock the database again</span>
-    <span class="n">database</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">-- Before returning, lock the database again</span>
+<span class="w">    </span><span class="nv">database</span><span class="p">.</span><span class="nf">SetReadOnly</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="kr">end</span>
 </code></pre></div>
 <p>Now re-pack both the Init.ovl and the Main.ovl files again, and the Backup Generator will always produce 123 units regardless of the value in any of the Building databases loaded during the merging process. The same Prepared Statement can be used to modify other building power outputs; just run the query several times with different values. Consider creating a function in the main database controller to clean up and centralize your code.</p>

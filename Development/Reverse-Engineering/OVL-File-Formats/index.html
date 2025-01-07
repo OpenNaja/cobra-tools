@@ -1647,11 +1647,11 @@
 <li>In <code>/source/formats/</code>, duplicate an existing OVL file format's folder (eg. <code>animalresearch</code>) and rename it to your new format. Rename the XML inside of it, too.</li>
 <li>Run <code>python -m codegen</code> to generate <code>.py</code> files from the XML structure definitions in <code>/source/formats/</code>. These will be put in in <code>/generated/formats/</code>. Whenever you have made a change to an XML definition, run the codegen again to update the <code>.py</code> files.</li>
 <li>In <code>/modules/formats/</code>, create a new <code>.py</code> file with a class that handles your format. This tells the tools which XML-defined struct class to use (eg. <code>ResearchRoot</code>) and which file extension to apply this to (eg. <code>.animalresearchunlockssettings</code>). Minimal example:
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">generated.formats.animalresearch.compound.ResearchRoot</span> <span class="kn">import</span> <span class="n">ResearchRoot</span>
-<span class="kn">from</span> <span class="nn">modules.formats.BaseFormat</span> <span class="kn">import</span> <span class="n">MemStructLoader</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">generated.formats.animalresearch.compound.ResearchRoot</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResearchRoot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modules.formats.BaseFormat</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemStructLoader</span>
 
 
-<span class="k">class</span> <span class="nc">AnimalresearchunlockssettingsLoader</span><span class="p">(</span><span class="n">MemStructLoader</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnimalresearchunlockssettingsLoader</span><span class="p">(</span><span class="n">MemStructLoader</span><span class="p">):</span>
     <span class="n">target_class</span> <span class="o">=</span> <span class="n">ResearchRoot</span>
     <span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;.animalresearchunlockssettings&quot;</span>
 </code></pre></div></li>
