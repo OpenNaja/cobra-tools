@@ -4,7 +4,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <enum name="RenderParameterType" numbytes="8" storage="uint64" default="0">
+    <enum name="RenderParameterType" numbytes="8" storage="uint" default="0">
         <option value="0" name="Bool" />
         <option value="1" name="Float" />
         <option value="2" name="Int" />
@@ -16,29 +16,6 @@
         <option value="8" name="ColourHDR" />
         <option value="9" name="String" />
     </enum>
-
-    <compound name="RenderParametersRoot" inherit="MemStruct">
-        32 bytes
-        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="params" type="Pointer" template="ParamList" arg="count"/>
-        <add name="count" type="uint64" />
-        <add name="unk" type="uint64" />
-    </compound>
-
-    <compound name="ParamList" inherit="MemStruct">
-        this is not null ptr terminated, but padded to 16 bytes at the end
-        <add name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
-    </compound>
-
-    <compound name="CurveParamList" inherit="MemStruct">
-        this is not null ptr terminated, but padded to 16 bytes at the end
-        <add name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
-    </compound>
-
-    <compound name="ZStrPtr" inherit="MemStruct">
-        need to wrap this to avoid setting arg on the np arrarys
-        <add name="string" type="Pointer" template="ZString" />
-    </compound>
 
     <compound name="ParamData" inherit="MemStruct">
         16 bytes
@@ -55,39 +32,58 @@
         todo - padding!
     </compound>
 
+    <compound name="RenderParametersRoot" inherit="MemStruct">
+        32 bytes
+        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="params" type="Pointer" template="ParamList" arg="params_count"/>
+        <add name="params_count" type="uint64" />
+        <add name="unk" type="uint64" />
+    </compound>
+
+    <compound name="ParamList" inherit="NestedPointers">
+        <add name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="CurveParamList" inherit="NestedPointers">
+        <add name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="CurveList" inherit="NestedPointers" args="2">
+        <add name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG1#" arg="#ARG2#"/>
+    </compound>
+
+    <compound name="ZStrPtr" inherit="MemStruct">
+        need to wrap this to avoid setting template on the np arrays
+        <add name="string" type="Pointer" template="ZString" />
+    </compound>
+
     <compound name="Param" inherit="MemStruct">
         32 bytes
         <add name="attribute_name" type="Pointer" template="ZString"/>
         <add name="dtype" type="RenderParameterType" />
+        <add name="unused" type="uint" default="0" optional="True"/>
         <add name="data" type="ParamData" arg="dtype" />
     </compound>
 
     <compound name="RenderParameterCurvesRoot" inherit="MemStruct">
         32 bytes
         <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="params" type="Pointer" template="CurveParamList" arg="count"/>
-        <add name="count" type="uint64" />
+        <add name="params" type="Pointer" template="CurveParamList" arg="params_count"/>
+        <add name="params_count" type="uint64" />
         <add name="unk" type="uint64" />
     </compound>
 
     <compound name="CurveParam" inherit="MemStruct">
         <add name="attribute_name" type="Pointer" template="ZString"/>
-        <add name="dtype" type="int" />
+        <add name="dtype" type="RenderParameterType" />
         <add name="do_interpolation" type="uint" >set to 1 if count > 1</add>
-<!--        todo - make data type depend on dtype-->
-        <add name="curve_entries" type="Pointer" template="CurveList" arg="count"/>
-        <add name="count" type="uint64" />
-    </compound>
-
-    <compound name="CurveList" inherit="MemStruct">
-        this is not null ptr terminated, but padded to 16 bytes at the end
-        <add name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG#"/>
+        <add name="samples" type="Pointer" template="CurveList" arg1="samples_count" arg2="dtype"/>
+        <add name="samples_count" type="uint64" />
     </compound>
 
     <compound name="KeyPoint" inherit="MemStruct">
         <add name="time" type="float" />
-<!--        todo - float/int/vec3 value (depends on dtype: 1, 7, 5)-->
-        <add name="value" type="float" />
+        <add name="value" type="ParamData" arg="arg"/>
         # often 0 or very close
         <add name="tangent before" type="float" />
         <add name="tangent after" type="float" />

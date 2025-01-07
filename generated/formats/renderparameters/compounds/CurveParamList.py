@@ -1,13 +1,9 @@
 from generated.array import Array
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.compounds.NestedPointers import NestedPointers
 from generated.formats.renderparameters.imports import name_type_map
 
 
-class CurveParamList(MemStruct):
-
-	"""
-	this is not null ptr terminated, but padded to 16 bytes at the end
-	"""
+class CurveParamList(NestedPointers):
 
 	__name__ = 'CurveParamList'
 

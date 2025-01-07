@@ -126,7 +126,12 @@
         An empty object, used to reference stream offsets
     </compound>
 
-    <compound name="ZStringList" inherit="MemStruct">
+    <compound name="NestedPointers" inherit="MemStruct">
+        todo - this should handle the invisible nesting of ptrs automatically for a generic template
+<!--        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>-->
+    </compound>
+
+    <compound name="ZStringList" inherit="NestedPointers">
         <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 

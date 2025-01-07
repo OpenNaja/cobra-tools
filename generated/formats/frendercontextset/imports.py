@@ -40,6 +40,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'FRenderContextSetRoot': 'generated.formats.frendercontextset.compounds.FRenderContextSetRoot',
 	'ContextSet1Item': 'generated.formats.frendercontextset.compounds.ContextSet1Item',

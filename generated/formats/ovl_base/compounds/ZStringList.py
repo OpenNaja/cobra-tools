@@ -4,11 +4,11 @@ from generated.array import Array
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 from generated.array import Array
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.compounds.NestedPointers import NestedPointers
 from generated.formats.ovl_base.imports import name_type_map
 
 
-class ZStringList(MemStruct):
+class ZStringList(NestedPointers):
 
 	__name__ = 'ZStringList'
 

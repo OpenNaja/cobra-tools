@@ -40,6 +40,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'BuildingBiomeLayerRoot': 'generated.formats.buildingbiomelayer.compounds.BuildingBiomeLayerRoot',
 	'BuildingBiomeData': 'generated.formats.buildingbiomelayer.compounds.BuildingBiomeData',

@@ -213,6 +213,7 @@ class Pointer(BaseStruct):
 		"""Creates object for parent object 'target', from parent element elem."""
 		# create Pointer instance
 		instance = cls(target.context, arg, template, set_default=False)
+		print(f"ptr instance.from_xml {instance.template}")
 		# check if the pointer holds data
 		sub = elem.find(f'./{prop}')
 		if sub is None:
@@ -227,6 +228,7 @@ class Pointer(BaseStruct):
 				instance.data = ET.tostring(sub[0], encoding="unicode").replace("\t", "").replace("\n", "")
 			else:
 				cls._from_xml(instance, sub)
+		print(f"after ptr instance.from_xml {instance.template}")
 		return instance
 
 	@classmethod

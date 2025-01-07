@@ -5,7 +5,7 @@ from generated.formats.renderparameters.imports import name_type_map
 class ZStrPtr(MemStruct):
 
 	"""
-	need to wrap this to avoid setting arg on the np arrarys
+	need to wrap this to avoid setting template on the np arrays
 	"""
 
 	__name__ = 'ZStrPtr'

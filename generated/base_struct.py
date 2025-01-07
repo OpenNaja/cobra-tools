@@ -105,8 +105,10 @@ class BaseStruct(metaclass=StructMetaClass):
         return {f_name for f_name, f_type, arguments, _ in cls._get_filtered_attribute_list(instance)}
 
     @classmethod
-    def format_indented(cls, self, indent=0):
-        return self.get_info_str(indent) + self.get_fields_str(self, indent)
+    def format_indented(cls, instance, indent=0):
+        if instance is not None:
+            return instance.get_info_str(indent) + instance.get_fields_str(instance, indent)
+        return "NONE"
 
     def get_info_str(self, indent=0):
         whitespace = INDENT_CHAR * indent

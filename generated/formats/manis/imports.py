@@ -40,6 +40,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'ChannelName': 'generated.formats.manis.basic',
 	'BoneIndex': 'generated.formats.manis.basic',
