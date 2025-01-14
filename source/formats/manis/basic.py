@@ -45,9 +45,6 @@ class ChannelName:
 
 class BoneIndex(Ubyte):
 
-    def __new__(cls, context=None, arg=0, template=None):
-        return ""
-
     @staticmethod
     def cls_from_arg(arg):
         if arg.use_ushort:
