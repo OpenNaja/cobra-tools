@@ -3,7 +3,7 @@ bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",
     "blender": (4, 0, 0),
-    "version": (2025, 1, 7),
+    "version": (2025, 1, 14),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations",
     "warning": "",
@@ -12,6 +12,18 @@ bl_info = {
     "tracker_url": "https://github.com/OpenNaja/cobra-tools/issues/new",
     "category": "Import-Export"}
 
+
+def fmt_version(tup):
+    return '.'.join([str(x) for x in tup])
+
+
+import bpy
+
+if bpy.app.version < bl_info["blender"]:
+    raise ValueError(
+        f"Cobra Tools require at least blender {fmt_version(bl_info['blender'])}, "
+        f"but you are running blender {fmt_version(bpy.app.version)}.")
+
 try:
     import os
     import sys
@@ -19,7 +31,6 @@ try:
     import logging
     import pkg_resources, importlib.util
 
-    import bpy
     import bpy.utils.previews
     from bpy.props import IntProperty
     from bpy.types import PropertyGroup
@@ -40,7 +51,7 @@ try:
 
     from ovl_util.logs import logging_setup
     logging_setup("blender_plugin")
-    logging.info(f"Running blender {'.'.join([str(x) for x in bpy.app.version])}")
+    logging.info(f"Running blender {fmt_version(bpy.app.version)}")
 
     from plugin import addon_updater_ops
     from plugin.addon_updater_ops import classes as updater_classes
