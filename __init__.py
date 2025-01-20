@@ -3,7 +3,7 @@ bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",
     "blender": (4, 0, 0),
-    "version": (2025, 1, 14),
+    "version": (2025, 1, 20),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations",
     "warning": "",
@@ -17,24 +17,27 @@ def fmt_version(tup):
     return '.'.join([str(x) for x in tup])
 
 
-import bpy
-
-if bpy.app.version < bl_info["blender"]:
-    raise ValueError(
-        f"Cobra Tools require at least blender {fmt_version(bl_info['blender'])}, "
-        f"but you are running blender {fmt_version(bpy.app.version)}.")
+import os
+import sys
+import subprocess
+import logging
 
 try:
-    import os
-    import sys
-    import subprocess
-    import logging
-    import pkg_resources, importlib.util
+    import bpy
 
+    if bpy.app.version < bl_info["blender"]:
+        raise ValueError(
+            f"Cobra Tools require at least blender {fmt_version(bl_info['blender'])}, "
+            f"but you are running blender {fmt_version(bpy.app.version)}.")
+except ModuleNotFoundError:
+    logging.warning(f"Module bpy not found; only run the plugin from blender.")
+
+try:
     import bpy.utils.previews
     from bpy.props import IntProperty
     from bpy.types import PropertyGroup
     import addon_utils
+    import pkg_resources, importlib.util
 
     copies_of_tools = []
     for addon in addon_utils.modules():
@@ -303,7 +306,6 @@ try:
 
 except:
     logging.exception("Startup failed")
-    pass
 
 
 def register():
