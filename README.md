@@ -45,7 +45,7 @@ If you would like to install the dependencies manually:
 
 ### Blender Plugin Installation
 
-Currently the tools work in blender 3.6 to 4.0.
+Currently the tools work in blender 4.1+.
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
 
 
