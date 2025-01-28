@@ -1447,10 +1447,10 @@ class OvlFile(Header):
 			self.update_stream_files()
 			ovs_types = set()
 			for loader in self.loaders.values():
-				if loader.ovs.arg.name != "STATIC" and loader.ext not in (".tex", ".texturestream"):
-					ovs_types.add(loader.ovs.arg.name)
+				if loader.ext not in (".tex", ".texturestream"):
+					ovs_types.update(loader.ovs_names)
+			ovs_types.discard("STATIC")
 			# ovs_types = {archive.name for archive in self.archives if "Textures_L" not in archive.name}
-			# ovs_types.discard("STATIC")
 			self.num_ovs_types = len(ovs_types)
 			ovl_compressed = b""
 			self.reset_field("archives_meta")

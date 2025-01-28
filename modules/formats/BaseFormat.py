@@ -146,8 +146,19 @@ class BaseFile:
 
 	@property
 	def ovs_name(self):
+		"""Returns the name of the main ovs archive that holds this loader's root entry"""
 		if self.ovs:
 			return self.ovs.arg.name
+
+	@property
+	def ovs_names(self):
+		"""Returns the names of all ovs archives containing this loader's root entry and data"""
+		out = []
+		if self.ovs:
+			out.append(self.ovs.arg.name)
+		for data_ovs_name in self.data_entries.keys():
+			out.append(data_ovs_name)
+		return out
 
 	def set_ovs(self, ovs_name):
 		"""Assigns or creates suitable ovs"""
