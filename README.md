@@ -96,6 +96,7 @@ If you still have doubts, consider checking the official [Frontier's Mod Policy]
 - Jurassic World, Jurassic World Fallen Kingdom, Jurassic World Evolution, Jurassic World Evolution 2 and their respective logos are trademarks of Universal Studios and Amblin Entertainment, Inc.
 - Daemon1, DennisNedry1993 and Inaki for initial modding attempts and documentation.
 - mpeterv for [luacheck](https://github.com/mpeterv/luacheck)
+- REDxEYE for [FastMesh](https://github.com/REDxEYE/SourceIO/blob/master/blender_bindings/utils/fast_mesh.py)
 - `texconv` from [DirectXTex](https://github.com/microsoft/DirectXTex) is used internally to convert to and from DDS textures.
 
 ## Get in touch

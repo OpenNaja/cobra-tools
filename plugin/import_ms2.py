@@ -9,6 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys, ob_postpro, append_mirror_modifier, \
 	get_valid_lod_objects, import_mesh_properties
 from plugin.modules_import.material import import_material
+from plugin.utils.fast_mesh import FastMesh
 from plugin.utils.hair import add_psys
 from plugin.utils.shell import is_shell, gauge_uv_scale_wrapper
 from plugin.utils.object import create_ob, create_scene, create_collection, set_collection_visibility
@@ -46,7 +47,8 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data
 				else:
-					b_me = bpy.data.meshes.new(f"{model_info.name}_model{m_ob.mesh_index}")
+					# b_me = bpy.data.meshes.new(f"{model_info.name}_model{m_ob.mesh_index}")
+					b_me = FastMesh.new(f"{model_info.name}_model{m_ob.mesh_index}")
 					b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					mesh_dict[m_ob.mesh_index] = b_me
 					import_mesh_properties(b_me, mesh)
