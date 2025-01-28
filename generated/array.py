@@ -298,7 +298,7 @@ class Array(list):
     @classmethod
     def _from_xml(cls, instance, elem):
         # init each member from corresponding sub-elem
-        instance[:] = [instance.dtype._from_xml(instance.dtype(instance._context, 0, instance.template), sub) for sub in elem]
+        instance[:] = [instance.dtype._from_xml(instance.dtype(instance._context, instance.arg, instance.template), sub) for sub in elem]
         instance.shape = len(elem)
         return instance
 

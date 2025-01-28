@@ -69,7 +69,10 @@ class MemStruct(BaseStruct):
 				if array_name:
 					array = elem.find(f'./{array_name}')
 					if array:
-						# this does not handle arrays that are nested in a wrapper
+						# handle arrays that are nested in a wrapper, so look there for their count
+						child = array.find(f'./ptrs')
+						if child:
+							array = child
 						setattr(instance, f_name, len(array))
 					else:
 						setattr(instance, f_name, 0)
