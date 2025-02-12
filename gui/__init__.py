@@ -13,16 +13,12 @@ from PyQt5.QtCore import Qt, qVersion
 from PyQt5.QtWidgets import QApplication, QStyleFactory
 
 
-def check_python() -> None:
-	"""Require Python == 3.11"""
+def check_64bit_env() -> None:
 	is_64bits = sys.maxsize > 2 ** 32
 	if not is_64bits:
 		logging.warning(
 			"Either your operating system or your python installation is not 64 bits. "
 			"Large OVLs will crash unexpectedly!")
-	if (sys.version_info.major, sys.version_info.minor) != (3, 11):
-		logging.critical("Python 3.11 is required. Please change your Python installation.")
-		time.sleep(60)
 
 
 class GuiOptions(NamedTuple):
@@ -45,7 +41,7 @@ def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplicat
 								 log_to_file=opts.log_to_file,
 								 log_to_stdout=opts.log_to_stdout,
 								 backup_count=opts.log_backup_count)
-	check_python()
+	check_64bit_env()
 	app = opts.qapp
 	if app is None:
 		if qVersion().startswith("5."):
