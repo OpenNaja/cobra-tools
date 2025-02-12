@@ -60,13 +60,13 @@ jobs:
       - name: Get APPDATA
         run: echo ("APPDATA_TEMP=" + $env:LOCALAPPDATA + "\Temp") >> $env:GITHUB_ENV
       - name: Upload Temp
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-tmp
           path: |
             ${{ env.APPDATA_TEMP }}/pytest**
       - name: Upload Log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-log
           path: |
