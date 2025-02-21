@@ -1144,7 +1144,7 @@ class OvlFile(Header):
 			*aux_suffices,
 			*sorted(set(deps_ext)),
 			*ovl_includes,
-			*mimes_name,
+			*sorted(mimes_name),
 			*sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
