@@ -106,6 +106,8 @@ class DdsLoader(MemStructLoader):
 			# both root and data are in the same ovs
 			self.create_data_entry(texbuffer_bytes, self.ovs.arg.name)
 			self.increment_buffers(1)
+			for data_entry in self.get_sorted_datas():
+				data_entry.size_1 = data_entry.size_2 = 0
 
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		if self.context.is_pc_2:
