@@ -11,6 +11,8 @@ from collections import Counter
 from contextlib import contextmanager
 from io import BytesIO
 
+import numpy as np
+
 from constants import ConstantsProvider
 from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compounds.BufferGroup import BufferGroup
@@ -1278,8 +1280,15 @@ class OvlFile(Header):
 					ovs.fragments["link_ptr"]["data_offset"], \
 					ovs.fragments["struct_ptr"]["pool_index"], \
 					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(*resolve(p_pool, l_o), *resolve(s_pool, s_o)) for (p_pool, l_o), (s_pool, s_o) in all_frags])
-					# not needed but nice to have to keep saves consistent for easier debugging
-					ovs.fragments.sort()
+					# sorted by link index, struct index, link offset, struct offset
+					# order of fields in lexsort is reversed
+					order = np.lexsort((
+						ovs.fragments["struct_ptr"]["data_offset"],
+						ovs.fragments["link_ptr"]["data_offset"],
+						ovs.fragments["struct_ptr"]["pool_index"],
+						ovs.fragments["link_ptr"]["pool_index"]
+					))
+					ovs.fragments = ovs.fragments[order]
 				# get root entries; not all ovs have root entries - some JWE2 ovs just have data
 				if loaders:
 					root_ptrs = [loader.root_ptr for loader in loaders]
