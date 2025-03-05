@@ -210,8 +210,10 @@
 	
     <compound name="Fragment" allow_np="true">
 		These are to be thought of as instructions for loading. Their order is irrelevant.
-        <add name="link_ptr" type="HeaderPointer" >determines where to write a pointer address</add>
-        <add name="struct_ptr" type="HeaderPointer" >the struct that is pointed to can be found here</add>
+        <add name="link_pool" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
+        <add name="link_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
+        <add name="struct_pool" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
+        <add name="struct_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 	
 	<compound name="SetEntry" allow_np="true">

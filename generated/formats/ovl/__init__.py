@@ -1034,11 +1034,7 @@ class OvlFile(Header):
 							s_pool.offsets.add(s_o)
 							loader.root_ptr = (s_pool, s_o)
 					# vectorized like this, it takes virtually no time
-					for l_i, l_o, s_i, s_o, in zip(
-							ovs.fragments["link_ptr"]["pool_index"],
-							ovs.fragments["link_ptr"]["data_offset"],
-							ovs.fragments["struct_ptr"]["pool_index"],
-							ovs.fragments["struct_ptr"]["data_offset"]):
+					for l_i, l_o, s_i, s_o, in ovs.fragments:
 						s_pool = ovs.pools[s_i]
 						# replace offsets pointing to end of pool with None
 						if s_pool.size != s_o:
@@ -1276,26 +1272,14 @@ class OvlFile(Header):
 					return pools_lut.get(pool, -1), offset
 
 				if all_frags:
-					ovs.fragments["link_ptr"]["pool_index"], \
-					ovs.fragments["link_ptr"]["data_offset"], \
-					ovs.fragments["struct_ptr"]["pool_index"], \
-					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(*resolve(p_pool, l_o), *resolve(s_pool, s_o)) for (p_pool, l_o), (s_pool, s_o) in all_frags])
-					# sorted by link index, struct index, link offset, struct offset
-					# order of fields in lexsort is reversed
-					order = np.lexsort((
-						ovs.fragments["struct_ptr"]["data_offset"],
-						ovs.fragments["link_ptr"]["data_offset"],
-						ovs.fragments["struct_ptr"]["pool_index"],
-						ovs.fragments["link_ptr"]["pool_index"]
-					))
-					ovs.fragments = ovs.fragments[order]
+					ovs.fragments[:] = [(*resolve(p_pool, l_o), *resolve(s_pool, s_o)) for (p_pool, l_o), (s_pool, s_o) in all_frags]
+					ovs.fragments.sort(order=("link_pool", "struct_pool", "link_offset", "struct_offset"))
 				# get root entries; not all ovs have root entries - some JWE2 ovs just have data
 				if loaders:
 					root_ptrs = [loader.root_ptr for loader in loaders]
 					ovs.root_entries["struct_ptr"]["pool_index"], \
 					ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[resolve(s_pool, s_o) for s_pool, s_o in root_ptrs])
 					ovs.assign_ids(ovs.root_entries, loaders)
-				# print(ovs.fragments, ovs.root_entries)
 
 				logging.info(f"Updating assets for {archive.name}")
 				loaders_with_children = [loader for loader in loaders if loader.children]
