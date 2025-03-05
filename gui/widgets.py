@@ -37,6 +37,7 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QSplitter,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox,
                              QFileIconProvider, QButtonGroup)
+from PyQt5.QtWinExtras import QWinTaskbarButton
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from __version__ import VERSION, COMMIT_HASH
 
@@ -3137,6 +3138,12 @@ class MainWindow(FramelessMainWindow):
         self.log_splitter: Optional[QSplitter] = None
         self.logger_orientation: Qt.Orientation = Qt.Orientation.Vertical
 
+        self.taskbar_button = QWinTaskbarButton(self)
+        self.taskbar_button.setWindow(self.windowHandle())
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.setRange(0, 100)
+        self.taskbar_progress.show()
+
         self.progress = QProgressBar(self)
         self.progress.setGeometry(0, 0, 200, 15)
         self.progress.setTextVisible(True)
@@ -3399,6 +3406,7 @@ class MainWindow(FramelessMainWindow):
 
     def set_progress(self, value: int) -> None:
         self.progress.setValue(value)
+        self.taskbar_progress.setValue(value)
         if self.progress.value() >= self.progress.maximum():
             self.status_timer.start()
 
@@ -3406,10 +3414,12 @@ class MainWindow(FramelessMainWindow):
         if self.progress.isHidden():
             self.show_progress()
         self.progress.setMaximum(value)
+        self.taskbar_progress.setMaximum(value)
 
     def reset_progress(self) -> None:
-        self.progress.hide()
+        self.taskbar_progress.setValue(0)
         self.progress.setValue(0)
+        self.progress.hide()
         self.status_bar.clearMessage()
         self.version_info.show()
 
