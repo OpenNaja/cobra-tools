@@ -161,6 +161,10 @@ class OvsFile(OvsHeader):
 				else:
 					entry.file_hash = loader.file_index
 				entry.ext_hash = loader.ext_hash
+		for pool in self.pools:
+			if not self.ovl.user_version.use_djb:
+				# PZ, PC2
+				pool.ext_hash = 0
 
 	def load(self, archive_entry, stream):
 		logging.info(
@@ -192,10 +196,6 @@ class OvsFile(OvsHeader):
 				if self.set_header.io_size != self.arg.set_data_size:
 					raise AttributeError(
 						f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
-				# for set_entry in self.set_header.sets:
-				# 	self.assign_name(set_entry)
-				# for asset_entry in self.set_header.assets:
-				# 	self.assign_name(asset_entry)
 				self.map_assets()
 				# add IO object to every pool
 				self.read_pools(stream)
@@ -1220,7 +1220,6 @@ class OvlFile(Header):
 		self.aux_entries["size"] = [loader.get_aux_size(aux_suffix) for aux_suffix, loader in loaders_and_aux]
 		for loader in loaders_with_aux:
 			loader.init_aux_writers()
-
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 	def get_loaders_by_ext(self):
