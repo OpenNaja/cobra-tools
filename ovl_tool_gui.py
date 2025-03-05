@@ -394,9 +394,10 @@ class MainWindow(widgets.MainWindow):
 		file_entry = self.ovl_data.files[file_index]
 
 	def print_debug_ovl(self):
-		logging.debug(self.ovl_data)
-		for archive in self.ovl_data.archives:
-			logging.debug(archive.content)
+		if self.cfg.get("logger_level", "INFO") == "DEBUG":
+			logging.debug(self.ovl_data)
+			for archive in self.ovl_data.archives:
+				logging.debug(archive.content)
 
 	def open(self, filepath):
 		if filepath:
@@ -410,8 +411,8 @@ class MainWindow(widgets.MainWindow):
 			else:
 				try:
 					self.ovl_data.load(filepath, commands)
+					self.print_debug_ovl()
 				except:
-					logging.debug(self.ovl_data)
 					self.handle_error("OVL loading failed, see log!")
 
 	def open_dir(self, dirpath: str) -> None:
