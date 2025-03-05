@@ -393,6 +393,11 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
+	def print_debug_ovl(self):
+		logging.debug(self.ovl_data)
+		for archive in self.ovl_data.archives:
+			logging.debug(archive.content)
+
 	def open(self, filepath):
 		if filepath:
 			commands = {"game": self.ovl_game_choice.entry.currentText()}
@@ -401,7 +406,7 @@ class MainWindow(widgets.MainWindow):
 			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
 			if not self.suppress_popups:
 				self.installed_games.set_selected_path(filepath)
-				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, ), filepath, commands)
+				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, self.print_debug_ovl), filepath, commands)
 			else:
 				try:
 					self.ovl_data.load(filepath, commands)

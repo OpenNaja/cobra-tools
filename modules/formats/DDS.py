@@ -479,7 +479,7 @@ class TexelLoader(MemStructLoader):
 			if mip.size == 0:
 				continue
 			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
-			logging.debug(f"MIP{mip_i}")
+			# logging.debug(f"MIP{mip_i}")
 			out = bytearray(mip_buffer)
 			if mip.tiles_x > 1 and mip.tiles_y > 1:
 				seek = 0
@@ -497,14 +497,14 @@ class TexelLoader(MemStructLoader):
 				tile_size = scanline_size * tile_col_count
 				tile_row_size = tile_size * tile_scanline_count
 
-				logging.debug(f"tile_row_count = {tile_row_count}")
-				logging.debug(f"tile_col_count = {tile_col_count}")
-				logging.debug(f"tile_col_count = {tile_col_count}")
-				logging.debug(f"tile_scanline_count = {tile_scanline_count}")
-				logging.debug(f"tile_scanline_size = {tile_scanline_size}")
-				logging.debug(f"tile_row_size = {tile_row_size}")
-				logging.debug(f"tile_size = {tile_size}")
-				logging.debug(f"scanline_size = {scanline_size}")
+				# logging.debug(f"tile_row_count = {tile_row_count}")
+				# logging.debug(f"tile_col_count = {tile_col_count}")
+				# logging.debug(f"tile_col_count = {tile_col_count}")
+				# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+				# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+				# logging.debug(f"tile_row_size = {tile_row_size}")
+				# logging.debug(f"tile_size = {tile_size}")
+				# logging.debug(f"scanline_size = {scanline_size}")
 				for array_i in range(texbuffer.num_tiles):
 					for block_row_i in range(tile_row_count):
 						for block_col_i in range(tile_col_count):

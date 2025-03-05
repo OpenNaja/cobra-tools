@@ -1193,12 +1193,6 @@ class OvlFile(Header):
 			loader.file_index = i
 		ext_lut = {ext: i for i, ext in enumerate(mimes_ext)}
 
-		# self.dependencies.sort(key=lambda x: x.file_hash)
-		self.dependencies["file_hash"] = [self.get_dep_hash(name) for name in deps_basename]
-		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
-		self.dependencies["file_index"] = [loader.file_index for (dep, ptr), loader in loaders_and_deps]
-		ptrs = [ptr for (dep, ptr), loader in loaders_and_deps]
-
 		# update all pools before indexing anything that points into pools
 		pools_offset = 0
 		self.archives.sort(key=lambda a: a.name)
@@ -1213,8 +1207,13 @@ class OvlFile(Header):
 		# apply the new pools to the ovl
 		self.load_flattened_pools()
 
+		ptrs = [ptr for (dep, ptr), loader in loaders_and_deps]
 		pools_lut = {pool: i for i, pool in enumerate(self.pools)}
+		self.dependencies["file_hash"] = [self.get_dep_hash(name) for name in deps_basename]
+		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
+		self.dependencies["file_index"] = [loader.file_index for (dep, ptr), loader in loaders_and_deps]
 		self.dependencies["link_ptr"] = [(pools_lut[pool], offset) for pool, offset in ptrs]
+		self.dependencies.sort()  # contributions: src file hash, ext (?), target file, link_ptr
 
 		self.included_ovls["basename"] = [self.names.offset_dic[name] for name in ovl_includes]
 
