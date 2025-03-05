@@ -7,6 +7,7 @@ class BanisRoot(MemStruct):
 
 	"""
 	40 bytes
+	PC2: new structure, 4 pointers to keyframe data at start
 	"""
 
 	__name__ = 'BanisRoot'

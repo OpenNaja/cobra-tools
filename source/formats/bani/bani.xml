@@ -43,6 +43,7 @@
 
     <compound name="BanisRoot" inherit="MemStruct">
         40 bytes
+        PC2: new structure, 4 pointers to keyframe data at start
         <add name="zeros" type="uint64" arr1="2"/>
         <add name="bytes per frame" type="uint">bytes per bone * num bones</add>
         <add name="bytes per bone" type="uint">how many bytes for each bone per frame</add>

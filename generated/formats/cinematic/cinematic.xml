@@ -5,9 +5,10 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="CinematicRoot" inherit="MemStruct">
-        <add name="u0" type="uint64" />
-        <add name="u1" type="uint64" />
-        <add name="data" type="Pointer" template="CinematicData" />
+        <add name="names" type="Pointer" template="ZStringList" arg="names_count"/>
+        <add name="names_count" type="uint64" />
+        <add name="data" type="ArrayPointer" template="CinematicData" arg="data_count"/>
+        <add name="data_count" type="uint64" />
     </compound>
 
     <compound name="CinematicData" inherit="MemStruct">
