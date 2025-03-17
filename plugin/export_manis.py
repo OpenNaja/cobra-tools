@@ -60,6 +60,10 @@ def store_transform_data(channel_storage, corrector, matrix, name, src_i, trg_i,
 	channel_storage[name][SCL][trg_i] = key.z, key.y, key.x
 
 
+def reasonably_close(a, b):
+	return np.allclose(a, b, rtol=1e-03, atol=1e-04, equal_nan=False)
+
+
 def needs_keyframes(keys):
 	"""Checks a list of keys and returns True if temporal changes are detected"""
 	if len(keys):
@@ -68,7 +72,7 @@ def needs_keyframes(keys):
 		# go over the channels
 		for ch_i, ch_v in enumerate(key0):
 			# do keys differ from first key?
-			if not np.allclose(keys[:, ch_i], ch_v, rtol=1e-03, atol=1e-04, equal_nan=False):
+			if not reasonably_close(keys[:, ch_i], ch_v):
 				yield ch_i
 
 
@@ -241,6 +245,8 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 							add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
 					logging.debug(f"{bone} {channel_id} needs keys")
+				elif channel_id == SCL and not reasonably_close(keys[0], (1.0, 1.0, 1.0)):
+					logging.debug(f"{bone} {channel_id} needs SCL keys")
 				else:
 					# no need to keyframe this bone, discard it
 					channels.pop(channel_id)
