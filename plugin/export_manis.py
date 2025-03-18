@@ -18,6 +18,14 @@ from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.object import get_property
 from plugin.utils.transforms import ManisCorrector
 
+# neutral keys in blender's local coordinates
+defaults_keys = {
+	SCL: (1.0, 1.0, 1.0),
+	EUL: (0.0, 0.0, 0.0),
+	POS: (0.0, 0.0, 0.0),
+	ORI: (1.0, 0.0, 0.0, 0.0),
+}
+
 
 def store_pose_frame_info(b_ob, src_i, trg_i, bones_data, channel_storage, corrector, cam_corr):
 	bpy.context.scene.frame_set(src_i)
@@ -244,10 +252,11 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 							add_root_float_keys(channel_storage, keys, needed_axes,
 												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 							add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
-					logging.debug(f"{bone} {channel_id} needs keys")
-				elif channel_id == SCL and not reasonably_close(keys[0], (1.0, 1.0, 1.0)):
-					logging.debug(f"{bone} {channel_id} needs SCL keys")
+					# logging.debug(f"{bone} {channel_id} needs keys")
+				elif not reasonably_close(keys[0], defaults_keys[channel_id]):
+					logging.debug(f"{bone} {channel_id} is static but strays from default keys")
 				else:
+					logging.debug(f"{bone} {channel_id} discarded")
 					# no need to keyframe this bone, discard it
 					channels.pop(channel_id)
 		# export constraints as float keys
