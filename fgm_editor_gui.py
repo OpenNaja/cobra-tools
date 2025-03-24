@@ -333,10 +333,8 @@ class MainWindow(widgets.MainWindow):
 		if filepath:
 			try:
 				self.header = FgmHeader.from_xml_file(filepath, self.context)
-				enum_name, member_name = self.header.game.split(".")
-				game = games[member_name]
-				logging.debug(f"from game {game}")
-				self.game_choice.entry.setText(game.value)
+				logging.debug(f"from game {self.header.game}")
+				self.game_choice.entry.setText(self.header.game)
 				self.game_changed()
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)

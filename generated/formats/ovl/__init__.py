@@ -573,8 +573,7 @@ class OvlFile(Header):
 
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
-		from generated.formats.ovl.versions import get_game
-		elem.attrib[prop] = str(get_game(instance)[0])
+		elem.attrib[prop] = str(instance.game)
 
 	@property
 	def is_pc_2(self):

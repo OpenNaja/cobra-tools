@@ -28,6 +28,9 @@ class OvlContext(object):
 		if game_str is None:
 			return
 		from generated.formats.ovl.versions import set_game
-		game = game_str.split(".")[1]
+		if "." in game_str:
+			game = game_str.split(".")[1]
+		else:
+			game = game_str
 		set_game(target, game)
 		return target
