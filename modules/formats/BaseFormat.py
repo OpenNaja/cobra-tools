@@ -381,8 +381,6 @@ class BaseFile:
 		for old, new in name_tuples:
 			if old.endswith(self.ext):
 				for_children.add((old.replace(self.ext, ""), new.replace(self.ext, "")))
-		for child in self.controlled_loaders:
-			child.rename(for_children)
 		# force an update to get the memstruct up to date
 		if self.dependencies:
 			self.collect()
