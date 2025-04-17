@@ -36,6 +36,10 @@ class Animation:
 			b_obj.animation_data_create()
 		# set as active action on object
 		b_obj.animation_data.action = b_action
+		# https://developer.blender.org/docs/release_notes/4.4/python_api/#slotted-actions
+		if bpy.app.version >= (4, 4, 0):
+			slot = b_action.slots.new(id_type='OBJECT', name=b_obj.name)
+			b_obj.animation_data.action_slot = slot
 		return b_action
 
 	def create_fcurves(self, action, dtype, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
@@ -74,16 +78,16 @@ class Animation:
 			for fcurve in fcurves:
 				fcurve.extrapolation = 'CONSTANT'
 
-	def add_keys(self, b_action, key_type, key_range, flags, samples, keys, interp, n_bone=None, n_key=None, n_constraint=None):
+	def add_keys(self, b_action, key_type, key_range, flags, frames, keys, interp, n_bone=None, n_key=None, n_constraint=None):
 		"""
 		Create needed fcurves and add a list of keys to an action.
 		"""
 		# samples = [round(t * self.fps) for t in times]
-		assert len(samples) == len(keys)
+		assert len(frames) == len(keys)
 		ipo = None
 		# get interpolation enum representation
 		# ipo = bpy.types.Keyframe.bl_rna.properties['interpolation'].enum_items[interp].value
-		interpolations = [ipo for _ in range(len(samples))]
+		interpolations = [ipo for _ in range(len(frames))]
 		# import the keys
 		try:
 			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, n_bone, n_key, n_constraint)
@@ -96,7 +100,7 @@ class Animation:
 				# add new points
 				fcurve.keyframe_points.add(count=len(fcu_keys))
 				# populate points with keys for this curve
-				fcurve.keyframe_points.foreach_set("co", [x for co in zip(samples, fcu_keys) for x in co])
+				fcurve.keyframe_points.foreach_set("co", [x for co in zip(frames, fcu_keys) for x in co])
 				if ipo:
 					fcurve.keyframe_points.foreach_set("interpolation", interpolations)
 				# update
