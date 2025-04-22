@@ -115,10 +115,10 @@ class DdsFile(Header, IoFile):
         # a block is the smallest usable unit, for dxt it is 4x4 px, for RGBA it is 1x1 px
         # get its byte count
         self.block_byte_size = int(round(self.block_len_pixels_1d * self.block_len_pixels_1d / self.pixels_per_byte))
-        logging.debug(f"Compression: {comp}, "
-                      f"pixels_per_byte: {self.pixels_per_byte}, "
-                      f"block_len_pixels_1d: {self.block_len_pixels_1d}, "
-                      f"block_byte_size: {self.block_byte_size}")
+        # logging.debug(f"Compression: {comp}, "
+        #               f"pixels_per_byte: {self.pixels_per_byte}, "
+        #               f"block_len_pixels_1d: {self.block_len_pixels_1d}, "
+        #               f"block_byte_size: {self.block_byte_size}")
 
     def mip_pack_generator(self):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""

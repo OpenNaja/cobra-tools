@@ -50,8 +50,8 @@ type_module_name_map = {
 	'SizeInfoRaw': 'generated.formats.tex.compounds.SizeInfoRaw',
 	'SizeInfo': 'generated.formats.tex.compounds.SizeInfo',
 	'TexHeader': 'generated.formats.tex.compounds.TexHeader',
-	'Pc2TexBuffer': 'generated.formats.tex.compounds.Pc2TexBuffer',
 	'Pc2TexMip': 'generated.formats.tex.compounds.Pc2TexMip',
+	'Pc2TexBuffer': 'generated.formats.tex.compounds.Pc2TexBuffer',
 	'TexturestreamHeader': 'generated.formats.tex.compounds.TexturestreamHeader',
 	'TexelHeader': 'generated.formats.tex.compounds.TexelHeader',
 }

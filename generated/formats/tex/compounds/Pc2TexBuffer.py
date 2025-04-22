@@ -34,6 +34,8 @@ class Pc2TexBuffer(MemStruct):
 		self.tile_height = name_type_map['Uint'].from_value(256)
 		self.unk = name_type_map['Uint'](self.context, 0, None)
 		self.buffer_size = name_type_map['Uint64'](self.context, 0, None)
+		self.main = Array(self.context, 0, None, (0,), name_type_map['Pc2TexMip'])
+		self.mip_maps = Array(self.context, 0, None, (0,), name_type_map['Pc2TexMip'])
 		if set_default:
 			self.set_defaults()
 

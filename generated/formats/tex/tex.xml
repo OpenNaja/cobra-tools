@@ -213,6 +213,15 @@
         <add vercond="is_PC2" name="texel_padding" type="PadAlign" template="texel_ref" arg="4"/>
     </compound>
 
+    <compound name="Pc2TexMip" inherit="MemStruct">
+		<add name="offset" type="uint"/>
+		<add name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
+		<add name="tiles_x" type="ushort"/>
+		<add name="tiles_y" type="ushort"/>
+		<add name="is_tiled" type="short"/>
+		<add name="ff" type="short" default="0"/>
+    </compound>
+
     <compound name="Pc2TexBuffer" inherit="MemStruct">
 		PC2 mime_version = 10 still, but completely different layout
 		<add name="compression type" type="DdsType" />
@@ -231,15 +240,6 @@
 		<add name="buffer_size" type="uint64"/>
 		<add name="main" type="Pc2TexMip" arr1="2"/>
 		<add name="mip_maps" type="Pc2TexMip" arr1="14"/>
-    </compound>
-
-    <compound name="Pc2TexMip" inherit="MemStruct">
-		<add name="offset" type="uint"/>
-		<add name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
-		<add name="tiles_x" type="ushort"/>
-		<add name="tiles_y" type="ushort"/>
-		<add name="is_tiled" type="short"/>
-		<add name="ff" type="short" default="0"/>
     </compound>
 
     <compound name="TexturestreamHeader" inherit="MemStruct">

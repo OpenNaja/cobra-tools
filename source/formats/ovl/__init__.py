@@ -1110,7 +1110,8 @@ class OvlFile(Header):
 		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_data]
 		for loader in loaders_with_aux:
 			loader.init_aux_writers()
-		for loader in self.loaders.values():
+		# sorted by name of tex loader
+		for loader_name, loader in sorted(self.loaders.items()):
 			loader.flush_to_aux()
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]

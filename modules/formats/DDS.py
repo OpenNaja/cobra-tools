@@ -50,15 +50,22 @@ class DdsLoader(MemStructLoader):
 	def __eq__(self, other):
 		super().__eq__(other)
 		if self.context.is_pc_2:
+			self.check([m.offset for m in self.texbuffer.mip_maps], [m.offset for m in other.texbuffer.mip_maps], "Mip map offsets")
 			self.check(self.mip_data, other.mip_data, "Mip map data in texel")
 		return self.same
+
+	def get_dummy_dds_file(self):
+		"""Used for alignment in shuffling mip blocks around"""
+		dds_file = DdsFile()
+		dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
+		dds_file.get_pixel_fmt()
+		return dds_file
 
 	def collect(self):
 		super(DdsLoader, self).collect()
 
 		if self.context.is_pc_2:
-			dds_file = DdsFile()
-			dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
+			dds_file = self.get_dummy_dds_file()
 			# texbuffer data is in the second buffer (index 2)
 			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 			with io.BytesIO(buffer_data) as f:
@@ -67,6 +74,7 @@ class DdsLoader(MemStructLoader):
 				self.mip_data = texel_loader.get_mip_buffers(self.texbuffer.mip_maps, dds_file, self.texbuffer)
 				# print(self.texbuffer.flag, self.name)
 				# print(self.texbuffer.unk, self.name)
+				# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
 				# gamemain self.texbuffer.unk = 0 | 1
 				# gamemain self.texbuffer.flag = 0
 
@@ -89,20 +97,33 @@ class DdsLoader(MemStructLoader):
 		"""Writes PC2 mips to texel's aux and updates sizes and offsets"""
 		if self.context.is_pc_2:
 			texel_loader = self.get_texel()
+			dds_file = self.get_dummy_dds_file()
+			height = self.texbuffer.height
+			width = self.texbuffer.width
+			# do inverse of swizzling transform from get_mip_buffers
 			for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
 				# only set size + offset on valid mips
 				if mip_i < self.texbuffer.num_mips:
-					mip_info.offset, mip_info.size = texel_loader.write_aux_data("", mip_bytes)
+					out_bytes = bytearray(mip_bytes)
+					for unpacked_offset, shuffled_offset, size in self.get_texel().shuffle_mip_offsets(dds_file,
+																									   mip_info,
+																									   self.texbuffer,
+																									   height, width):
+						out_bytes[shuffled_offset: shuffled_offset + size] = mip_bytes[unpacked_offset: unpacked_offset + size]
+					height //= 2
+					width //= 2
+					mip_info.offset, mip_info.size = texel_loader.write_aux_data("", out_bytes)
 					# account for num_tiles
 					mip_info.size //= self.texbuffer.num_tiles
 				mip_info.ff = -1
 			# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
 			self.texbuffer.num_mips_high = self.texbuffer.num_mips
 			self.texbuffer.num_mips_low = self.texbuffer.num_mips
-			mip0 = self.texbuffer.mip_maps[0]
-			for lod in self.texbuffer.main:
+			for lod, mip_offset in zip(self.texbuffer.main, (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
+				first_index = self.texbuffer.num_mips - mip_offset
+				mip0 = self.texbuffer.mip_maps[first_index]
 				lod.offset = mip0.offset
-				lod.size = mip0.size
+				lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
 				lod.tiles_x = mip0.tiles_x
 				lod.tiles_y = mip0.tiles_y
 				lod.is_tiled = mip0.is_tiled
@@ -487,50 +508,110 @@ class TexelLoader(MemStructLoader):
 			if mip.size == 0:
 				continue
 			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
-			# logging.debug(f"MIP{mip_i}")
-			out = bytearray(mip_buffer)
-			if mip.tiles_x > 1 and mip.tiles_y > 1:
-				seek = 0
-				tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
-				tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
-				if tile_row_count != mip.tiles_y:
-					logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
-				if tile_col_count != mip.tiles_x:
-					logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
-
-				tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
-				tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
-				scanline_size = tile_col_count * tile_scanline_size
-
-				tile_size = scanline_size * tile_col_count
-				tile_row_size = tile_size * tile_scanline_count
-
-				# logging.debug(f"tile_row_count = {tile_row_count}")
-				# logging.debug(f"tile_col_count = {tile_col_count}")
-				# logging.debug(f"tile_col_count = {tile_col_count}")
-				# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
-				# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
-				# logging.debug(f"tile_row_size = {tile_row_size}")
-				# logging.debug(f"tile_size = {tile_size}")
-				# logging.debug(f"scanline_size = {scanline_size}")
-				for array_i in range(texbuffer.num_tiles):
-					for block_row_i in range(tile_row_count):
-						for block_col_i in range(tile_col_count):
-							for row_i in range(tile_scanline_count):
-								for col_i in range(tile_col_count):
-									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-									target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (row_i * tile_size) + (
-												col_i * scanline_size) + (block_col_i * tile_scanline_size)
-									# print(f"seek {seek} target_offset {target_offset}")
-									out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
-																							seek:seek + tile_scanline_size]
-									seek += tile_scanline_size
-				if len(mip_buffer) != len(out):
-					logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+			out = self.shuffle_mip(dds_file, height, mip, mip_buffer, mip_i, texbuffer, width)
 			mip_data.append(out)
 			height //= 2
 			width //= 2
 		return mip_data
+
+	def get_mip_buffers2(self, mips, dds_file, texbuffer):
+		mip_data = []
+		height = texbuffer.height
+		width = texbuffer.width
+		for mip_i, mip in enumerate(mips):
+			if mip.size == 0:
+				continue
+			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
+			out = self.shuffle_mip(dds_file, height, mip, mip_buffer, mip_i, texbuffer, width)
+			mip_data.append(out)
+			height //= 2
+			width //= 2
+		return mip_data
+
+	def shuffle_mip(self, dds_file, height, mip, mip_buffer, mip_i, texbuffer, width):
+		# logging.debug(f"MIP{mip_i}")
+		out = bytearray(mip_buffer)
+		if mip.tiles_x > 1 and mip.tiles_y > 1:
+			seek = 0
+			tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
+			tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
+			if tile_row_count != mip.tiles_y:
+				logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
+			if tile_col_count != mip.tiles_x:
+				logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
+
+			tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
+			tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
+			scanline_size = tile_col_count * tile_scanline_size
+
+			tile_size = scanline_size * tile_col_count
+			tile_row_size = tile_size * tile_scanline_count
+
+			# logging.debug(f"tile_row_count = {tile_row_count}")
+			# logging.debug(f"tile_col_count = {tile_col_count}")
+			# logging.debug(f"tile_col_count = {tile_col_count}")
+			# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+			# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+			# logging.debug(f"tile_row_size = {tile_row_size}")
+			# logging.debug(f"tile_size = {tile_size}")
+			# logging.debug(f"scanline_size = {scanline_size}")
+			for array_i in range(texbuffer.num_tiles):
+				for block_row_i in range(tile_row_count):
+					for block_col_i in range(tile_col_count):
+						for row_i in range(tile_scanline_count):
+							for col_i in range(tile_col_count):
+								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+								target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (
+											row_i * tile_size) + (
+														col_i * scanline_size) + (block_col_i * tile_scanline_size)
+								# print(f"seek {seek} target_offset {target_offset}")
+								out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
+																						seek:seek + tile_scanline_size]
+								seek += tile_scanline_size
+			if len(mip_buffer) != len(out):
+				logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+		return out
+
+	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
+		# logging.debug(f"MIP{mip_i}")
+		if mip.tiles_x > 1 and mip.tiles_y > 1:
+			seek = 0
+			tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
+			tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
+			if tile_row_count != mip.tiles_y:
+				logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
+			if tile_col_count != mip.tiles_x:
+				logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
+
+			tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
+			tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
+			scanline_size = tile_col_count * tile_scanline_size
+
+			tile_size = scanline_size * tile_col_count
+			tile_row_size = tile_size * tile_scanline_count
+
+			# logging.debug(f"tile_row_count = {tile_row_count}")
+			# logging.debug(f"tile_col_count = {tile_col_count}")
+			# logging.debug(f"tile_col_count = {tile_col_count}")
+			# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+			# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+			# logging.debug(f"tile_row_size = {tile_row_size}")
+			# logging.debug(f"tile_size = {tile_size}")
+			# logging.debug(f"scanline_size = {scanline_size}")
+			for array_i in range(texbuffer.num_tiles):
+				for block_row_i in range(tile_row_count):
+					for block_col_i in range(tile_col_count):
+						for row_i in range(tile_scanline_count):
+							for col_i in range(tile_col_count):
+								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+								target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (
+											row_i * tile_size) + (
+														col_i * scanline_size) + (block_col_i * tile_scanline_size)
+								yield target_offset, seek, tile_scanline_size
+								seek += tile_scanline_size
+			# if len(mip_buffer) != len(out):
+			# 	logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+		# return out
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""
