@@ -72,10 +72,20 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
 				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
+				print(self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high, dds_file.block_byte_size)
+				# for 11 mips, block byte size matters
+				# 11 6 8 16
+				# 11 7 9 8
+				# 10 7 9 8
+
+				# print(self.texbuffer.flag, len(set((self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high))))
+				# print(self.texbuffer.flag, dds_file.block_byte_size)
 				# print(self.texbuffer.flag, self.name)
-				# print(self.texbuffer.unk, self.name)
+				# print(self.texbuffer.do_weave, self.name)
+				# print(self.texbuffer.do_weave, self.texbuffer.num_mips, self.name)
+				# print(self.texbuffer.do_weave, self.texbuffer.weave_width, self.name)
 				# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
-				# gamemain self.texbuffer.unk = 0 | 1
+				# gamemain self.texbuffer.do_weave = 0 | 1
 				# gamemain self.texbuffer.flag = 0
 
 	def create(self, file_path):
@@ -117,16 +127,18 @@ class DdsLoader(MemStructLoader):
 					mip_info.size //= self.texbuffer.num_tiles
 				mip_info.ff = -1
 			# todo - figure out rules for mip truncation
-			self.texbuffer.num_mips_high = self.texbuffer.num_mips
-			self.texbuffer.num_mips_low = self.texbuffer.num_mips
+			self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
+			if self.texbuffer.num_mips > 6:
+				self.texbuffer.num_mips_high = self.texbuffer.num_mips - 3
+				self.texbuffer.num_mips_low = self.texbuffer.num_mips - 5
 			for lod, mip_offset in zip(self.texbuffer.main, (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
 				first_index = self.texbuffer.num_mips - mip_offset
 				mip0 = self.texbuffer.mip_maps[first_index]
 				lod.offset = mip0.offset
 				lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
-				lod.tiles_x = mip0.tiles_x
-				lod.tiles_y = mip0.tiles_y
-				lod.is_tiled = mip0.is_tiled
+				lod.num_weaves_x = mip0.num_weaves_x
+				lod.num_weaves_y = mip0.num_weaves_y
+				lod.do_weave = mip0.do_weave
 				lod.ff = 0
 			# update buffer data of tex
 			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
@@ -251,16 +263,14 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.num_tiles = size_info.num_tiles
 				self.texbuffer.num_mips = size_info.num_mips
 				# todo - tiles, interleaving
-				# self.texbuffer.tile_width
-				# self.texbuffer.tile_height
+				# self.texbuffer.weave_width
+				# self.texbuffer.weave_height
 				# self.texbuffer.flag
-				# self.texbuffer.unk
+				self.texbuffer.do_weave = 1 if self.texbuffer.weave_width else 0
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
 				packed_mips = []
 				# write the packed tex buffer: for each mip level, write all its tiles consecutively
 				for mip_level in zip(*mips_per_tiles):
-					# for tile in mip_level:
-					# 	tex.write(tile)
 					mip_bytes = b"".join(mip_level)
 					packed_mips.append(mip_bytes)
 				self.texbuffer.buffer_size = sum(len(mip_bytes) for mip_bytes in packed_mips)
@@ -517,17 +527,17 @@ class TexelLoader(MemStructLoader):
 
 	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
 		# logging.debug(f"MIP{mip_i}")
-		if mip.tiles_x > 1 and mip.tiles_y > 1:
+		if mip.num_weaves_x > 1 and mip.num_weaves_y > 1:
 			seek = 0
-			tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
-			tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
-			if tile_row_count != mip.tiles_y:
-				logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
-			if tile_col_count != mip.tiles_x:
-				logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
+			tile_row_count = height // texbuffer.weave_height  # or mip.num_weaves_y?
+			tile_col_count = width // texbuffer.weave_width  # or mip.num_weaves_x?
+			if tile_row_count != mip.num_weaves_y:
+				logging.warning(f"tile_row_count {tile_row_count} != mip.num_weaves_y {mip.num_weaves_y}")
+			if tile_col_count != mip.num_weaves_x:
+				logging.warning(f"tile_col_count {tile_col_count} != mip.num_weaves_x {mip.num_weaves_x}")
 
-			tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
-			tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
+			tile_scanline_count = texbuffer.weave_height // tile_col_count // dds_file.block_len_pixels_1d
+			tile_scanline_size = int(round(texbuffer.weave_width / 4 * dds_file.block_byte_size))
 			scanline_size = tile_col_count * tile_scanline_size
 
 			tile_size = scanline_size * tile_col_count

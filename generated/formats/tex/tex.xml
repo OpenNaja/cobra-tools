@@ -216,9 +216,9 @@
     <compound name="Pc2TexMip" inherit="MemStruct">
 		<add name="offset" type="uint"/>
 		<add name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
-		<add name="tiles_x" type="ushort"/>
-		<add name="tiles_y" type="ushort"/>
-		<add name="is_tiled" type="short"/>
+		<add name="num_weaves_x" type="ushort"/>
+		<add name="num_weaves_y" type="ushort"/>
+		<add name="do_weave" type="short"/>
 		<add name="ff" type="short" default="0"/>
     </compound>
 
@@ -230,15 +230,14 @@
 		<add name="height" type="uint" >y size in pixels</add>
 		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>
 		<add name="num_tiles" type="uint" default="1" optional="True"/>
-		# may be related to shuffling texel block bit widths
+		# not related to shuffling texel block bit widths
 		<add name="flag" type="ubyte" default="0"/>seen at least 0, 32, 96
 		<add name="num mips" type="ubyte" />
 		<add name="num mips low" type="ubyte" default="7" />
 		<add name="num mips high" type="ubyte" default="9" />
-		<add name="tile_width" type="uint" default="512"/>can be 256, 512
-		<add name="tile_height" type="uint" default="256"/>
-		# may be related to whether shuffling takes place
-		<add name="unk" type="uint"/>seen 0, 1
+		<add name="weave_width" type="uint" default="512"/>can be 256, 512
+		<add name="weave_height" type="uint" default="256"/>
+		<add name="do_weave" type="uint"/>seen 0 when weave_width = 0, 1 if otherwise
 		<add name="buffer_size" type="uint64"/>
 		<add name="main" type="Pc2TexMip" arr1="2"/>
 		<add name="mip_maps" type="Pc2TexMip" arr1="14"/>
