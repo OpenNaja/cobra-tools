@@ -47,6 +47,12 @@ class DdsLoader(MemStructLoader):
 		"""Collect other loaders"""
 		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
 
+	def __eq__(self, other):
+		super().__eq__(other)
+		if self.context.is_pc_2:
+			self.check(self.mip_data, other.mip_data, "Mip map data in texel")
+		return self.same
+
 	def collect(self):
 		super(DdsLoader, self).collect()
 

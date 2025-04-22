@@ -77,7 +77,7 @@ class BaseFile:
 		aux_writer.write(data)
 		return offset, len(data)
 
-	def get_aux_data(self, aux_suffix, offset, size):
+	def get_aux_data(self, aux_suffix, offset, size=-1):
 		"""Get aux data from storage"""
 		aux_reader = self.aux_data[aux_suffix]
 		aux_reader.seek(offset)
@@ -559,6 +559,11 @@ class BaseFile:
 		self.check(len(self.extra_loaders), len(other.extra_loaders), "Amount of extra loaders")
 		for stream, other_stream in zip(self.streams, other.streams):
 			self.check(stream, other_stream, "Stream entry")
+		self.check(len(self.aux_data), len(other.aux_data), "Amount of aux entries")
+		for aux_suffix in self.aux_data:
+			own_aux = self.get_aux_data(aux_suffix, 0, size=-1)
+			other_aux = other.get_aux_data(aux_suffix, 0, size=-1)
+			self.check(own_aux, other_aux, "Aux entry")
 		return self.same
 
 	def compare_pointer(self, other, t_p, t_o, o_p, o_o):
