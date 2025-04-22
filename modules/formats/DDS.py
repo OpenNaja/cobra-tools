@@ -71,7 +71,7 @@ class DdsLoader(MemStructLoader):
 			with io.BytesIO(buffer_data) as f:
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
-				self.mip_data = texel_loader.get_mip_buffers(self.texbuffer.mip_maps, dds_file, self.texbuffer)
+				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
 				# print(self.texbuffer.flag, self.name)
 				# print(self.texbuffer.unk, self.name)
 				# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
@@ -100,12 +100,12 @@ class DdsLoader(MemStructLoader):
 			dds_file = self.get_dummy_dds_file()
 			height = self.texbuffer.height
 			width = self.texbuffer.width
-			# do inverse of swizzling transform from get_mip_buffers
+			# do inverse of swizzling transform from get_mip_bytes
 			for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
 				# only set size + offset on valid mips
 				if mip_i < self.texbuffer.num_mips:
 					out_bytes = bytearray(mip_bytes)
-					for unpacked_offset, shuffled_offset, size in self.get_texel().shuffle_mip_offsets(dds_file,
+					for unpacked_offset, shuffled_offset, size in texel_loader.shuffle_mip_offsets(dds_file,
 																									   mip_info,
 																									   self.texbuffer,
 																									   height, width):
@@ -116,7 +116,7 @@ class DdsLoader(MemStructLoader):
 					# account for num_tiles
 					mip_info.size //= self.texbuffer.num_tiles
 				mip_info.ff = -1
-			# todo - figure out rules for mip truncation pick the correct mip ranges to consider for their infos
+			# todo - figure out rules for mip truncation
 			self.texbuffer.num_mips_high = self.texbuffer.num_mips
 			self.texbuffer.num_mips_low = self.texbuffer.num_mips
 			for lod, mip_offset in zip(self.texbuffer.main, (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
@@ -138,14 +138,9 @@ class DdsLoader(MemStructLoader):
 
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		if self.context.is_pc_2:
-			logging.warning("super experimental")
+			logging.warning("Tex editing in PC2 is experimental")
 			# store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
 			self.mip_data = buffer_bytes
-
-			# todo - instead directly register/remove texel as needed;
-			#  but do not consider it for check_controlled_conflicts, so no addition to self.controlled_loaders, or flag
-			texel_loader = self.get_texel()
-			self.extra_loaders = [texel_loader, ]
 		else:
 			# there's one empty buffer at the end!
 			buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -499,7 +494,7 @@ class TexelLoader(MemStructLoader):
 	can_extract = False
 	target_class = TexelHeader
 
-	def get_mip_buffers(self, mips, dds_file, texbuffer):
+	def get_mip_bytes(self, mips, dds_file, texbuffer):
 		mip_data = []
 		dds_file.get_pixel_fmt()
 		height = texbuffer.height
@@ -507,70 +502,18 @@ class TexelLoader(MemStructLoader):
 		for mip_i, mip in enumerate(mips):
 			if mip.size == 0:
 				continue
-			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
-			out = self.shuffle_mip(dds_file, height, mip, mip_buffer, mip_i, texbuffer, width)
-			mip_data.append(out)
+			mip_bytes = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
+			out_bytes = bytearray(mip_bytes)
+			for unpacked_offset, shuffled_offset, size in self.shuffle_mip_offsets(dds_file,
+																				   mip,
+																				   texbuffer,
+																				   height, width):
+				out_bytes[unpacked_offset: unpacked_offset + size] = mip_bytes[shuffled_offset: shuffled_offset + size]
+
+			mip_data.append(out_bytes)
 			height //= 2
 			width //= 2
 		return mip_data
-
-	def get_mip_buffers2(self, mips, dds_file, texbuffer):
-		mip_data = []
-		height = texbuffer.height
-		width = texbuffer.width
-		for mip_i, mip in enumerate(mips):
-			if mip.size == 0:
-				continue
-			mip_buffer = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
-			out = self.shuffle_mip(dds_file, height, mip, mip_buffer, mip_i, texbuffer, width)
-			mip_data.append(out)
-			height //= 2
-			width //= 2
-		return mip_data
-
-	def shuffle_mip(self, dds_file, height, mip, mip_buffer, mip_i, texbuffer, width):
-		# logging.debug(f"MIP{mip_i}")
-		out = bytearray(mip_buffer)
-		if mip.tiles_x > 1 and mip.tiles_y > 1:
-			seek = 0
-			tile_row_count = height // texbuffer.tile_height  # or mip.tiles_y?
-			tile_col_count = width // texbuffer.tile_width  # or mip.tiles_x?
-			if tile_row_count != mip.tiles_y:
-				logging.warning(f"tile_row_count {tile_row_count} != mip.tiles_y {mip.tiles_y}")
-			if tile_col_count != mip.tiles_x:
-				logging.warning(f"tile_col_count {tile_col_count} != mip.tiles_x {mip.tiles_x}")
-
-			tile_scanline_count = texbuffer.tile_height // tile_col_count // dds_file.block_len_pixels_1d
-			tile_scanline_size = int(round(texbuffer.tile_width / 4 * dds_file.block_byte_size))
-			scanline_size = tile_col_count * tile_scanline_size
-
-			tile_size = scanline_size * tile_col_count
-			tile_row_size = tile_size * tile_scanline_count
-
-			# logging.debug(f"tile_row_count = {tile_row_count}")
-			# logging.debug(f"tile_col_count = {tile_col_count}")
-			# logging.debug(f"tile_col_count = {tile_col_count}")
-			# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
-			# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
-			# logging.debug(f"tile_row_size = {tile_row_size}")
-			# logging.debug(f"tile_size = {tile_size}")
-			# logging.debug(f"scanline_size = {scanline_size}")
-			for array_i in range(texbuffer.num_tiles):
-				for block_row_i in range(tile_row_count):
-					for block_col_i in range(tile_col_count):
-						for row_i in range(tile_scanline_count):
-							for col_i in range(tile_col_count):
-								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-								target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (
-											row_i * tile_size) + (
-														col_i * scanline_size) + (block_col_i * tile_scanline_size)
-								# print(f"seek {seek} target_offset {target_offset}")
-								out[target_offset:target_offset + tile_scanline_size] = mip_buffer[
-																						seek:seek + tile_scanline_size]
-								seek += tile_scanline_size
-			if len(mip_buffer) != len(out):
-				logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
-		return out
 
 	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
 		# logging.debug(f"MIP{mip_i}")
@@ -609,8 +552,8 @@ class TexelLoader(MemStructLoader):
 														col_i * scanline_size) + (block_col_i * tile_scanline_size)
 								yield target_offset, seek, tile_scanline_size
 								seek += tile_scanline_size
-			# if len(mip_buffer) != len(out):
-			# 	logging.warning(f"Mip {mip_i} failed {len(mip_buffer)} vs {len(out)}")
+			# if len(mip_bytes) != len(out):
+			# 	logging.warning(f"Mip {mip_i} failed {len(mip_bytes)} vs {len(out)}")
 		# return out
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
@@ -635,3 +578,8 @@ class TexelLoader(MemStructLoader):
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
 		self.write_memory_data()
+
+	def delete_unused(self):
+		if not self.aux_data:
+			logging.info(f"Deleting {self.name} as it is no longer used")
+			self.ovl.loaders.pop(self.name)

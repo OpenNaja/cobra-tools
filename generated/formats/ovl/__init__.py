@@ -950,8 +950,10 @@ class OvlFile(Header):
 			aux_suffices = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
 			for f_i, aux_size, aux_suffix in zip(self.aux_entries["file_index"], self.aux_entries["size"], aux_suffices):
 				file_name = self.files_name[f_i]
-				self.loaders[file_name].read_aux_from_disk(aux_suffix, aux_size)
+				self.loaders[file_name].open_aux_readers(aux_suffix, aux_size)
 			self.load_archives()
+			for loader in self.get_loaders_with_aux():
+				loader.close_aux_handles()
 
 	def get_dep_name(self, h, ext, using_file):
 		"""Gets the name for a dependency identified by hash h"""
@@ -1101,19 +1103,23 @@ class OvlFile(Header):
 	def rebuild_ovl_arrays(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
 
+		# clear ovl lists
+		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
+		loaders_with_aux = self.get_loaders_with_aux()
+		for loader in loaders_with_aux:
+			loader.close_aux_handles()
+		# sorted by name of tex loader
+		for loader_name, loader in sorted(self.loaders.items()):
+			loader.flush_to_aux()
+		for loader in loaders_with_aux:
+			loader.delete_unused()
+		loaders_with_aux = self.get_loaders_with_aux()
+
 		# update file hashes and extend entries per loader
 		loaders_by_extension = self.get_loaders_by_ext()
 		mimes_ext = sorted(loaders_by_extension)
 		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
-		# clear ovl lists
-		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
-		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_data]
-		for loader in loaders_with_aux:
-			loader.init_aux_writers()
-		# sorted by name of tex loader
-		for loader_name, loader in sorted(self.loaders.items()):
-			loader.flush_to_aux()
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
 		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_data]
@@ -1219,9 +1225,12 @@ class OvlFile(Header):
 		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_suffices]
 		self.aux_entries["size"] = [loader.get_aux_size(aux_suffix) for aux_suffix, loader in loaders_and_aux]
 		for loader in loaders_with_aux:
-			loader.init_aux_writers()
+			loader.close_aux_handles()
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
+	def get_loaders_with_aux(self):
+		return [loader for loader in self.loaders.values() if loader.aux_data]
+	
 	def get_loaders_by_ext(self):
 		"""Return dict of all extensions and the loaders that use them"""
 		loaders_by_extension = {}

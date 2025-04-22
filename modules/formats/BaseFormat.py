@@ -53,10 +53,9 @@ class BaseFile:
 	def flush_to_aux(self):
 		pass
 
-	def init_aux_writers(self):
+	def close_aux_handles(self):
 		"""Close existing aux readers / writers, then clear aux_data"""
 		for aux_suffix, aux_handle in self.aux_data.items():
-			# self.aux_data[aux_suffix] = io.BytesIO()
 			aux_handle.close()
 		self.aux_data.clear()
 
@@ -66,18 +65,18 @@ class BaseFile:
 			self.aux_data[aux_suffix] = open(self.get_aux_path(aux_suffix, aux_size), mode)
 		return self.aux_data[aux_suffix]
 
-	def read_aux_from_disk(self, aux_suffix, aux_size=0):
+	def open_aux_readers(self, aux_suffix: str, aux_size: int = 0):
 		"""Store aux bytes in loader's aux_data dict"""
 		self.get_aux_handle(aux_suffix, aux_size, "rb")
 
-	def write_aux_data(self, aux_suffix, data):
+	def write_aux_data(self, aux_suffix: str, data):
 		"""Write data to aux_data, return offset and size"""
 		aux_writer = self.get_aux_handle(aux_suffix, len(data), "wb")
 		offset = aux_writer.tell()
 		aux_writer.write(data)
 		return offset, len(data)
 
-	def get_aux_data(self, aux_suffix, offset, size=-1):
+	def get_aux_data(self, aux_suffix: str, offset: int, size: int = -1):
 		"""Get aux data from storage"""
 		aux_reader = self.aux_data[aux_suffix]
 		aux_reader.seek(offset)
@@ -139,7 +138,7 @@ class BaseFile:
 		return self.data_entries.get(self.ovs_name, None)
 
 	def get_constants_entry(self):
-		# logging.info(f"Getting contants for {self.name}")
+		# logging.info(f"Getting constants for {self.name}")
 		self.pool_type = self.ovl.get_mime(self.ext, "pool")
 		self.set_pool_type = self.ovl.get_mime(self.ext, "set_pool")
 		self.mime_version = self.ovl.get_mime(self.ext, "version")
@@ -226,7 +225,7 @@ class BaseFile:
 				# seems like a reasonable size condition - seen stock with 17608 bytes
 				# if pool.get_size() < 16000:
 				return pool
-		# nope, means we gotta create pool
+		# nope, have to create pool
 		pool = MemPool(self.ovl.context)
 		pool.i = None
 		pool.data = BytesIO()
@@ -250,6 +249,9 @@ class BaseFile:
 		with open(filepath, 'rb') as f:
 			content = f.read()
 		return content
+
+	def delete_unused(self):
+		pass
 
 	def create_data_entry(self, buffers_bytes, ovs_name=None):
 		data = DataEntry(self.ovl.context)
@@ -287,7 +289,8 @@ class BaseFile:
 			self.collect()
 		except:
 			logging.exception(f"Renaming contents failed for {self.name}")
-		# todo - rename in buffers?
+
+	# todo - rename in buffers?
 
 	def rename_stack(self, name_tuples):
 		"""Brute force implementation of byte-based renaming directly on pools"""
@@ -350,7 +353,7 @@ class BaseFile:
 		for old, new in name_tuples:
 			s = s.replace(old, new)
 		return s
-	
+
 	def rename_check(self, name_tuples):
 		"""Returns str if name changed, none if it stayed the same"""
 		new_name = self._rename(name_tuples, self.name)
@@ -375,7 +378,7 @@ class BaseFile:
 			for rel_offset, entry in children.items():
 				if isinstance(entry, str):
 					children[rel_offset] = self._rename(name_tuples, entry)
-					p_pool.offset_2_link[p_offset+rel_offset] = self._rename(name_tuples, entry)
+					p_pool.offset_2_link[p_offset + rel_offset] = self._rename(name_tuples, entry)
 		# for direct rename: remove extensions to be able to rename child loaders in the same run
 		for_children = set(name_tuples)
 		for old, new in name_tuples:
@@ -396,7 +399,7 @@ class BaseFile:
 		yield out_dir_func
 		# delete temp dir again
 		shutil.rmtree(temp_dir)
-	
+
 	@contextlib.contextmanager
 	def get_tmp_dir(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
@@ -463,7 +466,7 @@ class BaseFile:
 		if size > int(16 * 1024 * 1024):
 			dump_hex = False
 		if dump_hex:
-			pool_data = pool.debug_dump[offset: offset+size]
+			pool_data = pool.debug_dump[offset: offset + size]
 			return f"\n{hex_dump(pool_data, size > 1024, True, indent=indent, line_width=min(size, 16))}"
 		return ""
 
@@ -479,7 +482,7 @@ class BaseFile:
 				s_pool, s_offset = target
 				data_size = s_pool.size_map.get(s_offset, -1)
 
-				hex_string = self.get_hex_dump(s_pool, s_offset, data_size, indent=indent+1)
+				hex_string = self.get_hex_dump(s_pool, s_offset, data_size, indent=indent + 1)
 
 				f.write("\n\n")
 				if target in rec_check:
@@ -503,9 +506,10 @@ class BaseFile:
 			f.write(f"\nData in {ovs_name} with {len(data_entry.buffers)} buffers")
 			for buffer in data_entry.buffers:
 				f.write(f"\nBuffer {buffer.index}, size {buffer.size}")
-		# for loader in self.streams:
-		# 	f.write(f"\nSTREAM {loader.name}")
-		# 	loader.dump_buffer_infos(f)
+
+	# for loader in self.streams:
+	# 	f.write(f"\nSTREAM {loader.name}")
+	# 	loader.dump_buffer_infos(f)
 
 	def dump_buffers(self, out_dir):
 		paths = []
@@ -591,19 +595,22 @@ class BaseFile:
 			if rel_offset in this_children:
 				this_target_ptr = this_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at relative offset {rel_offset} missing in this: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
+				logging.warning(
+					f"Pointer at relative offset {rel_offset} missing in this: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
 				self.same = False
 				continue
 			if rel_offset in other_children:
 				other_target_ptr = other_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at relative offset {rel_offset} missing in other: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
+				logging.warning(
+					f"Pointer at relative offset {rel_offset} missing in other: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
 				self.same = False
 				continue
 			# dependency?
 			if isinstance(this_target_ptr, str):
 				if this_target_ptr != other_target_ptr:
-					logging.warning(f"Dependency at {rel_offset} does not match {this_target_ptr} vs {other_target_ptr}")
+					logging.warning(
+						f"Dependency at {rel_offset} does not match {this_target_ptr} vs {other_target_ptr}")
 					self.same = False
 			else:
 				# traverse down the tree of pointers
@@ -702,4 +709,4 @@ class MimeVersionedLoader(MemStructLoader):
 		super().__init__(ovl, file_name, mime_version)
 		# self.get_constants_entry()
 		self.context = MimeContext(self.mime_version)
-		# logging.debug(self.context)
+	# logging.debug(self.context)
