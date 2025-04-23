@@ -7,6 +7,7 @@ from copy import copy
 
 import numpy as np
 
+from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
 
 np.seterr(all='warn')
@@ -321,6 +322,46 @@ class ManisFile(InfoHeader, IoFile):
         while self.name_used(new_name):
             new_name = f"{new_name}_copy"
         model_info_copy.name = new_name
+
+    def resize(self, fac):
+        for mi in self.mani_infos:
+            k = mi.keys
+            if mi.dtype.compression != 0:
+                ck = k.compressed
+                ck.loc_bounds.mins *= fac
+                ck.loc_bounds.scales *= fac
+            else:
+                k.pos_bones *= fac
+            for bone_i, name in enumerate(k.floats_names):
+                # typical dino float tracks:
+                # def_c_head_joint.BlendHeadLookOut
+                # def_l_horselink_joint.Footplant
+                # def_l_horselink_joint.IKEnabled
+                # def_r_horselink_joint.Footplant
+                # def_r_horselink_joint.IKEnabled
+                # srb.phaseStream
+                # X Motion Track
+                # Z Motion Track
+                # RotY Motion Track
+                if name in ("X Motion Track", "Y Motion Track", "Z Motion Track"):
+                    k.floats[:, bone_i] *= fac
+            # seems to do nothing, apparently not needed
+            mi.dtype.has_list = 0
+            # if mi.dtype.has_list != 0:
+            # 	for limb in k.limb_track_data.limbs:
+            # 		for weirdone in limb.keys.list_one:
+            # 			weirdone.vec_0.x *= fac
+            # 			weirdone.vec_0.y *= fac
+            # 			weirdone.vec_0.z *= fac
+            # 			weirdone.vec_1.x *= fac
+            # 			weirdone.vec_1.y *= fac
+            # 			weirdone.vec_1.z *= fac
+
+    @staticmethod
+    def get_wsm_name(mi):
+        bone_name = "srb"
+        wsm_name = f"{mi.name}_{bone_name}.wsm"
+        return wsm_name
 
     @property
     def sorted_ms2_bone_names(self):
