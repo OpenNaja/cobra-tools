@@ -74,8 +74,8 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
 				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
-			t = self.texbuffer
-			print(t.num_mips, t.num_mips_low, t.num_mips_high, dds_file.block_byte_size, t.width, t.height, self.name)
+			# t = self.texbuffer
+			# print(t.num_mips, t.num_mips_low, t.num_mips_high, dds_file.block_byte_size, t.width, t.height, self.name)
 			# print(t.flag, len(set((t.num_mips, t.num_mips_low, t.num_mips_high))))
 			# print(t.flag, dds_file.block_byte_size)
 			# print(t.flag, self.name)
@@ -262,6 +262,7 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.height = size_info.height
 				self.texbuffer.depth = size_info.depth
 				self.texbuffer.num_tiles = size_info.num_tiles
+				# mip maps
 				self.texbuffer.num_mips = size_info.num_mips
 				if self.texbuffer.num_mips > 1:
 					# single channel
@@ -287,6 +288,7 @@ class DdsLoader(MemStructLoader):
 					self.texbuffer.num_mips_low = self.texbuffer.num_mips - delta_low
 					if self.texbuffer.width == 256:
 						self.texbuffer.num_mips_low = self.texbuffer.num_mips
+				# weaving
 				# 512 is used for 8 bytes, 256 for 16 bytes
 				if dds_file.block_byte_size == 8:
 					self.texbuffer.weave_width = 512
