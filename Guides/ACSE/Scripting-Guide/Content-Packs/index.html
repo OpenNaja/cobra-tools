@@ -1723,7 +1723,7 @@
 </ul>
 <h2 id="content-packs">Content Packs<a class="headerlink" href="#content-packs" title="Permanent link">&para;</a></h2>
 <div class="annotate">
-<p>Cobra Engine supports additional content modules called <strong>Content Packs</strong>. Whenever Cobra Engine finds a Content Pack, it will perform a set of actions to initialize and include it once the game runs. The game will find new Content Packs looking for a <code>Manifest.xml</code> file within the subfolders of the game, usually starting from <code>{platform}(1)\<abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr></code></p>
+<p>Cobra Engine supports additional content modules called <strong>Content Packs</strong>. Whenever Cobra Engine finds a Content Pack, it will perform a set of actions to initialize and include it once the game runs. The game will find new Content Packs looking for a <code>Manifest.xml</code> file within the subfolders of the game, usually starting from <code>{platform}(1)\ovldata</code></p>
 </div>
 <ol>
 <li>platform can be win64, win32, etc. </li>
@@ -1746,10 +1746,10 @@
 <h2 id="creating-the-basic-modcontent-pack-structure">Creating the Basic Mod/Content Pack Structure<a class="headerlink" href="#creating-the-basic-modcontent-pack-structure" title="Permanent link">&para;</a></h2>
 <p>The following instructions will show you how to create your first Content Pack.</p>
 <h3 id="content-pack-location-and-folder">Content Pack Location and Folder<a class="headerlink" href="#content-pack-location-and-folder" title="Permanent link">&para;</a></h3>
-<p>Navigate into the game <abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr> folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the <code><abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr>\ExampleContentPack</code> folder.</p>
+<p>Navigate into the game <abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr> folder and create a custom folder named after your mod. If we were to use 'ExampleContentPack' as our mod name, we would create the <code>ovldata\ExampleContentPack</code> folder.</p>
 <h3 id="adding-a-manifest-file">Adding a Manifest File<a class="headerlink" href="#adding-a-manifest-file" title="Permanent link">&para;</a></h3>
 <p>The Manifest file defines the Content Pack; it gives the module a name used later by the engine to bootstrap the content initialization and a unique ID used to check if the module has been loaded before. It is important that these two (Name and ID) are unique for the module to load properly.</p>
-<p>Content of <code><abbr title="The folder located at {Game}\win64\ovldata">ovldata</abbr>\ExampleContentPack\Manifest.xml</code>
+<p>Content of <code>ovldata\ExampleContentPack\Manifest.xml</code>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;ContentPack</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;Name&gt;</span>ExampleContentPack<span class="nt">&lt;/Name&gt;</span><span class="w"> </span><span class="cm">&lt;!-- This must match your folder name --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;ID&gt;</span>9a1fce40-4dce-11ec-81d3-0242ac130003<span class="nt">&lt;/ID&gt;</span><span class="w"> </span><span class="cm">&lt;!-- You must replace this UUID --&gt;</span>
