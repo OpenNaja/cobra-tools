@@ -235,9 +235,9 @@
 		<add name="num mips" type="ubyte" />
 		<add name="num mips low" type="ubyte" default="7" />
 		<add name="num mips high" type="ubyte" default="9" />
-		<add name="weave_width" type="uint" default="512"/>can be 256, 512
+		<add name="weave_width" type="uint" default="256"/>can be 256, 512
 		<add name="weave_height" type="uint" default="256"/>
-		<add name="do_weave" type="uint"/>seen 0 when weave_width = 0, 1 if otherwise
+		<add name="can_weave" type="uint" default="1"/>seen 0 when weave_width = 0, 1 if otherwise
 		<add name="buffer_size" type="uint64"/>
 		<add name="main" type="Pc2TexMip" arr1="2"/>
 		<add name="mip_maps" type="Pc2TexMip" arr1="14"/>

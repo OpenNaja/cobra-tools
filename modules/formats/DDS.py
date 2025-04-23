@@ -17,7 +17,7 @@ from ovl_util import texconv, imarray
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
-pow2 = [2**i for i in range(16)]
+pow2 = [2 ** i for i in range(16)]
 
 
 class TexturestreamLoader(MemStructLoader):
@@ -31,13 +31,13 @@ class TexturestreamLoader(MemStructLoader):
 			self.header.lod_index = int(self.basename[-1])
 		self.write_memory_data()
 		# data entry, assign buffer
-		self.create_data_entry((b"", ))
+		self.create_data_entry((b"",))
 
 
 class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
-	temp_extensions = (".dds", )
+	temp_extensions = (".dds",)
 
 	@property
 	def show_temp_files(self):
@@ -50,7 +50,8 @@ class DdsLoader(MemStructLoader):
 	def __eq__(self, other):
 		super().__eq__(other)
 		if self.context.is_pc_2:
-			self.check([m.offset for m in self.texbuffer.mip_maps], [m.offset for m in other.texbuffer.mip_maps], "Mip map offsets")
+			self.check([m.offset for m in self.texbuffer.mip_maps], [m.offset for m in other.texbuffer.mip_maps],
+					   "Mip map offsets")
 			self.check(self.mip_data, other.mip_data, "Mip map data in texel")
 		return self.same
 
@@ -72,21 +73,23 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
 				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
-				print(self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high, dds_file.block_byte_size)
-				# for 11 mips, block byte size matters
-				# 11 6 8 16
-				# 11 7 9 8
-				# 10 7 9 8
+				# print(self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high,
+				# 	  dds_file.block_byte_size)
+			# for 11 mips, block byte size matters
+			# 11 6 8 16
+			# 11 7 9 8
+			# 10 7 9 8
 
-				# print(self.texbuffer.flag, len(set((self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high))))
-				# print(self.texbuffer.flag, dds_file.block_byte_size)
-				# print(self.texbuffer.flag, self.name)
-				# print(self.texbuffer.do_weave, self.name)
-				# print(self.texbuffer.do_weave, self.texbuffer.num_mips, self.name)
-				# print(self.texbuffer.do_weave, self.texbuffer.weave_width, self.name)
-				# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
-				# gamemain self.texbuffer.do_weave = 0 | 1
-				# gamemain self.texbuffer.flag = 0
+			# print(self.texbuffer.flag, len(set((self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high))))
+			# print(self.texbuffer.flag, dds_file.block_byte_size)
+			# print(self.texbuffer.flag, self.name)
+			# print(self.texbuffer.can_weave, self.name)
+			# print(self.texbuffer.can_weave, self.texbuffer.num_mips, self.name)
+			t = self.texbuffer
+			print(t.can_weave, t.weave_width, t.weave_height, t.width, t.height, dds_file.block_byte_size, self.name)
+			# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
+			# gamemain self.texbuffer.can_weave = 0 | 1
+			# gamemain self.texbuffer.flag = 0
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
@@ -115,23 +118,30 @@ class DdsLoader(MemStructLoader):
 				# only set size + offset on valid mips
 				if mip_i < self.texbuffer.num_mips:
 					out_bytes = bytearray(mip_bytes)
+					# UI mip 0 ignores the settings from the header
+					if self.texbuffer.num_mips > 1:
+						mip_info.num_weaves_x = width // self.texbuffer.weave_width
+						mip_info.num_weaves_y = height // self.texbuffer.weave_height
+						mip_info.do_weave = 1 if mip_info.num_weaves_x and mip_info.num_weaves_y else 0
 					for unpacked_offset, shuffled_offset, size in texel_loader.shuffle_mip_offsets(dds_file,
-																									   mip_info,
-																									   self.texbuffer,
-																									   height, width):
-						out_bytes[shuffled_offset: shuffled_offset + size] = mip_bytes[unpacked_offset: unpacked_offset + size]
-					height //= 2
-					width //= 2
+																								   mip_info,
+																								   self.texbuffer,
+																								   height, width):
+						out_bytes[shuffled_offset: shuffled_offset + size] = mip_bytes[
+																			 unpacked_offset: unpacked_offset + size]
 					mip_info.offset, mip_info.size = texel_loader.write_aux_data("", out_bytes)
 					# account for num_tiles
 					mip_info.size //= self.texbuffer.num_tiles
+					height //= 2
+					width //= 2
 				mip_info.ff = -1
 			# todo - figure out rules for mip truncation
 			self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
 			if self.texbuffer.num_mips > 6:
 				self.texbuffer.num_mips_high = self.texbuffer.num_mips - 3
 				self.texbuffer.num_mips_low = self.texbuffer.num_mips - 5
-			for lod, mip_offset in zip(self.texbuffer.main, (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
+			for lod, mip_offset in zip(self.texbuffer.main,
+									   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
 				first_index = self.texbuffer.num_mips - mip_offset
 				mip0 = self.texbuffer.mip_maps[first_index]
 				lod.offset = mip0.offset
@@ -177,7 +187,8 @@ class DdsLoader(MemStructLoader):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
 				texstream_name = f"{basename}_lod{lod_i}.texturestream"
-				texstream_loader = self.ovl.create_file(f"dummy_dir/{texstream_name}", texstream_name, ovs_name=ovs_name)
+				texstream_loader = self.ovl.create_file(f"dummy_dir/{texstream_name}", texstream_name,
+														ovs_name=ovs_name)
 				self.streams.append(texstream_loader)
 				buffer_i = texstream_loader.increment_buffers(buffer_i)
 			self.create_data_entry(buffers[streamed_lods:])
@@ -216,7 +227,8 @@ class DdsLoader(MemStructLoader):
 					tile_i += 1
 			# start updating the tex
 			assert dds_files, f"Found no dds files for {tex_path}"
-			assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
+			assert len(set(
+				dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
 			# by now the dds is set in stone, and we can update the tex header with data from the dds
 			dds = dds_files[0]
 			# handle pre-DX10 compressions in dds files authored by legacy programs
@@ -231,7 +243,8 @@ class DdsLoader(MemStructLoader):
 				# mip maps for tex sizes that are not power of 2 are uncommon
 				# however they are found in ed_infoboard_custom.pbasecolourtexture
 				if dds.width not in pow2 or dds.height not in pow2:
-					logging.warning(f"Non-power-of-2 dimensions ({dds.width}x{dds.height}) with MIP maps for {tex_path}")
+					logging.warning(
+						f"Non-power-of-2 dimensions ({dds.width}x{dds.height}) with MIP maps for {tex_path}")
 			size_info.width = dds.width
 			size_info.height = dds.height
 			size_info.depth = dds.depth
@@ -262,11 +275,16 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.depth = size_info.depth
 				self.texbuffer.num_tiles = size_info.num_tiles
 				self.texbuffer.num_mips = size_info.num_mips
-				# todo - tiles, interleaving
-				# self.texbuffer.weave_width
-				# self.texbuffer.weave_height
+				# todo figure out flag 0, 32, 96
 				# self.texbuffer.flag
-				self.texbuffer.do_weave = 1 if self.texbuffer.weave_width else 0
+				# 512 is used for 8 bytes, 256 for 16 bytes
+				dds_file.get_pixel_fmt()
+				if dds_file.block_byte_size == 8:
+					self.texbuffer.weave_width = 512
+				if self.texbuffer.width < 256 or self.texbuffer.height < 256:
+					self.texbuffer.weave_width = 0
+					self.texbuffer.weave_height = 0
+				self.texbuffer.can_weave = 1 if self.texbuffer.weave_width else 0
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
 				packed_mips = []
 				# write the packed tex buffer: for each mip level, write all its tiles consecutively
@@ -274,7 +292,6 @@ class DdsLoader(MemStructLoader):
 					mip_bytes = b"".join(mip_level)
 					packed_mips.append(mip_bytes)
 				self.texbuffer.buffer_size = sum(len(mip_bytes) for mip_bytes in packed_mips)
-				# print(self.texbuffer)
 				return packed_mips
 			else:
 				# padding depends on io_size being updated
@@ -559,13 +576,14 @@ class TexelLoader(MemStructLoader):
 							for col_i in range(tile_col_count):
 								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
 								target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (
-											row_i * tile_size) + (
+										row_i * tile_size) + (
 														col_i * scanline_size) + (block_col_i * tile_scanline_size)
 								yield target_offset, seek, tile_scanline_size
 								seek += tile_scanline_size
-			# if len(mip_bytes) != len(out):
-			# 	logging.warning(f"Mip {mip_i} failed {len(mip_bytes)} vs {len(out)}")
-		# return out
+		# if len(mip_bytes) != len(out):
+		# 	logging.warning(f"Mip {mip_i} failed {len(mip_bytes)} vs {len(out)}")
+
+	# return out
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""
