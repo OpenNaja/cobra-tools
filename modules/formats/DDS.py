@@ -9,6 +9,7 @@ from generated.formats.tex.compounds.Pc2TexBuffer import Pc2TexBuffer
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.compounds.TexelHeader import TexelHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
+from generated.formats.tex.enums.DdsType import DdsType
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.formats.shared import fnv64, encode_int64_base32
 from modules.helpers import as_bytes
@@ -73,23 +74,16 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
 				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
-				# print(self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high,
-				# 	  dds_file.block_byte_size)
-			# for 11 mips, block byte size matters
-			# 11 6 8 16
-			# 11 7 9 8
-			# 10 7 9 8
-
-			# print(self.texbuffer.flag, len(set((self.texbuffer.num_mips, self.texbuffer.num_mips_low, self.texbuffer.num_mips_high))))
-			# print(self.texbuffer.flag, dds_file.block_byte_size)
-			# print(self.texbuffer.flag, self.name)
-			# print(self.texbuffer.can_weave, self.name)
-			# print(self.texbuffer.can_weave, self.texbuffer.num_mips, self.name)
-			t = self.texbuffer
-			print(t.can_weave, t.weave_width, t.weave_height, t.width, t.height, dds_file.block_byte_size, self.name)
-			# print(self.texbuffer.mip_maps[0].offset, self.file_hash, self.name)
-			# gamemain self.texbuffer.can_weave = 0 | 1
-			# gamemain self.texbuffer.flag = 0
+			# t = self.texbuffer
+			# print(t.num_mips, t.num_mips_low, t.num_mips_high,
+			# 	  dds_file.block_byte_size)
+			# print(t.flag, len(set((t.num_mips, t.num_mips_low, t.num_mips_high))))
+			# print(t.flag, dds_file.block_byte_size)
+			# print(t.flag, self.name)
+			# print(t.can_weave, self.name)
+			# print(t.can_weave, t.num_mips, self.name)
+			# print(t.flag, t.can_weave, t.weave_width, t.weave_height, t.width, t.height, dds_file.block_byte_size, self.name)
+			# print(t.mip_maps[0].offset, self.file_hash, self.name)
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
@@ -119,7 +113,7 @@ class DdsLoader(MemStructLoader):
 				if mip_i < self.texbuffer.num_mips:
 					out_bytes = bytearray(mip_bytes)
 					# UI mip 0 ignores the settings from the header
-					if self.texbuffer.num_mips > 1:
+					if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height:
 						mip_info.num_weaves_x = width // self.texbuffer.weave_width
 						mip_info.num_weaves_y = height // self.texbuffer.weave_height
 						mip_info.do_weave = 1 if mip_info.num_weaves_x and mip_info.num_weaves_y else 0
@@ -136,6 +130,10 @@ class DdsLoader(MemStructLoader):
 					width //= 2
 				mip_info.ff = -1
 			# todo - figure out rules for mip truncation
+			# for 11 mips, block byte size matters
+			# 11 6 8 16
+			# 11 7 9 8
+			# 10 7 9 8
 			self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
 			if self.texbuffer.num_mips > 6:
 				self.texbuffer.num_mips_high = self.texbuffer.num_mips - 3
@@ -275,8 +273,13 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.depth = size_info.depth
 				self.texbuffer.num_tiles = size_info.num_tiles
 				self.texbuffer.num_mips = size_info.num_mips
-				# todo figure out flag 0, 32, 96
-				# self.texbuffer.flag
+				if self.texbuffer.num_mips > 1:
+					# single channel
+					if self.header.compression_type in (DdsType.BC4_UNORM, DdsType.BC4_SNORM):
+						self.texbuffer.flag = 32
+					# RGB
+					else:
+						self.texbuffer.flag = 96
 				# 512 is used for 8 bytes, 256 for 16 bytes
 				dds_file.get_pixel_fmt()
 				if dds_file.block_byte_size == 8:
