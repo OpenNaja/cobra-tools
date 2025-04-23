@@ -795,8 +795,6 @@ class OvlFile(Header):
 		self.send_files()
 
 	def send_files(self):
-		# f_list = [{"name": loader.name, "ext": loader.ext, "children": [l.name for l in loader.children]} for loader in self.loaders.values()]
-		# f_list.sort(key=lambda t: (t["ext"], t["name"]))
 		f_list = [[loader.name, loader.ext, "\n".join(l.name for l in loader.children)] for loader in self.loaders.values()]
 		f_list.sort(key=lambda t: (t[1], t[0]))
 		self.reporter.files_list.emit(f_list)

@@ -403,6 +403,7 @@ class DdsLoader(MemStructLoader):
 			texel_loader = self.ovl.loaders[texel_name]
 		else:
 			texel_loader = self.ovl.create_file(f"dummy_dir/{texel_name}", texel_name)
+			self.ovl.register_loader(texel_loader)
 		return texel_loader
 
 	def extract(self, out_dir):
