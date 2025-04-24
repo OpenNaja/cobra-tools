@@ -608,9 +608,9 @@
 		<add name="material_index" type="ushort"/> 0, 1, 2
 		<add name="tris_count" type="ushort"/>
 		<add name="bounds max" type="Vector3" until="53">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
-		<add name="tris_index" type="uint" since="54" />index into tris buffer of mesh
-		<add name="value_min" type="uint" since="54"/>minimal value of tri index
-		<add name="tris_offset" type="uint" />bytes into tris buffer, as tris use ubyte
+		<add name="tris_index" type="uint" since="54" />index into tris buffer of this mesh, starts at 0 for mesh
+		<add name="value_min" type="uint" since="54"/>minimal vertex value used in tri indices
+		<add name="tris_offset" type="uint" />bytes into whole tris buffer, as tris use ubyte
 		<add name="zero" type="uint" default="0" since="54"/>
 		<add name="loc" type="Vector3">can be 0,0,0, no obvious range, not always within range of bounds</add>
 		<add name="rot" type="AxisAngle">can be 1, 0, 0, 0; w always in range -1, +1</add>

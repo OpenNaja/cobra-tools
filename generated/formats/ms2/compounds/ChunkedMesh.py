@@ -130,7 +130,7 @@ class ChunkedMesh(MeshData):
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# logging.debug(vert_chunk.weights_flag)
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
-			# logging.debug(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
+			# logging.debug(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_index} {tri_chunk.tris_count} {tri_chunk.value_min} tris")
 			# logging.debug(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
 
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
@@ -145,7 +145,6 @@ class ChunkedMesh(MeshData):
 				tri_chunk.tri_indices = self.tri_indices[tri_chunk.tris_index*3: tri_chunk.tris_index*3+index_count]
 				# logging.debug(tri_chunk.tri_indices)
 				tri_chunk.tri_indices += tri_chunk.value_min
-			# self.tri_indices[tris_start: tris_start+index_count] = tri_chunk.tri_indices
 
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			try:
@@ -471,6 +470,8 @@ class ChunkedMesh(MeshData):
 		self.vertex_count = len(self.vertices)
 		# this may not be needed, but for now is used in update_buffer_2_bytes
 		self.tri_index_count = len(self.tri_indices)
+		tris_index = 0
+		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			# write vertices
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
@@ -488,9 +489,15 @@ class ChunkedMesh(MeshData):
 			self.buffer_info.verts.write(vert_chunk.meta.tobytes())
 
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()
+			tri_chunk.tris_index = tris_index
+			tris_index += tri_chunk.tris_count
 			# get tri indices of this chunk
 			_tri_chunk_tri_indices = np.copy(tri_chunk.tri_indices)
-			_tri_chunk_tri_indices -= np.min(_tri_chunk_tri_indices)
+			# chunking already produces the vert indices as 0-index-based per chunk, so don't do it again
+			# tri_chunk.value_min = np.min(_tri_chunk_tri_indices)
+			# _tri_chunk_tri_indices -= tri_chunk.value_min
+			tri_chunk.value_min = offs
+			offs += vert_chunk.vertex_count
 			tri_bytes = _tri_chunk_tri_indices.astype(np.uint8).tobytes()
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
