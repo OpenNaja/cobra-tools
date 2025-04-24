@@ -5,7 +5,7 @@ texchannels = {
 	# 'pAOTextureDetailBlend': {"": ""},
 	# 'pBaseColour2Texture': {"RGB": "", "A": ""},
 	'pBaseColourTexture': {"RGB": "BC", "A": ""},
-	# 'pBaseColourTexture1': {"RGB": "", "A": ""},
+	'pBaseColourTexture1': {"RGB": "BC", "A": ""},
 	# 'pBaseColourTexture2': {"RGB": "", "A": ""},
 	# 'pBaseColourTexture3': {"RGB": "", "A": ""},
 	# 'pBaseColourTexture4': {"RGB": "", "A": ""},
@@ -23,7 +23,7 @@ texchannels = {
 	# 'pCustomisation_HSVOffsetTexture': {"": ""},
 	# 'pCustomisation_MasterMaskTexture': {"": ""},
 	'pCustomisation_Value2Texture': {"": "DE_BC"},
-	'pCustomisation_ValueTexture': {"": "BC"}, # should be mixed with some color?
+	'pCustomisation_ValueTexture': {"": "TI_BC"}, # should be mixed with some color?
 	'pDetailNormalTexture': {"RG": "NM"},
 	'pDiffuseAlphaTexture': {"RGB": "BC", "A": "OP"},
 	# 'pDiffuseArray': {"": ""},
