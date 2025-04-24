@@ -236,7 +236,7 @@ def import_chunk_bounds(mesh_name, mesh, lod_coll):
 			bbox_name = f"{chunk_name}_bbox"
 			v0 -= loc
 			v1 -= loc
-			b_obj, b_me = box_from_extents(bbox_name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll_name=None, coll=lod_coll)
+			b_obj, b_me = box_from_extents(bbox_name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll=lod_coll)
 			set_b_collider(b_obj, bounds_type="CONVEX_HULL", display_type="MESH")
 			# print(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], pos.loc, pos.rot)
 			# empty = create_ob(bpy.context.scene, name+"_empty", None, coll=lod_coll)

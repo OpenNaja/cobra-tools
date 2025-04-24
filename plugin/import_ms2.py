@@ -6,6 +6,7 @@ import bpy
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
+from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys, ob_postpro, append_mirror_modifier, \
 	get_valid_lod_objects, import_mesh_properties
 from plugin.modules_import.material import import_material

@@ -187,6 +187,12 @@ class ChunkedMesh(MeshData):
 			offs += vert_chunk.vertex_count
 			# logging.debug(vert_chunk.vertices)
 			# logging.debug(vert_chunk.meta)
+
+			# logging.info(f"Vert {i} rot {tri_chunk.rot}")
+			# logging.info(f"Vert {i} loc {tri_chunk.loc}")
+			# # logging.info(f"Vert {i} min {tri_chunk.bounds_min}")
+			# logging.info(f"Vert {i} min {tri_chunk.bounds}")
+			# logging.info(f"Vert {i} min {np.min(vert_chunk.vertices, axis=0)} max {np.max(vert_chunk.vertices, axis=0)} mean {np.mean(vert_chunk.vertices, axis=0)}")
 		# logging.debug(self.tri_indices)
 		# since malta dlc, one mesh can have several mesh formats
 		# assert len(mesh_formats) == 1
@@ -389,13 +395,7 @@ class ChunkedMesh(MeshData):
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			vert_chunk.pack_base = model_info.pack_base
 			vert_chunk.precision = model_info.precision
-			# we have the views, so set bounds for the chunk (after swizzling)
-			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
-			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
-			# for alpha blended shells
-			if self.flag == 13:
-				# set the loc value as center of gravity, or center of bounds?
-				tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
+			self.update_chunk_bounds(tri_chunk, vert_chunk)
 			# pack the verts
 			assert vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,)
 			scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
@@ -422,14 +422,7 @@ class ChunkedMesh(MeshData):
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
 			offs += vert_chunk.vertex_count
-			# we have the views, so set bounds for the chunk (after swizzling)
-			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
-			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
-			# for alpha blended shells
-			if self.flag == 13:
-				# set the loc value as center of gravity, or center of bounds?
-				tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
-				# rot is probably related to the normals of the chunk
+			self.update_chunk_bounds(tri_chunk, vert_chunk)
 
 			# pack the verts
 			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
@@ -463,6 +456,22 @@ class ChunkedMesh(MeshData):
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
 			# print("after", vert_chunk.meta)
+
+	def update_chunk_bounds(self, tri_chunk, vert_chunk):
+		"""Updates the bounding information on each tri chunk according to its associated vertices"""
+		if self.context.version < 54:
+			# we have the views, so set bounds for the chunk (after swizzling)
+			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
+			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
+		else:
+			tri_chunk.bounds[:, 1] = np.min(vert_chunk.vertices, axis=0)
+			tri_chunk.bounds[:, 0] = np.max(vert_chunk.vertices, axis=0)
+		# for alpha blended shells
+		if self.flag == 13:
+			# set the loc value as center of gravity, or center of bounds?
+			tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
+		# rot is probably related to the normals of the chunk
+
 
 	def write_data(self):
 		# save tris and verts per chunk, and update the offsets each time
