@@ -209,6 +209,11 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 		description='Shader for Planet Coaster',
 		items=[(name, name, "") for name in c['Planet Coaster']["shaders"]],
 	)
+	shader_name_pc2: EnumProperty(
+		name='Shader',
+		description='Shader for Planet Coaster 2',
+		items=[(name, name, "") for name in c['Planet Coaster 2']["shaders"]],
+	)
 	shader_name_pz: EnumProperty(
 		name='Shader',
 		description='Shader for Planet Zoo',

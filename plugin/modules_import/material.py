@@ -397,14 +397,16 @@ def create_material(reporter, in_dir, matname):
 		alpha_test = shader.attr.get("pAlphaTestRef")
 		if alpha_blending:
 			b_mat.blend_method = "BLEND"
-			b_mat.shadow_method = "NONE"
+			if bpy.app.version < (4, 2, 0):
+				b_mat.shadow_method = "NONE"
 			# b_mat.show_transparent_back = double_sided  # Seems incorrect
-			# Default to culling unless determined as double sided
+			# Default to culling unless determined as double-sided
 			b_mat.use_backface_culling = not double_sided
 		elif alpha_test is not None:
 			b_mat.blend_method = "CLIP"
-			b_mat.shadow_method = "CLIP"
-			# Default to culling unless determined as double sided
+			if bpy.app.version < (4, 2, 0):
+				b_mat.shadow_method = "CLIP"
+			# Default to culling unless determined as double-sided
 			b_mat.use_backface_culling = not double_sided
 			# blender appears to be stricter with the alpha clipping
 			# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
