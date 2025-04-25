@@ -193,10 +193,8 @@ class ZtMeshData(MeshData):
 			self.normals[:] = self.verts_data["normal"]
 			self.tangents[:] = self.verts_data["tangent"]
 			self.vertices[:] = self.verts_data["pos"]
-
-			# if "bone weights" in self.dt.fields:
-			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
-			self.get_blended_weights(self.verts_data["bone ids"], bone_weights)
+			self.bone_indices[:] = self.verts_data["bone ids"]
+			self.bone_weights[:] =  self.verts_data["bone weights"].astype(np.float32) / 255
 		else:
 			self.normals[:] = self.colors_data["normal"]
 			self.tangents[:] = self.colors_data["tangent"]
@@ -218,6 +216,5 @@ class ZtMeshData(MeshData):
 		# print(self.vertices)
 		# if np.nan in self.vertices:
 		# 	logging.exception(f"Found NaN in verts")
-		# self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 
 

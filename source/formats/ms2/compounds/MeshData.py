@@ -74,6 +74,8 @@ class MeshData:
 		self.colors = np.zeros((self.vertex_count, 4), np.float32)
 		self.center_keys = np.zeros((self.vertex_count, 3), np.float32)
 		self.lod_keys = np.zeros((self.vertex_count, 3), np.float32)
+		self.bone_indices = np.zeros((self.vertex_count, 4), np.short)
+		self.bone_weights = np.zeros((self.vertex_count, 4), np.float32)
 		self.weights_info = {}
 
 	def set_verts(self, verts):
@@ -201,19 +203,6 @@ class MeshData:
 	def import_vcol_a_as_weights(self, rgba):
 		for vertex_index, rgba_vert in enumerate(rgba):
 			self.add_to_weights("fur_clump", vertex_index, 1.0 - rgba_vert[3])
-
-	def get_blended_weights(self, ids, weights):
-		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
-			for bone_index, weight in zip(bone_indices, bone_weights):
-				if weight > 0.0:
-					self.add_to_weights(bone_index, vertex_index, weight)
-
-	def get_static_weights(self, bone_indices, use_blended_weights):
-		"""Only store static weight if no blended weights have been set for the vertex"""
-		for vertex_index, (use_blended, bone_index) in enumerate(zip(use_blended_weights, bone_indices)):
-			if not use_blended:
-				self.add_to_weights(bone_index, vertex_index, 1.0)
-			# self.add_to_weights("use_blended_weights", vertex_index, use_blended)
 
 	def add_to_weights(self, bone, vertex_index, weight):
 		# create a dict for new bone key

@@ -178,11 +178,13 @@ class PcMeshData(MeshData):
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		self.use_weights = self.weights_offset != 0
 		if self.use_weights:
-			bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
-			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)
+			self.bone_indices[:] = self.weights_data["bone ids"]
+			self.bone_weights[:] =  self.weights_data["bone weights"].astype(np.float32) / 255
 		else:
-			self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
-			self.weights = [[(b, 1.0),] for b in self.verts_data["bone index"]]
+			for v_i, use_blended_weights in enumerate(self.use_blended_weights):
+				if not use_blended_weights:
+					self.bone_indices[v_i] = (self.verts_data["bone index"][v_i], -1, -1, -1)
+					self.bone_weights[v_i] = (1.0, 0.0, 0.0, 0.0)
 		# print(self.verts_data["winding"])
 		for bit in range(0, 8):
 			for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):

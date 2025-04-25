@@ -3,6 +3,7 @@ import os
 import time
 
 import bpy
+import numpy as np
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
@@ -49,11 +50,36 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 				else:
 					# b_me = bpy.data.meshes.new(f"{model_info.name}_model{m_ob.mesh_index}")
 					b_me = FastMesh.new(f"{model_info.name}_model{m_ob.mesh_index}")
-					b_me.from_pydata(mesh.vertices, [], mesh.tris)
+
+					# todo split on weights, fins, double sided faces sharing verts
+					# if not use_custom_normals and not is_fin(b_ob):
+					verts_unique, unique_indices, unique_inverse = np.unique(mesh.vertices, return_index=True, return_inverse=True, axis=0)
+					sorted_indices = np.sort(unique_indices)
+					# print("tests")
+					# print(len(unique_indices), len(mesh.vertices))
+					# print(unique_indices)
+					# print(sorted_indices)
+					# print(unique_inverse)
+					tris = np.take(unique_inverse, mesh.tris)
+					# tri_sets = set()
+					# num_verts = len(verts_unique)
+					# for decimated_tri, tri in zip(tris, mesh.tris):
+					# 	# print(decimated_tri, tri)
+					# 	set_tri = tuple(sorted(decimated_tri))
+					# 	if set_tri in tri_sets:
+					# 		print("duped tri")
+					# 	tri_sets.add(set_tri)
+					# 		# decimated_tri[:] = tri
+					# vert_indices = np.unique(tris)
+					# print(vert_indices)
+					# verts_unique = mesh.vertices[vert_indices]
+					# print(mesh.tris)
+					b_me.from_pydata(verts_unique, [], tris)
+					# b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					mesh_dict[m_ob.mesh_index] = b_me
 					import_mesh_properties(b_me, mesh)
 					try:
-						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
+						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, mesh.tris.flatten())
 					except:
 						logging.exception("import_mesh_layers failed")
 				# import_chunk_bounds(b_me, mesh, lod_coll)
@@ -67,13 +93,13 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_ob.parent = b_armature_obj
 					ob_dict[m_ob.mesh_index] = b_ob
 					try:
-						import_vertex_groups(b_ob, mesh, bone_names)
-						import_shapekeys(b_ob, mesh)
+						import_vertex_groups(b_ob, mesh, bone_names, unique_indices)
+						import_shapekeys(b_ob, mesh, unique_indices)
 						# link to armature, only after mirror so the order is good and weights are mirrored
 						append_armature_modifier(b_ob, b_armature_obj)
 						if mirror_mesh:
 							append_mirror_modifier(b_ob)
-						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+						# ob_postpro(b_ob, mirror_mesh, use_custom_normals)
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:
