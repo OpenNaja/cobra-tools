@@ -15,6 +15,7 @@ from ovl_util.config import Config, ImmediateSetting, RestartSetting
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
 from modules.formats.shared import DummyReporter
+from modules.walker import valid_packages
 
 import gui
 from gui import qt_theme
@@ -2145,7 +2146,7 @@ class GamesWidget(QWidget):
         if checked:
             self.filter_entry.entry.setText("")
             self.show_official_button.setChecked(False)
-            self.set_dirs_regexp("^((?!(Content|DLC|GameMain)).)*$")
+            self.set_dirs_regexp(f"^((?!({'|'.join(valid_packages)})).)*$")
         else:
             self.set_dirs_regexp("")
 
@@ -2153,7 +2154,7 @@ class GamesWidget(QWidget):
         if checked:
             self.filter_entry.entry.setText("")
             self.show_modded_button.setChecked(False)
-            self.set_dirs_regexp("^.*(Content|GameMain|.*DLC).*$")
+            self.set_dirs_regexp(f"^.*({'|'.join(valid_packages)}).*$")
         else:
             self.set_dirs_regexp("")
 

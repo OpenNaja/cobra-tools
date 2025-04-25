@@ -20,6 +20,9 @@ from constants import Mime, Shader, ConstantsProvider
 
 # get this huge dict from fgm walker, use in ms2 walker
 shader_map = {}
+# No longer using only content* due to Warhammer Ages of Sigmar adding random folder names
+valid_packages = (
+"GameMain", "Content", "Campaign", "DLC", "Ghur", "Kruleboyz", "Nighthaunt", "NoFaction", "Stormcast", "Tzeentch")
 
 
 def content_folder(filepath: Path):
@@ -34,17 +37,14 @@ def content_folder(filepath: Path):
 
 def filter_accept_official(filepath):
 	"""Filters filepaths to only accept official content, discards any user-made content"""
-	# todo this varies per game (WH), refactor to share code with widgets.GamesWidget
-	# No longer using only content* due to Warhammer Ages of Sigmar adding random folder names
 	filepath = Path(filepath)
 	content_path = content_folder(filepath)
 	if not content_path:
 		return False
 
-	valid_packages = ("GameMain", "Content", "Campaign", "DLC", "Ghur", "Kruleboyz", "Nighthaunt", "NoFaction", "Stormcast", "Tzeentch")
 	if any(p in content_path.name for p in valid_packages):
 		return True
-	logging.warning(f"Ignoring user-made {filepath.relative_to(content_path.parent)}")
+	# logging.warning(f"Ignoring user-made {filepath.relative_to(content_path.parent)}")
 	return False
 
 
@@ -90,7 +90,7 @@ def generate_hash_table(gui, start_dir):
 			mimes = {}
 			error_files = []
 			ovl_files = walk_type(start_dir, extension=".ovl")
-			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
+			for ovl_path in gui.reporter.iter_progress(ovl_files, "Hashing"):
 				if not filter_accept_official(ovl_path):
 					continue
 				try:
@@ -324,7 +324,7 @@ def ovls_in_path(gui, start_dir, only_types):
 	ovl_data = OvlFile()
 	ovl_data.load_hash_table()
 	ovl_files = walk_type(start_dir, extension=".ovl")
-	for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Walking OVL files")):
+	for ovl_path in gui.reporter.iter_progress(ovl_files, "Walking OVL files"):
 		try:
 			# read ovl file
 			ovl_data.load(ovl_path, commands={"only_types": only_types, "game": gui.ovl_game_choice.entry.currentText()})
