@@ -53,13 +53,20 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 
 					# todo split on weights, fins, double sided faces sharing verts
 					# if not use_custom_normals and not is_fin(b_ob):
+					# for tri in mesh.tris:
+					# 	for vert_index in tri:
+					# 		vert = mesh.vertices
+					# print(mesh.vertices)
+					# print(mesh.tris)
 					verts_unique, unique_indices, unique_inverse = np.unique(mesh.vertices, return_index=True, return_inverse=True, axis=0)
 					sorted_indices = np.sort(unique_indices)
-					# print("tests")
-					# print(len(unique_indices), len(mesh.vertices))
-					# print(unique_indices)
+					verts_unique = mesh.vertices[sorted_indices]
+					# print("start")
 					# print(sorted_indices)
-					# print(unique_inverse)
+					transsort  = np.argsort(unique_indices)
+					i_rev = transsort.copy()
+					i_rev[transsort] = np.arange(len(i_rev))
+					unique_inverse = i_rev[unique_inverse]
 					tris = np.take(unique_inverse, mesh.tris)
 					# tri_sets = set()
 					# num_verts = len(verts_unique)
@@ -71,11 +78,9 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					# 	tri_sets.add(set_tri)
 					# 		# decimated_tri[:] = tri
 					# vert_indices = np.unique(tris)
-					# print(vert_indices)
 					# verts_unique = mesh.vertices[vert_indices]
 					# print(mesh.tris)
 					b_me.from_pydata(verts_unique, [], tris)
-					# b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					mesh_dict[m_ob.mesh_index] = b_me
 					import_mesh_properties(b_me, mesh)
 					try:
