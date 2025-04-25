@@ -95,7 +95,7 @@ def generate_hash_table(gui, start_dir):
 					continue
 				try:
 					# read ovl file
-					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
+					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts, "game": gui.ovl_game_choice.entry.currentText()})
 					all_deps_exts.update(new_exts)
 					for list_id, attribs in lists.items():
 						array = getattr(ovl_data, list_id)

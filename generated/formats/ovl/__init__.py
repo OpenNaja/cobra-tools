@@ -716,11 +716,8 @@ class OvlFile(Header):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		self.store_filepath(f"{ovl_dir}.ovl")
 		self.create_archive(name="STATIC")
-		# todo - resolve redundancy to walk in add_files
-		# also catch subfolders for ui images in newer games
-		file_paths = [os.path.join(ovl_dir, file_name) for file_name in walk_type(ovl_dir, "")]
 		self.loaders = {}
-		self.add_files(file_paths, common_root_dir=ovl_dir)
+		self.add_files([os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)], common_root_dir=ovl_dir)
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths, common_root_dir=None):
@@ -769,7 +766,7 @@ class OvlFile(Header):
 					array_re = re.compile(r"_\[[0-9]+\]$")
 					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
 					lower_tex_paths = {fp.lower() for fp in inject_paths if fp.lower().endswith(".tex")}
-					# compare this reconstructed tex path to the other file paths (case insensitive)
+					# compare this reconstructed tex path to the other file paths (case-insensitive)
 					if bare_path_no_suffices in lower_tex_paths:
 						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
 						continue
