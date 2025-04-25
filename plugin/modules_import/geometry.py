@@ -132,5 +132,8 @@ def import_mesh_properties(b_me, mesh):
 		if hasattr(mesh, "vert_chunks"):
 			tri_chunk = mesh.tri_chunks[0]
 			b_me["shell_count"] = tri_chunk.shell_count
+		if mesh.context.version > 53:
+			vert_chunk = mesh.vert_chunks[0]
+			b_me["material_effects"] = vert_chunk.weights_flag.material_effects
 	except:
 		logging.exception("Setting unks failed")

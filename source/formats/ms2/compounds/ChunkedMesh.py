@@ -49,6 +49,7 @@ class ChunkedMesh(MeshData):
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
 		self.mesh_format = vert_chunk.weights_flag.mesh_format
+		self.material_effects = vert_chunk.weights_flag.material_effects
 		self.update_dtype()
 		self.init_arrays()
 
@@ -67,6 +68,7 @@ class ChunkedMesh(MeshData):
 		self.face_maps = {}
 		self.bones_sets = []
 		mesh_formats = set()
+		# unks = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# logging.debug(vert_chunk.weights_flag)
@@ -88,6 +90,8 @@ class ChunkedMesh(MeshData):
 				tri_chunk.tri_indices += tri_chunk.value_min
 
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
+			# if self.context.version > 53:
+			# 	unks.add(vert_chunk.weights_flag.material_effects)
 			try:
 				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
 					self.buffer_info.verts.readinto(vert_chunk.packed_verts)
@@ -173,6 +177,7 @@ class ChunkedMesh(MeshData):
 		# for debugging
 		# for vertex_index, res in enumerate(self.negate_bitangents):
 		# 	self.add_to_weights(f"negate_bitangents", vertex_index, res)
+		# print(unks)
 
 	def init_vert_chunk_arrays(self, v_slice, vert_chunk):
 		vert_chunk.packed_verts = None
@@ -312,6 +317,7 @@ class ChunkedMesh(MeshData):
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
+			vert_chunk.weights_flag.material_effects = self.material_effects
 			if b_bone_id == -1:
 				# dynamic weights, extra array
 				vert_chunk.weights_flag.has_weights = True

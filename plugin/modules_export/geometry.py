@@ -24,6 +24,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.whatever_range = get_property(b_me, "whatever_range", 0.0)
 	mesh.unk_float_0 = get_property(b_me, "unk_f0")
+	if mesh.context.version > 53:
+		mesh.material_effects = get_property(b_me, "material_effects")
 	if mesh.context.version > 32:
 		mesh.unk_float_1 = get_property(b_me, "unk_f1")
 	if mesh.context.version == 32:

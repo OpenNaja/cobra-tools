@@ -43,7 +43,6 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 			for ob_i, m_ob in enumerate(get_valid_lod_objects(m_lod)):
 				mesh = m_ob.mesh
 				# print(mesh)
-				# logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data

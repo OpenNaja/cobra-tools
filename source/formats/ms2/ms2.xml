@@ -203,7 +203,7 @@
 
 	<bitfield name="WeightsFlagPC2" storage="ushort">
 		<member width="2" pos="0" name="mesh_format" type="MeshFormat"/>
-		<member width="1" pos="3" name="unk" type="bool"/>
+		<member width="1" pos="3" name="material_effects" type="bool"/>if off: metal turns white, alpha is not used
 		<member width="1" pos="4" name="has_weights" type="bool"/>
 		<member width="8" pos="5" name="bone_index" type="int"/>
 	</bitfield>
