@@ -99,7 +99,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						append_armature_modifier(b_ob, b_armature_obj)
 						if mirror_mesh:
 							append_mirror_modifier(b_ob)
-						# ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:
