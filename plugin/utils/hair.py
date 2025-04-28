@@ -155,8 +155,6 @@ def comb_to_vcol(reporter):
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
 			vcol = vcol_layer[loop_index].color
-			# vcol[0] = (vec.x/FAC) + MID
-			# vcol[2] = -(vec.y/FAC) + MID
 			vec_2_vcol(vec, vcol)
 	reporter.show_info(f"Converted Combing to Vertex Color for {ob_eval.name}")
 

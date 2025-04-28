@@ -254,6 +254,8 @@ class ChunkedMesh(MeshData):
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
 		vert_chunk.whatever = self.whatever[v_slice]
+		vert_chunk.bone_indices = self.bone_indices[v_slice]
+		vert_chunk.bone_weights = self.bone_weights[v_slice]
 		chunk_fmt = vert_chunk.weights_flag.mesh_format
 		if chunk_fmt in (MeshFormat.SEPARATE,):
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
@@ -282,15 +284,12 @@ class ChunkedMesh(MeshData):
 				# logging.info(vert_chunk.weights)
 			else:
 				self.buffer_info.verts.readinto(vert_chunk.weights)
-			for vertex_index, (bone_indices, bone_weights) in enumerate(
-					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
-				for bone_index, weight in zip(bone_indices, bone_weights):
-					if weight > 0.0:
-						self.add_to_weights(bone_index, vertex_index + offs, weight)
+			vert_chunk.bone_indices[:] = vert_chunk.weights["bone ids"]
+			vert_chunk.bone_weights[:] = vert_chunk.weights["bone weights"] / 255
 		else:
 			# use the chunk's bone index for each vertex in chunk
-			for vertex_index in range(vert_chunk.vertex_count):
-				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
+			vert_chunk.bone_indices[:] = (vert_chunk.weights_flag.bone_index, -1, -1, -1)
+			vert_chunk.bone_weights[:] = (1.0, 0.0, 0.0, 0.0)
 		# if vert_chunk.weights_flag.mesh_format == MeshFormat.SPEEDTREE_32:
 		# 	for vertex_index in range(vert_chunk.vertex_count):
 		# 		self.add_to_weights("weight", vertex_index + offs, vert_chunk.meta[vertex_index]["colors"][3] / 255)

@@ -132,9 +132,12 @@ class NewMeshData(MeshData):
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.pack_base)
 		if "bone weights" in self.dt.fields:
-			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
-			self.get_blended_weights(self.verts_data["bone ids"], bone_weights)
-		self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
+			self.bone_indices[:] = self.verts_data["bone ids"]
+			self.bone_weights[:] = self.verts_data["bone weights"].astype(np.float32) / 255
+		for v_i, use_blended_weights in enumerate(self.use_blended_weights):
+			if not use_blended_weights:
+				self.bone_indices[v_i] = (self.verts_data["bone index"][v_i], -1, -1, -1)
+				self.bone_weights[v_i] = (1.0, 0.0, 0.0, 0.0)
 
 		unpack_ubyte_vector(self.normals)
 		unpack_ubyte_vector(self.tangents)

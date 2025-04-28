@@ -3,6 +3,7 @@ import os
 import time
 
 import bpy
+import numpy as np
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
@@ -12,7 +13,7 @@ from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys,
 from plugin.modules_import.material import import_material
 from plugin.utils.fast_mesh import FastMesh
 from plugin.utils.hair import add_psys
-from plugin.utils.shell import is_shell, gauge_uv_scale_wrapper
+from plugin.utils.shell import is_shell, gauge_uv_scale_wrapper, is_fin_mat
 from plugin.utils.object import create_ob, create_scene, create_collection, set_collection_visibility
 from generated.formats.ms2 import Ms2File
 
@@ -47,13 +48,46 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data
 				else:
-					# b_me = bpy.data.meshes.new(f"{model_info.name}_model{m_ob.mesh_index}")
 					b_me = FastMesh.new(f"{model_info.name}_model{m_ob.mesh_index}")
-					b_me.from_pydata(mesh.vertices, [], mesh.tris)
 					mesh_dict[m_ob.mesh_index] = b_me
+
+					if is_fin_mat(m_ob.material):
+						b_me.from_pydata(mesh.vertices, [], mesh.tris)
+						sorted_indices = np.arange(len(mesh.vertices))
+					else:
+						# todo split on weights, fins, double sided faces sharing verts
+						verts_unique, unique_indices, unique_inverse = np.unique(mesh.vertices, return_index=True, return_inverse=True, axis=0)
+						sorted_indices = np.sort(unique_indices)
+						verts_unique = mesh.vertices[sorted_indices]
+						transsort = np.argsort(unique_indices)
+						i_rev = transsort.copy()
+						i_rev[transsort] = np.arange(len(i_rev))
+						unique_inverse = i_rev[unique_inverse]
+						tris = np.take(unique_inverse, mesh.tris)
+
+						# find duped tris
+						# sorted_tris = np.sort(tris, axis=1)
+						# # tris_unique, tris_unique_indices = np.unique(sorted_tris, return_index=True, axis=0)
+						# tri_sets = set()
+						# num_verts = len(verts_unique)
+						# for decimated_tri, tri in zip(sorted_tris, mesh.tris):
+						# 	print(decimated_tri, tri)
+						# 	set_tri = tuple(decimated_tri)
+						# 	if set_tri in tri_sets:
+						# 		print("duped tri")
+						# 	if len(set(set_tri)) < 3:
+						# 		print("degenerate tri")
+						# 	tri_sets.add(set_tri)
+							# decimated_tri[:] = tri
+						# rebuild vertices from de-duplicated tris
+						# sorted_indices = np.unique(tris)
+						# verts_unique = mesh.vertices[sorted_indices]
+						# print(sorted_indices)
+
+						b_me.from_pydata(verts_unique, [], tris)
 					import_mesh_properties(b_me, mesh)
 					try:
-						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
+						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, mesh.tris.flatten(), sorted_indices)
 					except:
 						logging.exception("import_mesh_layers failed")
 				# import_chunk_bounds(b_me, mesh, lod_coll)
@@ -67,8 +101,8 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					b_ob.parent = b_armature_obj
 					ob_dict[m_ob.mesh_index] = b_ob
 					try:
-						import_vertex_groups(b_ob, mesh, bone_names)
-						import_shapekeys(b_ob, mesh)
+						import_vertex_groups(b_ob, mesh, bone_names, sorted_indices)
+						import_shapekeys(b_ob, mesh, sorted_indices)
 						# link to armature, only after mirror so the order is good and weights are mirrored
 						append_armature_modifier(b_ob, b_armature_obj)
 						if mirror_mesh:

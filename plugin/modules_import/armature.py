@@ -500,8 +500,13 @@ def resolve_name(b_bone_names, bone_index):
 		return str(bone_index)
 
 
-def import_vertex_groups(ob, mesh, b_bone_names):
+def import_vertex_groups(ob, mesh, b_bone_names, unique_indices):
 	logging.debug(f"Importing vertex groups for {ob.name}...")
+	for vertex_index, (bone_indices, bone_weights) in enumerate(
+			zip(mesh.bone_indices[unique_indices], mesh.bone_weights[unique_indices])):
+		for bone_index, weight in zip(bone_indices, bone_weights):
+			if weight > 0.0:
+				mesh.add_to_weights(bone_index, vertex_index, weight)
 	# sort by bone name
 	for bone_index in sorted(mesh.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
 		weights_dic = mesh.weights_info[bone_index]
