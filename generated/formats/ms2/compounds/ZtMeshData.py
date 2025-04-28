@@ -94,21 +94,12 @@ class ZtMeshData(MeshData):
 			yield 'flag', name_type_map['ModelFlagZT'], (0, None), (False, None)
 		yield 'zero_uac', name_type_map['Uint'], (0, None), (False, None)
 
-	def init_arrays(self):
-		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.normals = np.empty((self.vertex_count, 3), np.float32)
-		self.tangents = np.empty((self.vertex_count, 3), np.float32)
+	def get_uv_count(self, ):
 		try:
 			uv_shape = self.dt_colors["uvs"].shape
-			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
+			return uv_shape[1]
 		except:
-			self.uvs = None
-		try:
-			colors_shape = self.dt_colors["colors"].shape
-			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
-		except:
-			self.colors = None
-		self.weights_info = {}
+			return 1
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
@@ -135,7 +126,7 @@ class ZtMeshData(MeshData):
 					("winding", np.ubyte, ),  # not tested
 					("tangent", np.ubyte, (3,)),
 					("bone index", np.ubyte, ),  # not tested
-					("colors", np.ubyte, (1, 4)),
+					("colors", np.ubyte, (4,)),
 					("uvs", np.ushort, (1, 2)),
 				]
 			else:
@@ -157,7 +148,7 @@ class ZtMeshData(MeshData):
 				]
 			else:
 				dt_colors = [
-					("colors", np.ubyte, (1, 4)),
+					("colors", np.ubyte, (4,)),
 					("uvs", np.ushort, (1 + self.some_index, 2)),
 				]
 		self.dt = np.dtype(dt)
@@ -194,7 +185,7 @@ class ZtMeshData(MeshData):
 			self.tangents[:] = self.verts_data["tangent"]
 			self.vertices[:] = self.verts_data["pos"]
 			self.bone_indices[:] = self.verts_data["bone ids"]
-			self.bone_weights[:] =  self.verts_data["bone weights"].astype(np.float32) / 255
+			self.bone_weights[:] = self.verts_data["bone weights"].astype(np.float32) / 255
 		else:
 			self.normals[:] = self.colors_data["normal"]
 			self.tangents[:] = self.colors_data["tangent"]
