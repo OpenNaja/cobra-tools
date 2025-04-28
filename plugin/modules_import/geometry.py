@@ -15,14 +15,14 @@ def per_loop(flattened_tris, per_vertex_input):
 	# return [c for col in [per_vertex_input[vertex_index] for vertex_index in flattened_tris] for c in col]
 
 
-def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat):
+def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat, unique_indices):
 	# set uv data
 	# decide how to import the UVs according to mat_name
 	num_uv_layers = mesh.uvs.shape[1]
 	num_fur_weights = num_fur_as_weights(mat_name)
 	if num_fur_weights:
 		# fur is uv 1
-		mesh.import_fur_as_weights(mesh.uvs[:, num_fur_weights])
+		mesh.import_fur_as_weights(mesh.uvs[unique_indices, num_fur_weights])
 		# so just use uv 0 as actual uv
 		num_uv_layers = 1
 	for uv_i in range(num_uv_layers):
@@ -35,9 +35,8 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat)
 		# for col_i in range(num_vcol_layers):
 		cols = b_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
 		cols.data.foreach_set("color", per_loop(mesh_tris_flat, mesh.colors).flatten())
-		# todo
 		if num_fur_weights:
-			mesh.import_vcol_a_as_weights(mesh.colors)
+			mesh.import_vcol_a_as_weights(mesh.colors[unique_indices])
 
 	if hasattr(mesh, "tangents"):
 		tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")

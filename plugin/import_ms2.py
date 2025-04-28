@@ -63,7 +63,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					verts_unique = mesh.vertices[sorted_indices]
 					# print("start")
 					# print(sorted_indices)
-					transsort  = np.argsort(unique_indices)
+					transsort = np.argsort(unique_indices)
 					i_rev = transsort.copy()
 					i_rev[transsort] = np.arange(len(i_rev))
 					unique_inverse = i_rev[unique_inverse]
@@ -84,7 +84,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					mesh_dict[m_ob.mesh_index] = b_me
 					import_mesh_properties(b_me, mesh)
 					try:
-						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, mesh.tris.flatten())
+						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, mesh.tris.flatten(), sorted_indices)
 					except:
 						logging.exception("import_mesh_layers failed")
 				# import_chunk_bounds(b_me, mesh, lod_coll)
