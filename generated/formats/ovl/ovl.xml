@@ -166,8 +166,8 @@
 		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
         <add name="zero2" type="uint64" until="15"/>
 		<add name="File Hash" type="uint">djb2 hash of the first file that points into this mempool</add>
-		<add name="Num Files" type="ushort" since="15">unknown count (related to number of files or pointers)</add>
-		<add name="Num datas" type="ushort" since="15">amount of data entries referring to this pool?, may just be an artifact of apparently compressed ovs though</add>
+		<add name="Num Files" type="ushort" >unknown count (related to number of files or pointers)</add>
+		<add name="Num datas" type="ushort" >amount of data entries referring to this pool?, may just be an artifact of apparently compressed ovs though</add>
 		<add name="Ext Hash" type="uint" since="19">JWE: djb2 hash for extension, 0 for PZ</add>
         <add name="zero3" type="uint" since="19"/>
     </compound>
@@ -235,7 +235,7 @@
 		defines amount of sets and assets
         <add name="set count" type="uint"/>
         <add name="asset count" type="uint"/>
-		<add name="sig a" type="uint" default="1065336831">must be 1065336831</add>
+		<add name="sig a" type="uint" default="1065336831">must be 1065336831, apparently 1065336255 in broken DLA ovls</add>
 		<add name="sig b" type="uint" default="16909320">must be 16909320</add>
         <add name="sets" type="SetEntry" arr1="set count"/>
         <add name="assets" type="AssetEntry" arr1="asset count"/>

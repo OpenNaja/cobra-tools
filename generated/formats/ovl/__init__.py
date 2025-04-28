@@ -203,11 +203,14 @@ class OvsFile(OvsHeader):
 				for buffer in self.buffers_io_order:
 					# read buffer data and store it in buffer object
 					buffer.read_data(stream)
-				# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
 			except:
-				self.ovl.reporter.show_error(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed")
+				self.ovl.reporter.show_error(f"Loading {archive_entry.name} from {os.path.basename(archive_entry.ovs_path)} failed")
 				logging.warning(archive_entry)
 				logging.warning(self)
+				if self.ovl.do_debug:
+					with open(archive_entry.ovs_path + f"_{archive_entry.name}.dmp", "wb") as dump_ovs:
+						stream.seek(0)
+						dump_ovs.write(stream.read())
 
 	def read_pools(self, stream):
 		for pool in self.pools:
@@ -895,7 +898,7 @@ class OvlFile(Header):
 
 			self.mimes_name = [self.names.get_str_at(i) for i in self.mimes["name"]]
 			# without leading . to avoid collisions on cases like JWE island.island
-			self.mimes_ext = [name.split(':')[-1] for name in self.mimes_name]
+			self.mimes_ext = [name.split(':')[-1] if name else "" for name in self.mimes_name]
 			# maps djb2 hash to string
 			# store mime extension hash so we can use it
 			self.hash_table_local = {djb2(ext): ext for ext in self.mimes_ext}

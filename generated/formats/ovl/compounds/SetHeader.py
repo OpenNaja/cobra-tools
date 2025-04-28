@@ -17,7 +17,7 @@ class SetHeader(BaseStruct):
 		self.set_count = name_type_map['Uint'](self.context, 0, None)
 		self.asset_count = name_type_map['Uint'](self.context, 0, None)
 
-		# must be 1065336831
+		# must be 1065336831, apparently 1065336255 in broken DLA ovls
 		self.sig_a = name_type_map['Uint'].from_value(1065336831)
 
 		# must be 16909320

@@ -51,8 +51,8 @@ class MemPool(BaseStruct):
 		yield 'offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 15, None)
 		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'num_files', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 15, None)
-		yield 'num_datas', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 15, None)
+		yield 'num_files', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'num_datas', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'ext_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None)
 		yield 'zero_3', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None)
 
@@ -66,9 +66,8 @@ class MemPool(BaseStruct):
 		if instance.context.version <= 15:
 			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
-		if instance.context.version >= 15:
-			yield 'num_files', name_type_map['Ushort'], (0, None), (False, None)
-			yield 'num_datas', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_files', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_datas', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 19:
 			yield 'ext_hash', name_type_map['Uint'], (0, None), (False, None)
 			yield 'zero_3', name_type_map['Uint'], (0, None), (False, None)

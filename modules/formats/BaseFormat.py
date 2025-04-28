@@ -1,4 +1,5 @@
 import contextlib
+import io
 import logging
 import os
 import struct
@@ -62,7 +63,12 @@ class BaseFile:
 	def get_aux_handle(self, aux_suffix, aux_size, mode):
 		"""init reader if it doesn't exist"""
 		if aux_suffix not in self.aux_data:
-			self.aux_data[aux_suffix] = open(self.get_aux_path(aux_suffix, aux_size), mode)
+			aux_path = self.get_aux_path(aux_suffix, aux_size)
+			try:
+				self.aux_data[aux_suffix] = open(aux_path, mode)
+			except FileNotFoundError:
+				logging.exception(f"Couldn't find {aux_path}")
+				self.aux_data[aux_suffix] = io.BytesIO()
 		return self.aux_data[aux_suffix]
 
 	def open_aux_readers(self, aux_suffix: str, aux_size: int = 0):

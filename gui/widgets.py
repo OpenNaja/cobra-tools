@@ -180,6 +180,7 @@ class TableModel(QAbstractTableModel):
         print("renamed", a, b)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+        color = ""
         file_row = self._data[index.row()]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if len(file_row):
@@ -188,15 +189,16 @@ class TableModel(QAbstractTableModel):
         # TODO: Remove some hardcoding surrounding File Type
         if "File Type" in self.header_labels:
             type_idx = self.header_labels.index("File Type")
-            if role == Qt.ItemDataRole.ForegroundRole:
-                if len(file_row) and file_row[type_idx] in self.ignore_types:
-                    return QColor('grey')
+            file_ext = file_row[type_idx]
+            # if role == Qt.ItemDataRole.ForegroundRole:
+            #     # if file_ext in self.ignore_types:
+            #     return QColor(color)
 
             if role == Qt.ItemDataRole.DecorationRole:
                 if index.column() == 0:
                     if len(file_row):
                         # remove the leading '.' from ext
-                        return get_icon(file_row[type_idx][1:])
+                        return get_icon(file_ext[1:], color)
 
         if role == Qt.ItemDataRole.TextAlignmentRole:
             # center align non-primary integer columns
