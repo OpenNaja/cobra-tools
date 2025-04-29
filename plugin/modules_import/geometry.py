@@ -73,7 +73,7 @@ def import_shapekeys(b_ob, mesh, unique_indices):
 		b_me["whatever_range"] = float(mesh.whatever_range)
 
 
-def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
+def ob_postpro(use_mirror_mesh):
 	logging.debug("Postprocessing geometry")
 	bpy.ops.object.mode_set(mode='EDIT')
 	if use_mirror_mesh:
