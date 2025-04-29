@@ -1,4 +1,3 @@
-# import bmesh
 import logging
 
 import bpy
@@ -7,12 +6,11 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import has_nan
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.blender_util import set_auto_smooth_safe
-from plugin.utils.shell import num_fur_as_weights, is_fin
+from plugin.utils.shell import num_fur_as_weights
 
 
 def per_loop(flattened_tris, per_vertex_input):
 	return np.take(per_vertex_input, flattened_tris, axis=0)
-	# return [c for col in [per_vertex_input[vertex_index] for vertex_index in flattened_tris] for c in col]
 
 
 def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat, unique_indices):
