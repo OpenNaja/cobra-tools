@@ -130,7 +130,7 @@
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBufferPadded" arg="Len Names">Name buffer for assets and file mime types.</add>
-        <add name="Names_pad_dla" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
+        <add name="Names_pad_dla" type="ubyte" arr1="(8 - (Len Names #MOD# 8)) #MOD# 8" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
         <add name="triplets_ref" type="Empty"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>

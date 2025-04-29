@@ -174,7 +174,7 @@ class Header(GenericHeader):
 		yield 'reserved', Array, (0, None, (12,), name_type_map['Uint']), (False, None)
 		yield 'names', name_type_map['ZStringBufferPadded'], (instance.len_names, None), (False, None)
 		if instance.context.version <= 15:
-			yield 'names_pad_dla', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), name_type_map['Ubyte']), (False, None)
+			yield 'names_pad_dla', Array, (0, None, ((8 - (instance.len_names % 8)) % 8,), name_type_map['Ubyte']), (False, None)
 		yield 'mimes', Array, (0, None, (instance.num_mimes,), name_type_map['MimeEntry']), (False, None)
 		yield 'triplets_ref', name_type_map['Empty'], (0, None), (False, None)
 		if instance.context.version >= 20:
