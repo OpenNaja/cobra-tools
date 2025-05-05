@@ -1,6 +1,5 @@
 # START_GLOBALS
 import logging
-import math
 
 from generated.array import Array
 from generated.formats.ms2.compounds.MeshData import MeshData
@@ -8,7 +7,6 @@ from generated.formats.ms2.compounds.VertChunk import VertChunk
 from generated.formats.ms2.compounds.TriChunk import TriChunk
 from generated.formats.ms2.compounds.packing_utils import *
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
-from ovl_util.tristrip import triangulate
 
 
 # END_GLOBALS
@@ -286,14 +284,10 @@ class ChunkedMesh(MeshData):
 
 	@property
 	def tris(self, ):
-		# if self.flag.flat_arrays:
-		# print(self.tri_indices)
 		# create non-overlapping tris from flattened tri indices
 		tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices) // 3, 3))
 		# reverse each tri to account for the flipped normals from mirroring in blender
 		return np.flip(tris_raw, axis=-1)
-		# else:
-		# 	return triangulate((self.tri_indices,))
 
 	@tris.setter
 	def tris(self, list_of_b_tris):
@@ -405,8 +399,8 @@ class ChunkedMesh(MeshData):
 
 	def update_chunk_bounds(self, tri_chunk, vert_chunk):
 		"""Updates the bounding information on each tri chunk according to its associated vertices"""
+		# we have the views, so set bounds for the chunk (after swizzling)
 		if self.context.version < 54:
-			# we have the views, so set bounds for the chunk (after swizzling)
 			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
 		else:
@@ -417,7 +411,6 @@ class ChunkedMesh(MeshData):
 			# set the loc value as center of gravity, or center of bounds?
 			tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
 		# rot is probably related to the normals of the chunk
-
 
 	def write_data(self):
 		# save tris and verts per chunk, and update the offsets each time
