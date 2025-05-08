@@ -70,9 +70,13 @@ def export_bones_custom(b_armature_ob, model_info):
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
 		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = bone_info.zeros_count = len(b_armature_ob.data.bones)
+	NO_PARENT = 255
 	if model_info.context.version > 47:
 		# verified as unused for PZ, JWE2
 		bone_info.zeros_count = 0
+	# WH, PC2
+	if model_info.context.version > 52:
+		NO_PARENT = 65535
 	bone_info.reset_field("bones")
 	bone_info.reset_field("inverse_bind_matrices")
 	bone_info.reset_field("parents")
@@ -95,15 +99,15 @@ def export_bones_custom(b_armature_ob, model_info):
 		ms2_bone.name = bone_name_for_ovl(b_bone.name)
 		ms2_bone.set_bone(mat_local_to_parent)
 		# set parent index
-		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else 255
+		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else NO_PARENT
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
 		bone_info.enumeration[bone_i] = [4, bone_i] if model_info.context.version >= 32 else bone_i
 	# sanity check for bone hierarchy to verify sorting is correct
 	for bone_i, parent_i in enumerate(bone_info.parents):
-		if parent_i != 255:
+		if parent_i != NO_PARENT:
 			if parent_i > bone_i:
 				logging.error(f"Bad hierarchy: {bone_info.bones[bone_i].name} {bone_i} -> {bone_info.bones[parent_i].name} {parent_i}")
-		# parent_n = bone_info.bones[parent_i].name if parent_i != 255 else "None"
+		# parent_n = bone_info.bones[parent_i].name if parent_i != NO_PARENT else "None"
 		# print(f"{bone_info.bones[bone_i].name} {bone_i} -> {parent_n} {parent_i}")
 	# paddings are taken care of automatically during writing
 	export_ik(b_armature_ob, bone_info)

@@ -24,7 +24,7 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 	corrector = plugin.utils.transforms.Corrector(is_old_orientation)
 	# corrector = matrix_util.Corrector(False)
 	bone_info = model_info.bone_info
-	# logging.debug(bone_info)
+	logging.debug(bone_info)
 	if bone_info:
 		if bone_info.name in bpy.data.objects:
 			armature_ob = bpy.data.objects[bone_info.name]
