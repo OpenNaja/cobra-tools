@@ -2353,11 +2353,12 @@ class GamesWidget(QWidget):
             for steam_path in library_folders:
                 try:
                     apps_path = os.path.join(steam_path, "steamapps\\common")
-                    # filter with supported fdev games
-                    fdev_in_lib = [game for game in os.listdir(apps_path) if game in self.games_list]
-                    # generate the whole path for each game, add to dict
-                    # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-                    fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
+                    if os.path.isdir(apps_path):
+                        # filter with supported fdev games
+                        fdev_in_lib = [game for game in os.listdir(apps_path) if game in self.games_list]
+                        # generate the whole path for each game, add to dict
+                        # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+                        fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
                 except FileNotFoundError as e:
                     logging.warning(e)
             logging.info(f"Found {len(fdev_games)} Cobra games from Steam")
