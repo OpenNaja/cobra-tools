@@ -13,12 +13,17 @@
     </compound>
 
     <compound name="TrackElementData" inherit="MemStruct">
-        PC: was 80, now it is 72, PZ: 48
+        PC: was 80, now it is 72
+        PZ: 48
+        PC2: 88
         <add name="spline_name" type="Pointer" template="ZString"/> Will require a _l_spline and _r_spline spl files
+        <add name="u1" type="Pointer" template="ZString" since="12" />
+        <add name="u2" type="Pointer" template="ZString" since="12" />
         <add name="trackmesh_element_name" type="Pointer" template="ZString"/> This is a ref to an existing trackmesh element
         <!-- <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/> -->
         <add name="trackmeshlist" type="ArrayPointer" arg="trackmeshlist_count" template="TrackMesh_ref" /> Used for TrackMeshIndex params, points to trackmesh elements by name. PZ does not support this param in the fdb.
-        <add name="trackmeshlist_count" type="uint64" />
+        <add name="trackmeshlist_count" type="uint" />
+        <add name="unk_count" type="uint" />
         <add name="OptionalCatwalk" type="Pointer" template="ZString"/>
         <add name="direction" type="uint"/>
         <add name="unk 2" type="uint" />
