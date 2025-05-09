@@ -61,7 +61,7 @@ class MeshCollisionData(BaseStruct):
 		if instance.context.version <= 47:
 			yield 'const', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 47 and not (instance.context.version == 32) and instance.const:
-			yield 'triangle_flags', Array, (0, None, (instance.arg.sub_coll_chunk.tri_flags_count,), name_type_map['Uint']), (False, None)
+			yield 'triangle_flags', Array, (0, None, (instance.optimizer.tri_flags_count,), name_type_map['Uint']), (False, None)
 		if instance.context.version == 32 and instance.arg.tris_switch:
 			yield 'triangle_flags_pc', Array, (0, None, (instance.arg.tri_count, 2,), name_type_map['Short']), (False, None)
 		if instance.context.version <= 32:
