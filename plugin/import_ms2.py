@@ -50,6 +50,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 				else:
 					b_me = FastMesh.new(f"{model_info.name}_model{m_ob.mesh_index}")
 					mesh_dict[m_ob.mesh_index] = b_me
+					original_tris = mesh.tris
 
 					if is_fin_mat(m_ob.material):
 						b_me.from_pydata(mesh.vertices, [], mesh.tris)
@@ -65,6 +66,14 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						unique_inverse = i_rev[unique_inverse]
 						tris = np.take(unique_inverse, mesh.tris)
 
+						keep = []
+						for i, (tri_orig, tri_deci) in enumerate(zip(original_tris, tris)):
+							if len(set(tri_deci)) < 3:
+								logging.warning(f"Discarding degenerate tri {i} as it would break custom normals")
+							else:
+								keep.append(i)
+						original_tris = original_tris[keep]
+						tris = tris[keep]
 						# find duped tris
 						# sorted_tris = np.sort(tris, axis=1)
 						# # tris_unique, tris_unique_indices = np.unique(sorted_tris, return_index=True, axis=0)
@@ -87,7 +96,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						b_me.from_pydata(verts_unique, [], tris)
 					import_mesh_properties(b_me, mesh)
 					try:
-						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, mesh.tris.flatten(), sorted_indices)
+						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name, original_tris.flatten(), sorted_indices)
 					except:
 						logging.exception("import_mesh_layers failed")
 				# import_chunk_bounds(b_me, mesh, lod_coll)
