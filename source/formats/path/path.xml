@@ -122,9 +122,10 @@
     </compound>
 
     <compound name="Connector" inherit="MemStruct">
-        <!-- Size 24 -->
+        <!-- PC, PZ Size 24, PC2 size 32 -->
         <add name="connector_model" type="Pointer" template="ZString"/>
         <add name="joint_model" type="Pointer" template="ZString"/>
+        <add name="new" type="Pointer" template="ZString" since="27"/>not sure if used
         <add name="angle_limit" type="float" />
         <add name="direction" type="float" /> <!-- 1.0 = Up, -1.0 = Down -->
     </compound>
@@ -143,22 +144,22 @@
     <compound name="ConnectorMultiJoint" inherit="MemStruct">
         <!-- Size 40 -->
         <add name="connector_model" type="Pointer" template="ZString"/>
-        <add name="padding" type="uint64" default="0" />
+        <add name="support_model" type="Pointer" template="ZString"/>
         <add name="joints" type="ArrayPointer" template="Joint" arg="num_joints" />
         <add name="num_joints" type="uint" />
-        <add name="unkFloat1" type="float" />
-        <add name="unkFloat2" type="float" />
-        <add name="unkInt1" type="uint" />
+        <add name="extent_min" type="float" />
+        <add name="extent_max" type="float" />
+        <add name="some_index" type="uint" />increases with each pass of the extent range
     </compound>
 
     <compound name="Pillar" inherit="MemStruct">
-        <!-- Size 40 PC, 48 PZ -->
+        <!-- Size 40 PC, 48 PZ, 40 PC2 -->
         <add name="pillar_model" type="Pointer" template="ZString"/>
         <add name="cap_model" type="Pointer" template="ZString"/>
         <add name="fln_model" type="Pointer" template="ZString"/>
         <add name="unkFloats" type="float" arr1="2"/>
-        <add name="unkInt2" type="uint64" />
-        <add name="unkInt3" type="uint64" vercond="#PZ#"/>
+        <add name="unkInt2" type="uint64"/>
+        <add name="unkInt3" type="uint64"  since="24" until="24" />PZ
     </compound>
 
     <compound name="Footer" inherit="MemStruct">
@@ -170,11 +171,12 @@
     </compound>
 
     <compound name="SupportSetData" inherit="MemStruct">
-        <!-- Size 16 -->
+        <!-- PC, PZ Size 16, PC2 size 20 -->
         <add name="unkIndex" type="uint" />
         <add name="unkInt1" type="uint" />
         <add name="unkInt2" type="uint" />
         <add name="unkFloat1" type="float" />
+        <add name="unkInt3" type="uint" since="27"/>
     </compound>
 
     <compound name="SupportSetRoot" inherit="MemStruct">

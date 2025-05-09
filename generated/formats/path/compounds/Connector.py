@@ -13,6 +13,7 @@ class Connector(MemStruct):
 		self.direction = name_type_map['Float'](self.context, 0, None)
 		self.connector_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.joint_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.new = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -21,6 +22,7 @@ class Connector(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'connector_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'joint_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'new', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 27, None)
 		yield 'angle_limit', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'direction', name_type_map['Float'], (0, None), (False, None), (None, None)
 
@@ -29,5 +31,7 @@ class Connector(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'connector_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'joint_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		if instance.context.version >= 27:
+			yield 'new', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'angle_limit', name_type_map['Float'], (0, None), (False, None)
 		yield 'direction', name_type_map['Float'], (0, None), (False, None)

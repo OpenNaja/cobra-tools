@@ -7,7 +7,7 @@ from generated.formats.path.compounds.SupportSetRoot import SupportSetRoot
 from generated.formats.path.compounds.LatticeSupportSetRoot import LatticeSupportSetRoot
 from generated.formats.path.compounds.WoodenSupportSetRoot import WoodenSupportSetRoot
 from generated.formats.path.compounds.PathJoinPartResourceRoot import PathJoinPartResourceRoot
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
 
 
 class PathExtrusionLoader(MemStructLoader):
@@ -59,13 +59,12 @@ class PathSupportLoader(MemStructLoader):
 	target_class = PathSupport
 	extension = ".pathsupport"
 
-
 class PathTypeLoader(MemStructLoader):
 	target_class = PathType
 	extension = ".pathtype"
 
 
-class SupportSetLoader(MemStructLoader):
+class SupportSetLoader(MimeVersionedLoader):
 	target_class = SupportSetRoot
 	extension = ".supportset"
 
@@ -75,6 +74,10 @@ class SupportSetLoader(MemStructLoader):
 			self.header.connector_1.data = None
 		if not self.header.num_connector_2:
 			self.header.connector_2.data = None
+
+	# def collect(self):
+	# 	super().collect()
+	# 	print(self.header)
 
 	def create(self, file_path):
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)

@@ -27,7 +27,7 @@ class Pillar(MemStruct):
 		yield 'fln_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
 		yield 'unk_int_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'unk_int_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: (not context.user_version.use_djb) and (context.version >= 19), None)
+		yield 'unk_int_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 24 <= context.version <= 24, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,5 +37,5 @@ class Pillar(MemStruct):
 		yield 'fln_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
 		yield 'unk_int_2', name_type_map['Uint64'], (0, None), (False, None)
-		if (not instance.context.user_version.use_djb) and (instance.context.version >= 19):
+		if 24 <= instance.context.version <= 24:
 			yield 'unk_int_3', name_type_map['Uint64'], (0, None), (False, None)

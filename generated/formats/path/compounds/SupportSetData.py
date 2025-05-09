@@ -13,6 +13,7 @@ class SupportSetData(MemStruct):
 		self.unk_int_1 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_int_2 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
+		self.unk_int_3 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -23,6 +24,7 @@ class SupportSetData(MemStruct):
 		yield 'unk_int_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_int_3', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 27, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +33,5 @@ class SupportSetData(MemStruct):
 		yield 'unk_int_1', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_int_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None)
+		if instance.context.version >= 27:
+			yield 'unk_int_3', name_type_map['Uint'], (0, None), (False, None)
