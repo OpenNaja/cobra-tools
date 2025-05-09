@@ -1,6 +1,7 @@
 import io
 import os
 import logging
+import subprocess
 from collections import Counter
 from pathlib import Path
 
@@ -198,6 +199,10 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 					ms2_path_rel = ms2_path.replace(export_dir, "")
 					ms2_name = os.path.basename(ms2_path)
 					try:
+						# script = f"import bpy;bpy.ops.import_scene.cobra_ms2(filepath='{ms2_path}')"
+						# call = f'blender -b --python-expr "{script}"'
+						# res = subprocess.check_call(call)
+						# print(res)
 						ms2_data.load(ms2_path, read_editable=True)
 						for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
 							for i, mat in enumerate(model_info.model.materials):

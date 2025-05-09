@@ -133,8 +133,7 @@ def walk_type(start_dir, extension=".ovl"):
 		for name in files:
 			if extension and not name.lower().endswith(extension):
 				continue
-			ret.append(os.path.join(root, name))
-	# logging.info(ret)
+			ret.append(os.path.normpath(os.path.join(root, name)))
 	return ret
 
 
