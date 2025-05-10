@@ -102,12 +102,15 @@ class MainWindow(widgets.MainWindow):
 		if filepath:
 			self.set_file_modified(False)
 			try:
-				self.ms2_file.load(filepath, read_editable=True, dump=True)
+				# self.ms2_file.load(filepath, read_editable=True, dump=True)
+				self.ms2_file.load(filepath, read_editable=True)
 				# print(self.ms2_file)
 				# for model_info in self.ms2_file.model_infos:
 				# 	# model_info.
 				# 	model = model_info.model
-				# 	print(model)
+				# 	for m in model.meshes:
+				# 		print(m.mesh.vert_chunks)
+				# 		print(m.mesh.tri_chunks)
 				# 	break
 			except:
 				self.handle_error("Loading failed, see log!")

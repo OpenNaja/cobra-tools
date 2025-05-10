@@ -420,6 +420,7 @@ class ChunkedMesh(MeshData):
 			# (re)generate views into mesh vertex arrays for vert_chunk according to tri_chunk
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
+			tri_chunk.value_min = offs
 			offs += vert_chunk.vertex_count
 			self.update_chunk_bounds(tri_chunk, vert_chunk)
 
@@ -478,7 +479,6 @@ class ChunkedMesh(MeshData):
 		# this may not be needed, but for now is used in update_buffer_2_bytes
 		self.tri_index_count = len(self.tri_indices)
 		tris_index = 0
-		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			# write vertices
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
@@ -498,13 +498,14 @@ class ChunkedMesh(MeshData):
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()
 			tri_chunk.tris_index = tris_index
 			tris_index += tri_chunk.tris_count
+			# PC2 can re-use chunks, which can throw off the indexing and boost the vert indices in the tris
 			# get tri indices of this chunk
 			_tri_chunk_tri_indices = np.copy(tri_chunk.tri_indices)
 			# chunking already produces the vert indices as 0-index-based per chunk, so don't do it again
 			# tri_chunk.value_min = np.min(_tri_chunk_tri_indices)
-			# _tri_chunk_tri_indices -= tri_chunk.value_min
-			tri_chunk.value_min = offs
-			offs += vert_chunk.vertex_count
+			# tri_chunk.value_min is set during pack_verts
+			# however when directly saving original chunks, reset back so that the tris offset from 0
+			_tri_chunk_tri_indices -= np.min(_tri_chunk_tri_indices)
 			tri_bytes = _tri_chunk_tri_indices.astype(np.uint8).tobytes()
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
