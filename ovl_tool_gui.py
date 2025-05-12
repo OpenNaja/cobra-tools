@@ -394,7 +394,7 @@ class MainWindow(widgets.MainWindow):
 		file_entry = self.ovl_data.files[file_index]
 
 	def print_debug_ovl(self):
-		if self.cfg.get("logger_level", "INFO") == "DEBUG":
+		if self.cfg.get("debug_mode", False):
 			# print(self.ovl_data)
 			logging.debug(self.ovl_data)
 			for archive in self.ovl_data.archives:
