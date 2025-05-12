@@ -82,7 +82,7 @@ class DdsLoader(MemStructLoader):
 			# print(t.can_weave, self.name)
 			# print(t.can_weave, t.num_mips, self.name)
 			# print(t.flag, t.can_weave, t.weave_width, t.weave_height, t.width, t.height, dds_file.block_byte_size, self.name)
-			# print(t.mip_maps[0].offset, self.file_hash, self.name)
+			# print(self.header.texel, t.mip_maps[0].offset, self.file_hash, self.name)
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)

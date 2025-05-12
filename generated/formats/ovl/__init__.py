@@ -1106,7 +1106,7 @@ class OvlFile(Header):
 		loaders_with_aux = self.get_loaders_with_aux()
 		for loader in loaders_with_aux:
 			loader.close_aux_handles()
-		# sorted by name of tex loader
+		# sorted by name of tex loader for most tex files in PC2, the rest is idiosyncratic
 		for loader_name, loader in sorted(self.loaders.items()):
 			loader.flush_to_aux()
 		for loader in loaders_with_aux:
