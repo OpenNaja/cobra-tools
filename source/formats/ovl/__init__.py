@@ -1282,8 +1282,7 @@ class OvlFile(Header):
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
 				all_frags = set()
-				if ovs.uncaught_fragments:
-					all_frags.update(ovs.uncaught_fragments)
+				all_frags.update(ovs.uncaught_fragments)
 				for i, loader in enumerate(loaders):
 					all_frags.update(loader.fragments)
 					loader.root_index = i
