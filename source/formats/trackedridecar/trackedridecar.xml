@@ -12,7 +12,7 @@
         <add name="Sizes" type="float" arr1="3">Size of different fence elements</add>
         <add name="zero0" type="uint" default="0" optional="true"/>
         <add name="Hitcheck Model Name" type="Pointer" template="ZString"/>
-        <add name="zero1" type="uint64" default="0" optional="true"/>
+        <add name="Attach Joint Name" type="Pointer" template="ZString"/>used rarely in PC2
     </compound>
 
     <compound name="Row" inherit="MemStruct">
