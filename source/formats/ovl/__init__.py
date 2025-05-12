@@ -1066,6 +1066,31 @@ class OvlFile(Header):
 						raise AttributeError(f"{loader.name} changed ovl version from {version} to {self.version}")
 				self.validate_loaders()
 
+		self.validate_fragments()
+
+	def validate_fragments(self):
+		archive_name_to_loaders = {archive.name: [] for archive in self.archives}
+		for loader in self.loaders.values():
+			try:
+				archive_name_to_loaders[loader.ovs_name].append(loader)
+			except:
+				logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
+				raise
+		for archive in self.reporter.iter_progress(self.archives, "Updating headers"):
+			ovs = archive.content
+			loaders = archive_name_to_loaders[archive.name]
+			all_frags = set()
+
+			# convert to set to validate that the extras are not duplicates
+			new_f = set(((ovs.pools[l_i], l_o), (ovs.pools[s_i], s_o)) for l_i, l_o, s_i, s_o, in ovs.fragments)
+			assert len(new_f) == archive.num_fragments
+			for loader in loaders:
+				all_frags.update(loader.fragments)
+			ovs.uncaught_fragments = all_frags.difference(new_f)
+			# print(archive.num_fragments, len(new_f), len(all_frags))
+			if ovs.uncaught_fragments:
+				logging.warning(f"Could not map {len(ovs.uncaught_fragments)} fragments in {archive.name}, storing them for saving")
+
 	def validate_loaders(self):
 		with self.reporter.report_error_files("Validating") as error_files:
 			for loader in self.loaders.values():
@@ -1257,6 +1282,8 @@ class OvlFile(Header):
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
 				all_frags = set()
+				if ovs.uncaught_fragments:
+					all_frags.update(ovs.uncaught_fragments)
 				for i, loader in enumerate(loaders):
 					all_frags.update(loader.fragments)
 					loader.root_index = i
