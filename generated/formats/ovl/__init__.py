@@ -1082,14 +1082,22 @@ class OvlFile(Header):
 			loaders = archive_name_to_loaders[archive.name]
 			all_frags = set()
 
+			def get_f(i, o):
+				p = ovs.pools[i]
+				# if o is None:
+				# 	o = p.get_size()
+				if o == p.size:
+					o = None
+				return p, o
 			# convert to set to validate that the extras are not duplicates
-			new_f = set(((ovs.pools[l_i], l_o), (ovs.pools[s_i], s_o)) for l_i, l_o, s_i, s_o, in ovs.fragments)
+			new_f = set((get_f(l_i, l_o), get_f(s_i, s_o)) for l_i, l_o, s_i, s_o, in ovs.fragments)
 			assert len(new_f) == archive.num_fragments
 			for loader in loaders:
 				all_frags.update(loader.fragments)
-			ovs.uncaught_fragments = all_frags.difference(new_f)
-			# print(archive.num_fragments, len(new_f), len(all_frags))
+			ovs.uncaught_fragments = all_frags.symmetric_difference(new_f)
 			if ovs.uncaught_fragments:
+				print(archive.num_fragments, len(new_f), len(all_frags), len(all_frags.union(new_f)))
+				print(ovs.uncaught_fragments)
 				logging.warning(f"Could not map {len(ovs.uncaught_fragments)} fragments in {archive.name}, storing them for saving")
 
 	def validate_loaders(self):
@@ -1283,8 +1291,8 @@ class OvlFile(Header):
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
 				all_frags = set()
-				if hasattr(ovs, "uncaught_fragments"):
-					logging.warning(f"Restoring {len(ovs.uncaught_fragments)} uncaught fragmentsto {archive.name}")
+				if hasattr(ovs, "uncaught_fragments") and ovs.uncaught_fragments:
+					logging.warning(f"Restoring {len(ovs.uncaught_fragments)} uncaught fragments to {archive.name}")
 					all_frags.update(ovs.uncaught_fragments)
 				for i, loader in enumerate(loaders):
 					all_frags.update(loader.fragments)
