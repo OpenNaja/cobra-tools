@@ -5,14 +5,15 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="TrackedRideCarRoot" inherit="MemStruct">
-        <!-- 48 bytes consistent through all games -->
+        <!-- PC, PZ: 48 bytes
+         PC2: 40 bytes -->
         <add name="Seat Rows" type="ArrayPointer" template="Row" arg="Seat Rows Count"/>
         <add name="Seat Rows Count" type="uint">Numer of seats rows</add>
         <add name="Total Seats Count" type="uint">Total number of seats in this car</add>
         <add name="Sizes" type="float" arr1="3">Size of different fence elements</add>
         <add name="zero0" type="uint" default="0" optional="true"/>
         <add name="Hitcheck Model Name" type="Pointer" template="ZString"/>
-        <add name="Attach Joint Name" type="Pointer" template="ZString"/>used rarely in PC2
+        <add name="zero1" type="uint64" default="0" optional="true" until="5"/>
     </compound>
 
     <compound name="Row" inherit="MemStruct">

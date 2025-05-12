@@ -1,11 +1,7 @@
 from generated.formats.trackedridecar.compounds.TrackedRideCarRoot import TrackedRideCarRoot
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MimeVersionedLoader
 
 
-class TrackedRideCarLoader(MemStructLoader):
+class TrackedRideCarLoader(MimeVersionedLoader):
 	target_class = TrackedRideCarRoot
 	extension = ".trackedridecar"
-
-	def collect(self):
-		super(TrackedRideCarLoader, self).collect()
-		print(self.header.unk_name)
