@@ -115,7 +115,11 @@ class DdsLoader(MemStructLoader):
 					if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height:
 						mip_info.num_weaves_x = width // self.texbuffer.weave_width
 						mip_info.num_weaves_y = height // self.texbuffer.weave_height
-						mip_info.do_weave = 1 if mip_info.num_weaves_x and mip_info.num_weaves_y else 0
+						if mip_info.num_weaves_x and mip_info.num_weaves_y:
+							mip_info.do_weave = 1
+						else:
+							# e.g. PC2 aflegs04.pbasecolourtexture, set all to 0 if one of them is 0
+							mip_info.num_weaves_x = mip_info.num_weaves_y = mip_info.do_weave = 0
 					for unpacked_offset, shuffled_offset, size in texel_loader.shuffle_mip_offsets(dds_file,
 																								   mip_info,
 																								   self.texbuffer,
