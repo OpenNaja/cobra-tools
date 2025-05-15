@@ -1,6 +1,7 @@
 - [Guides](index.md)
 - [ACSE](ACSE/)
 - [Blender Plugin](Plugin/)
+- [Textures](Textures/)
 - */
 - *.md
 - [Supported Formats](Supported-Formats.md)
