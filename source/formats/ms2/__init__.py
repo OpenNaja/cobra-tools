@@ -263,6 +263,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for model_info in self.model_infos:
 			if model_info.name == new_name:
 				return True
+		return False
 
 	def rename_file(self, old, new):
 		logging.info(f"Renaming .mdl2s in {self.name}")

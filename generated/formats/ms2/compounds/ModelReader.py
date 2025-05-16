@@ -6,7 +6,7 @@ from generated.formats.base.basic import Float
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.ms2.compounds.BufferInfo import BufferInfo
 from generated.formats.ms2.compounds.ModelInfo import ModelInfo
-from generated.formats.ms2.versions import is_pc
+from generated.formats.ms2.versions import is_pc, is_jwe
 from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
@@ -126,12 +126,12 @@ class ModelReader(BaseStruct):
 				model_info.bone_info.name = f"{model_info.name}_armature"
 				self.bone_infos.append(model_info.bone_info)
 			except:
-				raise AttributeError(f"Bone info {i} failed for model_info")
-				# logging.exception(f"Bone info {i} failed for model_info")
-				# logging.warning(model_info)
-				# logging.warning(model_info.model)
-				# logging.warning(f"here's the bone info before:")
-				# logging.warning(self.bone_infos[-1])
+				logging.warning(f"Bone info {i} failed for model_info")
+				logging.warning(model_info)
+				logging.warning(model_info.model)
+				logging.warning(f"here's the bone info before:")
+				logging.warning(self.bone_infos[-1])
+				raise
 			i += 1
 		else:
 			logging.debug(f"Using previous bone info")
@@ -190,6 +190,10 @@ class ModelReader(BaseStruct):
 					if is_pc(self.context):
 						# 2023-10-22: there is alignment for PC, notable in CC_riv
 						self.get_padding(stream, alignment=16)
+					if is_jwe(self.context):
+						# 2025-05-16: not sure how accurate this is, but helps PDLC6_BLDG_PowerStationGeo, which is a limited sample
+						# perhaps different anchor for alignment compared to PC
+						stream.read(8)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
 					# logging.debug(f"End of vertices at {stream.tell()}")
