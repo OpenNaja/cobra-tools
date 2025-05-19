@@ -104,6 +104,9 @@ class DdsFile(Header, IoFile):
         if "R8G8B8A8" in comp:
             self.pixels_per_byte = 0.25
             self.block_len_pixels_1d = 1
+        elif "R16G16B16A16" in comp:
+            self.pixels_per_byte = 0.125
+            self.block_len_pixels_1d = 1
         # 64 bits for 16 pixels
         elif "BC1" in comp or "DXT1" in comp or "BC4" in comp:
             self.pixels_per_byte = 2
