@@ -484,10 +484,11 @@ class DdsLoader(MemStructLoader):
 		if not self.context.is_pc_2:
 			image_buffer = buffer_data
 		else:
-			texbuffer_path = out_dir(f"{self.basename}.texbuffer")
-			with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
-				pass
-			out_files.append(texbuffer_path)
+			if self.ovl.do_debug:
+				texbuffer_path = out_dir(f"{self.basename}.texbuffer")
+				with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
+					pass
+				out_files.append(texbuffer_path)
 			image_buffer = b"".join(self.mip_data)
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
