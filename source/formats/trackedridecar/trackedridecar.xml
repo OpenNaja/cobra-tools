@@ -6,7 +6,7 @@
 
     <compound name="TrackedRideCarRoot" inherit="MemStruct">
         <!-- PC, PZ: 48 bytes
-         PC2: 40 bytes -->
+         PC2: 64 bytes -->
         <add name="Seat Rows" type="ArrayPointer" template="Row" arg="Seat Rows Count"/>
         <add name="Seat Rows Count" type="uint">Numer of seats rows</add>
         <add name="Total Seats Count" type="uint">Total number of seats in this car</add>
