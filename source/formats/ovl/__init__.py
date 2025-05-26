@@ -1069,13 +1069,7 @@ class OvlFile(Header):
 		self.validate_fragments()
 
 	def validate_fragments(self):
-		archive_name_to_loaders = {archive.name: [] for archive in self.archives}
-		for loader in self.loaders.values():
-			try:
-				archive_name_to_loaders[loader.ovs_name].append(loader)
-			except:
-				logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
-				raise
+		archive_name_to_loaders = self.get_archive_name_to_loaders(self.loaders.values())
 		for archive in self.reporter.iter_progress(self.archives, "Updating headers"):
 			ovs = archive.content
 			loaders = archive_name_to_loaders[archive.name]
@@ -1095,9 +1089,19 @@ class OvlFile(Header):
 				all_frags.update(loader.fragments)
 			ovs.uncaught_fragments = all_frags.symmetric_difference(new_f)
 			if ovs.uncaught_fragments:
-				print(archive.num_fragments, len(new_f), len(all_frags), len(all_frags.union(new_f)))
-				print(ovs.uncaught_fragments)
+				# print(archive.num_fragments, len(new_f), len(all_frags), len(all_frags.union(new_f)))
+				# print(ovs.uncaught_fragments)
 				logging.warning(f"Could not map {len(ovs.uncaught_fragments)} fragments in {archive.name}, storing them for saving")
+
+	def get_archive_name_to_loaders(self, flat_sorted_loaders):
+		archive_name_to_loaders = {archive.name: [] for archive in self.archives}
+		for loader in flat_sorted_loaders:
+			try:
+				archive_name_to_loaders[loader.ovs_name].append(loader)
+			except:
+				logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
+				raise
+		return archive_name_to_loaders
 
 	def validate_loaders(self):
 		with self.reporter.report_error_files("Validating") as error_files:
@@ -1277,13 +1281,7 @@ class OvlFile(Header):
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
 
-			archive_name_to_loaders = {archive.name: [] for archive in self.archives}
-			for loader in flat_sorted_loaders:
-				try:
-					archive_name_to_loaders[loader.ovs_name].append(loader)
-				except:
-					logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
-					raise
+			archive_name_to_loaders = self.get_archive_name_to_loaders(flat_sorted_loaders)
 			# remove all entries to rebuild them from the loaders
 			for archive in self.reporter.iter_progress(self.archives, "Updating headers"):
 				ovs = archive.content
