@@ -20,9 +20,11 @@ class TrackedRideCarRoot(MemStruct):
 		# Size of different fence elements
 		self.sizes = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.zero_0 = name_type_map['Uint'].from_value(0)
-		self.zero_1 = name_type_map['Uint64'].from_value(0)
+		self.zero_2 = name_type_map['Uint64'].from_value(0)
 		self.seat_rows = name_type_map['ArrayPointer'](self.context, self.seat_rows_count, name_type_map['Row'])
 		self.hitcheck_model_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.cabin_geometry_attach = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.cabin_geometry = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -35,7 +37,9 @@ class TrackedRideCarRoot(MemStruct):
 		yield 'sizes', Array, (0, None, (3,), name_type_map['Float']), (False, None), (None, None)
 		yield 'zero_0', name_type_map['Uint'], (0, None), (True, 0), (None, None)
 		yield 'hitcheck_model_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'zero_1', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: context.version <= 5, None)
+		yield 'cabin_geometry_attach', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'cabin_geometry', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: context.version >= 7, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,5 +50,7 @@ class TrackedRideCarRoot(MemStruct):
 		yield 'sizes', Array, (0, None, (3,), name_type_map['Float']), (False, None)
 		yield 'zero_0', name_type_map['Uint'], (0, None), (True, 0)
 		yield 'hitcheck_model_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		if instance.context.version <= 5:
-			yield 'zero_1', name_type_map['Uint64'], (0, None), (True, 0)
+		if instance.context.version >= 7:
+			yield 'cabin_geometry_attach', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'cabin_geometry', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'zero_2', name_type_map['Uint64'], (0, None), (True, 0)
