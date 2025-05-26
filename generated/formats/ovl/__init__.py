@@ -1066,8 +1066,9 @@ class OvlFile(Header):
 					if version != self.version:
 						raise AttributeError(f"{loader.name} changed ovl version from {version} to {self.version}")
 				self.validate_loaders()
-
-		self.validate_fragments()
+		# no point in validating fragments on partially loaded ovls
+		if not self.commands.get('only_types', ()):
+			self.validate_fragments()
 
 	def validate_fragments(self):
 		archive_name_to_loaders = self.get_archive_name_to_loaders(self.loaders.values())
