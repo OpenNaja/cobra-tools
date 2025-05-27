@@ -6,7 +6,7 @@ class FgmHeader(MemStruct):
 
 	"""
 	# JWE, PZ - 64 bytes
-	# JWE2 - 80 bytes
+	# JWE2, PC2 - 80 bytes
 	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 	"""
 
@@ -17,10 +17,10 @@ class FgmHeader(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.textures_count = name_type_map['Uint64'](self.context, 0, None)
 		self.attributes_count = name_type_map['Uint64'](self.context, 0, None)
-		self._unk_0 = name_type_map['Uint64'](self.context, 0, None)
-		self._unk_1 = name_type_map['Uint64'](self.context, 0, None)
-		self._unk_2 = name_type_map['Uint64'](self.context, 0, None)
-		self._unk_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_0 = name_type_map['Uint64'].from_value(0)
+		self.unk_1 = name_type_map['Uint64'].from_value(0)
+		self.unk_2 = name_type_map['Uint64'].from_value(0)
+		self.unk_3 = name_type_map['Uint64'].from_value(0)
 		self.textures = name_type_map['ArrayPointer'](self.context, self.textures_count, name_type_map['TextureInfo'])
 		self.attributes = name_type_map['ArrayPointer'](self.context, self.attributes_count, name_type_map['AttribInfo'])
 		self.name_foreach_textures = name_type_map['ForEachPointer'](self.context, self.textures, name_type_map['TextureData'])
@@ -39,10 +39,10 @@ class FgmHeader(MemStruct):
 		yield 'attributes', name_type_map['ArrayPointer'], (None, name_type_map['AttribInfo']), (False, None), (None, None)
 		yield 'name_foreach_textures', name_type_map['ForEachPointer'], (None, name_type_map['TextureData']), (False, None), (None, None)
 		yield 'value_foreach_attributes', name_type_map['ForEachPointer'], (None, name_type_map['AttribData']), (False, None), (None, None)
-		yield '_unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield '_unk_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield '_unk_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None)
-		yield '_unk_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'unk_1', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'unk_2', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: (context.user_version.use_djb and (context.version == 20)) or (context.mime_version == 7), None)
+		yield 'unk_3', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: (context.user_version.use_djb and (context.version == 20)) or (context.mime_version == 7), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -59,8 +59,8 @@ class FgmHeader(MemStruct):
 		yield 'attributes', name_type_map['ArrayPointer'], (instance.attributes_count, name_type_map['AttribInfo']), (False, None)
 		yield 'name_foreach_textures', name_type_map['ForEachPointer'], (instance.textures, name_type_map['TextureData']), (False, None)
 		yield 'value_foreach_attributes', name_type_map['ForEachPointer'], (instance.attributes, name_type_map['AttribData']), (False, None)
-		yield '_unk_0', name_type_map['Uint64'], (0, None), (False, None)
-		yield '_unk_1', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.user_version.use_djb and (instance.context.version == 20):
-			yield '_unk_2', name_type_map['Uint64'], (0, None), (False, None)
-			yield '_unk_3', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (True, 0)
+		yield 'unk_1', name_type_map['Uint64'], (0, None), (True, 0)
+		if (instance.context.user_version.use_djb and (instance.context.version == 20)) or (instance.context.mime_version == 7):
+			yield 'unk_2', name_type_map['Uint64'], (0, None), (True, 0)
+			yield 'unk_3', name_type_map['Uint64'], (0, None), (True, 0)

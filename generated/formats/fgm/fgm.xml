@@ -44,7 +44,7 @@
 
     <compound name="FgmHeader" inherit="MemStruct">
         # JWE, PZ - 64 bytes
-        # JWE2 - 80 bytes
+        # JWE2, PC2 - 80 bytes
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
         <add name="textures_count" type="uint" until="15"/>
         <add name="textures_count" type="uint64" since="17"/>
@@ -56,11 +56,11 @@
         <add name="name_foreach_textures" type="ForEachPointer" template="TextureData" arg="textures"/>
         <add name="value_foreach_attributes" type="ForEachPointer" template="AttribData" arg="attributes"/>
         and finally 16 bytes, apparently unused
-        <add name="_unk_0" type="uint64"/>
-        <add name="_unk_1" type="uint64"/>
+        <add name="unk_0" type="uint64" default="0" optional="True"/>
+        <add name="unk_1" type="uint64" default="0" optional="True"/>
         JWE2 has 16 more unused bytes
-        <add name="_unk_2" type="uint64" vercond="#JWE2#"/>
-        <add name="_unk_3" type="uint64" vercond="#JWE2#"/>
+        <add name="unk_2" type="uint64" default="0" optional="True" vercond="(#JWE2#) #OR# (mime_version #EQ# 7)"/>
+        <add name="unk_3" type="uint64" default="0" optional="True" vercond="(#JWE2#) #OR# (mime_version #EQ# 7)"/>
     </compound>
 
 	<compound name="GenericInfo" inherit="MemStruct">
