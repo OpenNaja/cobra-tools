@@ -8,11 +8,11 @@
 <!--    <version id="DLA" version="3">Disneyland Adventures</version>-->
 <!--    <version id="ZTUAC" version="3">Zoo Tycoon</version>-->
 <!--    <version id="PC" version="6">Planet Coaster</version>-->
-<!--    <version id="PC2" version="7">Planet Coaster 2</version>-->
 <!--    <version id="PZ" version="6">Planet Zoo</version>-->
 <!--    <version id="JWE" version="6">Jurassic World Evolution</version>-->
 <!--    <version id="JWE2" version="6">Jurassic World Evolution 2</version>-->
 <!--    <version id="WAR" version="6">Warhammer Age of Sigmar - Realms of Ruin</version>-->
+<!--    <version id="PC2" version="7">Planet Coaster 2</version>-->
 
     <compound name="Color" inherit="MemStruct">
         4 bytes

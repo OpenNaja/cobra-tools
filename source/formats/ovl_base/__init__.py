@@ -1,3 +1,5 @@
+import logging
+
 from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
 
 
@@ -10,15 +12,14 @@ class OvlContext(object):
 	def __repr__(self):
 		return f"{self.version} | {self.user_version}"
 
-	# @classmethod
-	# def to_xml(cls, elem, prop, instance, arg, template, debug):
-	# 	from generated.formats.ovl.versions import get_game
-	# 	elem.attrib[prop] = str(get_game(instance)[0])
-
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
-		from generated.formats.ovl.versions import get_game
-		elem.attrib[prop] = str(get_game(instance)[0])
+		try:
+			elem.attrib[prop] = str(instance.game)
+		except:
+			logging.exception(f"Failed to get game from {instance}")
+			from generated.formats.ovl.versions import get_game
+			elem.attrib[prop] = str(get_game(instance)[0])
 
 	@classmethod
 	def context_from_xml(cls, target, elem, prop, arg, template):

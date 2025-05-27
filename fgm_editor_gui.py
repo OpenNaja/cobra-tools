@@ -35,7 +35,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.context = FgmContext()
+		self.context = FgmContext(loader=None)
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
 		self.tooltips = read_str_dict("gui/tooltips/fgm.txt")
@@ -106,10 +106,8 @@ class MainWindow(widgets.MainWindow):
 			game = self.game
 		else:
 			logging.info(f"Changed game to {game}")
-		try:
-			set_game(self.header.context, game)
-		except BaseException:
-			logging.exception("Error setting game")
+		self.header.game = game
+		self.header.context.game = game
 		try:
 			shaders = self.constants[game]["shaders"]
 			self.shader_choice.entry.clear()

@@ -17,9 +17,19 @@ attrib_sizes = {
 
 
 class FgmContext(OvlContext):
-	def __init__(self):
-		super(FgmContext, self).__init__()
-		self.mime_version = 6  # just a dummy to make PC2 import work
+	def __init__(self, loader=None, constants=None):
+		super().__init__()
+		self.loader = loader
+		self.constants = constants
+
+	@property
+	def mime_version(self):
+		if self.loader:
+			return self.loader.mime_version
+		# if self.constants:
+		# 	mime = self.constants[self.["mimes"][ext]
+		# 	return getattr(mime, key)
+		# raise AttributeError(f"No source of mime_version for FgmContext")
 
 
 class FgmLoader(MemStructLoader):
@@ -27,7 +37,7 @@ class FgmLoader(MemStructLoader):
 	extension = ".fgm"
 
 	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, FgmContext())
+		self.header = self.target_class.from_xml_file(file_path, self.context)
 		self.create_data_entry((self.update_names_buffer(),))
 		# need to update before writing ptrs
 		self.write_memory_data()
@@ -53,8 +63,6 @@ class FgmLoader(MemStructLoader):
 
 	def update_names_buffer(self):
 		"""Rewrites the name buffer and updates the offsets"""
-		# self.header._attribute_count = len(self.header.attributes.data)
-		# self.header._texture_count = len(self.header.textures.data)
 		with BytesIO() as names_writer:
 			# shader name is at 0
 			ZString.to_stream(self.header.shader_name, names_writer, self.header.context)
