@@ -37,13 +37,6 @@ def oodle_compress_chunk(args):
 	return oodle_compressor.compress(uncompressed_bytes, oodle_codec, level=oodle_level)
 
 
-def pairwise(iterable):
-	# pairwise('ABCDEFG') --> AB BC CD DE EF FG
-	a, b = itertools.tee(iterable)
-	next(b, None)
-	return zip(a, b)
-
-
 class OvsFile(OvsHeader):
 
 	def __init__(self, context, ovl_inst, archive_entry):
@@ -222,8 +215,7 @@ class OvsFile(OvsHeader):
 		set_entries_offsets = list(self.set_header.sets["start"])
 		# add end value
 		set_entries_offsets.append(self.set_header.asset_count)
-		# use itertools.pairwise from 3.10
-		for name, (start, end) in zip(set_entries_name, pairwise(set_entries_offsets)):
+		for name, (start, end) in zip(set_entries_name, itertools.pairwise(set_entries_offsets)):
 			# map assets to entry
 			assets = self.set_header.assets[start: end]
 			assets_root_index = assets["root_index"]
@@ -262,7 +254,7 @@ class OvsFile(OvsHeader):
 				buffer_group = None
 				buffer_offset = 0
 				data_offset = 0
-				for i, buffer in enumerate(self.buffer_entries):
+				for buffer in self.buffer_entries:
 					# logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
 					# we have to create a new group
 					if buffer.ext != last_ext or buffer.index != last_index:
@@ -289,17 +281,14 @@ class OvsFile(OvsHeader):
 					last_index = buffer.index
 
 				# fix the offsets of the buffergroups
-				for x, buffer_group in enumerate(self.buffer_groups):
-					if x > 0:
-						buffer_group.buffer_offset = self.buffer_groups[x - 1].buffer_offset + self.buffer_groups[
-							x - 1].buffer_count
-						if buffer_group.ext != self.buffer_groups[x - 1].ext:
-							buffer_group.data_offset = self.buffer_groups[x - 1].data_offset + self.buffer_groups[
-								x - 1].data_count
-						else:
-							buffer_group.data_offset = self.buffer_groups[x - 1].data_offset
-							if buffer_group.data_count < self.buffer_groups[x - 1].data_count:
-								buffer_group.data_count = self.buffer_groups[x - 1].data_count
+				for previous_group, buffer_group in itertools.pairwise(self.buffer_groups):
+					buffer_group.buffer_offset = previous_group.buffer_offset + previous_group.buffer_count
+					if buffer_group.ext != previous_group.ext:
+						buffer_group.data_offset = previous_group.data_offset + previous_group.data_count
+					else:
+						buffer_group.data_offset = previous_group.data_offset
+						if buffer_group.data_count < previous_group.data_count:
+							buffer_group.data_count = previous_group.data_count
 				# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 				tex_fixa = 0
 				tex_fixb = 0
