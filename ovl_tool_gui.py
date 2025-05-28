@@ -131,7 +131,7 @@ class MainWindow(widgets.MainWindow):
 			(widgets.EDIT_MENU, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
 			(widgets.UTIL_MENU, "Open Tools Dir", self.open_tools_dir, "", "home"),
 			(widgets.UTIL_MENU, "Export File List", self.save_file_list, "", ""),
-			(widgets.UTIL_MENU, "Compare with other OVL", self.compare_ovls, "", ""),
+			(widgets.UTIL_MENU, "Compare with other OVL", self.compare_ovls, "", "compare"),
 			*self.help_menu_functions,
 			(widgets.DEVS_MENU, "Inspect MS2", self.inspect_models, "", "ms2"),
 			(widgets.DEVS_MENU, "Inspect FGM", self.walker_fgm, "", "fgm"),

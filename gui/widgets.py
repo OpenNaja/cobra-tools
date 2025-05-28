@@ -77,7 +77,7 @@ def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
     icon = name + color
     if icon in ICON_CACHE:
         return ICON_CACHE[icon]
-    for ext in (".png", ".svg"):
+    for ext in (".svg", ".png"):
         fp = os.path.join(root_dir, f'icons/{name}{ext}')
         if os.path.isfile(fp):
             ICON_CACHE[icon] = QIcon(fp) if not color else color_icon(QIcon(fp), color=color, size=size)
