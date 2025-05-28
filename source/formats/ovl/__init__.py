@@ -249,15 +249,13 @@ class OvsFile(OvsHeader):
 				self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
 				# generate the buffergroup entries
-				last_ext = None
-				last_index = None
 				buffer_group = None
 				buffer_offset = 0
 				data_offset = 0
 				for buffer in self.buffer_entries:
 					# logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
 					# we have to create a new group
-					if buffer.ext != last_ext or buffer.index != last_index:
+					if not buffer_group or buffer.ext != buffer_group.ext or buffer.index != buffer_group.buffer_index:
 						# if we already have a buffer_group declared, update offsets for the next one
 						# if buffer_group:
 						# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
@@ -276,11 +274,8 @@ class OvsFile(OvsHeader):
 					buffer_group.buffer_count += 1
 					buffer_group.size += buffer.size
 					buffer_group.data_count += 1
-					# change buffer identity for next loop
-					last_ext = buffer.ext
-					last_index = buffer.index
 
-				# fix the offsets of the buffergroups
+				# fix the offsets of the buffer_groups
 				for previous_group, buffer_group in itertools.pairwise(self.buffer_groups):
 					buffer_group.buffer_offset = previous_group.buffer_offset + previous_group.buffer_count
 					if buffer_group.ext != previous_group.ext:
@@ -289,24 +284,22 @@ class OvsFile(OvsHeader):
 						buffer_group.data_offset = previous_group.data_offset
 						if buffer_group.data_count < previous_group.data_count:
 							buffer_group.data_count = previous_group.data_count
-				# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
-				tex_fixa = 0
-				tex_fixb = 0
-				tex_fixc = 0
+				# tex buffer_groups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+				tex_data_offset = 0
+				tex_buffer_count = 0
+				texturestream_buffer_count = 0
 				for buffer_group in self.buffer_groups:
 					if ".tex" == buffer_group.ext:
-						if buffer_group.buffer_count > tex_fixb:
-							tex_fixb = buffer_group.buffer_count
-						if buffer_group.data_offset > tex_fixa:
-							tex_fixa = buffer_group.data_offset
+						tex_data_offset = max(buffer_group.data_offset, tex_data_offset)
+						tex_buffer_count = max(buffer_group.buffer_count, tex_buffer_count)
 					elif ".texturestream" == buffer_group.ext:
-						tex_fixc += buffer_group.buffer_count
+						texturestream_buffer_count += buffer_group.buffer_count
 				for buffer_group in self.buffer_groups:
 					if ".tex" == buffer_group.ext:
-						buffer_group.data_offset = tex_fixa
-						buffer_group.data_count = tex_fixb
+						buffer_group.data_offset = tex_data_offset
+						buffer_group.data_count = tex_buffer_count
 					elif ".texturestream" == buffer_group.ext:
-						buffer_group.data_count = tex_fixc
+						buffer_group.data_count = texturestream_buffer_count
 
 				if (self.buffer_groups[-1].data_count + self.buffer_groups[-1].data_offset) < len(self.data_entries):
 					for x in range(self.buffer_groups[-1].buffer_index + 1):
