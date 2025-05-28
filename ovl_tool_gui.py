@@ -119,6 +119,7 @@ class MainWindow(widgets.MainWindow):
 		# Setup Menus
 		self.add_to_menu(
 			(widgets.FILE_MENU, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
+			(widgets.FILE_MENU, None, self.file_widget.ask_open_dir, "CTRL+O", "recent", "Open Recent"),
 			*self.file_menu_functions,
 			(widgets.EDIT_MENU, "Unpack All", self.extract_all, "CTRL+U", "extract"),
 			(widgets.EDIT_MENU, "Inject", self.inject_ask, "CTRL+I", "inject"),
@@ -140,6 +141,7 @@ class MainWindow(widgets.MainWindow):
 			(widgets.DEVS_MENU, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
 		)
 
+		self.menus["Open Recent"].aboutToShow.connect(self.populate_recent_files)
 		self.file_info = QtWidgets.QLabel(self)
 		
 		self.finfo_sep = QtWidgets.QFrame(self)
@@ -167,6 +169,15 @@ class MainWindow(widgets.MainWindow):
 		reporter.current_action.connect(self.set_progress_message)
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
 		self.preferences_widget = None
+
+	def populate_recent_files(self):
+		self.menus["Open Recent"].clear()
+		for fp in self.cfg[self.file_widget.cfg_recent_files]:
+			def make_opener(filepath):
+				def func():
+					self.file_widget.open_file(filepath)
+				return func
+			self._add_to_menu("Open Recent", self.get_file_name(fp), make_opener(fp), "", "")
 
 	def open_cfg_editor(self):
 		self.preferences_widget = widgets.ConfigWindow(self)

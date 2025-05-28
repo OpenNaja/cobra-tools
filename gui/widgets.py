@@ -2749,6 +2749,7 @@ class FileDirWidget(QWidget):
         self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
         self.cfg.setdefault(self.cfg_last_dir_save, "C:/")
         self.cfg.setdefault(self.cfg_last_file_open, "C:/")
+        self.cfg.setdefault(self.cfg_recent_files, [])
 
         self.ask_user = ask_user
         self.check_exists = check_exists
@@ -2805,6 +2806,10 @@ class FileDirWidget(QWidget):
     @property
     def cfg_last_file_open(self) -> str:
         return f"last_{self.cfg_key}_in"
+
+    @property
+    def cfg_recent_files(self) -> str:
+        return f"recent_{self.cfg_key}_in"
 
     def cfg_path(self, cfg_str: str) -> str:
         return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -2880,6 +2885,12 @@ class FileWidget(FileDirWidget):
             self.set_file_path(filepath)
             self.cfg[self.cfg_last_dir_open] = self.dir
             self.cfg[self.cfg_last_file_open] = self.filepath
+            recent_files = self.cfg[self.cfg_recent_files]
+            if self.filepath in recent_files:
+                recent_files.remove(self.filepath)
+            recent_files.insert(0, self.filepath)
+            if len(recent_files) > 5:
+                recent_files.pop(-1)
             self.file_opened.emit(filepath)
             return True
         return False
@@ -3384,20 +3395,29 @@ class MainWindow(FramelessMainWindow):
         for btn in args:
             self._add_to_menu(*btn)
 
-    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str) -> None:
-        action = QAction(action_name, self)
-        if icon_name:
-            icon = get_icon(icon_name)
-            action.setIcon(icon)
-        action.triggered.connect(func)
-        if shortcut:
-            action.setShortcut(shortcut)
-        self.actions[action_name.lower()] = action
-        # add sub-menu if required
+    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, submenu_name: str = "") -> None:
+        # create menu if required
         if menu_name not in self.menus:
             self.menus[menu_name] = self.menu_bar.addMenu(menu_name)
         menu = self.menus[menu_name]
-        menu.addAction(action)
+
+        if action_name:
+            action = QAction(action_name, self)
+            if icon_name:
+                icon = get_icon(icon_name)
+                action.setIcon(icon)
+            action.triggered.connect(func)
+            if shortcut:
+                action.setShortcut(shortcut)
+            self.actions[action_name.lower()] = action
+            menu.addAction(action)
+        elif submenu_name:
+            if submenu_name not in self.menus:
+                self.menus[submenu_name] = menu.addMenu(submenu_name)
+            submenu = self.menus[submenu_name]
+            if icon_name:
+                icon = get_icon(icon_name)
+                submenu.setIcon(icon)
 
     def handle_error(self, msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""
