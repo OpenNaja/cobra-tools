@@ -63,6 +63,8 @@ class Config(dict):
 	logger_show = RestartSetting("Show Logger", "Show Logger panel", False, (True, False))  # Hides/show the logger panel
 	logger_orientation = RestartSetting("Logger Orientation", "Set logger orientation", "H", ("H", "V"))
 	theme = RestartSetting("Theme", "Select theme palette", "dark", ("dark", "light"))
+	num_recent = TransientSetting("Number of recent files", "Number of files to show in 'Open Recent' dialogues",
+								   5, list(range(3, 10)))
 
 	def __init__(self, dir, name="config.json", **kwargs):
 		super().__init__(**kwargs)

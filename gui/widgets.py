@@ -2889,7 +2889,7 @@ class FileWidget(FileDirWidget):
             if self.filepath in recent_files:
                 recent_files.remove(self.filepath)
             recent_files.insert(0, self.filepath)
-            if len(recent_files) > 5:
+            while len(recent_files) > self.cfg.get("num_recent", 5):
                 recent_files.pop(-1)
             self.file_opened.emit(filepath)
             return True
