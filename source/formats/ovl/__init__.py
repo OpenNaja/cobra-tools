@@ -248,6 +248,14 @@ class OvsFile(OvsHeader):
 				# cobra < 20 used buffer index per data entry
 				self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
+				# buffer_map = {buffer.ext: (set(), set()) for buffer in self.buffer_entries}
+				# for buffer in self.buffer_entries:
+				# 	indices, hashes = buffer_map[buffer.ext]
+				# 	indices.add(buffer.index)
+				# 	hashes.add(buffer.file_hash)
+				# for ext, (indices, hashes) in buffer_map.items():
+				# 	print(ext, indices, hashes)
+
 				# generate the buffergroup entries
 				buffer_group = None
 				buffer_offset = 0
@@ -256,14 +264,6 @@ class OvsFile(OvsHeader):
 					# logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
 					# we have to create a new group
 					if not buffer_group or buffer.ext != buffer_group.ext or buffer.index != buffer_group.buffer_index:
-						# if we already have a buffer_group declared, update offsets for the next one
-						# if buffer_group:
-						# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
-						# 	buffer_offset += buffer_group.buffer_count
-						# 	# only change data offset if ext changes
-						# 	if buffer.ext != last_ext:
-						# 		data_offset += buffer_group.data_count
-						# now create the new buffer_group and update its initial data
 						buffer_group = BufferGroup(self.context)
 						buffer_group.ext = buffer.ext
 						buffer_group.buffer_index = buffer.index
