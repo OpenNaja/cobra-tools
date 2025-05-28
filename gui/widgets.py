@@ -400,7 +400,7 @@ class TableView(QTableView):
         show_hidden_name = "show_hidden"
         if hide and "File Type" in self.header_names:
             ext_index = self.header_names.index("File Type")
-            
+
             def show_hidden(r, s) -> bool:
                 return r[ext_index] not in self.ignore_types
 
@@ -630,7 +630,7 @@ class FlowHLayout(QHBoxLayout):
     def removeWidget(self, widget: QWidget) -> None:
         self.parent_flow.remove_flow_widget(widget)
         return super().removeWidget(widget)
-    
+
     def removeItem(self, item: QLayoutItem) -> None:
         self.parent_flow.remove_flow_item(item)
         return super().removeItem(item)
@@ -771,7 +771,7 @@ class LogStatus(QWidget):
     @property
     def message_count(self) -> int:
         return len(self.messages)
-    
+
     def layout_horizontal(self) -> None:
         self.next_btn.setFixedHeight(16)
         self.next_txt.setFixedHeight(16)
@@ -1252,7 +1252,7 @@ class LogView(QListView):
 
     def count(self) -> int:
         return self.list_model.data_count
-    
+
     def fetched_count(self) -> int:
         return self.list_model.rowCount()
 
@@ -1275,7 +1275,7 @@ class LogView(QListView):
             self.copy_selection()
             return
         return super().keyPressEvent(event)
-    
+
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         """Handle hover state for detail blocks"""
         position = event.pos()
@@ -1647,7 +1647,7 @@ class IconEdit(QWidget):
 class MouseWheelGuard(QObject):
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
-    
+
     def eventFilter(self, object: QObject, event: QEvent) -> bool:
         if isinstance(object, QWidget):
             if event.type() == QEvent.Type.Wheel:
@@ -1973,7 +1973,7 @@ class OvlDataFilesystemModel(QFileSystemModel):
 
     def fileIcon(self, index: QModelIndex) -> QIcon:
         return super().fileIcon(self.map_index(index))
-    
+
     def fileInfo(self, index: QModelIndex) -> QFileInfo:
         return super().fileInfo(self.map_index(index))
 
@@ -2028,7 +2028,7 @@ class OvlDataTreeView(QTreeView):
 
     def indexBelow(self, index: QModelIndex) -> QModelIndex:
         return super().indexAbove(self.map_index(index))
-    
+
     def scrollTo(self, index: QModelIndex,
                  hint: QAbstractItemView.ScrollHint = QAbstractItemView.ScrollHint.EnsureVisible) -> None:
         return super().scrollTo(self.map_index(index), hint)
@@ -3081,7 +3081,7 @@ class WalkerDialog(QDialog):
     @property
     def walk_dir(self):
         return self.dir_widget.filepath
-    
+
     def addWidget(self, widget: QWidget, row: int, column: int, rowSpan: int = 1, columnSpan: int = 1, alignment = Qt.Alignment()):
         """Add widget to options section of dialog"""
         self.options.addWidget(widget, row, column, rowSpan, columnSpan, alignment)
@@ -3219,7 +3219,7 @@ class MainWindow(FramelessMainWindow):
             self.layout_logger(topleft, orientation)
         else:
             self.central_layout.addWidget(topleft)
-        
+
     def get_palette_from_cfg(self):
         theme_name = self.cfg.get("theme", "dark")
         palette = qt_theme.palettes.get(theme_name)
@@ -3230,7 +3230,7 @@ class MainWindow(FramelessMainWindow):
         if not self._stdout_handler:
             self._stdout_handler = logs.get_stdout_handler(self.log_name)
         return self._stdout_handler
-    
+
     @stdout_handler.setter
     def stdout_handler(self, handler: logging.StreamHandler) -> None:
         self._stdout_handler = handler
@@ -3266,7 +3266,7 @@ class MainWindow(FramelessMainWindow):
         self.wrapper_widget.setLayout(layout)
         super().setCentralWidget(self.wrapper_widget)
 
-    def make_file_widget(self, ask_user: bool = True, ftype: str = "OVL", editable: bool = False, 
+    def make_file_widget(self, ask_user: bool = True, ftype: str = "OVL", editable: bool = False,
                          check_exists: bool = False, root: Optional[str] = None) -> FileWidget:
         file_widget = FileWidget(self, self.cfg, ask_user=ask_user, ftype=ftype, editable=editable,
                                  check_exists=check_exists, root=root)
@@ -3279,7 +3279,7 @@ class MainWindow(FramelessMainWindow):
         file_widget.filepath_changed.connect(self.set_window_filepath)
 
         return file_widget
-    
+
     def make_logger_widget(self, topleft: QWidget, orientation: Qt.Orientation = Qt.Orientation.Vertical,
                            sizes: tuple[int, int] = (600, 200),
                            log_level_changed_fn: Optional[Callable] = None,
@@ -3358,7 +3358,7 @@ class MainWindow(FramelessMainWindow):
         if not only_basename and "ovldata/" in filepath:
             return self.elide_dirs(filepath.split("ovldata/")[1])
         return os.path.basename(filepath)
-    
+
     def set_file_modified(self, dirty: bool) -> None:
         self.modified.emit(dirty)
 
@@ -3371,6 +3371,7 @@ class MainWindow(FramelessMainWindow):
     @property
     def file_menu_functions(self):
         yield FILE_MENU, "Open", self.file_widget.ask_open, "CTRL+O", "dir"
+        yield FILE_MENU, None, self.file_widget.ask_open_dir, "CTRL+O", "recent", "Open Recent"
         yield FILE_MENU, "Save", self.file_widget.ask_save, "CTRL+S", "save"
         yield FILE_MENU, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"
         yield FILE_MENU, "Exit", self.close, "", "exit"
@@ -3394,6 +3395,7 @@ class MainWindow(FramelessMainWindow):
         self.menus = {}
         for btn in args:
             self._add_to_menu(*btn)
+        self.menus["Open Recent"].aboutToShow.connect(self.populate_recent_files)
 
     def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, submenu_name: str = "") -> None:
         # create menu if required
@@ -3418,6 +3420,19 @@ class MainWindow(FramelessMainWindow):
             if icon_name:
                 icon = get_icon(icon_name)
                 submenu.setIcon(icon)
+
+    def populate_recent_files(self):
+        self.menus["Open Recent"].clear()
+        for fp in self.cfg[self.file_widget.cfg_recent_files]:
+            if os.path.isfile(fp):
+                def make_opener(filepath):
+                    def func():
+                        self.file_widget.open_file(filepath)
+                    return func
+                ext = os.path.splitext(fp)[1][1:]
+                self._add_to_menu("Open Recent", self.get_file_name(fp), make_opener(fp), "", ext)
+            else:
+                self.cfg[self.file_widget.cfg_recent_files].remove(fp)
 
     def handle_error(self, msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""
@@ -3561,7 +3576,7 @@ class MainWindow(FramelessMainWindow):
 
     def showquestion(self, info, title=None, details=None):
         logging.debug(f"User Prompt: {info}")
-        return self.showdialog(info, title="Question" if not title else title, 
+        return self.showdialog(info, title="Question" if not title else title,
                         buttons=(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No), details=details)
 
     def showconfirmation(self, info, title=None, details=None):
