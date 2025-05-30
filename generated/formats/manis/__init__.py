@@ -12,6 +12,7 @@ from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
 
 np.seterr(all='warn')
+# np.seterr(all='print')
 np.set_printoptions(precision=4, suppress=True)
 
 from ovl_util.logs import logging_setup
@@ -48,7 +49,7 @@ class BinStream:
 
     def read(self, size):
         d = self.data[self.pos: self.pos + size]
-        assert len(d) == size, f"Reached end of chunk reading {size} bits at {self.pos}"
+        assert len(d) == size, f"Reached end of chunk reading {size} bits at bit {self.pos}, byte {self.pos/8}, got {len(d)} bits"
         self.pos += size
         return d
 
@@ -92,10 +93,14 @@ class KeysContext:
         self.stream = stream
         logging.debug(f"wavelet_byte_offset {wavelet_byte_offset}")
         self.stream.seek(wavelet_byte_offset * 8)
-        # stream can have 00 00 at wavelet_byte_offset for a segment with 1 frame = no relative keys
         if segment_frames_count == 1:
-            empty = self.stream.read_uint(16)
-            assert empty == 0, "Stream with no relative keys must have 00 00 context"
+            # JWE2 carcharo standtorun - points to end of stream
+            if self.stream.data.nbytes == wavelet_byte_offset:
+                logging.debug(f"Stream has no context")
+            else:
+                # stream can have 00 00 at wavelet_byte_offset for a segment with 1 frame = no relative keys
+                empty = self.stream.read_uint(16)
+                assert empty == 0, "Stream with no relative keys must have 00 00 context"
             self.do_increment = self.runs_remaining = self.init_k_a = self.init_k_b = 0
         else:
             self.do_increment = self.stream.read_uint(1)
@@ -613,7 +618,7 @@ class ManisFile(InfoHeader, IoFile):
                 self.read_pos_keys(context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones)
                 self.read_ori_keys(context, f, segment_i, mani_info, segment_frames_count, segment_ori_bones)
             except:
-                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(mb.data)}")
+                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(mb.data)} bytes")
             frame_offset += segment_frames_count
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
@@ -638,6 +643,7 @@ class ManisFile(InfoHeader, IoFile):
             # logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
             vec = self.read_vec3(f)
             vec *= scale
+            # logging.info(vec)
 
             # scale_pack = float(scale)
             # the scale per bone is always norm = 0 in acro_run
@@ -711,7 +717,7 @@ class ManisFile(InfoHeader, IoFile):
             # vec *= scale_pack * q_scale
             vec *= scale * q_scale
             norm = np.linalg.norm(vec)
-            # logging.info(f"{ori_index} {ori_name} at {f_pos} {vec} {norm}")
+            # logging.info(f"{ori_index} {ori_name} {vec} {norm}")
             if norm < epsilon:
                 quat = identity.copy()
             else:
@@ -1099,6 +1105,8 @@ class ManisFile(InfoHeader, IoFile):
         # print(norm)
         # xmm1 0 0 0 2730.5  # scale_f = 1 / norm
         # quantisation_level 420
+        # just set non-zero to avoid RuntimeWarning
+        norm = max(norm, 0.000000000000000000000001)
         quant_fac = mani_info.keys.compressed.quantisation_level / norm
         # quant_fac in xmm3 0 0 0 1.14681e+006
         # quant_fac = 1146810.0

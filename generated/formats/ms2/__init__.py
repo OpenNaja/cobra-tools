@@ -10,7 +10,8 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 
 # raise warnings to traceable errors
-np.seterr(all='raise')
+# np.seterr(all='raise')
+np.seterr(all='warn')
 np.set_printoptions(precision=3, suppress=True)
 
 from generated.formats.base.compounds.PadAlign import get_padding
