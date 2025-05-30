@@ -32,15 +32,18 @@ def assign_p_bone_indices(b_armature_ob, max_bones=255):
 
 
 def get_armature(objects):
-	src_armatures = [ob for ob in objects if type(ob.data) == bpy.types.Armature]
+	armatures = [ob for ob in objects if type(ob.data) == bpy.types.Armature]
 	# do we have armatures?
-	if src_armatures:
+	if armatures:
 		# see if one of these is selected
-		if len(src_armatures) > 1:
-			sel_armatures = [ob for ob in src_armatures if ob.select_get()]
+		if len(armatures) > 1:
+			sel_armatures = [ob for ob in armatures if ob.select_get()]
 			if sel_armatures:
-				return sel_armatures[0]
-		return src_armatures[0]
+				armatures = sel_armatures
+			for armature in armatures:
+				if "_airliftstraps" not in armature.name:
+					return armature
+		return armatures[0]
 
 
 def handle_transforms(ob, me, apply=True):

@@ -446,12 +446,16 @@ class ManisFile(InfoHeader, IoFile):
         self.header.mani_files_size = self.mani_count * 16
         target_names = set()
         for mani_info in self.mani_infos:
-            k = mani_info.keys
+            # logging.debug(f"ManiInfo {mani_info.name} getting names")
+            try:
+                k = mani_info.keys
+            except:
+                logging.warning(f"ManiInfo {mani_info.name} has no keys")
+                raise
             target_names.update(k.pos_bones_names)
             target_names.update(k.ori_bones_names)
             target_names.update(k.scl_bones_names)
             target_names.update(k.floats_names)
-
         self.header.hash_block_size = len(target_names) * 4
         self.reset_field("name_buffer")
         self.name_buffer.target_names[:] = sorted(target_names)

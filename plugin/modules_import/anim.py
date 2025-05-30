@@ -42,9 +42,9 @@ class Animation:
 			b_obj.animation_data.action_slot = slot
 		return b_action
 
-	def create_fcurves(self, action, dtype, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
+	def create_fcurves(self, action, key_type, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
 		""" Create fcurves in action for desired conditions. """
-		rna_path = get_rna_path(dtype, n_bone, n_shapekey, n_constraint)
+		rna_path = get_rna_path(key_type, n_bone, n_shapekey, n_constraint)
 		# armature pose bone animation
 		if n_bone:
 			if n_constraint:
@@ -56,7 +56,7 @@ class Animation:
 			fcurves = [action.fcurves.new(data_path=rna_path, index=0)]
 		else:
 			# Object animation (non-skeletal) is lumped into the "LocRotScale" action_group
-			if dtype in ("rotation_euler", "rotation_quaternion", "location", "scale"):
+			if key_type in ("rotation_euler", "rotation_quaternion", "location", "scale"):
 				action_group = "LocRotScale"
 			# Non-transforming animations (eg. visibility or material anims) use no action groups
 			else:
@@ -78,7 +78,7 @@ class Animation:
 			for fcurve in fcurves:
 				fcurve.extrapolation = 'CONSTANT'
 
-	def add_keys(self, b_action, key_type, key_range, flags, frames, keys, interp, n_bone=None, n_key=None, n_constraint=None):
+	def add_keys(self, b_action, key_type, key_range, flags, frames, keys, interp, n_bone=None, n_shapekey=None, n_constraint=None):
 		"""
 		Create needed fcurves and add a list of keys to an action.
 		"""
@@ -90,7 +90,7 @@ class Animation:
 		interpolations = [ipo for _ in range(len(frames))]
 		# import the keys
 		try:
-			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, n_bone, n_key, n_constraint)
+			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, n_bone, n_shapekey, n_constraint)
 			if len(key_range) == 1:
 				# flat key - make it zippable
 				key_per_fcurve = [keys]
@@ -107,7 +107,7 @@ class Animation:
 				fcurve.update()
 		except RuntimeError:
 			# blender throws F-Curve ... already exists in action ...
-			logging.warning(f"Could not add fcurve '{key_type}' to '{b_action.name}', already added before?")
+			logging.warning(f"Could not add fcurve '{get_rna_path(key_type, n_bone, n_shapekey, n_constraint)}' to '{b_action.name}', already added before?")
 
 	def add_key(self, fcurves, frame, key, interp):
 		"""
