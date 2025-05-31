@@ -12,7 +12,7 @@ from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from plugin.utils.anim import c_map
-from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections
+from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections, get_bone_matrices
 from plugin.modules_import.anim import get_rna_path
 from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.object import get_property
@@ -188,14 +188,23 @@ def save(reporter, filepath="", per_armature=False):
 def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 	corrector = ManisCorrector(False)
 	game = scene.cobra.game
+	bones_data = {}
+	rest_data = {}
 	if b_ob.type == "ARMATURE":
-		bones_data = {bone_name_for_ovl(bone.name): get_local_bone(bone) for bone in b_ob.data.bones}
+		for b_bone in b_ob.data.bones:
+			m_name = bone_name_for_ovl(b_bone.name)
+			mat_local, mat_local_to_parent = get_bone_matrices(b_bone, corrector)
+			bones_data[m_name] = get_local_bone(b_bone)
+			fill_in_rest_data(m_name, mat_local_to_parent, rest_data)
 		assign_p_bone_indices(b_ob)
 		manis.context.bones_lut = {bone_name_for_ovl(p_bone.name): p_bone["index"] for p_bone in b_ob.pose.bones}
 		cam_corr = None
 	else:
 		manis.context.bones_lut = {"unk1": 0, "camera_joint": 1, "unk2": 2}  # camera_joint is index 1, count is 3
-		bones_data = {name: mathutils.Matrix().to_4x4() for name in manis.context.bones_lut}
+		for m_name in manis.context.bones_lut:
+			mat_local_to_parent = mathutils.Matrix().to_4x4()
+			bones_data[m_name] = mat_local_to_parent
+			fill_in_rest_data(m_name, mat_local_to_parent, rest_data)
 		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		cam_corr.invert()
 
@@ -254,11 +263,11 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 							add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
 					# logging.debug(f"{bone} {channel_id} needs keys")
-				# todo this is wrong as the keys are no longer relative to the bone, need to compare before or compare to rest bones
-				elif not reasonably_close(keys[0], defaults_keys[channel_id]):
-					logging.debug(f"{bone} {channel_id} is static but strays from default keys")
+				elif not reasonably_close(keys[0], rest_data[bone][channel_id]):
+					# logging.debug(f"{bone} {channel_id} is static but strays from default keys")
+					pass
 				else:
-					logging.debug(f"{bone} {channel_id} discarded")
+					# logging.debug(f"{bone} {channel_id} is static and discarded")
 					# no need to keyframe this bone, discard it
 					channels.pop(channel_id)
 		# export constraints as float keys
@@ -328,6 +337,14 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			k.floats[:, bone_i] = channel_storage[name][FLO]
 		# no support for shear in blender bones, so set to neutral - shear must not be 0.0
 		k.shr_bones[:] = 1.0
+
+
+def fill_in_rest_data(m_name, mat_local_to_parent, rest_data):
+	pos, quat, sca = mat_local_to_parent.decompose()
+	rest_data[m_name] = {}
+	rest_data[m_name][ORI] = [quat.x, quat.y, quat.z, quat.w]
+	rest_data[m_name][POS] = pos
+	rest_data[m_name][SCL] = sca
 
 
 def sample_fcu(fcu, first_frame, last_frame, mani_info):

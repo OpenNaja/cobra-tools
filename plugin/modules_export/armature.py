@@ -93,13 +93,7 @@ def export_bones_custom(b_armature_ob, model_info):
 
 	sorted_bones = sorted(b_armature_ob.data.bones, key=lambda b_bone: b_armature_ob.pose.bones[b_bone.name]["index"])
 	for bone_i, b_bone in enumerate(sorted_bones):
-		# correction function works only in armature space
-		mat_local = corrector.from_blender(b_bone.matrix_local)
-		# make relative to parent
-		if b_bone.parent:
-			mat_local_to_parent = corrector.from_blender(b_bone.parent.matrix_local).inverted() @ mat_local
-		else:
-			mat_local_to_parent = mat_local
+		mat_local, mat_local_to_parent = get_bone_matrices(b_bone, corrector)
 
 		ms2_bone = bone_info.bones[bone_i]
 		ms2_bone.name = bone_name_for_ovl(b_bone.name)
@@ -118,6 +112,17 @@ def export_bones_custom(b_armature_ob, model_info):
 	# paddings are taken care of automatically during writing
 	export_ik(b_armature_ob, bone_info)
 	export_joints(bone_info, corrector, b_armature_ob)
+
+
+def get_bone_matrices(b_bone, corrector):
+	# correction function works only in armature space
+	mat_local = corrector.from_blender(b_bone.matrix_local)
+	# make relative to parent
+	if b_bone.parent:
+		mat_local_to_parent = corrector.from_blender(b_bone.parent.matrix_local).inverted() @ mat_local
+	else:
+		mat_local_to_parent = mat_local
+	return mat_local, mat_local_to_parent
 
 
 def add_parents(bones_with_ik, p_bone, count):
