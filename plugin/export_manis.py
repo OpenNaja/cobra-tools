@@ -228,15 +228,16 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		b_ob.animation_data.action = b_action
 		for trg_i, src_i in enumerate(range(first_frame, last_frame)):
 			store_pose_frame_info(b_ob, src_i, trg_i, bones_data, channel_storage, corrector, cam_corr)
-		# export wsm before decimating bones
-		if game == "Jurassic World Evolution 2":
-			# todo identify additional condition for this; it is not motionextracted vs notmotionextracted
-			export_wsm(folder, mani_info, srb_name, channel_storage)
-			# remove srb from bones_lut for JWE2, so it exported to wsm only
-			manis.context.bones_lut.pop(srb_name, None)
 
 		# decide which channels to keyframe by determining if the keys are static
 		for bone, channels in tuple(channel_storage.items()):
+			# export wsm before decimating bones
+			if bone == srb_name and game == "Jurassic World Evolution 2":
+				# todo identify additional condition for this; it is not motionextracted vs notmotionextracted
+				export_wsm(folder, mani_info, srb_name, channel_storage)
+				for channel_id, keys in tuple(channels.items()):
+					channels.pop(channel_id)
+				continue
 			for channel_id, keys in tuple(channels.items()):
 				needed_axes = list(needs_keyframes(keys))
 				if needed_axes:
@@ -253,6 +254,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 							add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
 					# logging.debug(f"{bone} {channel_id} needs keys")
+				# todo this is wrong as the keys are no longer relative to the bone, need to compare before or compare to rest bones
 				elif not reasonably_close(keys[0], defaults_keys[channel_id]):
 					logging.debug(f"{bone} {channel_id} is static but strays from default keys")
 				else:

@@ -400,7 +400,9 @@ class ManisFile(InfoHeader, IoFile):
         k = mani_info.keys
         ms2_bone_names = self.sorted_ms2_bone_names
         m_names = getattr(k, f"{m_dtype}_bones_names")
-        logging.debug(m_names)
+        # logging.debug(f"ms2_bone_names {len(ms2_bone_names)} = {ms2_bone_names}")
+        # logging.debug(f"ms2_bone_indices {len(ms2_bone_names)} = {[self.context.bones_lut[bone_name] for bone_name in ms2_bone_names]}")
+        # logging.debug(f"m_names {len(m_names)} = {list(m_names)}")
         try:
             indices = [self.context.bones_lut[bone_name] for bone_name in m_names]
         except KeyError:
@@ -408,7 +410,7 @@ class ManisFile(InfoHeader, IoFile):
             raise
         # map key data index to bone
         getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
-        # logging.debug(indices)
+        # logging.debug(f"{m_dtype}_channel_to_bone = {indices}")
         # map bones from selected range in skeleton to index in keyed manis bones
         if indices:
             # get the boundary indices in ms2 bones
@@ -416,7 +418,12 @@ class ManisFile(InfoHeader, IoFile):
             setattr(mani_info, f"{m_dtype}_bone_max", max(indices))
             key_lut = {name: i for i, name in enumerate(m_names)}
             k.reset_field(f"{m_dtype}_bone_to_channel")
-            getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in ms2_bone_names[min(indices): max(indices)+1]]
+            # logging.debug(f'Len({m_dtype}_bone_to_channel) = {len(getattr(k, f"{m_dtype}_bone_to_channel"))}')
+            bone_map_indices = [key_lut.get(name, 255) for name in ms2_bone_names[min(indices): max(indices)+1]]
+            # logging.debug(f'min(indices) {min(indices)}')
+            # logging.debug(f'max(indices) {max(indices)}')
+            # logging.debug(f'bone_map_indices {len(bone_map_indices)} = {bone_map_indices}')
+            getattr(k, f"{m_dtype}_bone_to_channel")[:] = bone_map_indices
         else:
             setattr(mani_info, f"{m_dtype}_bone_min", 255)
             setattr(mani_info, f"{m_dtype}_bone_max", 0)
