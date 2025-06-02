@@ -1,3 +1,4 @@
+import contextlib
 import time
 import logging
 
@@ -6,6 +7,11 @@ from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import games
 from typing import Optional
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
+
+from matplotlib import pyplot as plt
+
+from gui.widgets import get_icon
 
 
 class MainWindow(widgets.MainWindow):
@@ -28,40 +34,121 @@ class MainWindow(widgets.MainWindow):
 		self.stream_entry.setPlaceholderText("Stream")
 		self.stream_entry.setToolTip("OVS stream that holds this manis' data")
 		# create the table
-		header_names = ["Name", "File Type", "Compressed", "Duration", "Frames", "Loc", "Rot", "Scale", "Float"]
-		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MANIS", editable_columns=("Name", "Duration", "Compressed"))
-		# connect the interaction functions
-		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
-		self.files_container.table.table_model.value_edited.connect(self.edit_handle)
-		self.files_container.table.hideColumn(1)
+		self.header_labels = ["Name", "Num", "Compressed", "Duration", "Frames"]
 
-		# Configure table button row
-		self.btn_duplicate = widgets.SelectedItemsButton(self, icon=widgets.get_icon("duplicate_mesh"))
-		self.btn_duplicate.clicked.connect(self.duplicate)
-		self.btn_duplicate.setToolTip("Duplicate Selected Mani")
-		self.btn_delete = widgets.SelectedItemsButton(self, icon=widgets.get_icon("delete_mesh"))
-		self.btn_delete.clicked.connect(self.remove)
-		self.btn_delete.setToolTip("Delete Selected Mani")
-		# Add buttons to table
-		self.files_container.add_button(self.btn_duplicate)
-		self.files_container.add_button(self.btn_delete)
+		# tree
+		self.tree = QtWidgets.QTreeWidget(self)
+		self.tree.setColumnCount(2)
+		self.tree.setHeaderLabels(self.header_labels)
+		self.tree.setAlternatingRowColors(True)
+		self.tree.itemChanged.connect(self.edit_handle)
+		self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+		self.tree.customContextMenuRequested.connect(self.context_menu)
+		self.tree.itemSelectionChanged.connect(self.selection_change)
 
+		self.setup_plot()
+		splitter = QtWidgets.QSplitter()
+		splitter.addWidget(self.tree)
+		splitter.addWidget(self.fig.canvas)
+		splitter.setSizes([30, 50])
+		hbox = QtWidgets.QHBoxLayout()
+		hbox.addWidget(self.file_widget)
+		hbox.addWidget(self.stream_entry)
+		hbox.addWidget(self.game_choice)
 		self.qgrid = QtWidgets.QVBoxLayout()
-		self.qgrid.addWidget(self.file_widget)
-		self.qgrid.addWidget(self.game_choice)
-		self.qgrid.addWidget(self.stream_entry)
-		self.qgrid.addWidget(self.files_container)
+		self.qgrid.addLayout(hbox)
+		self.qgrid.addWidget(splitter)
+
 		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
+
 
 		self.add_to_menu(
 			*self.file_menu_functions,
 			(widgets.EDIT_MENU, "Append", self.append, "", "append"),
 			(widgets.EDIT_MENU, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
 			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "delete_mesh"),
-			(widgets.EDIT_MENU, "Show Keys", self.show_keys, "", ""),
 			*self.help_menu_functions,
 		)
+
+	def setup_plot(self):
+		# a figure instance to plot on
+		self.setPalette(self.get_palette_from_cfg())
+		text_color = self.get_palette_color(self.palette().text())
+		text2_color = self.get_palette_color(self.palette().dark())
+		self.fig, self.ax = plt.subplots(nrows=1, ncols=1, layout="tight", facecolor=text_color)
+		# self.ax.set_xlabel('Frame', color=text_color)
+		# self.ax.set_ylabel('Value', color=text_color)
+		self.ax.spines['bottom'].set_color(text2_color)
+		self.ax.spines['top'].set_color(text2_color)
+		self.ax.spines['right'].set_color(text2_color)
+		self.ax.spines['left'].set_color(text2_color)
+		self.ax.tick_params(axis='x', colors=text2_color)
+		self.ax.tick_params(axis='y', colors=text2_color)
+
+		# the range is not automatically fixed
+		self.fig.patch.set_facecolor(self.get_palette_color(self.palette().base()))
+		self.ax.set_facecolor(self.get_palette_color(self.palette().alternateBase()))
+
+	def get_palette_color(self, input_color):
+		col = input_color.color().toRgb()
+		col_rgb = (col.red() / 255, col.green() / 255, col.blue() / 255)
+		return col_rgb
+
+	@contextlib.contextmanager
+	def update_plot(self):
+		# discards the old graph
+		self.ax.clear()
+		yield
+		# self.ax.set_xlabel('Frame')
+		# self.ax.set_ylabel('Value')
+		# refresh canvas
+		self.fig.canvas.draw()
+
+	def selection_change(self):
+		for item in self.tree.selectedItems():
+			names = self.get_parents(item)
+			if len(names) == 1:
+				mani_name, = names
+			elif len(names) == 3:
+				mani_name, dtype, bone_name = names
+
+				with self.update_plot():
+					try:
+						self.manis_file.show_keys_by_dtype(mani_name, dtype, bone_name, self.ax)
+					except:
+						logging.exception(f"failed")
+
+	def context_menu(self, pos):
+		item = self.tree.itemAt(pos)
+		if item:
+			names = self.get_parents(item)
+			if len(names) == 1:
+				mani_name, = names
+			elif len(names) == 3:
+				mani_name, dtype, bone_name = names
+				menu = QtWidgets.QMenu("Test", self.tree)
+				show_keys = QtWidgets.QAction("Show Keys")
+
+				def show_keys_cb(checked):
+					with self.update_plot():
+						try:
+							self.manis_file.show_keys_by_dtype(mani_name, dtype, bone_name, self.ax)
+						except:
+							logging.exception(f"failed")
+				show_keys.triggered.connect(show_keys_cb)
+				menu.addAction(show_keys)
+				delete = QtWidgets.QAction(f"Delete {bone_name}")
+				menu.addAction(delete)
+				menu.exec(self.tree.mapToGlobal(pos))
+
+	def get_parents(self, item):
+		# item = item
+		names = [item.text(0), ]
+		while item.parent():
+			item = item.parent()
+			names.insert(0, item.text(0))
+		return names
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
@@ -69,13 +156,28 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Setting Manis version to {game}")
 		self.manis_file.game = game
 
-	def edit_handle(self, name, dtype, new_val):
-		logging.debug(f"Editing {dtype} = {new_val} for {name}")
+	def edit_handle(self, item, col):
+		ix = self.tree.indexOfTopLevelItem(item)
+		mani_info = self.manis_file.mani_infos[ix]
+		new_val = item.text(col)
+		dtype = self.header_labels[col]
+		logging.info(f"Editing {mani_info.name}.{dtype} = {new_val}")
 		try:
-			mani_info = self.manis_file.get_mani(name)
-			logging.info(f"Editing {name}")
-			if dtype == "Compressed":
-				if mani_info.dtype.compression == 1 and new_val == 0:
+			if dtype == "Name":
+				# force new name to be lowercase
+				new_name = new_val.lower()
+				try:
+					if self.manis_file.name_used(new_name):
+						self.showwarning(f"Model {new_name} already exists in MANIS!")
+					# new name is new
+					else:
+						self.manis_file.rename_file(mani_info.name, new_name)
+						self.set_file_modified(True)
+				except:
+					self.handle_error("Renaming failed, see log!")
+				self.update_gui_table()
+			elif dtype == "Compressed":
+				if mani_info.dtype.compression == 1 and new_val == "0":
 					logging.info(f"Decompressing")
 					self.manis_file.decompress(mani_info, dump=False)
 					mani_info.dtype.compression = 0
@@ -88,53 +190,39 @@ class MainWindow(widgets.MainWindow):
 					k.pos_bones[:] = ck.pos_bones
 					k.ori_bones[:] = ck.ori_bones
 					# k.scl_bones[:] = ck.scl_bones
-			if dtype == "Duration":
+			elif dtype == "Duration":
 				logging.info(f"Changing duration to {new_val}")
-				mani_info.duration = new_val
+				mani_info.duration = float(new_val)
 		except:
-			logging.exception("test")
-
-	def show_keys(self,):
-		selected_file_names = self.files_container.table.get_selected_files()
-		if selected_file_names:
-			for name in selected_file_names:
-				mani_info = self.manis_file.get_mani(name)
-				self.manis_file.show_floats(mani_info, name_filter="")
-
-	def rename_handle(self, old_name, new_name):
-		"""this manages the renaming of a single entry"""
-		# force new name to be lowercase
-		new_name = new_name.lower()
-		try:
-			if self.manis_file.name_used(new_name):
-				self.showwarning(f"Model {new_name} already exists in MANIS!")
-			# new name is new
-			else:
-				self.manis_file.rename_file(old_name, new_name)
-				self.set_file_modified(True)
-		except:
-			self.handle_error("Renaming failed, see log!")
-		self.update_gui_table()
+			logging.exception("edit_handle")
 
 	def remove(self):
-		selected_file_names = self.files_container.table.get_selected_files()
-		if selected_file_names:
-			try:
-				self.manis_file.remove(selected_file_names)
-				self.set_file_modified(True)
-			except:
-				self.handle_error("Removing file failed, see log!")
-			self.update_gui_table()
+		for item in self.tree.selectedItems():
+			names = self.get_parents(item)
+			if len(names) == 1:
+				mani_name, = names
+				try:
+					self.manis_file.remove((mani_name, ))
+					self.set_file_modified(True)
+				except:
+					self.handle_error("Removing file failed, see log!")
+			elif len(names) == 3:
+				mani_name, dtype, bone_name = names
+		self.update_gui_table()
 
 	def duplicate(self):
-		selected_file_names = self.files_container.table.get_selected_files()
-		if selected_file_names:
-			try:
-				self.manis_file.duplicate(selected_file_names)
-				self.set_file_modified(True)
-			except:
-				self.handle_error("Duplicating file failed, see log!")
-			self.update_gui_table()
+		for item in self.tree.selectedItems():
+			names = self.get_parents(item)
+			if len(names) == 1:
+				mani_name, = names
+				try:
+					self.manis_file.duplicate((mani_name, ))
+					self.set_file_modified(True)
+				except:
+					self.handle_error("Duplicating file failed, see log!")
+			elif len(names) == 3:
+				mani_name, dtype, bone_name = names
+		self.update_gui_table()
 
 	def open(self, filepath):
 		if filepath:
@@ -169,7 +257,32 @@ class MainWindow(widgets.MainWindow):
 		start_time = time.time()
 		try:
 			logging.info(f"Loading {len(self.manis_file.mani_infos)} files into GUI")
-			self.files_container.set_data([[m.name, ".manis", m.dtype.compression, m.duration, m.frame_count, m.pos_bone_count, m.ori_bone_count, m.scl_bone_count, m.float_count] for m in self.manis_file.mani_infos])
+			self.tree.clear()
+			self.tree.itemChanged.disconnect(self.edit_handle)
+			# addition data to the tree
+			for m in self.manis_file.mani_infos:
+				mani_item = QtWidgets.QTreeWidgetItem(self.tree)
+				mani_item.setText(0, m.name)
+				mani_item.setIcon(0, get_icon("mani"))
+				mani_item.setText(2, str(m.dtype.compression))
+				mani_item.setText(3, f"{m.duration:.4f}")
+				mani_item.setText(4, str(m.frame_count))
+				mani_item.setFlags(mani_item.flags() | Qt.ItemIsEditable)
+				for dtype in ("pos_bones", "ori_bones", "scl_bones", "floats"):
+					dtype_array = getattr(m.keys, f"{dtype}_names")
+					if len(dtype_array):
+						dtype_item = QtWidgets.QTreeWidgetItem(mani_item)
+						dtype_item.setIcon(0, get_icon(dtype))
+						dtype_item.setText(0, dtype)
+						dtype_item.setText(1, str(len(dtype_array)))
+						for i, bone_name in enumerate(dtype_array):
+							bone_item = QtWidgets.QTreeWidgetItem(dtype_item)
+							bone_item.setIcon(0, get_icon(dtype))
+							bone_item.setText(0, bone_name)
+							bone_item.setText(1, str(i))
+			header = self.tree.header()
+			header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+			self.tree.itemChanged.connect(self.edit_handle)
 			self.game_choice.entry.setText(self.manis_file.game)
 			self.stream_entry.setText(self.manis_file.stream)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")

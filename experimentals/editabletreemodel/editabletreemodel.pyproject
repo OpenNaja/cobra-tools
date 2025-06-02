@@ -1,0 +1,7 @@
+{
+    "files": ["main.py",
+              "mainwindow.py",
+              "treeitem.py",
+              "treemodel.py",
+              "default.txt"]
+}

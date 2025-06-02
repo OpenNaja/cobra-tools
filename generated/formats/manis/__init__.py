@@ -8,7 +8,6 @@ from copy import copy
 
 import numpy as np
 
-from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
 
 np.seterr(all='warn')
@@ -569,13 +568,36 @@ class ManisFile(InfoHeader, IoFile):
                 dt = "Loc"
             # mark every 32 frame
             plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
-            plt.xlabel('Frame')
-            plt.ylabel('Value')
             title_str = f"{dt} Keys for {bone_name} [{bone_i}]"
             logging.info(f"Showing {title_str}")
             plt.title(title_str)
             plt.legend()
             plt.show()
+
+    def show_keys_by_dtype(self, mani_name, dtype, bone_name, ax: 'matplotlib.axes.Axes'):
+        mani_info = self.get_mani(mani_name)
+        k = mani_info.keys
+        names = getattr(k, f"{dtype}_names")
+        assert bone_name in names
+        bone_i = names.index(bone_name)
+        if dtype == "floats":
+            ax.plot(k.floats[:, bone_i], label="floats")
+        else:
+            if mani_info.dtype.compression:
+                ck = k.compressed
+                if not hasattr(ck, dtype):
+                    self.decompress(mani_info)
+                keys = getattr(ck, dtype)
+                # mark every 32 frame
+                ax.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
+            else:
+                keys = getattr(k, dtype)
+            ax.plot(keys[:, bone_i, 0], label='X')
+            ax.plot(keys[:, bone_i, 1], label='Y')
+            ax.plot(keys[:, bone_i, 2], label='Z')
+            if len(keys[0, 0]) > 3:
+                ax.plot(keys[:, bone_i, 3], label='Q')
+        ax.legend(loc="lower right")
 
     def show_floats(self, mani_info, name_filter=""):
         try:
@@ -599,7 +621,6 @@ class ManisFile(InfoHeader, IoFile):
         if bitarray is None:
             raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
-        k = mani_info.keys
         logging.debug(
             f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
         ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
@@ -631,13 +652,6 @@ class ManisFile(InfoHeader, IoFile):
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
-        # self.show_keys(ck.ori_bones, k.ori_bones_names, "def_l_legUpr_joint")  # first bone in run anim
-        # acro walk
-        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_horselink_joint_IKBlend")  # def wrong
-        # self.show_keys(ck.pos_bones, k.pos_bones_names, "def_l_legUprJiggleFront_joint")  # not sure
-        # logging.info(ck)
-        # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-        #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
     def read_pos_keys(self, context, f, i, mani_info, segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
