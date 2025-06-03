@@ -14,6 +14,10 @@ class BaniLoader(MemStructLoader):
 	target_class = BaniRoot
 	can_extract = False
 
+	def collect(self):
+		super().collect()
+		print(self.header)
+
 	def create(self, file_path):
 		pass
 
@@ -31,6 +35,10 @@ class BaniLoader(MemStructLoader):
 class BanisLoader(MemStructLoader):
 	extension = ".banis"
 	target_class = BanisRoot
+
+	def collect(self):
+		super().collect()
+		print(self.header)
 
 	def validate(self):
 		self.extra_loaders = []

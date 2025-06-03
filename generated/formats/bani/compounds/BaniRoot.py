@@ -5,6 +5,8 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class BaniRoot(MemStruct):
 
 	"""
+	PC2: 32 bytes
+	
 	24 bytes This varies per bani animation file and describes the bani's frames and duration
 	"""
 
@@ -13,6 +15,12 @@ class BaniRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# ?
+		self.index = name_type_map['Uint'](self.context, 0, None)
+
+		# Number of frames in this bani file
+		self.unk = name_type_map['Uint'](self.context, 0, None)
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
@@ -35,6 +43,8 @@ class BaniRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'unk', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
@@ -44,6 +54,9 @@ class BaniRoot(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None)
+		if instance.context.version >= 7:
+			yield 'index', name_type_map['Uint'], (0, None), (False, None)
+			yield 'unk', name_type_map['Uint'], (0, None), (False, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)
