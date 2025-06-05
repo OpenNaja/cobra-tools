@@ -69,11 +69,11 @@ def store_transform_data(channel_storage, corrector, matrix, name, src_frame, tr
 
 
 def reasonably_close(a, b):
-	return np.allclose(a, b, rtol=1e-03, atol=1e-04, equal_nan=False)
+	return np.allclose(a, b, rtol=1e-04, atol=1e-06, equal_nan=False)
 
 
 def needs_keyframes(keys):
-	"""Checks a list of keys and returns True if temporal changes are detected"""
+	"""Checks an array of keys and yields the indices that have temporal changes"""
 	if len(keys):
 		# get the first key
 		key0 = keys[0]
