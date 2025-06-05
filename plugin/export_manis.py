@@ -184,6 +184,9 @@ def save(reporter, filepath="", per_armature=False):
 		manis.save(filepath)
 		reporter.show_info(f"Exported {export_name}")
 
+def needs_wsm(bone, game):
+	# todo identify additional condition for this; it is not motionextracted vs notmotionextracted
+	return bone == srb_name and game == "Jurassic World Evolution 2"
 
 def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 	corrector = ManisCorrector(False)
@@ -241,33 +244,28 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		# decide which channels to keyframe by determining if the keys are static
 		for bone, channels in tuple(channel_storage.items()):
 			# export wsm before decimating bones
-			if bone == srb_name and game == "Jurassic World Evolution 2":
-				# todo identify additional condition for this; it is not motionextracted vs notmotionextracted
+			if needs_wsm(bone, game):
 				export_wsm(folder, mani_info, srb_name, channel_storage)
-				for channel_id, keys in tuple(channels.items()):
-					channels.pop(channel_id)
-				continue
 			for channel_id, keys in tuple(channels.items()):
 				needed_axes = list(needs_keyframes(keys))
-				if needed_axes:
-					# copy root motion channels as floats
-					if bone == srb_name and channels:
-						# copy to avoid modifying the original keys data
-						keys = keys.copy()
-						if channel_id == POS:
-							add_root_float_keys(channel_storage, keys, needed_axes,
-												("X Motion Track", "Y Motion Track", "Z Motion Track"))
-							add_normed_float_keys(channel_storage, keys, needed_axes, "S Motion Track", game)
-						if channel_id == EUL:
-							add_root_float_keys(channel_storage, keys, needed_axes,
-												("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
-							add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
-					# logging.debug(f"{bone} {channel_id} needs keys")
-				elif not reasonably_close(keys[0], rest_data[bone][channel_id]):
-					# logging.debug(f"{bone} {channel_id} is static but strays from default keys")
-					pass
-				else:
-					# logging.debug(f"{bone} {channel_id} is static and discarded")
+				# copy root motion channels as floats
+				if bone == srb_name:
+					# copy to avoid modifying the original keys data
+					keys = keys.copy()
+					if channel_id == POS:
+						add_root_float_keys(channel_storage, keys, needed_axes,
+											("X Motion Track", "Y Motion Track", "Z Motion Track"))
+						add_normed_float_keys(channel_storage, keys, needed_axes, "S Motion Track", game)
+					if channel_id == EUL:
+						add_root_float_keys(channel_storage, keys, needed_axes,
+											("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
+						add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
+					# delete srb bone from mani; the float channels created before are needed
+					if needs_wsm(bone, game):
+						channels.pop(channel_id)
+						continue
+				# decimate channels
+				if not needed_axes or reasonably_close(keys[0], rest_data[bone][channel_id]):
 					# no need to keyframe this bone, discard it
 					channels.pop(channel_id)
 		# export constraints as float keys
