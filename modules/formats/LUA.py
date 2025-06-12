@@ -40,7 +40,7 @@ class LuaLoader(MemStructLoader):
 
 		if self.ovl.cfg.get("lua_flatten", True):
 			split_path = self.name.split(".")
-			new_path = f"{"/".join(split_path[:-1])}.{split_path[-1]}"
+			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
 			lua_path = out_dir(new_path)
 		else:
 			lua_path = out_dir(self.name)
