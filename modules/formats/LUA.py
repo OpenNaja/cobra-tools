@@ -12,6 +12,12 @@ class LuaLoader(MemStructLoader):
 	target_class = LuaRoot
 	# temp_extensions = ".bin"
 
+	def __init__(self, ovl, file_name, mime_version):
+		if ovl.cfg.get("lua_flatten", True):
+			file_name = file_name.replace("/", ".")
+
+		super().__init__(ovl, file_name, mime_version)
+
 	@property
 	def lua_decompile(self):
 		return self.ovl.cfg.get("lua_decompile", False)
@@ -19,7 +25,6 @@ class LuaLoader(MemStructLoader):
 	def create(self, file_path):
 		buffer_0 = self._get_data(file_path)
 		self.create_data_entry((buffer_0,))
-
 		self.header = LuaRoot(self.ovl.context)
 		self.update_header(buffer_0, self.basename)
 
@@ -32,7 +37,14 @@ class LuaLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		buffer_data = self.data_entry.buffer_datas[0]
-		lua_path = out_dir(self.name)
+
+		if self.ovl.cfg.get("lua_flatten", True):
+			split_path = self.name.split(".")
+			new_path = f"{"/".join(split_path[:-1])}.{split_path[-1]}"
+			lua_path = out_dir(new_path)
+		else:
+			lua_path = out_dir(self.name)
+
 		# DLA & ZTUAC - clip away the start (fragment data at start of buffer?)
 		if self.ovl.context.version <= 17:
 			buffer_data = buffer_data[8:]
