@@ -76,7 +76,7 @@ def main():
                 else:
                     file.write(line)
 
-        return subprocess.run(["git", "add", version_file, init_file]).returncode
+        return subprocess.run(["git", "add", version_file, init_file, project]).returncode
 
 
 if __name__ == "__main__":
