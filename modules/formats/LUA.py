@@ -38,7 +38,7 @@ class LuaLoader(MemStructLoader):
 	def extract(self, out_dir):
 		buffer_data = self.data_entry.buffer_datas[0]
 
-		if self.ovl.cfg.get("lua_flatten", True):
+		if self.ovl.cfg.get("lua_unflatten", True):
 			split_path = self.name.split(".")
 			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
 			lua_path = out_dir(new_path)
