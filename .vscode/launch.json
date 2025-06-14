@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "OVL Tools",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}ovl_tool_gui.py",
             "console": "integratedTerminal",
@@ -11,7 +11,7 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -19,7 +19,7 @@
         },
         {
             "name": "cobra-tools: Check Imports",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}${pathSeparator}bin${pathSeparator}check_imports.py",
             "console": "integratedTerminal",
