@@ -13,6 +13,7 @@ class LuaLoader(MemStructLoader):
 	# temp_extensions = ".bin"
 
 	def __init__(self, ovl, file_name, mime_version):
+		# self.ovl is not set yet so we cant use the property
 		if ovl.cfg.get("lua_flatten", False):
 			file_name = file_name.replace("/", ".")
 
@@ -21,6 +22,10 @@ class LuaLoader(MemStructLoader):
 	@property
 	def lua_decompile(self):
 		return self.ovl.cfg.get("lua_decompile", False)
+	
+	@property
+	def lua_flatten(self):
+		return self.ovl.cfg.get("lua_flatten", False)
 
 	def create(self, file_path):
 		buffer_0 = self._get_data(file_path)
@@ -38,7 +43,7 @@ class LuaLoader(MemStructLoader):
 	def extract(self, out_dir):
 		buffer_data = self.data_entry.buffer_datas[0]
 
-		if self.ovl.cfg.get("lua_unflatten", False):
+		if self.lua_flatten:
 			split_path = self.name.split(".")
 			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
 			lua_path = out_dir(new_path)
