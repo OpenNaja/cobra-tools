@@ -1904,11 +1904,9 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QFileSystemModel.Roles.FileIconRole:
-            name = index.data()
-            _, ext = os.path.splitext(name)
-            if ext:
-                return get_icon(ext[1:])
-            return get_icon("dir")
+            model = cast("OvlDataFilesystemModel", self.sourceModel())
+            finfo = model.fileInfo(index)
+            return get_icon(finfo.suffix() if finfo.isFile() else "dir")
         return super().data(index, role)
 
     def setSourceModel(self, sourceModel: "OvlDataFilesystemModel") -> None: # type: ignore[override]
