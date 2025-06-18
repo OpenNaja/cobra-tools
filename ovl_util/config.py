@@ -57,6 +57,7 @@ class Config(dict):
 	# dds_quality = TransientSetting("Compressonator Quality", "Compression quality when using Compressonator", 0, (0, 1))  # todo
 	dds_extract = TransientSetting("Keep DDS", "Keep DDS files in extraction", False, (True, False))
 	lua_decompile = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
+	lua_flatten = TransientSetting("Flatten LUA subfolders", "Flatten LUA filenames that are in subfolders on injection and unflatten into folders on extraction", False, (True, False))
 	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
 	play_on_saving = TransientSetting("Run Game on Saving", "Always run the currently selected game after saving an OVL", False, (True, False))
 	# GUI appearance
