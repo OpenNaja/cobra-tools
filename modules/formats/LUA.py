@@ -13,11 +13,9 @@ class LuaLoader(MemStructLoader):
 	# temp_extensions = ".bin"
 
 	def __init__(self, ovl, file_name, mime_version):
-		# self.ovl is not set yet so we cant use the property
-		if ovl.cfg.get("lua_flatten", False):
-			file_name = file_name.replace("/", ".")
-
 		super().__init__(ovl, file_name, mime_version)
+		if self.lua_flatten:
+			self.name = file_name.replace("/", ".")
 
 	@property
 	def lua_decompile(self):
