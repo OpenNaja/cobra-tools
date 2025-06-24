@@ -5,9 +5,9 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class BaniRoot(MemStruct):
 
 	"""
+	This varies per bani animation file and describes the bani's frames and duration
+	older: 24 bytes
 	PC2: 32 bytes
-	
-	24 bytes This varies per bani animation file and describes the bani's frames and duration
 	"""
 
 	__name__ = 'BaniRoot'
@@ -19,8 +19,8 @@ class BaniRoot(MemStruct):
 		# ?
 		self.index = name_type_map['Uint'](self.context, 0, None)
 
-		# Number of frames in this bani file
-		self.unk = name_type_map['Uint'](self.context, 0, None)
+		# index * 16
+		self.offset = name_type_map['Uint'](self.context, 0, None)
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
@@ -44,7 +44,7 @@ class BaniRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 		yield 'index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'unk', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
@@ -56,7 +56,7 @@ class BaniRoot(MemStruct):
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None)
 		if instance.context.version >= 7:
 			yield 'index', name_type_map['Uint'], (0, None), (False, None)
-			yield 'unk', name_type_map['Uint'], (0, None), (False, None)
+			yield 'offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)

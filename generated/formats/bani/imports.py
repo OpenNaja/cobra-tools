@@ -49,6 +49,7 @@ type_module_name_map = {
 	'BanisInfoHeader': 'generated.formats.bani.compounds.BanisInfoHeader',
 	'StructA': 'generated.formats.bani.compounds.StructA',
 	'StructB': 'generated.formats.bani.compounds.StructB',
+	'Bone': 'generated.formats.bani.compounds.Bone',
 	'Keys': 'generated.formats.bani.compounds.Keys',
 	'BanisRoot': 'generated.formats.bani.compounds.BanisRoot',
 }

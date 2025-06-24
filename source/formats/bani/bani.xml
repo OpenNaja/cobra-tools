@@ -19,12 +19,12 @@
     </compound>
 
 	<compound name="BaniRoot" inherit="MemStruct">
+        This varies per bani animation file and describes the bani's frames and duration
+		older: 24 bytes
         PC2: 32 bytes
-
-		24 bytes This varies per bani animation file and describes the bani's frames and duration
         <add name="banis" type="Pointer" >points to the banis file used</add>
         <add name="index" type="uint" since="7">?</add>
-        <add name="unk" type="uint" since="7">Number of frames in this bani file</add>
+        <add name="offset" type="uint" since="7">index * 16</add>
         <add name="read start frame" type="uint">The frame in the banis where this bani starts reading</add>PC2: num_frames * 8 + previous offset
         <add name="num frames" type="uint">Number of frames in this bani file</add>
         <add name="animation length" type="float">length of the animation, can easily get keyframe spacing now</add>
@@ -39,6 +39,7 @@
 
     <compound name="BanisInfoHeader">
         Custom header struct
+        <add name="version" type="uint"/>
         <add name="num_anims" type="uint"/>
         <add name="anims" type="BaniInfo" arr1="num_anims"/>
         <add name="data" type="BanisRoot"/>
@@ -57,36 +58,41 @@
         <add name="zeros" type="byte" arr1="16"/>
     </compound>
 
+    <compound name="Bone">
+        PC2: 12 bytes
+        <add name="rot" type="Vector3Short" />
+        <add name="loc" type="Vector3Ushort" />
+    </compound>
+
     <compound name="Keys" inherit="NestedPointers" args="2">
-        <add name="data" type="ubyte" arr1="#ARG1#" arr2="#ARG2#"/>
+        <add name="data" type="Bone" arr1="#ARG1#" arr2="#ARG2#"/>
     </compound>
 
     <compound name="BanisRoot" inherit="MemStruct">
+        older games: 40 bytes
         PC2: new structure, 4 pointers to keyframe data at start
         <add name="arr a" type="ArrayPointer" arg="bani_count" template="StructA" since="7"/>
         <add name="arr b" type="ArrayPointer" arg="bani_count" template="StructB" since="7"/>
         <add name="arr c" type="ArrayPointer" arg="bani_count" template="StructB" since="7"/>
-        <add name="keys" type="Pointer" template="Keys" arg1="frame_count" arg2="bytes_per_frame"/>
+        <add name="keys" type="Pointer" template="Keys" arg1="num frames" arg2="num bones" since="7"/>
         <add name="zeros" type="uint" arr1="3" since="7"/>
         <add name="count_a" type="uint" since="7"/>
         <add name="count_b_0" type="uint" since="7"/>loc?
         <add name="count_b_1" type="uint" since="7"/>rot?
         <add name="keys_size" type="uint" since="7"/>
-        <add name="bytes_per_frame" type="uint" since="7"/>?
-        <add name="count_d" type="uint" since="7" default="12"/>
-        <add name="frame_count" type="uint" since="7"/>?
-        <add name="num_slots_used" type="uint" since="7"/>in b + c, maybe num bones
-        <add name="bani_count" type="uint" since="7"/>
-        <add name="zero2" type="uint64" since="7"/>
 
-        older games: 40 bytes
         <add name="zeros" type="uint64" arr1="2" until="5"/>
-        <add name="bytes per frame" type="uint" until="5">bytes per bone * num bones</add>
-        <add name="bytes per bone" type="uint" until="5">how many bytes for each bone per frame</add>
-        <add name="num frames" type="uint" until="5">Number of frames for all bani files in banis buffer</add>
-        <add name="num bones" type="uint" until="5">number of bones in data, must correspond to ms2</add>
+
+        <add name="bytes per frame" type="uint" >bytes per bone * num bones</add>
+        <add name="bytes per bone" type="uint" >seen 12 (PC2 pigeon), 16 (PC1 pigeon)</add>
+        <add name="num frames" type="uint" >Number of frames for all bani files in banis buffer</add>
+        <add name="num bones" type="uint" >number of bones in data, must correspond to ms2</add>
+
         <add name="loc scale" type="float" until="5">scale for translation range</add>
         <add name="loc min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</add>
+
+        <add name="bani_count" type="uint" since="7"/>
+        <add name="zero2" type="uint64" since="7"/>
     </compound>
 
 </niftoolsxml>

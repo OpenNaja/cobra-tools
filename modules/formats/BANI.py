@@ -5,11 +5,11 @@ import struct
 from generated.formats.bani import BanisInfoHeader
 from generated.formats.bani.compounds.BanisRoot import BanisRoot
 from generated.formats.bani.compounds.BaniRoot import BaniRoot
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
 from modules.helpers import as_bytes
 
 
-class BaniLoader(MemStructLoader):
+class BaniLoader(MimeVersionedLoader):
 	extension = ".bani"
 	target_class = BaniRoot
 	can_extract = False
@@ -32,13 +32,13 @@ class BaniLoader(MemStructLoader):
 		# print(self.fragments)
 
 
-class BanisLoader(MemStructLoader):
+class BanisLoader(MimeVersionedLoader):
 	extension = ".banis"
 	target_class = BanisRoot
 
-	# def collect(self):
-	# 	super().collect()
-	# 	print(self.header)
+	def collect(self):
+		super().collect()
+		print(self.header)
 
 	def validate(self):
 		self.extra_loaders = []
@@ -59,12 +59,20 @@ class BanisLoader(MemStructLoader):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as stream:
-			stream.write(struct.pack("<I", len(self.extra_loaders)))
+			stream.write(struct.pack("<II", self.mime_version, len(self.extra_loaders)))
 			for bani in self.extra_loaders:
 				stream.write(as_bytes(os.path.splitext(bani.name)[0]))
 				bani.header.to_stream(bani.header, stream, bani.header.context)
 			self.header.to_stream(self.header, stream, self.header.context)
-			stream.write(buffers[0])
+			# the keys themselves
+			if self.mime_version < 7:
+				stream.write(buffers[0])
+			else:
+				# 16 bytes in buffer: 2F 00 00 00 8B 12 00 00 7B 3E 07 00 3B 68 D4 02
+				# PC2 banis buffer, as ints:
+				# 47 - 4747 - 474747 - 47474747
+				self.header.keys.data.to_stream(self.header.keys.data, stream, self.header.context)
+
 		return out_paths
 
 	def create(self, file_path):
