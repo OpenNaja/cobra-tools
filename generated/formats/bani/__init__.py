@@ -75,13 +75,18 @@ class BanisFile(BanisInfoHeader, IoFile):
 			#   [89.978  -2.7026 90.5548]
 			#   [89.978  -2.7026 90.5548]
 
-			keys_float["loc"] = keys_float["loc"] * self.data.loc_scale + self.data.loc_min
+			if self.context.version < 7:
+				keys_float["loc"] = keys_float["loc"] * self.data.loc_scale + self.data.loc_min
 		# print(keys_float["euler"])
 		print(keys_float[0, :, ])
 		print(self)
 		# assign keys to bani data
 		for bani in self.anims:
-			bani.keys = keys_float[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
+			if self.context.version < 7:
+				start = bani.data.read_start_frame
+			else:
+				start = bani.data.read_start_frame // self.data.num_bones
+			bani.keys = keys_float[start: start + bani.data.num_frames]
 
 	def save(self, filepath):
 		self.num_anims = len(self.anims)
