@@ -18,14 +18,6 @@ from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.object import get_property
 from plugin.utils.transforms import ManisCorrector
 
-# neutral keys in blender's local coordinates
-defaults_keys = {
-	SCL: (1.0, 1.0, 1.0),
-	EUL: (0.0, 0.0, 0.0),
-	POS: (0.0, 0.0, 0.0),
-	ORI: (1.0, 0.0, 0.0, 0.0),
-}
-
 
 def store_pose_frame_info(b_ob, src_frame, trg_frame, bones_data, channel_storage, corrector, cam_corr):
 	bpy.context.scene.frame_set(src_frame)
