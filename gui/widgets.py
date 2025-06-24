@@ -3395,7 +3395,7 @@ class MainWindow(FramelessMainWindow):
             self._add_to_menu(*btn)
         self.menus["Open Recent"].aboutToShow.connect(self.populate_recent_files)
 
-    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, submenu_name: str = "") -> None:
+    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, submenu_name: str = "", tooltip: str = "") -> None:
         # create menu if required
         if menu_name not in self.menus:
             self.menus[menu_name] = self.menu_bar.addMenu(menu_name)
@@ -3411,6 +3411,9 @@ class MainWindow(FramelessMainWindow):
                 action.setShortcut(shortcut)
             self.actions[action_name.lower()] = action
             menu.addAction(action)
+            if tooltip:
+                menu.setToolTipsVisible(True)
+                action.setToolTip(tooltip)
         elif submenu_name:
             if submenu_name not in self.menus:
                 self.menus[submenu_name] = menu.addMenu(submenu_name)
@@ -3428,7 +3431,7 @@ class MainWindow(FramelessMainWindow):
                         self.file_widget.open_file(filepath)
                     return func
                 ext = os.path.splitext(fp)[1][1:]
-                self._add_to_menu("Open Recent", self.get_file_name(fp), make_opener(fp), "", ext)
+                self._add_to_menu("Open Recent", self.get_file_name(fp), make_opener(fp), "", ext, tooltip=fp)
             else:
                 self.cfg[self.file_widget.cfg_recent_files].remove(fp)
 
