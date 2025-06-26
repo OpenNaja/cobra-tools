@@ -3,14 +3,14 @@ from generated.formats.frenderlodspec.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class LodGroup(MemStruct):
+class LODGroup(MemStruct):
 
 	"""
 	PC 40 bytes
 	PZ, JWE2 56 bytes
 	"""
 
-	__name__ = 'LodGroup'
+	__name__ = 'LODGroup'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
