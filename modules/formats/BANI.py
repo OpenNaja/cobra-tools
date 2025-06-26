@@ -37,8 +37,12 @@ class BanisLoader(MimeVersionedLoader):
 	target_class = BanisRoot
 
 	def collect(self):
+		if self.mime_version == 7 and self.name != "animation.baniset7b77b17d.banis":
+			# un-vectorized arrays are extremely slow eg for guests
+			logging.warning(f"Skipping loading of {self.name} temporarily to speed up ovl loading")
+			return
 		super().collect()
-		print(self.header)
+		# print(self.header)
 
 	def validate(self):
 		self.extra_loaders = []
