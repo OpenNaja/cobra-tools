@@ -200,3 +200,6 @@ ovl_util/compressonator/process_results.txt
 
 # created mods should not be saved as part of this repo.
 Mods/
+
+# Cached icons
+/icons/cache
