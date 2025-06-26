@@ -4,14 +4,14 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Vector3Short" size="6">
+    <compound name="Vector3Short" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
         <field name="x" type="short">First coordinate.</field>
         <field name="y" type="short">Second coordinate.</field>
         <field name="z" type="short">Third coordinate.</field>
     </compound>
 
-    <compound name="Vector3Ushort" size="6">
+    <compound name="Vector3Ushort" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
         <field name="x" type="ushort">First coordinate.</field>
         <field name="y" type="ushort">Second coordinate.</field>
@@ -58,7 +58,7 @@
         <add name="zeros" type="byte" arr1="16"/>
     </compound>
 
-    <compound name="Bone">
+    <compound name="Bone" allow_np="true">
         PC2: 12 bytes
         <add name="rot" type="Vector3Short" />
         <add name="loc" type="Vector3Ushort" />
