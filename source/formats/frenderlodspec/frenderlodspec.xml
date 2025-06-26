@@ -4,44 +4,28 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="FRenderLodSpecRoot" inherit="MemStruct">
-        PZ, JWE2 16 bytes
-        <add name="LodGroups"   type="ArrayPointer" template="LodGroup" arg="LodGroups_count"/>
-        <add name="LodGroups_count"  type="uint64" />
-    </compound>
+    <struct name="LODPoints" inherit="MemStruct">
+        <field name="DiscardAtLod" type="ushort" vercond="!#PC#" />
+        <field name="MaxLods" type="ushort" default="6" vercond="!#PC#" />
+        <field name="LodPoints" type="float" arr1="5" />
+        <field name="PixelSizeOff" type="float" />
+    </struct>
 
-    <compound name="LodGroup" inherit="MemStruct">
+    <struct name="LODGroup" inherit="MemStruct">
         PC 40 bytes
-        PZ, JWE2 56 bytes
-        <add name="GroupName" type="Pointer" template="ZString"/>
-        <add name="MinModelBoundingSphereRadius" type="float" />definitely a float on PC
-        <add name="MaxModelBoundingSphereRadius" type="float" />
-        <add name="flags" type="ushort" default="255" vercond="!#PC#"/>
-        <add name="lod_count" type="ushort" default="6" vercond="!#PC#" />
-        <add name="LodPoints" type="float" arr1="5"/>
-        <add name="PixelSizeOff" type="float" />
-        <add name="unused" default="0" type="uint" arr1="3" vercond="!#PC#"/>PZ, JWE2
-    </compound>
+        PZ, JWE2, PC2 56 bytes
+        <field name="GroupName" type="Pointer" template="ZString"/>
+        <field name="UnkFloat1" type="float" default="0.0" optional="true" />
+        <field name="MaxModelBoundingSphereRadius" type="float" />
+        <field name="LodPoints" type="LODPoints" />
+        <field name="SubLodPoints_count" default="0" type="uint" vercond="!#PC#"/>
+        <field name="SubLodPoints" type="ArrayPointer" template="LODPoints" arg="SubLodPoints_count" vercond="!#PC#" />
+    </struct>
 
-# this is how it looks like in-game
-#..xml version="1.0" encoding="utf-8"?>
-#..XMLResDocument version="1">
-#    ..fRenderLodSettings symbol="default">
-#        ..LodGroups>
-#            ..item>
-#                ..GroupName>Small
-#                ..MaxModelBoundingSphereRadius>1.00
-#                ..LODPoint0>0.20000
-#                ..LODPoint1>0.05000
-#                ..LODPoint2>0.01250
-#                ..LODPoint3>0.00625
-#                ..LODPoint4>0.00300
-#                ..PixelSizeOff>4.00
-#                ..LODPoints>
-#                ../LODPoints>
-3            ../item>
-#            ..item>
-#            ......
-#
+    <struct name="FRenderLodSpecRoot" inherit="MemStruct">
+        PZ, JWE2 16 bytes
+        <field name="LodGroups" type="ArrayPointer" template="LODGroup" arg="LodGroups_count"/>
+        <field name="LodGroups_count" type="uint64" />
+    </struct>
 
 </niftoolsxml>

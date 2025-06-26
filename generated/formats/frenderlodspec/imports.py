@@ -42,8 +42,9 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
-	'FRenderLodSpecRoot': 'generated.formats.frenderlodspec.compounds.FRenderLodSpecRoot',
-	'LodGroup': 'generated.formats.frenderlodspec.compounds.LodGroup',
+	'LODPoints': 'generated.formats.frenderlodspec.structs.LODPoints',
+	'LODGroup': 'generated.formats.frenderlodspec.structs.LODGroup',
+	'FRenderLodSpecRoot': 'generated.formats.frenderlodspec.structs.FRenderLodSpecRoot',
 }
 
 name_type_map = {}
