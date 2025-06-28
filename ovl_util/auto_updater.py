@@ -41,8 +41,8 @@ def pip_upgrade(package_name) -> int:
     return subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package_name])
 
 
-if (sys.version_info.major, sys.version_info.minor) != (3, 11):
-    logging.critical(f"You are running Python {sys.version_info.major}.{sys.version_info.minor}. Install Python 3.11 and try again.")
+if (sys.version_info.major, sys.version_info.minor) < (3, 11):
+    logging.critical(f"You are running Python {sys.version_info.major}.{sys.version_info.minor}. Install Python 3.11+ and try again.")
     time.sleep(60)
 try:
     # pkg_resources is available on py <= 3.11
