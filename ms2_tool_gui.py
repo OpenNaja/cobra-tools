@@ -2,6 +2,7 @@ import time
 import logging
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MenuItem
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.versions import games
 from typing import Optional
@@ -12,7 +13,6 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "MS2 Editor", opts=opts)
-		self.resize(600, 600)
 		self.setAcceptDrops(True)
 
 		self.ms2_file = Ms2File()
@@ -49,13 +49,16 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.progress, 3, 0)
 		self.central_widget.setLayout(self.qgrid)
 
-		self.add_to_menu(
-			*self.file_menu_functions,
-			(widgets.EDIT_MENU, "Append", self.append, "", "append"),
-			(widgets.EDIT_MENU, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
-			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "delete_mesh"),
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.FILE_MENU: self.file_menu_items,
+			widgets.EDIT_MENU: [
+				MenuItem("Append", self.append, icon="append"),
+				MenuItem("Duplicate Selected", self.duplicate, shortcut="SHIFT+D", icon="duplicate_mesh"),
+				MenuItem("Remove Selected", self.remove, shortcut="DEL", icon="delete_mesh"),
+			],
+			widgets.HELP_MENU: self.help_menu_items
+		})
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
@@ -153,4 +156,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="ms2_tool_gui"))
+	startup(MainWindow, GuiOptions(log_name="ms2_tool_gui", size=(600, 600)))

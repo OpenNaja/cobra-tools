@@ -5,7 +5,7 @@ import shutil
 import pathlib
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MainWindow
+from gui.widgets import MainWindow, MenuItem, SeparatorMenuItem
 from ovl_util.config import read_str_dict, write_str_dict
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from generated.formats.ovl import games, OvlFile
@@ -26,7 +26,6 @@ class PackToolGUI(MainWindow):
 
 		"""View initializer."""
 		super().__init__("PackToolGUI", opts=opts)
-		self.resize(400, 300)
 
 		# save config file name from args
 		self.config_path = ''
@@ -34,14 +33,19 @@ class PackToolGUI(MainWindow):
 		# Set some main window's properties
 		self.setWindowTitle('Pack Tool ' + __version__)
 
-		self.add_to_menu(
-			(widgets.FILE_MENU, "Open", self.load_config, "CTRL+O", "dir"),
-			(widgets.FILE_MENU, "Save", self.save_config, "CTRL+S", "save"),
-			(widgets.FILE_MENU, "Pack", self.pack_mod, "CTRL+P", "inject"),
-			(widgets.FILE_MENU, "Unpack", self.unpack_mod, "CTRL+U", "extract"),
-			(widgets.FILE_MENU, "Exit", self.close, "", "exit"),
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.FILE_MENU: [
+				MenuItem("Open", self.load_config, shortcut="CTRL+O", icon="dir"),
+				MenuItem("Save", self.save_config, shortcut="CTRL+S", icon="save"),
+				SeparatorMenuItem(),
+				MenuItem("Pack", self.pack_mod, shortcut="CTRL+P", icon="inject"),
+				MenuItem("Unpack", self.unpack_mod, shortcut="CTRL+U", icon="extract"),
+				SeparatorMenuItem(),
+				MenuItem("Exit", self.close, icon="exit"),
+			],
+			widgets.HELP_MENU: self.help_menu_items,
+		})
 
 		# Add app widgets
 		self.src_widget = widgets.DirWidget(self, self.cfg, cfg_key="pack_tool")
@@ -341,4 +345,4 @@ class PackToolGUI(MainWindow):
 
 
 if __name__ == '__main__':
-	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui"))
+	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 300)))

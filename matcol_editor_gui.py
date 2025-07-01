@@ -21,8 +21,6 @@ class MainWindow(widgets.MainWindow):
 		self.scrollarea.setWidget(self.widget)
 
 		widgets.MainWindow.__init__(self, "Matcol Editor", opts=opts, central_widget=self.scrollarea)
-		
-		self.resize(450, 500)
 
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
@@ -30,10 +28,11 @@ class MainWindow(widgets.MainWindow):
 		self.tooltips = read_str_dict("gui/tooltips/matcol.txt")
 		self.default_fgms = read_list("gui/tooltips/matcol-fgm-names.txt")
 
-		self.add_to_menu(
-			*self.file_menu_functions,
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.FILE_MENU: self.file_menu_items,
+			widgets.HELP_MENU: self.help_menu_items,
+		})
 
 		self.tex_container = QtWidgets.QGroupBox("Slots")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
@@ -127,4 +126,4 @@ class MainWindow(widgets.MainWindow):
 			
 	
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="matcol_editor_gui"))
+	startup(MainWindow, GuiOptions(log_name="matcol_editor_gui", size=(450, 500)))

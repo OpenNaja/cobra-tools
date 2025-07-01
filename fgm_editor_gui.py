@@ -1,6 +1,7 @@
 import logging
 import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MenuItem, SeparatorMenuItem
 from modules.formats.FGM import FgmContext
 from ovl_util.config import read_str_dict
 from typing import Any, Optional
@@ -32,7 +33,6 @@ class MainWindow(widgets.MainWindow):
 
 		widgets.MainWindow.__init__(self, "FGM Editor", opts=opts, central_widget=self.scrollarea)
 
-		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
 		self.context = FgmContext(loader=None)
@@ -88,13 +88,20 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		self.add_to_menu(
-			(widgets.FILE_MENU, "New", self.new_file, "CTRL+N", "new"),
-			*self.file_menu_functions,
-			(widgets.EDIT_MENU, "Import Texture Values", self.import_tex, "", ""),
-			(widgets.EDIT_MENU, "Import Attribute Values", self.import_att, "", ""),
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.FILE_MENU: [
+				MenuItem("New", self.new_file, shortcut="CTRL+N", icon="new"),
+				SeparatorMenuItem(),
+				*self.file_menu_items,
+			],
+			widgets.EDIT_MENU: [
+				MenuItem("Import Texture Values", self.import_tex),
+				MenuItem("Import Attribute Values", self.import_att),
+			],
+			widgets.HELP_MENU: self.help_menu_items
+		})
+
 		self.lock_attrs.toggled.emit(True)
 
 	@property

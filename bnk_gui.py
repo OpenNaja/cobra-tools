@@ -3,6 +3,7 @@ import shutil
 import logging
 import tempfile
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MenuItem
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
@@ -14,8 +15,6 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "BNK Editor", opts=opts)
-		self.resize(800, 600)
-
 		self.bnk_file = BnkFile()
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
@@ -44,12 +43,14 @@ class MainWindow(widgets.MainWindow):
 
 		self.central_widget.setLayout(self.qgrid)
 
-		self.add_to_menu(
-			*self.file_menu_functions,
-			(widgets.EDIT_MENU, "Unpack", self.extract_all, "CTRL+U", "extract"),
-			(widgets.EDIT_MENU, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			*self.help_menu_functions,
-		)
+		self.build_menus({
+			widgets.FILE_MENU: self.file_menu_items,
+			widgets.EDIT_MENU: [
+				MenuItem("Unpack", self.extract_all, shortcut="CTRL+U", icon="extract"),
+				MenuItem("Inject", self.inject_ask, shortcut="CTRL+I", icon="inject"),
+			],
+			widgets.HELP_MENU: self.help_menu_items
+		})
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []

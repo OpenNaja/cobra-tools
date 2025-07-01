@@ -5,7 +5,7 @@ import shutil
 import pathlib
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MainWindow
+from gui.widgets import MainWindow, MenuItem, SeparatorMenuItem
 from ovl_util.config import read_str_dict, write_str_dict
 from generated.formats.ovl import games, OvlFile
 
@@ -30,14 +30,19 @@ class ModToolGUI(MainWindow):
 		# Set some main window's properties
 		self.setWindowTitle('Mod Pack Tool ' + __version__)
 
-		self.add_to_menu(
-			(widgets.FILE_MENU, "Open", self.load_config, "CTRL+O", "dir"),
-			(widgets.FILE_MENU, "Save", self.save_config, "CTRL+S", "save"),
-			(widgets.FILE_MENU, "Pack", self.pack_mod, "CTRL+P", "inject"),
-			(widgets.FILE_MENU, "Unpack", self.unpack_mod, "CTRL+U", "extract"),
-			(widgets.FILE_MENU, "Exit", self.close, "", "exit"),
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.FILE_MENU: [
+				MenuItem("Open", self.load_config, shortcut="CTRL+O", icon="dir"),
+				MenuItem("Save", self.save_config, shortcut="CTRL+S", icon="save"),
+				SeparatorMenuItem(),
+				MenuItem("Pack", self.pack_mod, shortcut="CTRL+P", icon="inject"),
+				MenuItem("Unpack", self.unpack_mod, shortcut="CTRL+U", icon="extract"),
+				SeparatorMenuItem(),
+				MenuItem("Exit", self.close, icon="exit"),
+			],
+			widgets.HELP_MENU: self.help_menu_items,
+		})
 
 		# Add app widgets
 		self.src_widget = widgets.DirWidget(self, self.cfg, cfg_key="mod_tool")

@@ -2,6 +2,7 @@ import sys
 import time
 import logging
 import platform
+from dataclasses import dataclass
 from typing import NamedTuple, Optional
 from pathlib import Path
 from ovl_util import logs
@@ -21,11 +22,26 @@ def check_64bit_env() -> None:
 			"Large OVLs will crash unexpectedly!")
 
 
-class GuiOptions(NamedTuple):
+class Size(NamedTuple):
+	width: int
+	height: int
+
+
+@dataclass
+class GuiOptions:
+	"""
+	A dataclass to hold GUI and application configuration options.
+	
+	The 'size' attribute can be initialized with either a Size object or a
+	tuple like (width, height), and it will be automatically converted.
+	"""
 	log_name: str
 	log_to_file: bool = True
 	log_to_stdout: bool = True
 	log_backup_count: int = 4
+	size: Size = Size(800, 600)
+	logger_width: int = 320
+	logger_height: int = 200
 	qapp: Optional[QApplication] = None
 	frameless: bool = True
 	style: str = "Fusion"
@@ -33,6 +49,11 @@ class GuiOptions(NamedTuple):
 	stylesheet: str = R"""
 		QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }
 	"""
+
+	def __post_init__(self):
+		if isinstance(self.size, tuple):
+			# Convert it to a proper Size NamedTuple instance.
+			self.size = Size(*self.size)
 
 
 def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplication]:

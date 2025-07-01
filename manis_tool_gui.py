@@ -3,6 +3,7 @@ import time
 import logging
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MenuItem, SeparatorMenuItem
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import games
 from typing import Optional
@@ -18,7 +19,6 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "Manis Editor", opts=opts)
-		self.resize(900, 600)
 		self.setAcceptDrops(True)
 
 		self.manis_file = ManisFile()
@@ -62,14 +62,15 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
 
-
-		self.add_to_menu(
-			*self.file_menu_functions,
-			(widgets.EDIT_MENU, "Append", self.append, "", "append"),
-			(widgets.EDIT_MENU, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
-			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "delete_mesh"),
-			*self.help_menu_functions,
-		)
+		self.build_menus({
+			widgets.FILE_MENU: self.file_menu_items,
+			widgets.EDIT_MENU: [
+				MenuItem("Append", self.append, icon="append"),
+				MenuItem("Duplicate Selected", self.duplicate, shortcut="SHIFT+D", icon="duplicate_mesh"),
+				MenuItem("Remove Selected", self.remove, shortcut="DEL", icon="delete_mesh"),
+			],
+			widgets.HELP_MENU: self.help_menu_items
+		})
 
 	def setup_plot(self):
 		# a figure instance to plot on
@@ -301,4 +302,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="manis_tool_gui"))
+	startup(MainWindow, GuiOptions(log_name="manis_tool_gui", size=(900, 600)))

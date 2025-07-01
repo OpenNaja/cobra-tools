@@ -4,9 +4,11 @@ import webbrowser
 import os
 import re
 import html
+import abc
 from collections import deque
 from abc import abstractmethod
 from pathlib import Path
+from dataclasses import dataclass, field
 
 from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
 from ovl_util import logs
@@ -54,6 +56,7 @@ except:
 
 MAX_UINT = 4294967295
 ICON_CACHE = {"no_icon": QIcon()}
+root_dir = Path(__file__).resolve().parent.parent
 
 FILE_MENU = 'File'
 EDIT_MENU = 'Edit'
@@ -61,7 +64,101 @@ UTIL_MENU = 'Util'
 HELP_MENU = 'Help'
 DEVS_MENU = 'Devs'
 
-root_dir = Path(__file__).resolve().parent.parent
+@dataclass
+class BaseMenuItem(abc.ABC):
+    """Abstract base class for all items that appear in a menu"""
+    name: str = ""
+    func: Optional[Callable] = None
+    icon: str = ""
+    tooltip: str = ""
+
+@dataclass
+class MenuItem(BaseMenuItem):
+    """Represents a standard, clickable menu item"""
+    shortcut: str = ""
+
+@dataclass
+class SubMenuItem(BaseMenuItem):
+    """Represents an item that creates a submenu"""
+    items: list[BaseMenuItem] = field(default_factory=list)
+
+@dataclass
+class CheckableMenuItem(MenuItem):
+    """Represents a menu item that can be checked."""
+    config_name: str = ""
+
+@dataclass
+class SeparatorMenuItem(BaseMenuItem):
+    """Represents a separator line in a menu."""
+    pass
+
+class LabelSeparator(QWidget):
+    """
+    A custom QWidget to act as a separator with a label, for use in a QMenu.
+    
+    It consists of a small text label followed by a horizontal line that
+    fills the remaining space.
+    """
+    def __init__(self, text: str, parent=None):
+        super().__init__(parent)
+        self._palette_initialized = False
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(8, 3, 8, 3)
+        layout.setSpacing(8)
+
+        # Create the label that will display the separator's text.
+        self.label = QLabel(text)
+        # Set a very small, bold font
+        font = self.font()
+        font.setPointSize(7)
+        font.setBold(True)
+        self.label.setFont(font)
+        self.label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
+
+        # Create a QFrame configured to look like a horizontal line.
+        self.line = QFrame(self)
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Plain)
+
+        layout.addWidget(self.label)
+        layout.addWidget(self.line)
+        layout.setStretch(1, 1)
+        self.setLayout(layout)
+
+    def showEvent(self, event: QPaintEvent) -> None:
+        """
+        Overrides showEvent to apply palette changes when the widget is about
+        to be displayed, ensuring it has inherited the correct application style.
+        """
+        super().showEvent(event)
+        if not self._palette_initialized:
+            lbl_color = self.palette().color(QPalette.ColorRole.WindowText)
+            sep_color = lbl_color.darker(150)
+
+            line_palette = self.line.palette()
+            line_palette.setColor(QPalette.ColorRole.WindowText, sep_color)
+            line_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, sep_color)
+            self.line.setPalette(line_palette)
+
+            label_palette = self.label.palette()
+            label_palette.setColor(QPalette.ColorRole.WindowText, lbl_color)
+            label_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, lbl_color)
+            self.label.setPalette(label_palette)
+            self._palette_initialized = True
+
+
+def add_label_separator(menu: QMenu, text: str) -> None:
+    """
+    A helper function to create and add a LabelSeparator to a QMenu.
+    """
+    separator_widget = LabelSeparator(text)
+
+    widget_action = QWidgetAction(menu)
+    widget_action.setDefaultWidget(separator_widget)
+    widget_action.setEnabled(False)
+
+    menu.addAction(widget_action)
 
 
 def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) -> QIcon:
@@ -3187,6 +3284,7 @@ class MainWindow(FramelessMainWindow):
 
         self.threadpool = QtCore.QThreadPool.globalInstance()
         self.setCentralWidget(self.central_widget)
+        self.resize(*opts.size)
 
     def layout_splitter(self, grid, left_frame, right_frame):
         # Setup Logger
@@ -3367,18 +3465,24 @@ class MainWindow(FramelessMainWindow):
         self.set_file_modified(True)
 
     @property
-    def file_menu_functions(self):
-        yield FILE_MENU, "Open", self.file_widget.ask_open, "CTRL+O", "dir"
-        yield FILE_MENU, None, self.file_widget.ask_open_dir, "CTRL+O", "recent", "Open Recent"
-        yield FILE_MENU, "Save", self.file_widget.ask_save, "CTRL+S", "save"
-        yield FILE_MENU, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"
-        yield FILE_MENU, "Exit", self.close, "", "exit"
+    def file_menu_items(self) -> list[BaseMenuItem]:
+        return [
+            MenuItem("Open", self.file_widget.ask_open, shortcut="CTRL+O", icon="dir"),
+            SubMenuItem("Open Recent", self.populate_recent_files, icon="recent"),
+            SeparatorMenuItem(),
+            MenuItem("Save", self.file_widget.ask_save, shortcut="CTRL+S", icon="save"),
+            MenuItem("Save As", self.file_widget.ask_save_as, shortcut="CTRL+SHIFT+S", icon="save"),
+            SeparatorMenuItem(),
+            MenuItem("Exit", self.close, icon="exit")
+        ]
 
     @property
-    def help_menu_functions(self):
-        yield HELP_MENU, "Show Commit on GitHub", self.open_repo, "", "github"
-        yield HELP_MENU, "Report Bug on GitHub", self.report_bug, "", "report"
-        yield HELP_MENU, "Read Wiki Documentation", self.online_support, "", "manual"
+    def help_menu_items(self) -> list[BaseMenuItem]:
+        return [
+            MenuItem("Show Commit on GitHub", self.open_repo, icon="github"),
+            MenuItem("Report Bug on GitHub", self.report_bug, icon="report"),
+            MenuItem("Read Wiki Documentation", self.online_support, icon="manual")
+        ]
 
     def open_repo(self) -> None:
         webbrowser.open(f"https://github.com/OpenNaja/cobra-tools/tree/{COMMIT_HASH}", new=2)
@@ -3389,51 +3493,112 @@ class MainWindow(FramelessMainWindow):
     def online_support(self) -> None:
         webbrowser.open("https://opennaja.github.io/cobra-tools/", new=2)
 
-    def add_to_menu(self, *args) -> None:
-        self.menus = {}
-        for btn in args:
-            self._add_to_menu(*btn)
-        self.menus["Open Recent"].aboutToShow.connect(self.populate_recent_files)
+    def build_menus(self, menu_layout: dict[str, list[BaseMenuItem]]) -> None:
+        """
+        Constructs the entire menu bar from a declarative dict of menu item objects
+        """
+        # Initialize
+        self.menus: dict[str, QMenu] = {}
+        self.actions: dict[str, QAction] = {}
 
-    def _add_to_menu(self, menu_name: str, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, submenu_name: str = "", tooltip: str = "") -> None:
-        # create menu if required
-        if menu_name not in self.menus:
-            self.menus[menu_name] = self.menu_bar.addMenu(menu_name)
-        menu = self.menus[menu_name]
+        for menu_name, items_in_menu in menu_layout.items():
+            # Create top-level menu
+            parent_menu = self.menu_bar.addMenu(menu_name)
+            if parent_menu is None:
+                logging.error(f"Failed to create menu '{menu_name}'")
+                continue
+            self.menus[menu_name] = parent_menu
+            # Build all items for that menu
+            for item in items_in_menu:
+                self._build_menu_item(parent_menu, item)
 
-        if action_name:
-            action = QAction(action_name, self)
-            if icon_name:
-                icon = get_icon(icon_name)
-                action.setIcon(icon)
-            action.triggered.connect(func)
-            if shortcut:
-                action.setShortcut(shortcut)
-            self.actions[action_name.lower()] = action
-            menu.addAction(action)
-            if tooltip:
-                menu.setToolTipsVisible(True)
-                action.setToolTip(tooltip)
-        elif submenu_name:
-            if submenu_name not in self.menus:
-                self.menus[submenu_name] = menu.addMenu(submenu_name)
-            submenu = self.menus[submenu_name]
-            if icon_name:
-                icon = get_icon(icon_name)
-                submenu.setIcon(icon)
+    def _build_menu_item(self, parent_menu: QMenu, item: BaseMenuItem) -> None:
+        """Builds a single QAction, QMenu, or separator from a definition object"""
+        if isinstance(item, SeparatorMenuItem):
+            if item.name:
+                add_label_separator(parent_menu, item.name)
+            else:
+                parent_menu.addSeparator()
+        elif isinstance(item, SubMenuItem):
+            submenu = parent_menu.addMenu(item.name)
+            if submenu is None:
+                logging.error(f"Failed to create submenu '{submenu}'")
+                return
+            self.menus[item.name] = submenu
+            if item.icon:
+                submenu.setIcon(get_icon(item.icon))
+            # Connect func to the aboutToShow signal for dynamic menus
+            if item.func:
+                submenu.aboutToShow.connect(item.func)
+            # Recursively build any statically defined sub-items
+            for sub_item in item.items:
+                self._build_menu_item(submenu, sub_item)
+        elif isinstance(item, (MenuItem, CheckableMenuItem)):
+            action = QAction(item.name, self)
+            if item.icon:
+                action.setIcon(get_icon(item.icon))
+            if hasattr(item, 'shortcut') and item.shortcut:
+                action.setShortcut(item.shortcut)
+            if item.tooltip:
+                parent_menu.setToolTipsVisible(True)
+                action.setToolTip(item.tooltip)
+            if item.func:
+                if isinstance(item, MenuItem):
+                    action.triggered.connect(item.func)
+                else:
+                    action.toggled.connect(item.func)
+            if isinstance(item, CheckableMenuItem):
+                action.setCheckable(True)
+                if item.config_name:
+                    config_setting = self.cfg.get(item.config_name, False)
+                    if isinstance(config_setting, bool):
+                        action.setChecked(config_setting)
+                        action.toggled.connect(
+                            # name kwarg for proper capture
+                            lambda checked, name=item.config_name: self.cfg.update({name: checked})
+                        )
+            parent_menu.addAction(action)
+            self.actions[item.name.lower()] = action
 
     def populate_recent_files(self):
-        self.menus["Open Recent"].clear()
-        for fp in self.cfg[self.file_widget.cfg_recent_files]:
-            if os.path.isfile(fp):
-                def make_opener(filepath):
-                    def func():
-                        self.file_widget.open_file(filepath)
-                    return func
-                ext = os.path.splitext(fp)[1][1:]
-                self._add_to_menu("Open Recent", self.get_file_name(fp), make_opener(fp), "", ext, tooltip=fp)
-            else:
-                self.cfg[self.file_widget.cfg_recent_files].remove(fp)
+        """
+        Dynamically populates the 'Open Recent' submenu
+        """
+        recent_menu = self.menus.get("Open Recent")
+        if not recent_menu:
+            return
+        recent_menu.clear()
+        # Fetch from config only once
+        recent_files_from_cfg = self.cfg.get(self.file_widget.cfg_recent_files, [])
+        valid_files = [fp for fp in recent_files_from_cfg if os.path.isfile(fp)]
+        # If stale paths were removed, update the configuration
+        if len(valid_files) != len(recent_files_from_cfg):
+            self.cfg[self.file_widget.cfg_recent_files] = valid_files
+        # Add a placeholder if the list is empty
+        if not valid_files:
+            action = QAction("(No Recent Files)", self)
+            action.setEnabled(False)
+            recent_menu.addAction(action)
+            return
+        # Create recents
+        for fp in valid_files:
+            ext = os.path.splitext(fp)[1][1:]
+            icon = get_icon(ext)
+            file_name = self.get_file_name(fp)
+
+            action = QAction(icon, file_name, self)
+            action.setToolTip(fp)
+            action.triggered.connect(lambda _checked, path=fp: self.file_widget.open_file(path))
+
+            recent_menu.addAction(action)
+        # Add a "Clear" action
+        recent_menu.addSeparator()
+        clear_action = QAction("Clear Recent Files", self)
+        def clear_list():
+            self.cfg[self.file_widget.cfg_recent_files] = []
+
+        clear_action.triggered.connect(clear_list)
+        recent_menu.addAction(clear_action)
 
     def handle_error(self, msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""

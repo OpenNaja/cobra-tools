@@ -15,7 +15,6 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "LOC Tool", opts=opts)
-		self.resize(1200, 600)
 		self.setAcceptDrops(True)
 
 		self.reporter = Reporter()
@@ -54,9 +53,10 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler("loc_tool_gui")  # self.log_name not set until after init
 		self.layout_splitter(grid, left_frame, right_frame)
 
-		self.add_to_menu(
-			*self.help_menu_functions,
-		)
+		# Setup Menus
+		self.build_menus({
+			widgets.HELP_MENU: self.help_menu_items,
+		})
 
 	def populate_game(self, current_game=None):
 		if current_game is None:
@@ -85,4 +85,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="loc_tool_gui"))
+	startup(MainWindow, GuiOptions(log_name="loc_tool_gui", size=(1200, 600)))

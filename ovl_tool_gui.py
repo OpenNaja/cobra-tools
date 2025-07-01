@@ -6,6 +6,7 @@ import tempfile
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MenuItem, SubMenuItem, SeparatorMenuItem
 from ovl_util.logs import get_stdout_handler
 from modules import walker
 import modules.formats.shared
@@ -21,7 +22,6 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
-		self.resize(800, 600)
 		self.setAcceptDrops(True)
 		self.suppress_popups = False
 
@@ -117,28 +117,42 @@ class MainWindow(widgets.MainWindow):
 		self.layout_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
-		self.add_to_menu(
-			(widgets.FILE_MENU, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
-			*self.file_menu_functions,
-			(widgets.EDIT_MENU, "Unpack All", self.extract_all, "CTRL+U", "extract"),
-			(widgets.EDIT_MENU, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(widgets.EDIT_MENU, "Rename Files", self.rename, "CTRL+R", "rename"),
-			(widgets.EDIT_MENU, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", "rename_contents"),
-			(widgets.EDIT_MENU, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
-			(widgets.EDIT_MENU, "Remove Selected", self.remove, "DEL", "remove"),
-			(widgets.EDIT_MENU, "Load Included OVL List", self.load_included_ovls, "", ""),
-			(widgets.EDIT_MENU, "Export Included OVL List", self.save_included_ovls, "", ""),
-			(widgets.EDIT_MENU, "Preferences", self.open_cfg_editor, "CTRL+,", "preferences"),
-			(widgets.UTIL_MENU, "Open Tools Dir", self.open_tools_dir, "", "home"),
-			(widgets.UTIL_MENU, "Export File List", self.save_file_list, "", ""),
-			(widgets.UTIL_MENU, "Compare with other OVL", self.compare_ovls, "", "compare"),
-			*self.help_menu_functions,
-			(widgets.DEVS_MENU, "Inspect MS2", self.inspect_models, "", "ms2"),
-			(widgets.DEVS_MENU, "Inspect FGM", self.walker_fgm, "", "fgm"),
-			(widgets.DEVS_MENU, "Inspect MANIS", self.walker_manis, "", "manis"),
-			(widgets.DEVS_MENU, "Generate Hash Table", self.walker_hash, "", ""),
-			(widgets.DEVS_MENU, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
-		)
+		self.build_menus({
+			widgets.FILE_MENU: [
+				MenuItem("New", self.file_widget.ask_open_dir, shortcut="CTRL+N", icon="new"),
+				*self.file_menu_items,
+			],
+			widgets.EDIT_MENU: [
+				MenuItem("Unpack All", self.extract_all, shortcut="CTRL+U", icon="extract"),
+				MenuItem("Inject", self.inject_ask, shortcut="CTRL+I", icon="inject"),
+				MenuItem("Remove Selected", self.remove, shortcut="DEL", icon="remove"),
+				SeparatorMenuItem(),
+				MenuItem("Rename Files", self.rename, shortcut="CTRL+R", icon="rename"),
+				MenuItem("Rename Contents", self.rename_contents, shortcut="CTRL+SHIFT+R", icon="rename_contents"),
+				MenuItem("Rename Both", self.rename_both, shortcut="CTRL+ALT+R"),
+				SeparatorMenuItem(),
+				MenuItem("Load Included OVL List", self.load_included_ovls),
+				MenuItem("Export Included OVL List", self.save_included_ovls),
+				SeparatorMenuItem(),
+				MenuItem("Preferences", self.open_cfg_editor, shortcut="CTRL+,", icon="preferences"),
+			],
+			widgets.UTIL_MENU: [
+				MenuItem("Open Tools Dir", self.open_tools_dir, icon="home"),
+				MenuItem("Export File List", self.save_file_list),
+				MenuItem("Compare with other OVL", self.compare_ovls, icon="compare"),
+				# --- Dev Tools Submenu ---
+				SubMenuItem("Dev Tools",
+					items=[
+						MenuItem("Inspect MS2", self.inspect_models, icon="ms2"),
+						MenuItem("Inspect FGM", self.walker_fgm, icon="fgm"),
+						MenuItem("Inspect MANIS", self.walker_manis, icon="manis"),
+						MenuItem("Generate Hash Table", self.walker_hash),
+						MenuItem("Dump Debug Data", self.dump_debug_data, icon="dump_debug"),
+					]
+				),
+			],
+			widgets.HELP_MENU: self.help_menu_items,
+		})
 
 		self.file_info = QtWidgets.QLabel(self)
 		
@@ -661,4 +675,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="ovl_tool_gui"))
+	startup(MainWindow, GuiOptions(log_name="ovl_tool_gui", size=(800, 600)))
