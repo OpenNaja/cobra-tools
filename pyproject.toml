@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cobra-tools"
-version = "2025.06.26"
+version = "2025.06.28"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = "==3.11.*"
@@ -42,3 +42,4 @@ log_cli_format = '%(levelname)s | %(message)s'
 log_cli_level = 'DEBUG'
 log_file = 'logs/pytest.log'
 log_file_format = '%(levelname)s | %(message)s'
+qt_api = 'pyqt5'
