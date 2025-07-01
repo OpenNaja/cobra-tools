@@ -1901,9 +1901,9 @@ class CheckableComboBox(QComboBox):
         return False
 
     def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
         # Recompute text to elide as needed
         self.updateText()
-        super().resizeEvent(event)
 
     def timerEvent(self, event: QTimerEvent) -> None:
         # After timeout, kill timer, and reenable click on line edit
@@ -1935,7 +1935,7 @@ class CheckableComboBox(QComboBox):
 
         # Compute elided text (with "...")
         metrics = QFontMetrics(self.lineEdit().font())
-        elidedText = metrics.elidedText(text, Qt.TextElideMode.ElideRight, self.lineEdit().width())
+        elidedText = metrics.elidedText(text, Qt.TextElideMode.ElideRight, self.lineEdit().contentsRect().width())
         self.lineEdit().setText(elidedText)
 
     def addItem(self, text: str, data: Any = None) -> None: # type: ignore[override]
@@ -1959,6 +1959,7 @@ class CheckableComboBox(QComboBox):
                 except (TypeError, IndexError):
                     data = None
                 self.addItem(text, data)
+        self.updateText()
 
     def currentData(self, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         # Return the list of selected items data
