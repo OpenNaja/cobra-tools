@@ -3112,27 +3112,46 @@ class DirWidget(FileDirWidget):
 
 
 class StatusSpacer(QWidget):
-    """Right aligns permanent status widgets to the main layout, ignoring the logger"""
+    """Right aligns permanent status widgets to another widget by providing a dynamic,
+    preferred-size space."""
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self._preferred_width = 0
+
+    def sizeHint(self) -> QSize:
+        """
+        Overrides the default sizeHint to report our dynamic preferred width.
+        """
+        return QSize(self._preferred_width, super().sizeHint().height())
 
     def set_widget(self, widget: QWidget) -> None:
+        """Connects to the signal that provides the width for alignment."""
         if hasattr(widget, "current_size"):
             widget.current_size.connect(self.resize)
 
     def resize(self, size: Union[QSize, int] = QSize(-1, -1), _h: int = 0) -> None:
+        """
+        This slot receives the new size, updates the preferred width, and tells
+        the layout to re-evaluate everything safely.
+        """
         parent = self.parent()
         if isinstance(size, QSize) and isinstance(parent, QStatusBar):
-            width = max(1, size.width() - 20)
-            # Compute width of siblings to prevent the spacer from being too large
+            new_width = max(1, size.width() - 20)
             sibling_width = 0
             for item in parent.children():
                 if isinstance(item, QWidget) and not isinstance(item, StatusSpacer) and item.isVisible():
                     sibling_width += item.width()
-            if width + sibling_width >= parent.width():
-                width = 0
-            self.setFixedWidth(width)
+
+            if new_width + sibling_width >= parent.width():
+                new_width = 0
+
+            # Only update if the width has actually changed.
+            if self._preferred_width != new_width:
+                self._preferred_width = new_width
+                # Invalidate the old size hint and trigger a layout update.
+                # This asks the layout to recalculate without forcing a resize.
+                self.updateGeometry()
 
 
 class WalkerDialog(QDialog):
