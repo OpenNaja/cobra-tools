@@ -190,7 +190,7 @@ class MainWindow(widgets.MainWindow):
 	def abs_path_from_row(self, row_data):
 		start_dir = self.installed_games.get_root()
 		full_path = os.path.join(start_dir, row_data[2])
-		return os.path.normpath(full_path)
+		return PurePath(full_path).as_posix()
 
 	def search_result_open(self, row_data):
 		ovl_path = self.abs_path_from_row(row_data)
