@@ -132,7 +132,7 @@ class MainWindow(widgets.MainWindow):
 				self.texture_choice.entry.addItems(textures)
 				self.attribute_choice.entry.addItems(attrib_dic.keys())
 			except:
-				logging.warning(f"No data for shader {self.game}")
+				logging.warning(f"{self.game} shader constants missing for shader: '{shader_name}'")
 
 	@property
 	def current_shaders(self):
@@ -337,7 +337,7 @@ class MainWindow(widgets.MainWindow):
 	def open(self, filepath):
 		if filepath:
 			try:
-				self.header = FgmHeader.from_xml_file(filepath, self.context)
+				self.header: FgmHeader = FgmHeader.from_xml_file(filepath, self.context)
 				logging.debug(f"from game {self.header.game}")
 				self.game_choice.entry.setText(self.header.game)
 				self.game_changed()
@@ -439,6 +439,7 @@ class TextureVisual:
 		# get tooltip from fgm dict
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
 		if container.title() == "Attributes":
+			most_common = []
 			try:
 				gui = self.container.gui
 				tex, attr_dict = gui.current_shaders[gui.header.shader_name]
@@ -446,8 +447,7 @@ class TextureVisual:
 				most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
 								for a in data_dist if len(a) > 0]
 			except:
-				logging.exception(f"Attribute tooltip for {self.entry.name} failed")
-				raise
+				logging.debug(f"Attribute tooltip for {self.entry.name} failed")
 			tooltip += fr"<br><br>Most Common Values (Usage #)<br> {'<br>'.join(most_common)}"
 		self.w_data.setToolTip(tooltip)
 		self.w_label.setToolTip(tooltip)
