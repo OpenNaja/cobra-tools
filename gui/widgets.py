@@ -3015,6 +3015,7 @@ class StatusSpacer(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.widget: QWidget | None = None
         self._preferred_width = 0
 
     def sizeHint(self) -> QSize:
@@ -3025,8 +3026,14 @@ class StatusSpacer(QWidget):
 
     def set_widget(self, widget: QWidget) -> None:
         """Connects to the signal that provides the width for alignment."""
+        self.widget = widget
         if hasattr(widget, "current_size"):
             widget.current_size.connect(self.resize)
+
+    def showEvent(self, a0):
+        super().showEvent(a0)
+        if self.widget:
+            QTimer.singleShot(0, lambda: self.resize(self.widget.size()))
 
     def resize(self, size: Union[QSize, int] = QSize(-1, -1), _h: int = 0) -> None:
         """
@@ -3041,6 +3048,7 @@ class StatusSpacer(QWidget):
                 if isinstance(item, QWidget) and not isinstance(item, StatusSpacer) and item.isVisible():
                     sibling_width += item.width()
 
+            # If no room, or LOGGER_BOTTOM, spacer will be 0 width
             if new_width + sibling_width >= parent.width():
                 new_width = 0
 
