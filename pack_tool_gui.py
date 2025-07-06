@@ -7,7 +7,7 @@ import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import MainWindow, MenuItem, SeparatorMenuItem
 from ovl_util.config import read_str_dict, write_str_dict
-from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
+from ovl_util.logs import HtmlFormatter, AnsiFormatter
 from generated.formats.ovl import games, OvlFile
 
 from PyQt5 import QtCore
@@ -44,6 +44,7 @@ class PackToolGUI(MainWindow):
 				SeparatorMenuItem(),
 				MenuItem("Exit", self.close, icon="exit"),
 			],
+			widgets.VIEW_MENU: self.view_menu_items,
 			widgets.HELP_MENU: self.help_menu_items,
 		})
 
@@ -80,16 +81,13 @@ class PackToolGUI(MainWindow):
 		self.ovl_data = OvlFile()
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
-		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
-
-		orientation = QtCore.Qt.Orientation.Vertical
 		topleft = QtWidgets.QWidget()
 		box = QtWidgets.QVBoxLayout()
 		box.addLayout(self.central_layout)
 		box.addWidget(self.log_splitter)
 		topleft.setLayout(box)
 
-		self.layout_logger(topleft, orientation)
+		self.layout_logger(topleft, widgets.LOGGER_BOTTOM)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
@@ -345,4 +343,4 @@ class PackToolGUI(MainWindow):
 
 
 if __name__ == '__main__':
-	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 300)))
+	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150)))

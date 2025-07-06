@@ -99,10 +99,13 @@ class MainWindow(widgets.MainWindow):
 				MenuItem("Import Texture Values", self.import_tex),
 				MenuItem("Import Attribute Values", self.import_att),
 			],
+			widgets.VIEW_MENU: self.view_menu_items,
 			widgets.HELP_MENU: self.help_menu_items
 		})
 
 		self.lock_attrs.toggled.emit(True)
+
+		self.layout_logger(self.central_widget, widgets.LOGGER_BOTTOM)
 
 	@property
 	def game(self):

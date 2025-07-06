@@ -4,7 +4,6 @@ import sys
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import Reporter
-from ovl_util.logs import get_stdout_handler
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -29,7 +28,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["games"] = {}
 		self.installed_games = widgets.GamesWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
 
-		self.files_container = widgets.SortableTable(["ID", "Localisation"], {}, ignore_drop_type="OVL", opt_hide=True)
+		self.files_container = widgets.SortableTable(["ID", "Localisation"], {}, ignore_drop_type="OVL", opt_hide=True, editable_columns=("Localisation",))
 
 		left_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
@@ -50,8 +49,7 @@ class MainWindow(widgets.MainWindow):
 
 		grid = QtWidgets.QGridLayout()
 
-		self.stdout_handler = get_stdout_handler("loc_tool_gui")  # self.log_name not set until after init
-		self.layout_splitter(grid, left_frame, right_frame)
+		self.create_main_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
 		self.build_menus({

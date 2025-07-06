@@ -7,7 +7,6 @@ from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import MenuItem, SubMenuItem, SeparatorMenuItem
-from ovl_util.logs import get_stdout_handler
 from modules import walker
 import modules.formats.shared
 from generated.formats.ovl import games, OvlFile
@@ -101,20 +100,20 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.compression_choice, 1, 2)
 		grid.addWidget(self.extract_types_choice, 2, 2)
 
-		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
-
 		left_frame = widgets.pack_in_box(
 			self.installed_games.search,
 			self.installed_games.filters,
 			self.installed_games.dirs,
 			self.installed_games,
-			margins=(0, 0, 1, 0))
+			margins=(0, 0, 1, 0)
+		)
 		right_frame = widgets.pack_in_box(
 			self.file_widget,
 			self.files_container,
 			self.included_ovls_view,
-			margins=(3, 0, 0, 0))
-		self.layout_splitter(grid, left_frame, right_frame)
+			margins=(3, 0, 0, 0)
+		)
+		self.create_main_splitter(grid, left_frame, right_frame)
 
 		# Setup Menus
 		self.build_menus({
@@ -136,6 +135,7 @@ class MainWindow(widgets.MainWindow):
 				SeparatorMenuItem(),
 				MenuItem("Preferences", self.open_cfg_editor, shortcut="CTRL+,", icon="preferences"),
 			],
+			widgets.VIEW_MENU: self.view_menu_items,
 			widgets.UTIL_MENU: [
 				MenuItem("Open Tools Dir", self.open_tools_dir, icon="home"),
 				MenuItem("Export File List", self.save_file_list),
@@ -164,9 +164,6 @@ class MainWindow(widgets.MainWindow):
 
 		self.status_bar.insertPermanentWidget(2, self.finfo_sep)
 		self.status_bar.insertPermanentWidget(3, self.file_info)
-
-		log_level = self.cfg.get("logger_level", "INFO")
-		self.set_log_level.emit(log_level)
 
 		self.search_files.connect(self.show_search_results)
 		self.search_views = {}
@@ -409,11 +406,10 @@ class MainWindow(widgets.MainWindow):
 
 	def print_debug_ovl(self):
 		if self.cfg.get("debug_mode", False):
-			# print(self.ovl_data)
-			logging.debug(self.ovl_data)
+			logging.debug(f"Header '{self.ovl_data.name}'", extra={'details': self.ovl_data})
 			for archive in self.ovl_data.archives:
 				if hasattr(archive, "content"):
-					logging.debug(archive.content)
+					logging.debug(f"Archive '{archive.name if archive.name else ''}'", extra={'details': archive.content})
 
 	def open(self, filepath):
 		if filepath:
@@ -646,6 +642,7 @@ class MainWindow(widgets.MainWindow):
 		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root())
 
 	def walker_fgm(self, ):
+		self.change_log_speed.emit("slow")
 		dialog = widgets.WalkerDialog(self, "Inspect FGMs", self.walk_root())
 		chk_full_report = widgets.QCheckBox("Full Report")
 		chk_full_report.setChecked(self.walk_root() == self.game_root())
@@ -658,6 +655,7 @@ class MainWindow(widgets.MainWindow):
 			)
 
 	def walker_manis(self, ):
+		self.change_log_speed.emit("slow")
 		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
@@ -666,6 +664,7 @@ class MainWindow(widgets.MainWindow):
 			)
 
 	def inspect_models(self):
+		self.change_log_speed.emit("slow")
 		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(

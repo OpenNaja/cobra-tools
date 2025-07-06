@@ -34,21 +34,25 @@ palettes: dict[str, QtGui.QPalette] = {
 }
 
 
-def style_modern_scrollbar(handle_color: str, view_bg_color: str) -> str:
+def style_modern_scrollbar(handle_color: str, view_bg_color: str, track_color: str="transparent") -> str:
     return RF"""
         QScrollBar:vertical {{
             border: 0px solid transparent;
-            background: transparent;
+            background: {track_color};
             width: 13px;
             margin: 0px 0px 0px 0px;
             border-radius: 6px;
         }}
         QScrollBar:horizontal {{
             border: 0px solid transparent;
-            background: transparent;
+            background: {track_color};
             height: 13px;
             margin: 0px 0px 0px 0px;
             border-radius: 6px;
+        }}
+        QAbstractScrollArea::corner {{
+            background: {track_color};
+            border: none;
         }}
         QScrollBar::handle {{
             background: {handle_color};

@@ -3,6 +3,8 @@ import webbrowser
 import os
 import re
 import html
+import time
+import threading
 import abc
 from collections import deque
 from abc import abstractmethod
@@ -13,7 +15,7 @@ from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
 from ovl_util import logs
 from ovl_util.config import Config, ImmediateSetting, RestartSetting
 
-from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
+from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple, Literal
 from textwrap import dedent
 from modules.formats.shared import DummyReporter
 from modules.walker import valid_packages
@@ -26,20 +28,19 @@ from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg  # pyright: ignore  # noqa: F4
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QRectF, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
-                          QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation,
+                          QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation, QChildEvent,
                           QAbstractListModel, QPersistentModelIndex, QItemSelectionModel, QVariant)
 from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen, qRgba, QPainterPath, QLinearGradient,
-                         QStandardItemModel, QStandardItem, QTextDocument, QTextCursor, QTextOption, QTextDocumentFragment,
-                         QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent, QShowEvent,
-                         QKeyEvent, QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent)
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog, QAbstractItemView,
+                         QStandardItemModel, QStandardItem, QTextOption,
+                         QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent, QShowEvent, QHideEvent,
+                         QKeyEvent, QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent, QPalette)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog, QAbstractItemView, QToolTip,
                              QListView, QHeaderView, QTableView, QTreeView, QFileSystemModel, QStyle, QLayoutItem,
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QMessageBox, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton, QSpacerItem,
-                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
-                             QSplitter,
-                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox,
-                             QFileIconProvider, QButtonGroup)
+                             QFrame, QLayout, QGridLayout, QBoxLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
+                             QSplitter, QToolBar, QWidgetAction, QTextBrowser, QProxyStyle, QStyleOption,
+                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox)
 from PyQt5.QtWinExtras import QWinTaskbarButton
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from __version__ import VERSION, COMMIT_HASH
@@ -49,6 +50,7 @@ MAX_UINT = 4294967295
 root_dir = Path(__file__).resolve().parent.parent
 
 FILE_MENU = 'File'
+VIEW_MENU = 'View'
 EDIT_MENU = 'Edit'
 UTIL_MENU = 'Util'
 HELP_MENU = 'Help'
@@ -734,7 +736,364 @@ class IconButton(QPushButton):
         self.setStyleSheet(style)
 
 
+ToolbarItem = Union[QAction, QWidget]
+
+
+class ToolbarSpacingProxyStyle(QProxyStyle):
+    """
+    A QProxyStyle that overrides the styling of toolbar widgets
+    """
+    def __init__(self, base_style: QStyle | str | None=None):
+        super().__init__(base_style)
+        self._spacing = 10  # Default spacing
+
+    def set_toolbar_spacing(self, spacing: int) -> None:
+        """Allows you to dynamically set the desired spacing."""
+        self._spacing = spacing
+
+    def pixelMetric(self, metric: QStyle.PixelMetric, option: QStyleOption | None=None,
+                    widget: QWidget | None=None) -> int:
+        """
+        Custom pixel metric overrides
+        """
+        if metric == QStyle.PixelMetric.PM_ToolBarItemSpacing:
+            return self._spacing
+
+        return super().pixelMetric(metric, option, widget)
+
+
+class OrientationToolBar(QToolBar):
+    """
+    A QToolBar that manages the visibility of its actions and widgets
+    based on the toolbar's orientation.
+    """
+
+    def __init__(self, title: str, parent: QWidget = None):
+        super().__init__(title, parent)
+        # This dictionary maps a QAction or QWidget to its visibility rule
+        # The rule is a Qt.Orientations flag (e.g. Qt.Orientation.Horizontal)
+        self._item_visibility: dict[ToolbarItem, Qt.Orientations] = {}
+        # Store margins for each orientation, initializing with the current state.
+        self._horizontal_margins = self.contentsMargins()
+        self._vertical_margins = self.contentsMargins()
+
+    def addOrientationAction(self, action: QAction, visibility: Qt.Orientations) -> None:
+        """
+        Adds a QAction that will only be visible in the specified orientations.
+          Example: (Qt.Orientation.Horizontal | Qt.Orientation.Vertical)
+        """
+        super().addAction(action)
+        self._item_visibility[action] = visibility
+        self._updateItemVisibility(action)
+
+    def addOrientationWidget(self, widget: QWidget, visibility: Qt.Orientations) -> None:
+        """
+        Adds a QWidget that will only be visible in the specified orientations.
+        """
+        widget_action = super().addWidget(widget)
+        #widget_action.setPriority(QAction.Priority.LowPriority)
+        self._item_visibility[widget_action] = visibility
+        self._updateItemVisibility(widget_action)
+
+    def addOrientationSeparator(self, visibility: Qt.Orientations) -> QAction:
+        """
+        Adds a separator that will only be visible in the specified orientations.
+        """
+        separator_action = super().addSeparator()
+        self._item_visibility[separator_action] = visibility
+        self._updateItemVisibility(separator_action)
+        return separator_action
+
+    def setOrientation(self, orientation: Qt.Orientation) -> None:
+        """
+        Overrides the parent method to apply custom visibility rules and to
+        propagate the orientation change to any child that supports it.
+        """
+        # Let the parent class handle its own orientation change first
+        super().setOrientation(orientation)
+        # Iterate through all managed items to find child widgets
+        for item_action in self._item_visibility.keys():
+            if isinstance(item_action, QWidgetAction):
+                # Retrieve the actual widget from the widget action
+                child_widget = item_action.defaultWidget()
+                # Check if the widget has a 'setOrientation' method
+                if child_widget and hasattr(child_widget, 'setOrientation'):
+                    child_widget.setOrientation(orientation)
+        # Apply this toolbar's own visibility logic to its immediate items
+        self._updateAllItemVisibility()
+        # Apply the correct margins for the new orientation
+        self._applyOrientationMargins()
+
+    def setOrientationMargins(self,
+                              horizontal: QtCore.QMargins | None = None,
+                              vertical: QtCore.QMargins | None = None) -> None:
+        """
+        Sets the content margins to be used for each orientation.
+        """
+        if horizontal:
+            self._horizontal_margins = horizontal
+        if vertical:
+            self._vertical_margins = vertical
+        # Apply the correct margins immediately based on the current orientation
+        self._applyOrientationMargins()
+
+    def _applyOrientationMargins(self) -> None:
+        """
+        Applies the stored margins based on the current orientation.
+        """
+        if self.orientation() == Qt.Orientation.Horizontal:
+            super().setContentsMargins(self._horizontal_margins)
+        else:  # Qt.Orientation.Vertical
+            super().setContentsMargins(self._vertical_margins)
+
+    def setContentsMargins(self, *args, **kwargs) -> None:
+        """
+        The margins should only be set via setOrientationMargins().
+        """
+        pass
+
+
+    def _updateAllItemVisibility(self) -> None:
+        """
+        Iterates through all tracked items and sets their visibility based on the toolbar's
+        current orientation.
+        """
+        for item, visibility_rule in self._item_visibility.items():
+            self._updateItemVisibility(item, visibility_rule)
+
+    def _updateItemVisibility(self, item: ToolbarItem, visibility_rule: Qt.Orientations = None) -> None:
+        """
+        Updates the visibility of a single item.
+        """
+        if visibility_rule is None:
+            visibility_rule = self._item_visibility.get(item)
+
+        if not visibility_rule:
+            return
+
+        # Check if the item's visibility rule includes the current orientation
+        is_visible = bool(self.orientation() & visibility_rule)
+        item.setVisible(is_visible)
+
+    def removeAction(self, action: QAction) -> None:
+        """
+        Overrides removeAction to clean up the item from the tracking dictionary.
+        """
+        if action in self._item_visibility:
+            del self._item_visibility[action]
+        super().removeAction(action)
+
+    def childEvent(self, event: QChildEvent) -> None:
+        """
+        Overrides childEvent to catch when a widget is removed from the toolbar,
+        ensuring it's also removed from the tracking dictionary.
+        """
+        if event.type() == QEvent.Type.ChildRemoved:
+            child = event.child()
+            if child in self._item_visibility:
+                del self._item_visibility[child]
+        super().childEvent(event)
+
+
+class SnapCollapseWidget(QWidget):
+    """
+    A widget that contains a toolbar and content, designed to be used within a SnapCollapseSplitter.
+
+    When the widget's size shrinks below a certain threshold in its primary
+    orientation, the content widget is hidden. For horizontal orientation,
+    the toolbar also switches from being above the content to being vertical.
+    """
+    snapped = pyqtSignal(bool)
+    current_size = pyqtSignal(QSize)
+    SNAP_THRESHOLD = 120
+
+    def __init__(self, toolbar: QWidget=None, content: QWidget=None, orientation: Qt.Orientation=Qt.Orientation.Vertical,
+                 threshold: int=SNAP_THRESHOLD, parent=None):
+        super().__init__(parent)
+        self._orientation = orientation
+        self._toolbar = None
+        self._content = None
+        self._is_collapsed = False
+        self._snap_threshold = threshold
+
+        self._layout = QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self.setLayout(self._layout)
+
+        if toolbar:
+            self.set_toolbar(toolbar)
+        if content:
+            self.set_content(content)
+
+    def set_toolbar(self, toolbar: QWidget):
+        """Sets or replaces the toolbar widget."""
+        # Remove and delete the existing toolbar, if any
+        if self._toolbar:
+            self._layout.removeWidget(self._toolbar)
+            self._toolbar.deleteLater()
+
+        self._toolbar = toolbar
+        if self._toolbar:
+            # Insert at top
+            self._layout.insertWidget(0, self._toolbar)
+
+    def set_content(self, content: QWidget):
+        """Sets or replaces the content widget."""
+        # Remove and delete the existing content, if any
+        if self._content:
+            self._layout.removeWidget(self._content)
+            self._content.deleteLater()
+
+        self._content = content
+        if self._content:
+            self._layout.addWidget(self._content)
+            
+            # Apply the size policy for collapsing
+            if self._orientation == Qt.Orientation.Horizontal:
+                self._content.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+            else:  # Vertical
+                self._content.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Ignored)
+
+            # If the widget is already collapsed, hide the new content immediately
+            if self.is_collapsed():
+                self._content.hide()
+
+    def is_collapsed(self) -> bool:
+        return self._is_collapsed
+
+    def resizeEvent(self, event):
+        """The core logic for snapping is handled on resize"""
+        super().resizeEvent(event)
+        current_size = (
+            self.width() if self._orientation == Qt.Orientation.Horizontal else self.height()
+        )
+        # Emit the signal every time the resize happens and we are under the threshold.
+        # This allows the parent splitter to continuously enforce the snap.
+        if current_size < self._snap_threshold:
+            if not self._is_collapsed:
+                self.collapse()
+            else:
+                # If already collapsed, still emit the signal so the splitter can enforce the size.
+                self.snapped.emit(True)
+        elif self._is_collapsed:
+            self.expand()
+        self.current_size.emit(self.size())
+
+    def collapse(self):
+        """Hides the content and updates the layout for the collapsed state."""
+        self._is_collapsed = True
+        self._content.hide()
+        if self._orientation == Qt.Orientation.Horizontal and hasattr(self._toolbar, "setOrientation"):
+            self._toolbar.setOrientation(Qt.Orientation.Vertical)
+
+        self.snapped.emit(True)
+        self.updateGeometry()
+
+    def expand(self):
+        """Shows the content and restores the layout for the expanded state."""
+        self._is_collapsed = False
+        self._content.show()
+        if self._orientation == Qt.Orientation.Horizontal and hasattr(self._toolbar, "setOrientation"):
+            self._toolbar.setOrientation(Qt.Orientation.Horizontal)
+
+        self.snapped.emit(False)
+        self.updateGeometry()
+
+    def minimumSizeHint(self) -> QSize:
+        """
+        Calculates the minimum size hint for the parent QSplitter.
+        """
+        if self._is_collapsed:
+            return self._toolbar.minimumSizeHint()
+        # When expanded, the layout is always QVBoxLayout.
+        # Therefore, the minimum size is the max of the children's widths and the sum of their heights.
+        toolbar_hint = self._toolbar.minimumSizeHint()
+        content_hint = self._content.minimumSizeHint()
+        
+        w = max(toolbar_hint.width(), content_hint.width())
+        h = toolbar_hint.height() + content_hint.height()
+        return QSize(w, h)
+
+
+class SnapCollapseSplitter(QSplitter):
+    """
+    A QSplitter that properly handles SnapCollapseWidget children by actively
+    enforcing their snapped (collapsed) state.
+    """
+    def __init__(self, orientation: Qt.Orientation, parent: QWidget | None = None):
+        super().__init__(orientation, parent)
+        self._snap_widgets = {}
+
+    def addWidget(self, widget: QWidget):
+        """
+        Overrides addWidget to identify SnapCollapseWidgets and configure them.
+        """
+        super().addWidget(widget)
+        if isinstance(widget, SnapCollapseWidget):
+            index = self.indexOf(widget)
+            self._snap_widgets[index] = widget
+            self.setCollapsible(index, False)
+            widget.snapped.connect(self._on_child_snapped)
+
+    def _on_child_snapped(self, is_collapsed: bool):
+        """
+        When a child snaps collapsed, this slot enforces the splitter size,
+        forcing the widget to its minimum and giving the extra space to another widget.
+        """
+        if not is_collapsed:
+            return
+
+        sender_widget = self.sender()
+        if not isinstance(sender_widget, SnapCollapseWidget):
+            return
+
+        index = self.indexOf(sender_widget)
+        current_sizes = self.sizes()
+        if len(current_sizes) < 2 or index == -1:
+            return
+
+        min_hint = sender_widget.minimumSizeHint()
+        min_size = min_hint.width() if self.orientation() == Qt.Orientation.Horizontal else min_hint.height()
+        # If the widget already has a size smaller or equal to its minimum, do nothing
+        # This check is to prevent recursive loops
+        if current_sizes[index] <= min_size:
+            return
+
+        # Calculate the space to reclaim from the collapsed widget
+        delta = current_sizes[index] - min_size
+        new_sizes = list(current_sizes)
+        new_sizes[index] = min_size
+        # Find the largest non-collapsed widget to give the extra space to
+        largest_widget_index = -1
+        max_size = -1
+        for i, size in enumerate(new_sizes):
+            if i == index:
+                continue
+            widget = self.widget(i)
+            # Don't give space to other collapsed widgets
+            if isinstance(widget, SnapCollapseWidget) and widget.is_collapsed():
+                continue
+            if size > max_size:
+                max_size = size
+                largest_widget_index = i
+        
+        if largest_widget_index != -1:
+            new_sizes[largest_widget_index] += delta
+        else:
+            # Fallback: if all other widgets are collapsed, give it to the first neighbor
+            if index > 0:
+                new_sizes[index - 1] += delta
+            else:
+                new_sizes[index + 1] += delta
+
+        # Use a zero-delay QTimer to apply the sizes. This breaks potential
+        # recursive event loops where setSizes -> resizeEvent -> snapped -> _on_child_snapped.
+        QTimer.singleShot(0, lambda: self.setSizes(new_sizes))
+
+
 class LogStatus(QWidget):
+    """A log level icon, count for that log level, and optional last log text."""
     select_row = pyqtSignal(int)
 
     class Message(NamedTuple):
@@ -775,14 +1134,14 @@ class LogStatus(QWidget):
         self.next_box.setSpacing(0)
         self.next_box.setContentsMargins(0, 0, 0, 0)
         # Next button
-        self.next_btn = QPushButton(get_icon("jump", color=color), "")
+        self.next_btn = QPushButton(get_icon("jump", color=color), "", parent=self)
         self.next_btn.setFlat(True)
         self.next_btn.setVisible(False)
         self.next_btn.setStatusTip(f"Jump to next {level.title()}")
         self.next_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.next_btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         # Next text
-        self.next_txt = QPushButton("")
+        self.next_txt = QPushButton("", parent=self)
         self.next_txt.setVisible(False)
         self.next_txt.setStatusTip(f"Jump to next {level.title()}")
         self.next_txt.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -815,7 +1174,7 @@ class LogStatus(QWidget):
                 margin: 0px;
                 color: {color};
                 border: none;
-                font: bold 12px "Consolas, monospace"; 
+                font: bold 12px "Hack, Consolas, monospace"; 
             }}
             QPushButton:hover {{
                 color: {highlight.name()};
@@ -825,48 +1184,40 @@ class LogStatus(QWidget):
         """
         self.count_btn.setStyleSheet(btn_style)
         self.count_lbl.setStyleSheet(btn_style)
+        self.count_lbl.setFont(get_font("Hack, Consolas, monospace", 8))
         self.next_btn.setStyleSheet(next_btn_style)
         self.next_txt.setStyleSheet(next_btn_style)
         self.next_btn.clicked.connect(self.on_clicked)
         self.next_txt.clicked.connect(self.on_clicked)
         # Main layout
-        self.hbox = QHBoxLayout(self)
-        self.hbox.addLayout(self.count_box)
-        self.hbox.addLayout(self.next_box)
-        self.hbox.setContentsMargins(0, 0, 0, 0)
+        self.status_box = QHBoxLayout(self)
+        self.status_box.addLayout(self.count_box)
+        self.status_box.addLayout(self.next_box)
+        self.status_box.setContentsMargins(0, 0, 0, 0)
 
     @property
     def message_count(self) -> int:
         return len(self.messages)
 
-    def layout_horizontal(self) -> None:
-        self.next_btn.setFixedHeight(16)
-        self.next_txt.setFixedHeight(16)
-        if self.show_msg:
-            self.next_txt.setMaximumWidth(self.max_msg_width)
+    def setOrientation(self, orientation: Qt.Orientation):
+        direction = (QHBoxLayout.Direction.LeftToRight if orientation == Qt.Orientation.Horizontal
+                                else QHBoxLayout.Direction.TopToBottom)
+        self.status_box.setDirection(direction)
+        self.count_box.setDirection(direction)
+        self.next_box.setDirection(direction)
+
+        if orientation == Qt.Orientation.Horizontal:
+            self.next_btn.setFixedHeight(16)
+            self.next_txt.setFixedHeight(16)
+            if self.show_msg:
+                self.next_txt.setMaximumWidth(self.max_msg_width)
+            else:
+                self.next_txt.setMaximumWidth(0)
+                self.next_btn.setFixedWidth(16)
+            self.setFixedHeight(16)
         else:
-            self.next_txt.setMaximumWidth(0)
-            self.next_btn.setFixedWidth(16)
-        self.setFixedHeight(16)
-        self.hbox.setDirection(QHBoxLayout.Direction.LeftToRight)
-        self.hbox.setSpacing(6)
-        self.count_box.setDirection(QHBoxLayout.Direction.LeftToRight)
-        self.next_box.setDirection(QHBoxLayout.Direction.LeftToRight)
-
-    def layout_vertical(self) -> None:
-        self.setFixedHeight(64)
-        self.hbox.setDirection(QHBoxLayout.Direction.TopToBottom)
-        self.hbox.setSpacing(6)
-        self.count_box.setDirection(QHBoxLayout.Direction.TopToBottom)
-        self.next_box.setDirection(QHBoxLayout.Direction.TopToBottom)
-
-    def resize_max_msg_width(self, add_sub: int) -> None:
-        """Increase/Decrease max message width with window"""
-        # TODO: This wasn't quite working and is not currently called
-        if self.show_msg:
-            self.max_msg_width += add_sub
-            self.next_txt.setMaximumWidth(self.max_msg_width)
-            self.update_text()
+            self.setMinimumHeight(32)
+            self.setMaximumHeight(96)
 
     def set_show_message(self, show: bool) -> None:
         self.show_msg = show
@@ -887,9 +1238,9 @@ class LogStatus(QWidget):
             metrics = self.next_txt.fontMetrics()
             self.next_txt.setText(metrics.elidedText(self.next_txt.text(), Qt.TextElideMode.ElideRight, self.max_msg_width))
         if self.message_count < 100:
-            self.count_lbl.setFont(QFont("Consolas, monospace", 8))
+            self.count_lbl.setFont(get_font("Hack, Consolas, monospace", 8))
         else:
-            self.count_lbl.setFont(QFont("Consolas, monospace", 7))
+            self.count_lbl.setFont(get_font("Hack, Consolas, monospace", 7))
         self.next_btn.setVisible(True)
         self.next_txt.setVisible(True)
         self.next_btn.setToolTip(f"Jump to `{self.messages[0].text}`")
@@ -908,198 +1259,194 @@ class LogStatus(QWidget):
 
 
 class LogViewDelegate(QStyledItemDelegate):
-    rowSizeHintChanged = QtCore.pyqtSignal(int)
+    FIXED_ROW_HEIGHT = 18
+    ICON_AREA_WIDTH = 25
+    TEXT_PADDING = 4
+    ROW_FONT: QFont = get_font("Hack, Consolas, monospace", pixel_size=12, bold=True)
+    HOVER_INDICATOR_SVG_NAME = "mouse_lmb"
+    DETAIL_INDICATOR_SVG_NAME = "info_large"
+    HOVER_INDICATOR_SVG_SIZE: QSize = QSize(16, 16)
+    DETAIL_INDICATOR_SVG_SIZE: QSize = QSize(20, 20)
+    HOVER_INDICATOR_TEXT = "Details "
+    INDICATOR_SPACING = 4
 
-    document_cache: dict[int, QTextDocument] = dict()
-
-    HEIGHT = 18
-    PAD = 4
-    DETAIL_INDENT = '\u00A0\u00A0'
-    DETAIL_OFFSET = HEIGHT
-    ICON_COL_SIZE = 25
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.do_toggle = False
-        self._style = R"""
-            div, span {font-family: "Consolas, monospace"; font-size: 12px; background: transparent; border: 0px;}
-            .msg_DEBUG {color:#808080;}
-            .msg_INFO {color:#ddd;}
-            .msg_SUCCESS {color:#2fff5d;}
-            .msg_WARNING {color:#ffc52f;}
-            .msg_ERROR {color:#e73f34;}
-            .msg_CRITICAL {color:#ff2e67;}
-            .level {font-size: 1px; color: transparent; width: 0px; }
-
-            .detail, .traceback, .show, .hide {font-family: "Consolas, monospace"; color: #ddd; margin-top: 4px; border: 0px;}
-            .traceback, .show, .hide {font-size: 11px;}
-            .detail {font-size: 12px;}
-
-            .trace {font-family: "Consolas, monospace"; font-size: 11px;}
-            .trace.caret {color:#e54873;}
-            .trace.line {color:#31b6e2;}
-            .trace.file {color:#e8c35e;}
-            .trace.location {color:#76a342;}
-            .trace.exception, .trace.message {color:#f34965;}
-
-            QTextBlock {font-family: "Consolas, monospace"; margin: 0px; padding: 0px; border: 0px;}
-        """
-
-    SHOW_CHAR = "\u2B9E"  # >  arrow
-    HIDE_CHAR = "\u2B9F"  # \/ arrow
-    SHOW_INFO = f"{SHOW_CHAR} Show Info"
-    HIDE_INFO = f"{HIDE_CHAR} Hide Info"
-    SHOW_TRACE = f"{SHOW_CHAR} Show Traceback"
-    HIDE_TRACE = f"{HIDE_CHAR} Hide Traceback"
-
-    @staticmethod
-    def show_text(is_trace: bool) -> str:
-        return f"{LogViewDelegate.SHOW_TRACE if is_trace else LogViewDelegate.SHOW_INFO}"
-
-    @staticmethod
-    def hide_text(is_trace: bool) -> str:
-        return f"{LogViewDelegate.HIDE_TRACE if is_trace else LogViewDelegate.HIDE_INFO}"
-
-    @staticmethod
-    def color_traceback(text: str) -> str:
-        """Basic coloring for tracebacks"""
-        # Traceback (most recent call last)
-        text = re.sub(r"(?m)^(Traceback.*:)$", r"<span class='trace message'>\g<1></span>", text)
-        # ExceptionType: exception message
-        text = re.sub(r"(?m)^([A-Za-z0-9_\.]+):\s(.*?)$", r"<span class='trace exception'>\g<1>: \g<2></span>", text)
-        # Caret underlines
-        text = re.sub(r"([\^]+)", r"<span class='trace caret'>\g<0></span>", text)
-        # Line numbers
-        text = re.sub(r",(\sline\s[0-9]+),", r",<span class='trace line'>\g<1></span>,", text)
-        # Filepath
-        text = re.sub(r"(File\s&quot;.*?&quot;),", r"<span class='trace file'>\g<1></span>", text)
-        # Method name
-        text = re.sub(r"(?m),\sin\s(.*?)$", r", in <span class='trace location'>\g<1></span>", text)
-        return text
-
-    def create_doc(self, option: QStyleOptionViewItem, index: QModelIndex) -> QTextDocument:
-        """Create a QTextDocument for a logger item and cache it for repaints"""
-        # Cache each row for repaints
-        doc = None #self.document_cache.get(index.row(), None)
-        if doc is None:
-            doc = QTextDocument()
-            opt = QTextOption()
-            if not (option.features & QStyleOptionViewItem.ViewItemFeature.WrapText):
-                opt.setWrapMode(QTextOption.WrapMode.NoWrap)
-            doc.setDefaultStyleSheet(self._style)
-            doc.setUndoRedoEnabled(False)
-            doc.setDocumentMargin(0)
-            doc.setUseDesignMetrics(True)
-            doc.setTextWidth(option.rect.width() - self.ICON_COL_SIZE)
-            doc.setDefaultTextOption(opt)
-
-            detail = str(index.data(Qt.ItemDataRole.UserRole))
-            is_trace = detail.startswith("\nTraceback")
-            cursor = QTextCursor(doc)
-            cursor.insertHtml(option.text)
-            if detail:
-                cursor.movePosition(QTextCursor.MoveOperation.End)
-                cursor.insertBlock()  # Whitespace for Show/Hide line
-                cursor.insertBlock()  # Block for Traceback/Info
-                detail = self.color_traceback(html.escape(detail).replace(' ', '\u00A0'))
-                if is_trace:
-                    detail = detail.replace('\n', self.DETAIL_INDENT, 1)  # Replace first \n
-                detail = detail.replace('\n', f'<br>{self.DETAIL_INDENT}')
-                cursor.insertHtml(f"<div class='{'traceback' if is_trace else 'detail'}'>{detail}</div>")
-                cursor.block().setVisible(False)
-            #self.document_cache[index.row()] = doc
-        return doc
-
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
-        """Render our logger widget item"""
-        self.initStyleOption(option, index)
-        painter.setFont(QFont("Consolas, monospace", 8))
-        painter.setRenderHints(QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.Antialiasing)
-        painter.save()
-        option.features &= ~(QStyleOptionViewItem.ViewItemFeature.WrapText | QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator)
-        doc = self.create_doc(option, index)
-        option.text = ""
-        option.widget.style().drawControl(QtWidgets.QStyle.ControlElement.CE_ItemViewItem, option, painter, option.widget)
-
-        detail = str(index.data(LogModel.DETAIL))
-        if detail:
-            # Detail block expand/collapse state
-            toggled = False
-            is_trace = detail.startswith("\nTraceback")
-            # Entire list view item rect
-            area = option.rect
-            # Entire detail block
-            detail_rect = QRect(area)
-            detail_rect.setTop(area.top() + self.DETAIL_OFFSET)
-            detail_rect.adjust(self.ICON_COL_SIZE, 0, -self.ICON_COL_SIZE, 0)
-            # Show/Hide detail line
-            show_detail_rect = QRect(detail_rect)
-            show_detail_rect.setHeight(min(10, show_detail_rect.height()))
-            # There is the space for Show/Hide detail, get index state
-            if area.contains(show_detail_rect, proper=True):
-                toggled = index.data(LogModel.TOGGLED) == Qt.CheckState.Checked
-            # Is the detail block being hovered on
-            on_detail = False
-            widget = option.widget
-            if type(widget) is LogView and (option.state & QStyle.StateFlag.State_MouseOver):
-                position = widget.viewport().mapFromGlobal(QtGui.QCursor.pos())
-                if detail_rect.contains(position):
-                    on_detail = True
-            # Draw mouseover highlight
-            if on_detail and (option.state & QStyle.StateFlag.State_MouseOver):
-                # Color for log level
-                color = QColor(LogView.COLORS.get(index.data(LogModel.LEVEL), "#FFFFFF"))
-                color.setAlpha(32)
-                grad_rect = detail_rect if toggled else detail_rect
-                gradient = QLinearGradient(0, 0, 0, 1.0)
-                gradient.setCoordinateMode(QLinearGradient.CoordinateMode.ObjectBoundingMode)
-                gradient.setColorAt(0.0, color)
-                if toggled:
-                    color.setAlpha(0)
-                gradient.setColorAt(1.0, color)
-                path = QPainterPath()
-                path.addRoundedRect(QRectF(grad_rect), 4, 4)
-                painter.setPen(QPen(Qt.GlobalColor.transparent, 0))
-                painter.setBrush(gradient)
-                painter.drawPath(path)
-            # Highlight Show/Hide text over entire detail block
-            if (option.state & QStyle.StateFlag.State_MouseOver):
-                if on_detail:
-                    painter.setPen(QColor("#CCC"))
-                else:
-                    painter.setPen(QColor("#AAA"))
-            else:
-                painter.setPen(QColor("#999"))
-            # Show/Hide Text
-            text = self.show_text(is_trace) if not toggled else self.hide_text(is_trace)
-            painter.drawText(show_detail_rect.adjusted(0, 3, 0, 3), Qt.AlignmentFlag.AlignVCenter, text)
-            oldSize = self.sizeHint(option, index)
-            if self.do_toggle and (option.state & (QStyle.StateFlag.State_HasFocus)):
-                cursor = QTextCursor(doc)
-                cursor.movePosition(QTextCursor.MoveOperation.End)
-                cursor.block().setVisible(toggled)
-                doc.markContentsDirty(cursor.block().position(), cursor.block().length())
-                self.do_toggle = False
-            # Update LogView layout
-            if oldSize != self.sizeHint(option, index):
-                self.rowSizeHintChanged.emit(min(300, int(doc.size().height())))
-
-        painter.translate(option.rect.left() + self.ICON_COL_SIZE, option.rect.top() + self.PAD)
-        doc.drawContents(painter, QRectF(0, 0, option.rect.width(), option.rect.height()))
-        painter.restore()
+    def __init__(self, parent: QObject | None = None) -> None:
+        super().__init__(parent)
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        """Adjust the sizeHint for the QTextDocument"""
+        return QSize(-1, self.FIXED_ROW_HEIGHT + self.TEXT_PADDING)
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         self.initStyleOption(option, index)
-        doc = self.create_doc(option, index)
-        size = QSize(int(doc.idealWidth()), int(doc.size().height()) + self.PAD * 2)
-        return size
 
-    def on_toggle_detail(self) -> None:
-        self.do_toggle = True
+        painter.save()
+        painter.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.HighQualityAntialiasing)
 
-    def clear(self) -> None:
-        self.document_cache.clear()
+        # Data for the Row
+        log_level = index.data(LogModel.LEVEL)
+        bg_color = option.backgroundBrush.color()
+        log_color = LogView.COLORS.get(log_level, option.palette.text().color())
+
+        icon_pixmap = index.data(LogModel.ICON)
+        row_txt_summary = str(index.data(LogModel.TEXT) or "")
+        has_details = bool(index.data(LogModel.DETAIL))
+
+        content_rect = option.rect.adjusted(
+            self.TEXT_PADDING,       # Left padding from item edge
+            self.TEXT_PADDING // 2,  # Top padding from item edge
+            -self.TEXT_PADDING,      # Right padding from item edge
+            -self.TEXT_PADDING // 2  # Bottom padding from item edge
+        )
+        # Effective vertical drawing area for text/indicator:
+        drawing_y = content_rect.top()
+        drawing_height = content_rect.height()
+        # Define where text will start horizontally
+        text_summary_start_x = option.rect.left() + self.ICON_AREA_WIDTH
+
+        # Colored Gradients
+        if content_rect.isValid():
+            color = QColor(LogView.COLORS.get(index.data(LogModel.LEVEL), "#FFFFFF"))
+            color.setAlpha(24)
+            color2 = QColor(LogView.COLORS.get(index.data(LogModel.LEVEL), "#FFFFFF"))
+            color2.setAlpha(16)
+
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+                color.setAlpha(48)
+                color2.setAlpha(32)
+            elif option.state & QtWidgets.QStyle.StateFlag.State_MouseOver:
+                color.setAlpha(8) 
+                color2.setAlpha(0)
+
+            expansion_pixels = 1
+            gradient_fill_rect = QRectF(content_rect).adjusted(
+                -expansion_pixels,
+                -expansion_pixels,
+                expansion_pixels,
+                expansion_pixels
+            )
+            gradient_fill_rect = gradient_fill_rect.intersected(QRectF(option.rect))  # Constrain
+
+            gradient = QLinearGradient(0, 0, 0, 1.0)  # Vertical gradient
+            gradient.setCoordinateMode(QLinearGradient.CoordinateMode.ObjectBoundingMode)
+            gradient.setColorAt(0.0, color)
+            gradient.setColorAt(1.0, color2)
+            
+            path = QPainterPath()
+            path.addRoundedRect(gradient_fill_rect, 4, 4)
+            painter.setPen(QPen(Qt.GlobalColor.transparent, 0))
+            painter.setBrush(gradient)
+            painter.drawPath(path)
+
+        # Draw Icon
+        icon_x_start = option.rect.left() + self.TEXT_PADDING
+        if icon_pixmap and isinstance(icon_pixmap, QtGui.QPixmap):
+            icon_y = drawing_y + (drawing_height - icon_pixmap.height()) // 2
+            painter.drawPixmap(icon_x_start, icon_y, icon_pixmap)
+
+        # Determine if hover indicator for details should be shown
+        is_hovered = bool(option.state & QtWidgets.QStyle.StateFlag.State_MouseOver)
+        hover_detail_indicator = has_details and is_hovered
+
+        # To correctly elide log text
+        indicator_block_width = 0
+        # Draw Detail Indicators
+        if hover_detail_indicator:
+            # Font Metrics for log text elision
+            details_txt_font: QFont = QFont(self.ROW_FONT)
+            details_txt_font.setBold(False)
+            indicator_icon_width = self.HOVER_INDICATOR_SVG_SIZE.width()
+            details_txt = self.HOVER_INDICATOR_TEXT
+            details_txt_font_metrics = QFontMetrics(details_txt_font)
+            details_txt_width = details_txt_font_metrics.horizontalAdvance(details_txt)
+            spacing_txt_inner = self.INDICATOR_SPACING // 2
+            total_indicator_visual_width = details_txt_width + spacing_txt_inner + indicator_icon_width
+            border_internal_padding = 2
+            indicator_block_width = total_indicator_visual_width + (2 * border_internal_padding)
+            # Icon
+            indicator_pixmap = None
+            try:
+                indicator_icon: QIcon = get_icon(self.HOVER_INDICATOR_SVG_NAME, bg_color.name(), self.HOVER_INDICATOR_SVG_SIZE) 
+                indicator_pixmap: QtGui.QPixmap = indicator_icon.pixmap(self.HOVER_INDICATOR_SVG_SIZE)
+            except Exception as e:  # Catch if get_icon itself fails
+                logging.error(f"Error getting icon '{self.HOVER_INDICATOR_SVG_NAME}': {e}")
+                indicator_pixmap = None
+
+            indicator_block_x_start = content_rect.right() - indicator_block_width
+
+            # Ensure it doesn't overlap with where text summary is supposed to end
+            if indicator_block_x_start < text_summary_start_x + self.INDICATOR_SPACING :  # Avoid overlap
+                 indicator_block_x_start = text_summary_start_x + self.INDICATOR_SPACING
+
+            # Draw the border
+            border_draw_rect = QRect(
+                indicator_block_x_start,
+                drawing_y, 
+                indicator_block_width,
+                drawing_height 
+            )
+            indicator_bg_color = log_color
+            indicator_border_color = QColor(log_color)
+            indicator_border_color.setAlpha(192)
+            painter.setPen(QPen(indicator_bg_color, 1)) 
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawRect(border_draw_rect)  # 1px border just inside
+            painter.fillRect(border_draw_rect, indicator_border_color)
+            # Draw "Details "
+            painter.setPen(bg_color)
+            painter.setFont(details_txt_font)
+            
+            details_txt_draw_x = border_draw_rect.left() + border_internal_padding
+            details_txt_rect = QRect(details_txt_draw_x + indicator_icon_width + spacing_txt_inner, drawing_y, details_txt_width, drawing_height)
+            painter.drawText(details_txt_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, details_txt)
+
+            if indicator_pixmap:
+                arrow_y = drawing_y + (drawing_height - indicator_pixmap.height()) // 2
+                painter.drawPixmap(details_txt_draw_x, arrow_y, indicator_pixmap)
+        elif has_details:
+            indicator_block_width = self.DETAIL_INDICATOR_SVG_SIZE.width() + self.INDICATOR_SPACING
+            indicator_pixmap = None
+            try:
+                indicator_icon = get_icon(self.DETAIL_INDICATOR_SVG_NAME, log_color.name(), self.DETAIL_INDICATOR_SVG_SIZE) 
+                indicator_pixmap = indicator_icon.pixmap(self.DETAIL_INDICATOR_SVG_SIZE)
+            except Exception as e:
+                logging.error(f"Error getting icon '{self.DETAIL_INDICATOR_SVG_NAME}': {e}")
+                indicator_pixmap = None
+            indicator_block_x_start = content_rect.right() - indicator_block_width
+            if indicator_block_x_start < text_summary_start_x + self.INDICATOR_SPACING:
+                 indicator_block_x_start = text_summary_start_x + self.INDICATOR_SPACING
+            if indicator_pixmap:
+                info_y = drawing_y + (drawing_height - indicator_pixmap.height()) // 2
+                painter.drawPixmap(indicator_block_x_start, info_y, indicator_pixmap)
+
+        # Calculate Text Summary Rect (respecting indicator)
+        # Text ends before content_rect.right() or before the indicator if shown
+        text_summary_end_x_limit = content_rect.right()
+        if has_details:
+            text_summary_end_x_limit -= indicator_block_width
+        text_summary_available_width = text_summary_end_x_limit - text_summary_start_x
+        text_summary_rect = QRect(
+            text_summary_start_x,
+            drawing_y,
+            text_summary_available_width,
+            drawing_height
+        )
+
+        # Draw Text Summary
+        if row_txt_summary and text_summary_rect.width() > 0:
+            text_color = None
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+                text_color = log_color.lighter(120)
+            else:
+                text_color = log_color
+            painter.setPen(text_color)
+            painter.setFont(self.ROW_FONT)
+
+            # Elide text based on the calculated text_summary_rect.width()
+            summary_font_metrics = QFontMetrics(self.ROW_FONT)
+            elided_text = summary_font_metrics.elidedText(row_txt_summary, Qt.TextElideMode.ElideRight, text_summary_rect.width())
+            painter.drawText(text_summary_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
+
+        painter.restore()
 
 
 class LogListData(NamedTuple):
@@ -1130,12 +1477,15 @@ class LogModel(QAbstractListModel):
     def __init__(self, parent: QObject | None = None, batch_size=100) -> None:
         super().__init__(parent)
         self._row_count: int = 0
-        self.log_data: deque[LogListData] = deque()
+        self.log_data: list[LogListData] = list()
         self.batch_size = batch_size
         self.checks: dict[QPersistentModelIndex, Qt.CheckState] = {}
 
     def append(self, data: LogListData) -> None:
         self.log_data.append(data)
+
+    def append_log_batch(self, data_list: list[LogListData]) -> None:
+        self.log_data.extend(data_list)
 
     def clear(self) -> None:
         self.log_data.clear()
@@ -1173,7 +1523,7 @@ class LogModel(QAbstractListModel):
         elif role == LogModel.TEXT:
             return log.text
         elif role == LogModel.INFO:
-            return dedent(log.detail).strip()
+            return truncate_tooltip(f"{log.text}\n\n{dedent(log.detail).strip()}".strip(), line_count=100)
         elif role == LogModel.TOGGLED:
             return self.checks.get(QPersistentModelIndex(index), Qt.CheckState.Unchecked)
         elif role == LogModel.LEVEL:
@@ -1190,10 +1540,6 @@ class LogModel(QAbstractListModel):
         self._row_count += fetched
         self.endInsertRows()
         self.number_fetched.emit(fetched)
-
-    @staticmethod
-    def get_plaintext(msg: str) -> str:
-        return QTextDocumentFragment.fromHtml(msg).toPlainText()
 
     def mimeData(self, indexes: Iterable[QModelIndex]) -> QMimeData:
         text = ""
@@ -1224,6 +1570,8 @@ class LogView(QListView):
     increment_error = pyqtSignal(int, str)
     increment_warning = pyqtSignal(int, str)
 
+    FETCH_TIMER_INTERVAL = 250
+
     DEBUG_COLOR = "#808080"
     INFO_COLOR = "#ddd"
     SUCCESS_COLOR = "#2fff5d"
@@ -1243,18 +1591,20 @@ class LogView(QListView):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
+        self.logger: LoggerWidget = parent
         self.on_detail = False
         self.setAcceptDrops(False)
         #self.setLayoutMode(QListView.LayoutMode.Batched)  # Flickers badly
         #self.setBatchSize(100)  # Flickers badly
-        self.setSelectionMode(QAbstractItemView.SelectionMode.ContiguousSelection)
-        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Ignored)
         self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerItem)
         self.setDragEnabled(False)
         self.setMouseTracking(True)
         self.setAutoFillBackground(False)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setStyle(QStyleFactory.create('windows'))
+        self.setUniformItemSizes(True)
         # pal is only valid after getting it again from self
         self.setPalette(get_main_window().get_palette_from_cfg())
         pal = self.palette()
@@ -1284,57 +1634,125 @@ class LogView(QListView):
             }}
             QListView::item:selected:!active {{
             }}
-            QListView > QToolTip {{font: bold 11px 'Consolas, monospace'; border: 1px solid white;}}
+            QListView > QToolTip {{font: bold 11px 'Hack, Consolas, monospace'; border: 1px solid white;}}
         """ + qt_theme.style_modern_scrollbar(handle_color=text_col.darker(300).name(),
                                               view_bg_color=base_col.darker(110).name()))
         # View model
         self.list_model = LogModel(self, batch_size=1000)
         self.setModel(self.list_model)
         self.list_model.number_fetched.connect(self.on_number_fetched)
-        self.list_model.resize_requested.connect(cast(LoggerWidget, parent).expand_for_detail)
         # Item delegate
         self.delegate = LogViewDelegate(self)
         self.setItemDelegate(self.delegate)
-        self.delegate.rowSizeHintChanged.connect(self.list_model.on_rowSizeHintChanged)
-        self.toggle_detail.connect(self.delegate.on_toggle_detail)
+
         # Timer for fetchMore
         self.fetchTimer = QTimer()
-        self.fetchTimer.setInterval(250)
+        self.fetchTimer.setInterval(self.FETCH_TIMER_INTERVAL)
         self.fetchTimer.setSingleShot(True)
         self.fetchTimer.timeout.connect(self.fetchMore)
-        self.fetchTimer.start()
 
-    def append(self, data: LogListData) -> None:
-        if data.level in ("ERROR", "CRITICAL"):
-            self.increment_error.emit(self.list_model.data_count, data.text)
-        if data.level == "WARNING":
-            self.increment_warning.emit(self.list_model.data_count, data.text)
-        self.list_model.append(data)
-        # Always start fetch timer after an append
-        self.fetchTimer.start()
+        self._doFetches: bool = self.isVisible()  # Control fetching based on visibility
+        if self.canFetch():  # Initial fetch if possible
+            self.fetchTimer.start()
+        self.list_model.number_fetched.connect(self.on_model_number_fetched)
+
+    def _get_unhandled_item_count(self) -> int:
+        """Helper to get the number of items in the model's store not yet in the view."""
+        if not self.list_model:
+            return 0
+        return self.list_model.data_count - self.list_model.rowCount()
+
+    @pyqtSlot(int)
+    def set_fetch_interval(self, interval_ms: int):
+        """Sets the interval for the timer that fetches from LogModel"""
+        logging.debug(f"LogView: Setting fetch interval to {interval_ms}ms.")
+        self._current_fetch_interval = interval_ms
+        was_active = self.fetchTimer.isActive()
+        if was_active:
+            self.fetchTimer.stop()
+        self.fetchTimer.setInterval(interval_ms)
+        if was_active:  # If it was running, restart it to apply new interval for next timeout
+            self.fetchTimer.start()
+        # If it wasn't active, it will pick up the new interval when next started by startFetches.
+
+    def append_log_batch(self, log_data_list: list[LogListData]) -> None:
+        if self.logger.is_shutting_down or not log_data_list:
+            return
+        self.list_model.append_log_batch(log_data_list)
+        if self.list_model.canFetchMore() and self.canFetch():
+            self.startFetches()
 
     def clear(self) -> None:
+        self.clearSelection()
         self.list_model.clear()
-        self.delegate.clear()
 
     def count(self) -> int:
         return self.list_model.data_count
 
     def fetched_count(self) -> int:
+        """Items currently fetched and shown by the view"""
         return self.list_model.rowCount()
 
+    def canFetch(self) -> bool:
+        """Determines if fetching should occur (view is visible and allowed)."""
+        return self._doFetches  # and self.isVisible()
+
+    def startFetches(self) -> None:
+        """Allow fetching of more data."""
+        self._doFetches = True
+        if self.list_model:  # and self.isVisible():
+            # Before starting the timer loop, try an initial pull from handler
+            # This makes it more responsive when there's already buffered data
+            self._pull_logs()
+            if self.list_model.canFetchMore():
+                if not self.fetchTimer.isActive():
+                    self.fetchTimer.start()
+
+    def stopFetches(self) -> None:
+        """Disallow fetching of more data."""
+        self._doFetches = False
+        if self.fetchTimer.isActive():
+            self.fetchTimer.stop()
+
     def fetchMore(self) -> None:
-        if self.list_model.canFetchMore():
+        if self.logger.is_shutting_down:
+            return
+        self._pull_logs()
+        if self.list_model and self.list_model.canFetchMore() and self.canFetch():
             if self.state() != self.State.EditingState:
+                # Calls LogModel's fetchMore()
+                # This internally calls begin/endInsertRows and emits number_fetched
                 self.list_model.fetchMore()
-            self.fetchTimer.start()
+            # After model fetch, check if there are more items for the next fetch
+            if self.list_model.canFetchMore() and self.canFetch():
+                self.fetchTimer.start()  # Schedule the next fetch iteration
+
+    def _pull_logs(self):
+        """Pulls logs from Handler's buffer and appends them to LogModel"""
+        buffered_logs = self.logger.handler.get_and_clear_buffer()
+        if buffered_logs:
+            # Update LogStatus error/warning counts
+            base_index_for_signals = self.list_model.data_count
+            for i, data_item in enumerate(buffered_logs):
+                if data_item.level in ("ERROR", "CRITICAL"):
+                    self.increment_error.emit(base_index_for_signals + i, data_item.text)
+                if data_item.level == "WARNING":
+                    self.increment_warning.emit(base_index_for_signals + i, data_item.text)
+
+            self.append_log_batch(buffered_logs)
+
+    @pyqtSlot(int)
+    def on_model_number_fetched(self, newly_fetched_count: int):
+        """Slot for LogModel's number_fetched signal."""
+        if newly_fetched_count > 0:
+            self.scrollToBottom()
 
     def copy_selection(self) -> None:
-        """Fill clipboard with log text for all selected items"""
+        """Fill clipboard with log text for all selected items."""
         selection = self.selectedIndexes()
         if selection:
-            data = self.list_model.mimeData(selection)
-            QApplication.clipboard().setMimeData(data)
+            mime_data = self.list_model.mimeData(selection)
+            QApplication.clipboard().setMimeData(mime_data)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Handle Ctrl-C for log messages"""
@@ -1343,227 +1761,445 @@ class LogView(QListView):
             return
         return super().keyPressEvent(event)
 
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        """Handle hover state for detail blocks"""
-        position = event.pos()
-        index = self.indexAt(position)
-        self.on_detail = False
-        if index.data(LogModel.DETAIL):
-            area = self.visualRect(index)
-            detail_rect = QRect(area)
-            detail_rect.setTop(area.top() + LogViewDelegate.DETAIL_OFFSET)
-            detail_rect.adjust(LogViewDelegate.ICON_COL_SIZE, 0, -LogViewDelegate.ICON_COL_SIZE, 0)
-            if detail_rect.height() > 10:
-                # To make entire traceback clickable to toggle, do not set height
-                #show_detail.setHeight(10)
-                self.on_detail = detail_rect.contains(position)
-                # Force repaint
-                self.update(index)
-        # Handle cursor on detail hover
-        if self.on_detail:
-            self.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
-        else:
-            self.viewport().unsetCursor()
-        return super().mouseMoveEvent(event)
+    def on_number_fetched(self, newly_fetched: int) -> None:
+        """Scroll to bottom when new items are fetched, if appropriate."""
+        if newly_fetched > 0:
+            self.scrollToBottom()
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        """Handle toggle state for detail blocks"""
-        if event.button() == Qt.MouseButton.LeftButton and self.on_detail:
-            position = event.pos()
-            index = self.indexAt(position)
-            # Toggle check state
-            checked = self.list_model.data(index, LogModel.TOGGLED)
-            if checked == Qt.CheckState.Checked:
-                checked = Qt.CheckState.Unchecked
-                self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerItem)
-            else:
-                checked = Qt.CheckState.Checked
-                self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerPixel)
-            # Set new check state
-            self.list_model.setData(index, checked, LogModel.TOGGLED)
-            # Inform listeners
-            self.toggle_detail.emit()
-            # Force repaint
-            self.update(index)
-        return super().mouseReleaseEvent(event)
+    def hideEvent(self, event: QHideEvent) -> None:
+        """Stop fetching data when the widget is hidden."""
+        #self.stopFetches()
+        super().hideEvent(event)
 
-    def on_number_fetched(self, _number: int) -> None:
-        self.scrollToBottom()
+    def showEvent(self, event: QShowEvent) -> None:
+        """Start fetching data when the widget is shown."""
+        self.startFetches()
+        super().showEvent(event)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """Ensure timer is stopped when the widget is closing"""
+        if self.fetchTimer.isActive():
+            self.fetchTimer.stop()
+        super().closeEvent(event)
 
 
-class LoggerWidget(QWidget):
+LOGGER_RIGHT = Qt.Orientation.Horizontal
+LOGGER_BOTTOM = Qt.Orientation.Vertical
+
+class LoggerWidget(SnapCollapseWidget):
     """Logger widget with colored and expandable list items.
     Supports both horizontal and vertical placement and communicates with
     QSplitter to adjust its contents accordingly.
     """
     log_level_changed = pyqtSignal(str)
-    current_size = pyqtSignal(QSize)
 
+    ROOT_PATH = Path(os.getcwd()).parent
+    DETAIL_INDENT_HTML = '\u00A0\u00A0'
+    DETAIL_VIEW_CSS_STYLE = R"""
+        div, span {font-size: 12px; background: transparent; border: 0px;}
+        .msg_DEBUG {color:#808080;}
+        .msg_INFO {color:#ddd;}
+        .msg_SUCCESS {color:#2fff5d;}
+        .msg_WARNING {color:#ffc52f;}
+        .msg_ERROR {color:#e73f34;}
+        .msg_CRITICAL {color:#ff2e67;}
+        .level {font-size: 1px; color: transparent; width: 0px; }
+
+        .detail, .traceback {color: #ddd; margin-top: 4px; border: 0px;}
+        .traceback {font-size: 12px; font-weight: bold;}
+        .detail {font-size: 12px; font-weight: bold;}
+
+        .trace {font-size: 12px;}
+        .trace.caret {color:#e54873;}
+        .trace.line {color:#31b6e2;}
+        .trace.file {color:#e8c35e;}
+        .trace.location {color:#76a342;}
+        .trace.exception, .trace.message {color:#f34965;}
+    """
 
     class ResizeRequest(NamedTuple):
         size: int
         expand_only: bool = True
 
-
     resize_requested = pyqtSignal(ResizeRequest)
 
+    HANDLER_POLL_INTERVAL = 500
 
     class Handler(logging.Handler, QObject):
-        append = pyqtSignal(LogListData)
 
         def __init__(self, parent: QWidget | None) -> None:
             super().__init__()
             QObject.__init__(self, parent)
+            self._buffer: list[LogListData] = []
+            self._buffer_lock = threading.Lock()
 
         def emit(self, record: logging.LogRecord) -> None:
-            # Supply an empty details string for logging calls that
-            # do not include it (to avoid an exception)
-            if not hasattr(record, "details"):
-                record.__dict__["details"] = ""
-            data = LogListData.from_str(logs.shorten_str(self.format(record)))
-            self.append.emit(data)
+            try:
+                if not hasattr(record, "details"):
+                    record.__dict__["details"] = ""
+                log_list_data = LogListData.from_str(logs.shorten_str(self.format(record)))
+                with self._buffer_lock:
+                    self._buffer.append(log_list_data)
+            except Exception as e:
+                # print(f"Error in LoggerWidget.Handler.emit: {e}")
+                pass
 
+        def has_buffered_logs(self) -> bool:
+            with self._buffer_lock:
+                return bool(self._buffer)
+        
+        def get_and_clear_buffer(self) -> list[LogListData] | None:
+            """Called by LoggerWidget to get current buffer and clear it."""
+            batch = None
+            with self._buffer_lock:
+                if self._buffer:
+                    batch = list(self._buffer)
+                    self._buffer.clear()
+            return batch
+
+        def clear(self) -> None:
+            with self._buffer_lock:
+                self._buffer.clear()
+
+        def close(self) -> None:
+            super().close()
+
+    @dataclass
+    class DetailsPaneSizes:
+        height: int = 120
+        width: int = 300
+        height_trace: int = 250
+        width_trace: int = 400
 
     ICON_BAR_SIZE: int = 18
     MIN_HEIGHT: int = 48
     MIN_WIDTH: int = 180
 
     def __init__(self, parent: 'MainWindow', orientation: Qt.Orientation) -> None:
-        super().__init__(parent)
+        super().__init__(orientation=orientation, parent=parent)
+        self.cfg: Config[str, Any] = parent.cfg
         self.handler = LoggerWidget.Handler(self)
-        self.list_widget = LogView(self)
         self.orientation = orientation
-        self.splitter_moving = False
-        if self.orientation == Qt.Orientation.Vertical:
-            self.list_widget.setMinimumHeight(1)
+        self._is_shutting_down = False
+        self._clear_logs = True
+        self._is_details_trace = True
+
+        self.setPalette(get_main_window().get_palette_from_cfg())
+
+        # --- CONTENT SECTION ---
+        # Logger list
+        self.list_widget = LogView(self)
+        if self.orientation == LOGGER_BOTTOM:
+            self.list_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+            self.list_widget.setMinimumHeight(50)
         else:
-            self.list_widget.setMinimumWidth(1)
+            self.list_widget.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
+            self.list_widget.setMinimumWidth(100)
+        self.list_widget.selectionModel().currentChanged.connect(self.on_log_selection_changed)
+        # Detail Pane
+        self.details_pane: QTextBrowser = self.create_detail_view()
+        self._details_pane_shown = False
+        self._details_pane_sizes = self.DetailsPaneSizes()
+        QTimer.singleShot(0, lambda: self.close_detail_pane(init_mode=True))
+        # Logger | Detail splitter
+        self.log_display_splitter = QSplitter(Qt.Orientation.Horizontal, self)
+        self.log_display_splitter.addWidget(self.list_widget)
+        self.log_display_splitter.addWidget(self.details_pane)
+        self.log_display_splitter.setMinimumSize(0, 0)
+        if self.orientation == LOGGER_BOTTOM:
+            self.log_display_splitter.setOrientation(Qt.Orientation.Horizontal)
+        else:
+            self.log_display_splitter.setOrientation(Qt.Orientation.Vertical)
+        self.log_display_splitter.setHandleWidth(6)
+        self.log_display_splitter.setCollapsible(0, True)
+        self.log_display_splitter.setCollapsible(1, True)
+        self.log_display_splitter.splitterMoved.connect(self.on_detail_splitter_moved)
+        # --- END CONTENT SECTION ---
 
-        self.handler.append.connect(self.list_widget.append)
-
-        self.warnings = LogStatus(level="WARNING", color=LogView.WARNING_COLOR)
-        self.errors = LogStatus(level="ERROR", color=LogView.ERROR_COLOR_BRIGHT, show_msg=True)
-        if self.orientation == Qt.Orientation.Horizontal:
+        # --- TOOLBAR SECTION ---
+        self.toolbar = OrientationToolBar("Logger Controls", self)
+        self.toolbar.setObjectName("loggerToolbar")
+        self.warnings = LogStatus(level="WARNING", color=LogView.WARNING_COLOR, parent=self)
+        self.errors = LogStatus(level="ERROR", color=LogView.ERROR_COLOR_BRIGHT, show_msg=True, parent=self)
+        if self.orientation == LOGGER_RIGHT:
             self.errors.set_show_message(False)
         # Connect warnings and errors
         self.warnings.select_row.connect(self.on_select_row)
         self.errors.select_row.connect(self.on_select_row)
         self.list_widget.increment_warning.connect(self.warnings.add_message)
         self.list_widget.increment_error.connect(self.errors.add_message)
-        # Preserve Log checkbox
-        self.preserve_log = QCheckBox("Preserve Log")
-        self.preserve_log.setFont(QFont("Consolas, monospace", 8))
-        self.preserve_log.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
-        self.preserve_log.setFixedHeight(16)
+
         # Log level combo
         self.log_level_choice = LabelCombo("", ("DEBUG", "INFO", "WARNING", "ERROR"),
                                            editable=False, activated_fn=self.on_log_level_changed)
         self.log_level_choice.setToolTip("How much information is shown in the logger")
         self.log_level_choice.setStatusTip("Log Level")
         self.log_level_choice.label.setFixedWidth(1)
-        self.log_level_choice.entry.setFont(QFont("Consolas, monospace", 8))
+        self.log_level_choice.entry.setFont(get_font("Hack, Consolas, monospace", 8, bold=True))
         self.log_level_choice.entry.setContentsMargins(0, 0, 0, 0)
         self.log_level_choice.entry.setFixedHeight(16)
-        # Logger toolbar
-        self.menu_hor = FlowWidget(self)
-        self.menu_hor_lay = FlowHLayout(self.menu_hor)
-        self.menu_ver = QWidget(self)
-        self.menu_ver_lay = QVBoxLayout(self.menu_ver)
-        self.menu_spacer_hor = QSpacerItem(1, 16, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
-        self.menu_spacer_ver = QSpacerItem(16, 16, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
-        # Vbox for toolbar when logger is collapsed in left position
-        self.vbox = QVBoxLayout()
-        self.vbox.addWidget(self.menu_hor)
-        self.vbox.addWidget(self.list_widget)
-        self.vbox.setContentsMargins(0, 0, 0, 0)
-        # Hbox for toolbar in all other positions
-        self.hbox = QHBoxLayout(self)
-        self.hbox.addWidget(self.menu_ver)
-        self.hbox.addLayout(self.vbox)
-        self.hbox.setContentsMargins(0, 0, 0, 0)
-        # Initial layout
-        self.layout_logger_stats_hor()
+        self.log_level_choice.setParent(self)
+
+        # Add them to the OrientationToolbar with visibility rules
+        self.toolbar.addOrientationWidget(self.warnings, Qt.Orientation.Horizontal | Qt.Orientation.Vertical)
+        self.toolbar.addOrientationWidget(self.errors, Qt.Orientation.Horizontal | Qt.Orientation.Vertical)
+        # Add a spacer to push the log level combo to the right in horizontal mode
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.toolbar.addOrientationWidget(spacer, Qt.Orientation.Horizontal)
+        self.toolbar.addOrientationWidget(self.log_level_choice, Qt.Orientation.Horizontal)
+        self.toolbar.setOrientation(Qt.Orientation.Horizontal)
+        #self.toolbar.setOrientationMargins(horizontal=QtCore.QMargins(5, 2, 0, 2), vertical=QtCore.QMargins(0, 5, 0, 0))
+        self.toolbar.setStyle(ToolbarSpacingProxyStyle(QStyleFactory.create('Fusion')))
+        self.set_toolbar(self.toolbar)
+        self.set_content(self.log_display_splitter)
+        # --- END TOOLBAR SECTION ---
+
+        self._handler_poll_timer = QtCore.QTimer(self)
+        self._handler_poll_timer.setInterval(self.HANDLER_POLL_INTERVAL)
+        self._handler_poll_timer.timeout.connect(self.poll_log_handler)
 
         if parent.file_widget:
-            parent.file_widget.file_opened.connect(self.clear)
+            parent.file_widget.file_begin_open.connect(self.clear)
         parent.set_log_level.connect(self.on_log_level_changed)
 
-    def reset_warnings(self) -> None:
-        self.warnings.clear()
+        #self.snapped.connect(lambda collapsed: self.set_logging_speed("slow" if collapsed else "normal"))
 
-    def reset_errors(self) -> None:
-        self.errors.clear()
-
-    def clear(self) -> None:
-        # Do not preserve log
-        if not self.preserve_log.isChecked():
-            self.list_widget.clear()
-        # Always reset values for the current file
-        self.reset_warnings()
-        self.reset_errors()
-
-    def close(self) -> None:
-        print("Close")
-        super().close()
+    def showEvent(self, event: QShowEvent) -> None:
+        self._is_shutting_down = False
+        if not self._handler_poll_timer.isActive():
+            self._handler_poll_timer.start()
+        super().showEvent(event)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        print("Close Event")
+        self.shutdown()
         super().closeEvent(event)
 
-    def layout_logger_stats_hor(self) -> None:
-        """Layout logger toolbar horizontally"""
-        # Hide vertical widget and remove widgets from layout
-        self.menu_ver.hide()
-        self.menu_ver_lay.removeWidget(self.warnings)
-        self.menu_ver_lay.removeWidget(self.errors)
-        self.menu_ver_lay.removeItem(self.menu_spacer_ver)
-        # Add left widgets
-        self.menu_hor_lay.addWidget(self.warnings)
-        self.menu_hor_lay.addWidget(self.errors)
-        self.menu_hor_lay.addItem(self.menu_spacer_hor)
-        # Add right Widgets
-        self.menu_hor_lay.addWidget(self.preserve_log, alignment=Qt.AlignmentFlag.AlignRight, hide_index=3)
-        self.menu_hor_lay.addWidget(self.log_level_choice, alignment=Qt.AlignmentFlag.AlignRight, hide_index=5)
-        # Spacing, alignment, size policy for horizontal layout
-        self.menu_hor_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        self.menu_hor_lay.setSpacing(10)
-        self.menu_hor.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        if self.orientation == Qt.Orientation.Vertical:
-            self.menu_hor_lay.setContentsMargins(10, 0, 5, 0)
-            self.menu_hor.setFixedHeight(self.ICON_BAR_SIZE)
+    def clear(self) -> None:
+        if self._clear_logs:
+            self.handler.clear()
+            self.list_widget.clear()
+            self.details_pane.clear()
+            self.close_detail_pane()
+            self.reset_warnings()
+            self.reset_errors()
+
+    def shutdown(self) -> None:
+        self.errors.close()
+        self.warnings.close()
+        self.log_display_splitter.close()
+        self._is_shutting_down = True
+        if self._handler_poll_timer.isActive():
+            self._handler_poll_timer.stop()
+        # Stop any immediate activity in children if necessary
+        if self.list_widget:
+            # list_widget's own closeEvent will handle its timer,
+            # but we can tell it to stop fetching explicitly too.
+            self.list_widget.stopFetches()
+
+    @property
+    def is_shutting_down(self) -> bool:
+        return self._is_shutting_down
+
+    def expand(self) -> None:
+        super().expand()
+        self.set_logging_speed("normal")
+
+    def collapse(self) -> None:
+        super().collapse()
+        self.set_logging_speed("slow")
+
+    def make_visible(self) -> None:
+        """Resize the logger to ensure the log console can be visible at min dimensions"""
+        if not self.log_display_splitter.isVisible():
+            self.set_logging_speed("normal")
+            size = 0
+            if self.orientation == LOGGER_BOTTOM:
+                size = self.MIN_HEIGHT
+                self.resize(self.width(), size)
+            else:
+                size = self.MIN_WIDTH
+                self.resize(size, self.height())
+            self.resize_requested.emit(self.ResizeRequest(size=size+self.ICON_BAR_SIZE))
+
+    def create_detail_view(self):
+        pal = self.palette()
+        base_col = pal.base().color()
+        text_col = pal.text().color()
+
+        detail_view = QTextBrowser(self)
+        detail_view.setObjectName("LogDetailViewPane")
+        detail_view.setReadOnly(True)
+        detail_view.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+        detail_view.setMinimumSize(0, 0)
+        #if self.orientation == LOGGER_BOTTOM:
+        #    detail_view.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Ignored)
+        #else:
+        #    detail_view.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.MinimumExpanding)
+
+        detail_view.setStyleSheet(detail_view.styleSheet() + qt_theme.style_modern_scrollbar(handle_color=text_col.darker(300).name(),
+                                              view_bg_color=base_col.darker(110).name(), track_color=base_col.name()))
+        detail_view.setFont(get_font("Hack, Consolas, monospace", 9))
+        # Apply the stylesheet to the document of the QTextEdit
+        detail_view.document().setDefaultStyleSheet(self.DETAIL_VIEW_CSS_STYLE)
+        detail_view.document().setDefaultFont(get_font("Hack, Consolas, monospace", 9))
+        detail_view.setOpenLinks(False)  # Handle anchor clicks manually
+        detail_view.anchorClicked.connect(self.on_detail_link_clicked)
+        return detail_view
+
+    @staticmethod
+    def color_traceback(escaped_text: str) -> str:
+        """Basic coloring for tracebacks"""
+        # Traceback (most recent call last)
+        text = re.sub(r"(?m)^(Traceback.*:)$", r"<span class='trace message'>\g<1></span>", escaped_text)
+        # Exception
+        text = re.sub(r"(?m)^([A-Za-z0-9_\.]+):\s(.*?)$", r"<span class='trace exception'>\g<1>: \g<2></span>", text)
+        # Caret underlines
+        text = re.sub(r"([\^]+)", r"<span class='trace caret'>\g<0></span>", text)
+        # Line numbers
+        text = re.sub(r",(\sline\s[0-9]+),", r",<span class='trace line'>\g<1></span>,", text)
+        # Filepath
+        text = re.sub(r"(File\s&quot;.*?&quot;),", r"<span class='trace file'>\g<1></span>", text)
+        # Method name
+        text = re.sub(r"(?m),\sin\s(.*?)$", r", in <span class='trace location'>\g<1></span>", text)
+        return text
+
+    def format_raw_detail(self, raw_detail_str: str) -> str:
+        if not raw_detail_str:
+            return ""
+
+        output_html_lines = []
+        is_trace = raw_detail_str.strip().startswith("Traceback")
+        self._is_details_trace = is_trace
+        if is_trace:
+            # Regex to identify file paths and line numbers in traceback lines
+            # Captures: (Full match of "File ... line ..."), (File "path"), (path_only), (line_num_digits)
+            file_link_segment_pattern = re.compile(r"""
+                (File\s+"([^"]+)"(?:,\s*line\s*([0-9]+))?) # Group 1: Full "File...line..." part
+                                                           # Group 2: Path within quotes
+                                                           # Group 3: Line number digits
+            """, re.VERBOSE)
+            self.details_pane.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+            self.details_pane.setWordWrapMode(QTextOption.WrapMode.NoWrap)
+            for raw_line in raw_detail_str.splitlines():
+                # Separate leading whitespace from the actual content of the raw_line
+                indent_raw = ""
+                line_raw = raw_line
+                match_indent = re.match(r"^(\s*)(.*)$", raw_line)
+                if match_indent:
+                    indent_raw = match_indent.group(1)
+                    line_raw = match_indent.group(2)
+
+                indent_html = html.escape(indent_raw)
+                if is_trace:
+                    indent_html = indent_html.replace(' ', '\u00A0')
+                # Try to find the "File...line..." segment
+                match = file_link_segment_pattern.match(line_raw)
+
+                final_line_html = ""
+                if match:
+                    link_raw = match.group(1)  # e.g., File "path.py", line 123
+                    file_raw = match.group(2)  # e.g., path.py
+                    line_number_raw = match.group(3) if match.group(3) else "1"
+
+                    abs_filepath = (self.ROOT_PATH / file_raw).as_posix()
+                    href = f"code-goto:{abs_filepath}:{line_number_raw}"
+                    # Trailing text after link
+                    trailing_raw = line_raw[len(link_raw):]
+                    # Process and color the link
+                    link_html = html.escape(link_raw).replace(' ', '\u00A0')
+                    colored_link_html = self.color_traceback(link_html) if is_trace else link_html
+                    # Escape and color trailing text
+                    trailing_html = html.escape(trailing_raw).replace(' ', '\u00A0')
+                    colored_trailing_html = self.color_traceback(trailing_html) if is_trace else trailing_html
+                    # Final colored link
+                    final_line_html = f'<a href="{href}">{colored_link_html}</a>{colored_trailing_html}'
+                else:
+                    # No "File..." found, color the whole line_raw
+                    line_html = html.escape(line_raw).replace(' ', '\u00A0')
+                    final_line_html = self.color_traceback(line_html)
+
+                output_html_lines.append(self.DETAIL_INDENT_HTML + indent_html + final_line_html)
         else:
-            self.menu_hor_lay.setContentsMargins(5, 5, 5, 0)  # Extra space at top
-            self.menu_hor.setFixedHeight(self.ICON_BAR_SIZE + 5)  # Accomodate extra space at top
-        # Show and set LogStatus layout
-        self.menu_hor.show()
-        self.warnings.layout_horizontal()
-        self.errors.layout_horizontal()
+            self.details_pane.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+            self.details_pane.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+            for raw_line in raw_detail_str.splitlines():
+                output_html_lines.append(url_to_html(raw_line))
 
-    def layout_logger_stats_ver(self) -> None:
-        """Layout logger toolbar vertically"""
-        # Hide horizontal widget and remove widgets from layout
-        self.menu_hor.hide()
-        self.menu_hor_lay.removeWidget(self.warnings)
-        self.menu_hor_lay.removeWidget(self.errors)
-        self.menu_hor_lay.removeItem(self.menu_spacer_hor)
-        self.menu_hor_lay.removeWidget(self.preserve_log)
-        self.menu_hor_lay.removeWidget(self.log_level_choice)
-        self.menu_hor_lay.setContentsMargins(0, 0, 0, 0)
-        # Add top widgets
-        self.menu_ver_lay.addWidget(self.warnings)
-        self.menu_ver_lay.addWidget(self.errors)
-        self.menu_ver_lay.addItem(self.menu_spacer_ver)
-        # Spacing, alignment, size policy for vertical layout
-        self.menu_ver_lay.setContentsMargins(0, 5, 0, 0)
-        self.menu_ver_lay.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.menu_ver.setLayout(self.menu_ver_lay)
-        self.menu_ver.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
-        self.menu_ver.setFixedWidth(self.ICON_BAR_SIZE)
-        # Show and set LogStatus layout
-        self.menu_ver.show()
-        self.warnings.layout_vertical()
-        self.errors.layout_vertical()
+        full_content_html = "<br>".join(output_html_lines)
+        div_class = 'traceback' if is_trace else 'detail'
 
+        return f"<div class='{div_class}'>{full_content_html}</div>"
+
+    def log_splitter_sizes(self, total_size: int) -> tuple[int, int]:
+        """Returns the size of each side of the logger/details splitter."""
+        current_sizes = self.log_display_splitter.sizes()
+        total_size = sum(current_sizes)
+        if len(current_sizes) != 2:
+            return total_size, total_size // 4
+
+        detail_height = self._details_pane_sizes.height_trace if self._is_details_trace else self._details_pane_sizes.height
+        detail_width = self._details_pane_sizes.width_trace if self._is_details_trace else self._details_pane_sizes.width
+        detail_size = detail_height if self.orientation == LOGGER_RIGHT else detail_width
+        list_size = total_size - detail_size
+
+        min_log_list_size = 150  # Min width/height for the log list view
+        if self.log_display_splitter.orientation() == Qt.Orientation.Vertical:
+            min_log_list_size = 100  # Min height if details are below
+
+        if list_size < min_log_list_size:
+            list_size = min_log_list_size
+            detail_size = total_size - list_size
+
+        if detail_size < 50:  # Ensure detail pane is at least somewhat visible if opened
+            detail_size = 50
+            if total_size - detail_size < min_log_list_size :  # Check again if main list will be too small
+                list_size = min_log_list_size
+                detail_size = total_size - list_size
+            if detail_size < 0:
+                detail_size = 0
+
+        return list_size, detail_size
+    
+    def set_log_splitter_sizes(self) -> None:
+        current_sizes = self.log_display_splitter.sizes()
+        total_size = sum(current_sizes)
+        if len(current_sizes) == 2:
+            list_size, detail_size = self.log_splitter_sizes(total_size)
+            self.log_display_splitter.setSizes([list_size, detail_size])
+
+    def open_detail_pane(self) -> None:
+        if self._details_pane_shown:
+            return
+
+        current_sizes = self.log_display_splitter.sizes()
+        if len(current_sizes) == 2:
+            total_size = sum(current_sizes)
+            if total_size == 0:  # Splitter not yet sized
+                QTimer.singleShot(50, self.open_detail_pane)  # Try again shortly
+                return
+            
+            list_size, detail_size = self.log_splitter_sizes(total_size)
+
+            #logging.debug(f"Opening detail pane. Total size: {total_size}, List size: {list_size}, Detail size: {detail_size}")
+            if detail_size > 0:  # Only set if detail has some size
+                self.log_display_splitter.setSizes([list_size, detail_size])
+                self._details_pane_shown = True
+            else:  # Cannot open if no space for detail
+                self.close_detail_pane()  # Ensure it's marked closed
+
+    def close_detail_pane(self, init_mode: bool = False):
+        if not self._details_pane_shown and not init_mode:
+            return
+        current_sizes = self.log_display_splitter.sizes()
+        if len(current_sizes) == 2 and (current_sizes[1] > 0 or init_mode):
+            #logging.debug(f"Closing detail pane. Current sizes: {current_sizes}")
+            self.log_display_splitter.setSizes([current_sizes[0] + current_sizes[1], 0])
+        self._details_pane_shown = False
+        if not init_mode and self._details_pane_shown:
+            self.details_pane.clear()
+
+    @pyqtSlot(str)
     def on_log_level_changed(self, level: str) -> None:
         """Slot for log level set internally (combo box) or externally (initial value from cfg)"""
         # Show successes still for "WARNING"
@@ -1576,72 +2212,118 @@ class LoggerWidget(QWidget):
         # Inform listeners
         self.log_level_changed.emit(actual_level)
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
-        # Handle logger resizing from window instead of splitter handle
-        if not self.splitter_moving:
-            self.resize_logger(event.size().width(), event.size().height())
-        # Inform listeners of current size
-        self.current_size.emit(self.size())
-        return super().resizeEvent(event)
+    @pyqtSlot(QModelIndex, QModelIndex)
+    def on_log_selection_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
+        if not current.isValid():
+            self.close_detail_pane()
+            self.details_pane.clear()  # Clear on no selection
+            return
 
-    def on_splitterMoved(self, _pos: int = 0, _index: int = 0) -> None:
-        """Slot for parent splitter's splitterMoved signal"""
-        self.splitter_moving = True
-        _x, _y, layout_width, layout_height = self.hbox.geometry().getRect()
-        self.resize_logger(layout_width, layout_height)
-        self.splitter_moving = False
-
-    def resize_logger(self, layout_width: int, layout_height: int) -> None:
-        """Handles splitter rubber banding and visibility of logger widgets based on available dimensions"""
-        if self.orientation == Qt.Orientation.Vertical:
-            if self.list_widget.isHidden() and layout_height >= self.MIN_HEIGHT or layout_height == 0:
-                # Show and adjust sizing
-                self.list_widget.show()
-                self.preserve_log.show()
-                self.hbox.setSpacing(4)
-                self.menu_hor.setFixedHeight(20)
-            elif layout_height < self.MIN_HEIGHT:
-                # Hide and adjust sizing
-                if not self.list_widget.isHidden():
-                    self.list_widget.hide()
-                    self.preserve_log.hide()
-                    self.hbox.setSpacing(0)
-                    self.menu_hor.setFixedHeight(16)
-                # Keep logger at 0 below MIN_HEIGHT
-                self.resize_requested.emit(self.ResizeRequest(size=0, expand_only=False))
-        else:  # Horizontal
-            if self.list_widget.isHidden() and (layout_width >= self.MIN_WIDTH + LoggerWidget.ICON_BAR_SIZE) or layout_width == 0:
-                # Show and adjust sizing
-                self.list_widget.show()
-                if self.menu_hor.isHidden():
-                    self.layout_logger_stats_hor()
-                self.vbox.setContentsMargins(0, 0, 0, 0)
-            elif self.list_widget.width() < self.MIN_WIDTH:
-                # Hide and adjust sizing
-                if not self.list_widget.isHidden():
-                    self.list_widget.hide()
-                    if self.menu_ver.isHidden():
-                        self.layout_logger_stats_ver()
-                    self.vbox.setContentsMargins(0, 0, 5, 0)
-                # Keep logger at 0 below MIN_WIDTH
-                self.resize_requested.emit(self.ResizeRequest(size=0, expand_only=False))
-
-    def make_visible(self) -> None:
-        """Resize the logger to ensure the log console can be visible at min dimensions"""
-        if not self.list_widget.isVisible():
-            size = 0
-            if self.orientation == Qt.Orientation.Vertical:
-                size = self.MIN_HEIGHT
-                self.resize(self.width(), size)
+        raw_detail_text = current.data(LogModel.DETAIL)
+        if raw_detail_text:
+            formatted_html = self.format_raw_detail(str(raw_detail_text))
+            self.details_pane.setHtml(formatted_html)
+            if self._details_pane_shown:
+                self.set_log_splitter_sizes()
             else:
-                size = self.MIN_WIDTH
-                self.resize(size, self.height())
-            self.resize_requested.emit(self.ResizeRequest(size=size+self.ICON_BAR_SIZE))
+                self.open_detail_pane()
+        else:
+            self.details_pane.clear()
+            self.close_detail_pane()  # Close if no details to show
 
-    def expand_for_detail(self, height: int) -> None:
-        """Auto increase logger dimensions for large detail texts"""
-        self.resize_requested.emit(self.ResizeRequest(size=height))
+    @pyqtSlot(int, int)
+    def on_detail_splitter_moved(self, pos: int, index: int) -> None:
+        sizes = self.log_display_splitter.sizes()
+        if len(sizes) == 2:
+            details_pane_current_size = sizes[1]
+            # Define a threshold for when the pane is considered meaningfully open
+            open_threshold = 20 
+            if details_pane_current_size > open_threshold:
+                self._details_pane_size = details_pane_current_size
+                self._details_pane_shown = True
+            else:
+                self._details_pane_shown = False
+                # If user drags it very small, consider it closed for next programmatic open.
+                # but don't set _details_pane_size to this small value.
 
+    @pyqtSlot()
+    def poll_log_handler(self) -> None:
+        """Periodically called by _handler_poll_timer to check for new logs."""
+        # Tell LogView to start fetching if it's not already running its timer and if it's in a state to fetch.
+        if self.list_widget.canFetch() and self.handler.has_buffered_logs():
+            #print("LoggerWidget: Handler has buffered logs. Triggering LogView to fetch.")
+            if not self.list_widget.fetchTimer.isActive():
+                self.list_widget.fetchTimer.start()
+        if not self._handler_poll_timer.isActive():
+            self._handler_poll_timer.start()
+
+    @pyqtSlot(str)
+    def set_logging_speed(self, speed_mode: Literal["fast", "normal", "slow"]) -> None:
+        # Define your intervals
+        intervals = {
+            "fast"  : {"handler_poll": 100,  "view_fetch": 50},
+            "normal": {"handler_poll": 500,  "view_fetch": 250},
+            "slow"  : {"handler_poll": 2000, "view_fetch": 1000}
+        }
+        selected_intervals = intervals.get(speed_mode.lower(), intervals["normal"])
+
+        # Update Handler Poll Timer in LoggerWidget
+        self._current_handler_poll_interval = selected_intervals["handler_poll"]
+        was_active = self._handler_poll_timer.isActive()
+        if was_active:
+            self._handler_poll_timer.stop()
+        self._handler_poll_timer.setInterval(self._current_handler_poll_interval)
+        if was_active:
+            self._handler_poll_timer.start()
+        #print(f"LoggerWidget: Handler poll interval set to {self._current_handler_poll_interval}ms.")
+
+        if self.list_widget:
+            self.list_widget.set_fetch_interval(selected_intervals["view_fetch"])
+
+    @pyqtSlot(QUrl)
+    def on_detail_link_clicked(self, url: QUrl):
+        if not (QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier):
+            return 
+
+        if url.scheme() == "code-goto":
+            full_target_spec = url.toString().split("code-goto:", 1)[1]
+            path_parts = full_target_spec.rsplit(':', 1)
+            target_filepath_str = ""
+            target_line_number = "1"  # Default line
+
+            if len(path_parts) == 2 and path_parts[1].isdigit():
+                target_filepath_str = path_parts[0]
+                target_line_number = path_parts[1]
+            else:
+                target_filepath_str = full_target_spec
+
+            # Normalize the filepath for the current OS
+            system_specific_filepath = os.path.normpath(target_filepath_str)
+            preferred = self.cfg.get("preferred_editor", "VS Code")
+            # Sort the list to move the preferred editor to the front
+            editors_to_try = sorted(self.cfg.preferred_editor.options, key=lambda editor: editor != preferred)
+            editor_launched_successfully = False
+            for editor_key in editors_to_try:
+                if editor_key not in EDITOR_CONFIGS.keys():
+                    continue
+                # Make a copy to avoid modifying the global config
+                config = EDITOR_CONFIGS[editor_key].copy()
+                editor_launched_successfully = launch_editor(
+                    config,
+                    system_specific_filepath,
+                    target_line_number
+                )
+                if editor_launched_successfully:
+                    break
+
+            # Final Check
+            if not editor_launched_successfully:
+                if hasattr(self.parent(), 'showerror'):
+                    self.parent().showerror("Failed to open file in editor. Please check editor or PATH settings.")
+        elif url.scheme() in ["http", "https"]:
+            QtGui.QDesktopServices.openUrl(url)
+
+    @pyqtSlot(int)
     def on_select_row(self, row: int) -> None:
         """Handle logger visibility and scrolling on Jump To Warning/Error"""
         if row >= self.list_widget.count():
@@ -1651,10 +2333,21 @@ class LoggerWidget(QWidget):
             self.list_widget.fetchMore()
         # Ensure logger is visible
         self.make_visible()
+        self.open_detail_pane()
         # Ensure row is visible
         index = self.list_widget.model().index(row, 0)
+        self.list_widget.setCurrentIndex(index)
         self.list_widget.selectionModel().select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.list_widget.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
+
+    def toggle_clear_logs(self, enabled: bool):
+        self._clear_logs = enabled
+
+    def reset_warnings(self) -> None:
+        self.warnings.clear()
+
+    def reset_errors(self) -> None:
+        self.errors.clear()
 
 
 class LabelEdit(QWidget):
@@ -2844,6 +3537,7 @@ class FileWidget(FileDirWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
+    file_begin_open = pyqtSignal(str)
     file_opened = pyqtSignal(str)
     file_saved = pyqtSignal(str)
 
@@ -2877,6 +3571,7 @@ class FileWidget(FileDirWidget):
 
     def open_file(self, filepath: str) -> bool:
         if self.may_open_new_file(filepath):
+            self.file_begin_open.emit(filepath)
             self.set_file_path(filepath)
             self.cfg[self.cfg_last_dir_open] = self.dir
             self.cfg[self.cfg_last_file_open] = self.filepath
@@ -3140,6 +3835,9 @@ class TitleBar(StandardTitleBar):
 class MainWindow(FramelessMainWindow):
     modified = pyqtSignal(bool)
     set_log_level = pyqtSignal(str)
+    change_log_speed = pyqtSignal(str)  # Emits "fast", "normal", "slow"
+
+    CANCEL_WAIT_MS = 2000
 
     def __init__(self, name: str, opts: 'gui.GuiOptions', central_widget: Optional[QWidget] = None) -> None:
         self.opts = opts
@@ -3153,7 +3851,8 @@ class MainWindow(FramelessMainWindow):
 
         self.wrapper_widget = QWidget(self)
         self.central_widget = QWidget(self) if central_widget is None else central_widget
-        self.central_layout: QLayout = QVBoxLayout()
+        self.central_layout: QVBoxLayout = QVBoxLayout()
+        self.main_content_widget: QWidget = QWidget(self)
 
         self.title_sep = " | "
         self.title_sep_colored = " <font color=\"#5f5f5f\">|</font> "
@@ -3165,15 +3864,19 @@ class MainWindow(FramelessMainWindow):
         self.actions: dict[str, QAction] = {}
 
         self.name = name
-        self.log_name = ""
+        self.log_name = opts.log_name if opts.log_name else ""
         self.setWindowTitle(name)
         self.setWindowIcon(QIcon(os.path.join(root_dir, f'icons/Cobra_Tools_Logo_24px.svg')))  # Do not cache with get_icon
-        self._stdout_handler: logging.StreamHandler | None = None
+        self._stdout_handler: logging.StreamHandler = logs.get_stdout_handler(opts.log_name)
+
+        # Threadpool workers
+        self.active_workers = set()
+        self._current_batch_start_time: Optional[float] = None
+        self._is_processing_worker_batch: bool = False
 
         self.file_widget: Optional[FileWidget] = None
         self.logger: Optional[LoggerWidget] = None
         self.log_splitter: Optional[QSplitter] = None
-        self.logger_orientation: Qt.Orientation = Qt.Orientation.Vertical
 
         self.taskbar_button = QWinTaskbarButton(self)
         self.taskbar_button.setWindow(self.windowHandle())
@@ -3189,7 +3892,7 @@ class MainWindow(FramelessMainWindow):
 
         self.status_bar = QStatusBar()
         self.version_info = QLabel(f"Version {VERSION} ({COMMIT_HASH})")
-        self.version_info.setFont(QFont("Consolas, monospace", 8))
+        self.version_info.setFont(QFont("Hack, Consolas, monospace", 8))
         self.version_info.setStyleSheet("color: #999")
         self.status_bar.addPermanentWidget(self.version_info)
         self.status_bar.addPermanentWidget(self.progress)
@@ -3213,35 +3916,60 @@ class MainWindow(FramelessMainWindow):
         self.setCentralWidget(self.central_widget)
         self.resize(*opts.size)
 
-    def layout_splitter(self, grid, left_frame, right_frame):
-        # Setup Logger
-        orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("logger_orientation",
-                                                                     "V") == "V" else QtCore.Qt.Orientation.Horizontal
-        self.show_logger = self.cfg.get("logger_show", True)
+    def showEvent(self, a0: QShowEvent) -> None:
+        """Post-init setup on show"""
+        log_level = self.cfg.get("logger_level", "INFO")
+        self.set_log_level.emit(log_level)
+        super().showEvent(a0)
 
-        self.file_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
-        self.file_splitter.addWidget(left_frame)
-        self.file_splitter.addWidget(right_frame)
-        self.file_splitter.setSizes([200, 400])
-        self.file_splitter.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
-        self.file_splitter.setContentsMargins(0, 0, 0, 0)
-        topleft = self.file_splitter
-        if orientation == QtCore.Qt.Orientation.Vertical:
-            self.file_splitter.setContentsMargins(5, 0, 5, 0)
-            grid.setContentsMargins(5, 0, 5, 5)
-            self.central_layout.addLayout(grid)
-            self.central_layout.setSpacing(5)
+    def create_main_splitter(self, top_layout: QLayout, left_widget: QWidget, right_widget: QWidget,
+                             sizes: list[int] = [200,400]) -> None:
+        """Helper to create a basic layout with a top layout + a left/right splitter"""
+        self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.main_splitter.addWidget(left_widget)
+        self.main_splitter.addWidget(right_widget)
+        self.main_splitter.setSizes(sizes)
+        self.main_splitter.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
+        self.main_splitter.setOrientation(Qt.Orientation.Horizontal)
+        self.main_splitter.setObjectName("mainContentSplitter")
+        if not left_widget.objectName():
+            left_widget.setObjectName("mainContentLeft")
+        if not right_widget.objectName():
+            right_widget.setObjectName("mainContentRight")
+
+        main_content_layout = QVBoxLayout()
+        main_content_layout.addLayout(top_layout)
+        main_content_layout.addWidget(self.main_splitter)
+        main_content_layout.setObjectName("mainContentLayout")
+        self.main_content_widget.setLayout(main_content_layout)
+        self.main_content_widget.setObjectName("mainContentWidget")
+
+        enable_logger = self.cfg.get("enable_logger_widget", True)
+        if enable_logger:
+            # Layout for Logger
+            logger_orientation = LOGGER_BOTTOM if self.cfg.get("logger_orientation", "V") == "V" else LOGGER_RIGHT
+            if logger_orientation == LOGGER_BOTTOM:
+                self.main_content_widget.setContentsMargins(5, 0, 5, 5)
+            else:
+                self.main_content_widget.setContentsMargins(5, 0, 0, 0)
+            self.layout_logger(self.main_content_widget, logger_orientation)
         else:
-            topleft = QtWidgets.QWidget()
-            box = QtWidgets.QVBoxLayout()
-            box.addLayout(grid)
-            box.addWidget(self.file_splitter)
-            topleft.setLayout(box)
-        # Layout Logger
-        if self.show_logger:
-            self.layout_logger(topleft, orientation)
-        else:
-            self.central_layout.addWidget(topleft)
+            # Layout for no Logger
+            self.central_layout.addWidget(self.main_content_widget)
+
+    def layout_logger(self, topleft: QWidget, orientation: Qt.Orientation) -> None:
+        self.logger, self.log_splitter = self.make_logger_widget(topleft=topleft,
+                                                                 orientation=orientation,
+                                                                 log_level_changed_fn=self.on_log_level_changed,
+                                                                 resize_requested_fn=self.resize_logger)
+        self.log_splitter.setHandleWidth(8)
+        self.central_layout.addWidget(self.log_splitter)
+        # Hide at start if configured
+        self.show_logger = self.cfg.get("show_logger_widget", True)
+        if not self.show_logger:
+            self.logger.close()
+            # Ensure default size
+            self.resize(*self.opts.size)
 
     def get_palette_from_cfg(self):
         theme_name = self.cfg.get("theme", "dark")
@@ -3302,8 +4030,37 @@ class MainWindow(FramelessMainWindow):
         file_widget.filepath_changed.connect(self.set_window_filepath)
 
         return file_widget
+    
+    def style_logger_widget(self, logger: LoggerWidget, log_splitter: QSplitter):
+        log_splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        log_splitter.setContentsMargins(0, 0, 0, 0)
+        log_splitter.setCollapsible(0, True)
+        log_splitter.setCollapsible(1, False)
+        style = ""
+        if logger.orientation == LOGGER_BOTTOM:
+            style = R"""
+                QSplitter::handle:vertical {
+                    padding: 0px 0px 4px 0px;
+                }
+            """
+            # Make MainWindow larger
+            self.resize(self.opts.size.width, self.opts.size.height + self.opts.logger_height)
+            log_splitter.setSizes([self.opts.size.height, self.opts.logger_height])
+        elif logger.orientation == LOGGER_RIGHT:
+            style = R"""
+                QSplitter::handle:horizontal {
+                    width: 5px; /* Make handle visible */
+                }
+            """
+            # Make MainWindow larger
+            self.resize(self.opts.size.width + self.opts.logger_width, self.opts.size.height)
+            log_splitter.setSizes([self.opts.size.width, self.opts.logger_width])
 
-    def make_logger_widget(self, topleft: QWidget, orientation: Qt.Orientation = Qt.Orientation.Vertical,
+        log_splitter.setStyleSheet(style)
+        log_splitter.setStretchFactor(0, 1)
+        log_splitter.setStretchFactor(1, 0)
+
+    def make_logger_widget(self, topleft: QWidget, orientation: Qt.Orientation = LOGGER_BOTTOM,
                            sizes: tuple[int, int] = (600, 200),
                            log_level_changed_fn: Optional[Callable] = None,
                            resize_requested_fn: Optional[Callable] = None) -> tuple[LoggerWidget, QSplitter]:
@@ -3311,40 +4068,25 @@ class MainWindow(FramelessMainWindow):
         logger.handler.setFormatter(logs.HtmlFormatter('%(levelname)s | %(message)s'))
         logger.handler.setLevel(logging.INFO)
         logging.getLogger().addHandler(logger.handler)
-
-        self.logger_orientation = orientation
-        log_splitter = QSplitter(orientation)
+        log_splitter = SnapCollapseSplitter(orientation)
         log_splitter.addWidget(topleft)
         log_splitter.addWidget(logger)
-        log_splitter.setSizes(list(sizes))
-        log_splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        log_splitter.setContentsMargins(0, 0, 0, 0)
-        log_splitter.setCollapsible(1, False)
-        if orientation == Qt.Orientation.Vertical:
-            style = R"""
-                QSplitter::handle:vertical {
-                    padding: 0px 0px 4px 0px;
-                }
-            """
-            log_splitter.setStyleSheet(style)
 
-        log_splitter.splitterMoved.connect(logger.on_splitterMoved)
+        self.change_log_speed.connect(logger.set_logging_speed)
 
         if log_level_changed_fn:
             logger.log_level_changed.connect(log_level_changed_fn)
         if resize_requested_fn:
             logger.resize_requested.connect(resize_requested_fn)
 
-        if self.logger_orientation == Qt.Orientation.Horizontal:
-            # Make MainWindow larger by default
-            self.resize(1024, 600)
-            log_splitter.setSizes([700, 324])
-            log_splitter.setStretchFactor(0, 1000)
-            log_splitter.setStretchFactor(1, 1)
+        self.style_logger_widget(logger, log_splitter)
+
+        if not hasattr(self, "status_spacer"):
+            self.status_spacer = StatusSpacer(self)
             # Keep status widgets right-aligned with main layout, ignoring logger.
-            spacer = StatusSpacer(self)
-            self.status_bar.addPermanentWidget(spacer)
-            spacer.set_widget(logger)
+            self.status_bar.addPermanentWidget(self.status_spacer)
+            self.status_spacer.set_widget(logger)
+
         return logger, log_splitter
 
     def setWindowTitle(self, title: str = "", file: str = "", modified: bool = False) -> None:
@@ -3402,6 +4144,37 @@ class MainWindow(FramelessMainWindow):
             SeparatorMenuItem(),
             MenuItem("Exit", self.close, icon="exit")
         ]
+
+    @property
+    def view_menu_items(self) -> list[BaseMenuItem]:
+        return [
+            SeparatorMenuItem("Logger"),
+            CheckableMenuItem("Show Logger",
+                func=self.toggle_logger,
+                tooltip="Display logger in the GUI",
+                config_name="show_logger_widget",
+                config_default=True
+            ),
+            CheckableMenuItem("Clear Logs",
+                func=self.toggle_clear_logs,
+                tooltip="Clear previous logs on File Open",
+                config_name="clear_logs",
+                config_default=True
+            )
+        ]
+
+    @pyqtSlot(bool)
+    def toggle_logger(self, checked: bool):
+        if hasattr(self, "logger") and self.logger:
+            if checked:
+                self.logger.show()
+            else:
+                self.logger.close()
+
+    @pyqtSlot(bool)
+    def toggle_clear_logs(self, checked: bool):
+        if hasattr(self, "logger") and self.logger:
+            self.logger.toggle_clear_logs(checked)
 
     @property
     def help_menu_items(self) -> list[BaseMenuItem]:
@@ -3565,13 +4338,67 @@ class MainWindow(FramelessMainWindow):
         # print(f"Running '{func.__name__}' in threadpool")
         worker = WorkerRunnable(func, *args, **kwargs)
         worker.signals.error_msg.connect(self.showerror)
-        worker.signals.finished.connect(self.enable_gui_options)
         worker.signals.finished.connect(self.choices_update)
+
+        if not self.active_workers:  # If no workers are currently active, this is the start of a new batch
+            self.enable_gui_options(False)
+            if not self._is_processing_worker_batch:  # Ensure we only start timing once per batch
+                logging.debug(f"Starting new worker batch with '{func.__name__}'")
+                self._current_batch_start_time = time.perf_counter()
+                self._is_processing_worker_batch = True
+
         for callback in callbacks:
-            # print(f"connecting {callback}")
             worker.signals.finished.connect(callback)
+
+        def worker_cleanup_slot(worker_instance=worker, func_name=func.__name__):
+            logging.debug(f"Worker for '{func_name}' signaled completion. Removing from active set.")
+            if worker_instance in self.active_workers:
+                self.active_workers.remove(worker_instance)
+            else:
+                logging.warning(f"Worker for '{func_name}' was not in active_workers set during cleanup")
+
+            logging.debug(f"Active workers remaining: {len(self.active_workers)}")
+
+            # Check if this was the last worker of the batch
+            if not self.active_workers and self._is_processing_worker_batch:
+                if self._current_batch_start_time:
+                    elapsed_time = time.perf_counter() - self._current_batch_start_time
+                    logging.debug(f"'{func_name}' finished in {elapsed_time:.4f} seconds")
+
+                self.change_log_speed.emit("normal")
+                self._is_processing_worker_batch = False
+                self._current_batch_start_time = None
+
+            self.enable_gui_options(True)
+
+        # Connect the cleanup slot to run when the worker is done
+        worker.signals.finished.connect(worker_cleanup_slot)
+
+        self.active_workers.add(worker)
+        logging.debug(f"Starting worker for '{func.__name__}'. Total active: {len(self.active_workers)}")
         self.threadpool.start(worker)
         self.enable_gui_options(False)
+
+    def cancel_workers(self):
+        """Worker thread cancellation and wait."""
+        # Print used in case logging no longer available
+        print("Signaling and waiting for worker threads...")
+        if hasattr(self, 'active_workers') and self.active_workers:
+            print(f"  Signaling {len(self.active_workers)} active worker(s) to cancel...")
+            for worker_ref in list(self.active_workers):
+                if hasattr(worker_ref, 'cancel'):
+                    worker_ref.cancel()
+
+        if hasattr(self, 'threadpool'):
+            print(f"Waiting for QThreadPool to finish (max {self.CANCEL_WAIT_MS / 1000}s)...")
+            all_threads_done = self.threadpool.waitForDone(self.CANCEL_WAIT_MS)
+            if all_threads_done:
+                print("QThreadPool.waitForDone() completed successfully.")
+            else:
+                print("  WARNING - QThreadPool.waitForDone() TIMED OUT. Some QRunnables may still be active.")
+                if hasattr(self, 'active_workers') and self.active_workers:
+                    lingering_tracked_workers = [getattr(w.func, '__name__', 'unknown_func') for w in self.active_workers]
+                    print(f"  Tracked workers still in self.active_workers after timeout: {lingering_tracked_workers}")
 
     def enable_gui_options(self, enable=True):
         pass
@@ -3580,20 +4407,24 @@ class MainWindow(FramelessMainWindow):
         pass
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        # Dirty check
         if self.file_widget and self.file_widget.dirty:
             quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
             if not self.showconfirmation(quit_msg, title="Quit"):
                 event.ignore()
                 return
-        event.accept()
+        # Cancel batch operations
+        self.cancel_workers()
+        # Close logger widget
+        if self.logger:
+            self.logger.close()
+        # Close logging handlers
         self.close_logs()
-
-    def layout_logger(self, topleft: QWidget, orientation: Qt.Orientation) -> None:
-        self.logger, self.log_splitter = self.make_logger_widget(topleft=topleft,
-                                                                 orientation=orientation,
-                                                                 log_level_changed_fn=self.on_log_level_changed,
-                                                                 resize_requested_fn=self.resize_logger)
-        self.central_layout.addWidget(self.log_splitter)
+        event.accept()
+        # Last resort workaround for console hanging
+        # NOTE: Left as documentation in case it happens again.
+        #       Instead, ensure any unparented widgets are closed or made parented
+        #QtCore.QCoreApplication.instance().quit()
 
     def resize_logger(self, request: LoggerWidget.ResizeRequest) -> None:
         if not hasattr(self, 'logger') or not hasattr(self, 'log_splitter'):
@@ -3601,24 +4432,22 @@ class MainWindow(FramelessMainWindow):
         if not self.logger or not self.log_splitter:
             return
 
-        if self.logger_orientation == Qt.Orientation.Vertical:
+        if self.logger.orientation == LOGGER_BOTTOM:
             if request.size > 0:
                 logger_size = request.size + LoggerWidget.ICON_BAR_SIZE
                 current_sizes = self.log_splitter.sizes()
                 if not request.expand_only or current_sizes[1] < logger_size:
                     self.log_splitter.setSizes([self.log_splitter.widget(0).height() - logger_size, logger_size])
-                    self.logger.on_splitterMoved()
             else:
-                self.log_splitter.setSizes([400, 0])
+                self.log_splitter.setSizes([self.opts.size.height, 0])
         else:
             if request.size > 0:
                 logger_size = min(request.size, 400)
                 current_sizes = self.log_splitter.sizes()
                 if not request.expand_only or current_sizes[1] < logger_size:
                     self.log_splitter.setSizes([self.log_splitter.widget(0).width() - logger_size, logger_size])
-                    self.logger.on_splitterMoved()
             else:
-                self.log_splitter.setSizes([800, 0])
+                self.log_splitter.setSizes([self.opts.size.width, 0])
 
     def on_log_level_changed(self, level: str) -> None:
         if self.stdout_handler:
@@ -3628,16 +4457,30 @@ class MainWindow(FramelessMainWindow):
 
     def close_logs(self) -> None:
         if self.log_name:
-            removed_handlers: list[logging.Handler] = []
-            for handler in logging.getLogger().handlers:
-                if isinstance(handler, logs.LogBackupFileHandler) and handler.name and handler.name == self.log_name:
-                    removed_handlers.append(handler)
-                elif isinstance(handler, LoggerWidget) and isinstance(handler.parent(), MainWindow):
-                    removed_handlers.append(handler)
-            for handler in reversed(removed_handlers):
-                logging.debug(f"Closing Log: {type(handler).__name__}: {handler.get_name() if handler.get_name() else handler}")
-                logging.getLogger().removeHandler(handler)
-                handler.close()
+            root_logger = logging.getLogger()
+            handlers_to_process = []
+            for handler in list(root_logger.handlers):
+                # Identify LoggerWidget.Handler
+                if self.logger and handler is self.logger.handler:
+                    handlers_to_process.append(handler)
+                # Identify LogBackupFileHandler
+                elif isinstance(handler, logs.LogBackupFileHandler) and handler.name and handler.name == self.log_name:
+                    handlers_to_process.append(handler)
+
+            if not handlers_to_process:
+                print("close_logs: No specific handlers (LoggerWidget.Handler, LogBackupFileHandler) found to remove.")
+
+            for handler in reversed(handlers_to_process):
+                handler_id_str = f"{type(handler).__name__} (name: {getattr(handler, 'name', 'N/A')}, id: {id(handler)})"
+                try:
+                    root_logger.removeHandler(handler)
+                except Exception as e:
+                    print(f"ERROR: Failed to remove handler {handler_id_str}: {e}")
+                    # Continue to try closing it anyway
+                try:
+                    handler.close()
+                except Exception as e:
+                    print(f"ERROR: Exception during close() for handler {handler_id_str}: {e}")
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if not self.file_widget:
@@ -3702,8 +4545,6 @@ class WorkerSignals(QObject):
 
 
 class WorkerRunnable(QtCore.QRunnable):
-    finished = pyqtSignal()
-    error_msg = pyqtSignal(str)
 
     def __init__(self, func: Callable, *args, **kwargs) -> None:
         super().__init__()
@@ -3711,16 +4552,37 @@ class WorkerRunnable(QtCore.QRunnable):
         self.args = args
         self.kwargs = kwargs
         self.signals = WorkerSignals()
+        self._is_cancelled = False
+        self.setAutoDelete(True)
 
     @pyqtSlot()
     def run(self) -> None:
+        if self._is_cancelled:
+            logging.info(f"Worker for {self.func.__name__} cancelled before execution.")
+            self.signals.finished.emit()  # Still signal completion of the runnable
+            return
         try:
+            # Check if the target function can accept a cancellation check
+            import inspect
+            sig = inspect.signature(self.func)
+            if 'cancellation_check' in sig.parameters:
+                # If so, inject our cancellation check method
+                self.kwargs['cancellation_check'] = lambda: self._is_cancelled
             self.func(*self.args, **self.kwargs)
-        except BaseException as err:
-            logging.exception(f"Threaded call of function '{self.func.__name__}()' errored!")
-            self.signals.error_msg.emit(str(err))
+        except Exception as err:
+            # Check if cancellation happened and func perhaps raised an error because of it
+            if self._is_cancelled:
+                 logging.info(f"Worker for {self.func.__name__} errored, possibly due to cancellation: {err}")
+            else:
+                logging.exception(f"Threaded call of function '{self.func.__name__}()' errored!")
+                #if not self._is_cancelled:
+                self.signals.error_msg.emit(str(err))
         finally:
             self.signals.finished.emit()
+
+    def cancel(self) -> None:
+        logging.info(f"Cancel requested for worker: {getattr(self.func, '__name__', 'unknown_func')}")
+        self._is_cancelled = True
 
 
 class Reporter(DummyReporter, QObject):

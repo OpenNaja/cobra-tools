@@ -61,11 +61,13 @@ class Config(dict):
 	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
 	play_on_saving = TransientSetting("Run Game on Saving", "Always run the currently selected game after saving an OVL", False, (True, False))
 	# GUI appearance
-	logger_show = RestartSetting("Show Logger", "Show Logger panel", False, (True, False))  # Hides/show the logger panel
+	enable_logger_widget = RestartSetting("Enable Logger", "Enable Logger widget in GUI", True, (True, False))
 	logger_orientation = RestartSetting("Logger Orientation", "Set logger orientation", "H", ("H", "V"))
 	theme = RestartSetting("Theme", "Select theme palette", "dark", ("dark", "light"))
 	num_recent = TransientSetting("Number of recent files", "Number of files to show in 'Open Recent' dialogues",
 								   5, list(range(3, 10)))
+	# Editors
+	preferred_editor = TransientSetting("Editor", "Preferred IDE/editor", "VS Code", ("VS Code", "PyCharm"))
 
 	def __init__(self, dir, name="config.json", **kwargs):
 		super().__init__(**kwargs)
