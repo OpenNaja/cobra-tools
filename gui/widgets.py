@@ -76,6 +76,7 @@ class SubMenuItem(BaseMenuItem):
 class CheckableMenuItem(MenuItem):
     """Represents a menu item that can be checked."""
     config_name: str = ""
+    config_default: bool = True
 
 @dataclass
 class SeparatorMenuItem(BaseMenuItem):
@@ -3476,7 +3477,7 @@ class MainWindow(FramelessMainWindow):
             if isinstance(item, CheckableMenuItem):
                 action.setCheckable(True)
                 if item.config_name:
-                    config_setting = self.cfg.get(item.config_name, False)
+                    config_setting = self.cfg.get(item.config_name, item.config_default)
                     if isinstance(config_setting, bool):
                         action.setChecked(config_setting)
                         action.toggled.connect(
