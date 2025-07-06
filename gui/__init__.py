@@ -8,6 +8,7 @@ from pathlib import Path
 from ovl_util import logs
 from ovl_util.config import save_config
 from gui.widgets import MainWindow
+from gui.tools.layout_visualizer import install_layout_visualizer
 from gui import qt_theme
 
 from PyQt5.QtCore import Qt, qVersion
@@ -69,6 +70,7 @@ class GuiOptions:
 	stylesheet: str = R"""
 		QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }
 	"""
+	debug_layout: bool = False
 
 	def __post_init__(self):
 		if isinstance(self.size, tuple):
@@ -117,6 +119,10 @@ def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 			app_qt.setStyleSheet(qss.read())
 	elif opts.stylesheet:
 		app_qt.setStyleSheet(opts.stylesheet)
+
+	if opts.debug_layout:
+		install_layout_visualizer(win)
+
 	win.show()
 	app_qt.exec_()
 	cfg_path = Path(__file__).resolve().parent.parent / "config.json"
