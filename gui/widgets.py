@@ -1,5 +1,4 @@
 import logging
-import subprocess
 import webbrowser
 import os
 import re
@@ -21,6 +20,7 @@ from modules.walker import valid_packages
 
 import gui
 from gui import qt_theme
+from gui.app_utils import *
 
 from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg  # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
@@ -44,18 +44,8 @@ from PyQt5.QtWinExtras import QWinTaskbarButton
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from __version__ import VERSION, COMMIT_HASH
 
-import vdf
-
-# Windows modules
-try:
-    import winreg
-    WINDOWS = True
-except:
-    logging.warning("Required Windows modules missing; some features may not work.")
-    WINDOWS = False
 
 MAX_UINT = 4294967295
-ICON_CACHE = {"no_icon": QIcon()}
 root_dir = Path(__file__).resolve().parent.parent
 
 FILE_MENU = 'File'
@@ -159,27 +149,6 @@ def add_label_separator(menu: QMenu, text: str) -> None:
     widget_action.setEnabled(False)
 
     menu.addAction(widget_action)
-
-
-def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) -> QIcon:
-    img = icon.pixmap(size)
-    qp = QPainter(img)
-    qp.setCompositionMode(QPainter.CompositionMode_SourceIn)
-    qp.fillRect(img.rect(), QColor(color))
-    qp.end()
-    return QIcon(img)
-
-
-def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
-    icon = name + color
-    if icon in ICON_CACHE:
-        return ICON_CACHE[icon]
-    for ext in (".svg", ".png"):
-        fp = os.path.join(root_dir, f'icons/{name}{ext}')
-        if os.path.isfile(fp):
-            ICON_CACHE[icon] = QIcon(fp) if not color else color_icon(QIcon(fp), color=color, size=size)
-            return ICON_CACHE[icon]
-    return ICON_CACHE["no_icon"]
 
 
 FilterFunc = Callable[[Any, str], bool]
@@ -2326,33 +2295,7 @@ class GamesWidget(QWidget):
 
     def run_selected_game(self):
         selected_game = self.get_selected_game()
-        logging.info(f"Running {selected_game}")
-        args = ["-nointro", ]
-        if selected_game == "Jurassic World Evolution 2":
-            args.extend(["-disableprint", "-level", "modelviewer"])  # only works on JWE2, crashes PC, PZ
-        # try steam launch
-        id_map = {
-            "Jurassic World Evolution 2": 1244460,
-            "Jurassic World Evolution": 648350,
-            "Planet Coaster 2": 2688950,
-            "Planet Coaster": 493340,
-            "Planet Zoo": 703080,
-            "Disneyland Adventures": 630610,
-            "Zoo Tycoon": 613880,
-            }
-        steam_game_id = id_map.get(selected_game)
-        if steam_game_id:
-            args_str = " ".join(args)
-            steam_cmd = f"steam://rungameid/{steam_game_id}//{args_str}"
-            logging.debug(f"Running game from {steam_cmd}")
-            webbrowser.open(steam_cmd)
-        else:
-            ovldata = self.cfg["games"].get(selected_game, None)
-            if ovldata:
-                exe_path = self.get_exe_from_ovldata(ovldata)
-                subprocess.Popen([exe_path, ] + args)
-            else:
-                logging.warning(f"Couldn't find the game's executable")
+        launch_game(selected_game, self.cfg)
 
     def set_root(self, dir_game: str) -> None:
         root_index = self.dirs.file_model.setRootPath(dir_game)
@@ -2397,15 +2340,16 @@ class GamesWidget(QWidget):
         self.entry.clear()
         sorted_games = sorted(available_games.items())
 
-        provider = QFileIconProvider()
+        # Query the style for the pixel metric of a small icon
+        style = self.entry.style()
+        icon_size = style.pixelMetric(QStyle.PM_SmallIconSize)
+
         self.entry.clear()
         for game, ovldata in sorted_games:
-            try:
-                exe_path = self.get_exe_from_ovldata(ovldata)
-                info = QFileInfo(exe_path)
-                icon = QIcon(provider.icon(info))
+            icon = get_exe_icon(game, get_exe_from_ovldata(ovldata), icon_size)
+            if not icon.isNull():
                 self.entry.addItem(icon, game)
-            except:
+            else:
                 self.entry.addItem(game)
         # update currently selected item
         if sorted_games:
@@ -2413,55 +2357,9 @@ class GamesWidget(QWidget):
             current_game = self.cfg.get("current_game", sorted_games[0][0])
             self.entry.setText(current_game)
 
-    def get_exe_from_ovldata(self, ovldata):
-        game_dir = Path(ovldata).parent.parent
-        exe = [exe for exe in os.listdir(game_dir) if
-               exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
-        exe_path = os.path.join(game_dir, exe)
-        return exe_path
-
     def set_games(self) -> None:
-        self.cfg["games"].update(self.get_steam_games())
+        self.cfg["games"].update(get_steam_games(self.games_list))
         self.set_data(self.cfg["games"])
-
-    def get_steam_games(self) -> dict[str, str]:
-        try:
-            # get steam folder from windows registry
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
-            steam_query = winreg.QueryValueEx(hkey, "InstallPath")
-            # get path to steam games folder
-            # C:\\Program Files (x86)\\Steam
-            steam_path = steam_query[0]
-            library_folders = {steam_path}
-            vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
-            # check if there are other steam library folders (eg. on external drives)
-            try:
-                v = vdf.load(open(vdf_path))
-                for folder in v["libraryfolders"].values():
-                    library_folders.add(folder["path"])
-            except:
-                logging.warning(
-                    f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
-
-            # map all installed fdev game names to their path
-            fdev_games = {}
-            # list all games for each library folder
-            for steam_path in library_folders:
-                try:
-                    apps_path = os.path.join(steam_path, "steamapps\\common")
-                    if os.path.isdir(apps_path):
-                        # filter with supported fdev games
-                        fdev_in_lib = [game for game in os.listdir(apps_path) if game in self.games_list]
-                        # generate the whole path for each game, add to dict
-                        # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-                        fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
-                except FileNotFoundError as e:
-                    logging.warning(e)
-            logging.info(f"Found {len(fdev_games)} Cobra games from Steam")
-            return fdev_games
-        except:
-            logging.exception(f"Getting installed games from steam folder failed")
-            return {}
 
 
 class EditCombo(QWidget):
