@@ -3029,6 +3029,7 @@ class GamesWidget(QWidget):
             self.cfg["current_game"] = current_game
             # update available games
             self.set_data(self.cfg["games"])
+            self.set_selected_game(current_game)
 
     def set_data(self, available_games: dict) -> None:
         self.entry.clear()

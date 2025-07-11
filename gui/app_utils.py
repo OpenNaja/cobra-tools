@@ -63,10 +63,14 @@ def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
 
 
 def get_exe_from_ovldata(ovldata_path: str) -> str:
-    game_dir = Path(ovldata_path).parent.parent
-    exe = [exe for exe in os.listdir(game_dir) if
-            exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
-    exe_path = os.path.join(game_dir, exe)
+    exe_path = ""
+    try:
+        game_dir = Path(ovldata_path).parent.parent
+        exe = [exe for exe in os.listdir(game_dir) if
+                exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
+        exe_path = os.path.join(game_dir, exe)
+    except Exception:
+        logging.debug("EXE not found in manually added game folder")
     return exe_path
 
 
@@ -97,6 +101,9 @@ def get_exe_icon(filename: str, exe_path: str, icon_size: int) -> QIcon:
     Gets an EXE's icon, first checking the cache, then falling back to the exe.
     Caches the icon if it's retrieved from the exe.
     """
+    if not filename or not exe_path:
+        return get_icon("dir")
+
     cache_info = get_icon_cache_info(filename, icon_size)
     # Check if the cached file already exists.
     if Path(cache_info.abs_filepath).exists():
@@ -300,8 +307,8 @@ def launch_game(game: str, cfg: Config):
         webbrowser.open(steam_cmd)
     else:
         ovldata = cfg["games"].get(game, None)
-        if ovldata:
-            exe_path = get_exe_from_ovldata(ovldata)
+        exe_path = get_exe_from_ovldata(ovldata)
+        if exe_path:
             subprocess.Popen([exe_path, ] + args)
         else:
             logging.warning(f"Couldn't find the game's executable")
