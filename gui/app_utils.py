@@ -63,15 +63,13 @@ def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
 
 
 def get_exe_from_ovldata(ovldata_path: str) -> str:
-    exe_path = ""
-    try:
-        game_dir = Path(ovldata_path).parent.parent
-        exe = [exe for exe in os.listdir(game_dir) if
-                exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)][0]
-        exe_path = os.path.join(game_dir, exe)
-    except Exception:
-        logging.debug("EXE not found in manually added game folder")
-    return exe_path
+    game_dir = Path(ovldata_path).parent.parent
+    exes = [exe for exe in os.listdir(game_dir) if
+            exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)]
+    if exes:
+        return os.path.join(game_dir, exes[0])
+    logging.debug("EXE not found in manually added game folder")
+    return ""
 
 
 def get_icon_cache_info(filename: str, icon_size: int) -> CacheInfo:
