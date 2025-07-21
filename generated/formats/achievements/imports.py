@@ -50,6 +50,7 @@ type_module_name_map = {
 	'ConditionRef2Ptr': 'generated.formats.achievements.compounds.ConditionRef2Ptr',
 	'ConditionsPtr': 'generated.formats.achievements.compounds.ConditionsPtr',
 	'ConditionVar': 'generated.formats.achievements.compounds.ConditionVar',
+	'ConditionPc2': 'generated.formats.achievements.compounds.ConditionPc2',
 	'ConditionCheck': 'generated.formats.achievements.compounds.ConditionCheck',
 	'Achievement': 'generated.formats.achievements.compounds.Achievement',
 }

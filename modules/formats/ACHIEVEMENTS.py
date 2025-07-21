@@ -1,7 +1,7 @@
 from generated.formats.achievements.compounds.AchievementsRoot import AchievementsRoot
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MimeVersionedLoader
 
 
-class AchievementsLoader(MemStructLoader):
+class AchievementsLoader(MimeVersionedLoader):
 	target_class = AchievementsRoot
 	extension = ".achievements"

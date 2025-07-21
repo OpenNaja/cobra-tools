@@ -6,12 +6,13 @@
 
     <compound name="AchievementsRoot" inherit="MemStruct">
         PZ: 48 bytes
+        PC2: 32 bytes
         <add name="condition_vars" type="ArrayPointer" template="ConditionVarPtr" arg="condition_vars_count"/>
         <add name="condition_vars_count" type="uint64" />
         <add name="condition_checks" type="ArrayPointer" template="ConditionCheck" arg="condition_checks_count"/>
         <add name="condition_checks_count" type="uint64" />
-        <add name="c" type="ArrayPointer" template="Achievement" arg="c_count"/>
-        <add name="c_count" type="uint64" />
+        <add name="c" type="ArrayPointer" template="Achievement" arg="c_count" until="3"/>
+        <add name="c_count" type="uint64" until="3"/>
     </compound>
 
     <compound name="ConditionVarPtr" inherit="MemStruct">
@@ -56,13 +57,28 @@
         <add name="d" type="uint64" />
     </compound>
 
+    <compound name="ConditionPc2" inherit="MemStruct">
+        PC2 32 bytes
+            PTR @ 352  -> SUB 117 | 7168 (  32)
+      00 00 00 00 00 00 00 00 40 50 4F 49 4E 54 45 52  ........@POINTER
+      00 00 40 40 00 00 00 00 00 00 00 00 00 00 00 00  ..@@............
+        <add name="a" type="uint64" />
+        <add name="reference" type="Pointer" /> into Conditions array
+        <add name="b" type="uint64" />
+        <add name="c" type="uint64" />
+    </compound>
+
     <compound name="ConditionCheck" inherit="MemStruct">
         PZ 40 bytes
         <add name="Condition_name" type="Pointer" template="ZString"/>
-        <add name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count"/>points to array of pointers
-        <add name="Conditions2_count" type="uint64" />
-        <add name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count"/>
-        <add name="Conditions_count" type="uint64" />
+        <add name="Condition_index" type="uint64" since="5"/>
+        <add name="Condition_index_str" type="Pointer" template="ZString" since="5"/>
+        <add name="Count" type="uint64" since="5"/>
+        <add name="zero" type="Pointer" template="ConditionPc2" since="5"/>
+        <add name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count" until="3"/>points to array of pointers
+        <add name="Conditions2_count" type="uint64" until="3"/>
+        <add name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count" until="3"/>
+        <add name="Conditions_count" type="uint64"  until="3"/>
     </compound>
 
     <compound name="Achievement" inherit="MemStruct">

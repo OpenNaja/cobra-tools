@@ -6,6 +6,7 @@ class AchievementsRoot(MemStruct):
 
 	"""
 	PZ: 48 bytes
+	PC2: 32 bytes
 	"""
 
 	__name__ = 'AchievementsRoot'
@@ -29,8 +30,8 @@ class AchievementsRoot(MemStruct):
 		yield 'condition_vars_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'condition_checks', name_type_map['ArrayPointer'], (None, name_type_map['ConditionCheck']), (False, None), (None, None)
 		yield 'condition_checks_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'c', name_type_map['ArrayPointer'], (None, name_type_map['Achievement']), (False, None), (None, None)
-		yield 'c_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['ArrayPointer'], (None, name_type_map['Achievement']), (False, None), (lambda context: context.version <= 3, None)
+		yield 'c_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 3, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,5 +40,6 @@ class AchievementsRoot(MemStruct):
 		yield 'condition_vars_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'condition_checks', name_type_map['ArrayPointer'], (instance.condition_checks_count, name_type_map['ConditionCheck']), (False, None)
 		yield 'condition_checks_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'c', name_type_map['ArrayPointer'], (instance.c_count, name_type_map['Achievement']), (False, None)
-		yield 'c_count', name_type_map['Uint64'], (0, None), (False, None)
+		if instance.context.version <= 3:
+			yield 'c', name_type_map['ArrayPointer'], (instance.c_count, name_type_map['Achievement']), (False, None)
+			yield 'c_count', name_type_map['Uint64'], (0, None), (False, None)
