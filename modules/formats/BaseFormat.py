@@ -580,8 +580,15 @@ class BaseFile:
 		# logging.debug(f"compare_pointer {t_o} vs {o_o}")
 		if not t_p and not o_p:
 			return
+		if not t_p or not o_p:
+			self.same = False
+			return
 		this_struct = t_p.get_data_at(t_o)
 		other_struct = o_p.get_data_at(o_o)
+		if not (this_struct and other_struct):
+			logging.warning(f"No valid offset for this {t_o} vs other {o_o}")
+			self.same = False
+			return
 		if this_struct != other_struct:
 			logging.warning(f"Struct does not match - this {len(this_struct)} vs other {len(other_struct)}")
 			min_len = min((len(this_struct), len(other_struct)))
