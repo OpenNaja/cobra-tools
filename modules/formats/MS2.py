@@ -5,13 +5,13 @@ import logging
 
 from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compounds.Buffer0 import Buffer0
+from generated.formats.ms2.compounds.ModelstreamHeader import ModelstreamHeader
 from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
 
 from generated.formats.base.compounds.PadAlign import get_padding
-from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
-from modules.formats.BaseFormat import BaseFile, MemStructLoader
+from modules.formats.BaseFormat import BaseFile, MemStructLoader, MimeVersionedLoader
 from modules.helpers import as_bytes
 
 
@@ -23,15 +23,15 @@ class Mdl2Loader(BaseFile):
 		self.root_ptr = (None, 0)
 
 
-class Model2streamLoader(BaseFile):
+class Model2streamLoader(MimeVersionedLoader):
 	extension = ".model2stream"
-	# we can recycle this for now
-	target_class = TexturestreamHeader
+	target_class = ModelstreamHeader
 	can_extract = False
 
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
-		if ovl_versions.is_jwe2(self.ovl):
+		# JWE2, PC2
+		if self.context.version >= 52:
 			self.header.lod_index = int(self.basename[-1])
 		self.write_memory_data()
 	
@@ -208,6 +208,7 @@ class Ms2Loader(MemStructLoader):
 			stream.write(verts)
 			for loader in self.streams:
 				# logging.debug(f"Writing {loader.name} at {stream.tell()}")
+				logging.debug(f"Stream {loader.name} is in {loader.ovs.arg.name}")
 				stream.write(loader.data_entry.buffer_datas[0])
 				
 		return out_paths

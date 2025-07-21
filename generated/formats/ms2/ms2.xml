@@ -583,6 +583,13 @@
 		This reads and assigns models to each model_info that is passed to it
 	</compound>
 
+    <compound name="ModelstreamHeader" inherit="MemStruct">
+		JWE, PZ, PC: 8 bytes
+        JWE2, PC2: 16 bytes
+		<add name="zero" type="uint64" default="0" optional="True"/>
+		<add name="lod_index" type="uint64" since="52"/>
+    </compound>
+
 	<compound name="Ms2InfoHeader">
 		Custom header struct
 		<add name="biosyn" type="BiosynVersion" default="1"/>

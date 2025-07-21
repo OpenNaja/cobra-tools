@@ -89,6 +89,7 @@ type_module_name_map = {
 	'BufferInfo': 'generated.formats.ms2.compounds.BufferInfo',
 	'ModelInfo': 'generated.formats.ms2.compounds.ModelInfo',
 	'ModelReader': 'generated.formats.ms2.compounds.ModelReader',
+	'ModelstreamHeader': 'generated.formats.ms2.compounds.ModelstreamHeader',
 	'Ms2InfoHeader': 'generated.formats.ms2.compounds.Ms2InfoHeader',
 	'TriChunk': 'generated.formats.ms2.compounds.TriChunk',
 	'VertChunk': 'generated.formats.ms2.compounds.VertChunk',
