@@ -9,12 +9,12 @@
         PZ 16 bytes
         <add name="unk_0" type="float" default="0.4"/>
         <add name="unk_1" type="uint"/>maybe a cond for the pointer and count
-        <add name="array_1" type="ArrayPointer" template="Pair" arg="count" vercond="#PC#"/>
-        <add name="count" type="uint" vercond="#PC#"/>
+        <add name="array_1" type="ArrayPointer" template="Pair" arg="count" vercond="!#PZ#"/>
+        <add name="count" type="uint" vercond="!#PZ#"/>
         padding
         <add name="pad_0" type="uint"/>
         <add name="pad_1" type="uint"/>
-        <add name="pad_2" type="uint" vercond="#PC#"/>
+        <add name="pad_2" type="uint" vercond="!#PZ#"/>
     </compound>
 
     <compound name="Pair" inherit="MemStruct">

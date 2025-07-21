@@ -29,21 +29,21 @@ class RideSettingsRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'unk_0', name_type_map['Float'], (0, None), (False, 0.4), (None, None)
 		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'array_1', name_type_map['ArrayPointer'], (None, name_type_map['Pair']), (False, None), (lambda context: context.version == 18, None)
-		yield 'count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version == 18, None)
+		yield 'array_1', name_type_map['ArrayPointer'], (None, name_type_map['Pair']), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'count', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 		yield 'pad_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'pad_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'pad_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version == 18, None)
+		yield 'pad_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', name_type_map['Float'], (0, None), (False, 0.4)
 		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)
-		if instance.context.version == 18:
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
 			yield 'array_1', name_type_map['ArrayPointer'], (instance.count, name_type_map['Pair']), (False, None)
 			yield 'count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'pad_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'pad_1', name_type_map['Uint'], (0, None), (False, None)
-		if instance.context.version == 18:
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
 			yield 'pad_2', name_type_map['Uint'], (0, None), (False, None)
