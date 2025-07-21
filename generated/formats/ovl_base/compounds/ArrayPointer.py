@@ -36,7 +36,7 @@ class ArrayPointer(Pointer):
 			try:
 				self.data = Array.from_stream(stream, self.context, 0, None, (self.arg,), self.template)
 			except:
-				logging.warning(f"Could not read array of '{self.template.__name__}'")
+				logging.exception(f"Could not read array of '{self.template.__name__}'")
 				self.data = None
 
 	@classmethod

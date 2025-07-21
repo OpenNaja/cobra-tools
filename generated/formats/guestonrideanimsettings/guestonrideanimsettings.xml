@@ -10,23 +10,30 @@
     </compound>
 
     <compound name="RideAnims" inherit="MemStruct">
-        PZ 128 bytes
         PC 136 bytes
+        PZ 128 bytes
+        PC2 64 bytes
         <add name="anim_name" type="Pointer" template="ZString"/>
-        <add name="AM" type="Pointer" template="ZString"/>
-        <add name="AF" type="Pointer" template="ZString"/>
-        <add name="TM" type="Pointer" template="ZString"/>
-        <add name="TF" type="Pointer" template="ZString"/>
-        <add name="CF" type="Pointer" template="ZString"/>
-        <add name="CM" type="Pointer" template="ZString"/>
+        <add name="AM" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="AF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="TM" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="TF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="CF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <add name="CM" type="Pointer" template="ZString" vercond="!is_PC2"/>
 
         <add name="bools" type="ubyte" arr1="44" vercond="#PC#" />
-        <add name="floats" type="float" arr1="5" vercond="#PC#"/>
-        <add name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
-        <add name="count" type="uint64" vercond="#PC#"/>
+        <add name="bools" type="ubyte" arr1="56" vercond="#PZ# #AND# !is_PC2" />
+        <add name="bools" type="ubyte" arr1="32" vercond="is_PC2" />
 
-        <add name="bools" type="ubyte" arr1="56" vercond="!#PC#" />
-        <add name="floats" type="float" arr1="4" vercond="!#PC#"/>
+        <add name="floats" type="float" arr1="5" vercond="#PC#"/>
+        <add name="floats" type="float" arr1="4" vercond="#PZ# #AND# !is_PC2"/>
+        <add name="floats" type="float" arr1="5" vercond="is_PC2"/>PC2 still 5
+
+        <add name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
+
+        <add name="count" type="uint64" vercond="#PC#"/>
+        <add name="count" type="uint" vercond="is_PC2"/>
+
     </compound>
 
     <compound name="AnimPair" inherit="MemStruct">
