@@ -115,7 +115,7 @@ def generate_hash_table(gui, start_dir):
 								if ext in mimes:
 									v_old = getattr(mimes[ext], short_var)
 									if v != v_old and v_old:
-										logging.error(f"{list_name}.{short_var} is not constant for {ext}! ({v} vs. {v_old})")
+										logging.warning(f"{list_name}.{short_var} is not constant for {ext}! ({v} vs. {v_old})")
 								else:
 									mimes[ext] = Mime("", 0, 0, [], 0, 0)
 								setattr(mimes[ext], short_var, v)
