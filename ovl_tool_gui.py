@@ -282,9 +282,10 @@ class MainWindow(widgets.MainWindow):
 		if self.is_open_ovl():
 			filepath = self.file_widget.get_open_file_name(f'Open OVL to compare with')
 			if filepath:
+				commands = {"game": self.ovl_game_choice.entry.currentText()}
 				other_ovl_data = OvlFile()
 				other_ovl_data.load_hash_table()
-				other_ovl_data.load(filepath)
+				other_ovl_data.load(filepath, commands)
 				for file_name in selected_file_names:
 					try:
 						loader_a = self.ovl_data.loaders[file_name]
