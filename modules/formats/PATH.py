@@ -19,16 +19,6 @@ class PathMaterialLoader(MemStructLoader):
 	target_class = PathMaterial
 	extension = ".pathmaterial"
 
-	def prep(self):
-		# avoid generating pointers for these
-		if not self.header.num_data:
-			self.header.mat_data.data = None
-
-	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		self.prep()
-		self.write_memory_data()
-
 
 class PathResourceLoader(MemStructLoader):
 	target_class = PathResource
@@ -39,25 +29,11 @@ class PathJoinPartResourceLoader(MemStructLoader):
 	target_class = PathJoinPartResourceRoot
 	extension = ".pathjoinpartresource"
 
-	def prep(self):
-		# avoid generating pointers for these
-		for res in self.header.resources_list.data:
-			if not res.num_points_1:
-				res.unk_points_1.data = None
-			if not res.num_points_2:
-				res.unk_points_2.data = None
-			if not res.num_points_3:
-				res.unk_points_3.data = None
-
-	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		self.prep()
-		self.write_memory_data()
-
 
 class PathSupportLoader(MemStructLoader):
 	target_class = PathSupport
 	extension = ".pathsupport"
+
 
 class PathTypeLoader(MemStructLoader):
 	target_class = PathType
@@ -68,43 +44,12 @@ class SupportSetLoader(MimeVersionedLoader):
 	target_class = SupportSetRoot
 	extension = ".supportset"
 
-	def prep(self):
-		# avoid generating pointers for these
-		if not self.header.num_connector_1:
-			self.header.connector_1.data = None
-		if not self.header.num_connector_2:
-			self.header.connector_2.data = None
-
-	# def collect(self):
-	# 	super().collect()
-	# 	print(self.header)
-
-	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		self.prep()
-		self.write_memory_data()
 
 class LatticeSupportSetLoader(MemStructLoader):
 	target_class = LatticeSupportSetRoot
 	extension = ".latticesupportset"
 
-	def prep(self):
-		pass
-
-	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		self.prep()
-		self.write_memory_data()
 
 class WoodenSupportSetLoader(MemStructLoader):
 	target_class = WoodenSupportSetRoot
 	extension = ".woodensupportset"
-
-	def prep(self):
-		pass
-
-	def create(self, file_path):
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		self.prep()
-		self.write_memory_data()
-
