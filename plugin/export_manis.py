@@ -234,14 +234,14 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			store_pose_frame_info(b_ob, src_frame, trg_frame, bones_data, channel_storage, corrector, cam_corr)
 
 		# decide which channels to keyframe by determining if the keys are static
-		for bone, channels in tuple(channel_storage.items()):
+		for bone_name, channels in tuple(channel_storage.items()):
 			# export wsm before decimating bones
-			if needs_wsm(bone, game):
+			if needs_wsm(bone_name, game):
 				export_wsm(folder, mani_info, srb_name, channel_storage)
 			for channel_id, keys in tuple(channels.items()):
 				needed_axes = list(needs_keyframes(keys))
 				# copy root motion channels as floats
-				if bone == srb_name:
+				if bone_name == srb_name:
 					# copy to avoid modifying the original keys data
 					keys = keys.copy()
 					if channel_id == POS:
@@ -253,12 +253,13 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 											("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 						add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
 					# delete srb bone from mani; the float channels created before are needed
-					if needs_wsm(bone, game):
+					if needs_wsm(bone_name, game):
 						channels.pop(channel_id)
 						continue
-				# decimate channels
-				if not needed_axes or reasonably_close(keys[0], rest_data[bone][channel_id]):
+				# decimate channels that are static and identical to rest pose
+				if not needed_axes and reasonably_close(keys[0], rest_data[bone_name][channel_id]):
 					# no need to keyframe this bone, discard it
+					# logging.debug(f"Discarding {bone_name}.{channel_id}")
 					channels.pop(channel_id)
 		# export constraints as float keys
 		if b_ob.type == "ARMATURE":

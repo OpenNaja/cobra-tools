@@ -3,7 +3,7 @@ bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",
     "blender": (4, 1, 0),
-    "version": (2025, 7, 21),
+    "version": (2025, 7, 23),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations",
     "warning": "",
