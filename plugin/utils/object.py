@@ -40,7 +40,7 @@ def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, c
 	# me.update()
 	ob = create_ob(scene, name, me, coll_name=coll_name, coll=coll)
 	if wireframe:
-		ob.draw_type = 'WIRE'
+		ob.display_type = 'WIRE'
 	return ob, me
 
 
