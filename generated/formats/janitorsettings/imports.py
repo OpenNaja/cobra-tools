@@ -42,6 +42,9 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'JanitorBetweenArrays': 'generated.formats.janitorsettings.compounds.JanitorBetweenArrays',
+	'JanitorPreCount': 'generated.formats.janitorsettings.compounds.JanitorPreCount',
+	'JanitorEnd': 'generated.formats.janitorsettings.compounds.JanitorEnd',
 	'JanitorSettingsRoot': 'generated.formats.janitorsettings.compounds.JanitorSettingsRoot',
 	'UIntPair': 'generated.formats.janitorsettings.compounds.UIntPair',
 }
