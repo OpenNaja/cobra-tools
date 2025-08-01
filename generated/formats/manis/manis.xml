@@ -386,7 +386,7 @@
 		<add name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
 		<add name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		always uncompressed, possibly because ACL didn't support scalars
-		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" vercond="!#PC2#" />
+		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
 		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
 		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
 		<add name="compressed" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
