@@ -89,8 +89,6 @@ def stash(b_ob, action, track_name, start_frame):
 	strip = new_track.strips.new(action.name, start_frame, action)
 	new_track.lock = True
 	new_track.mute = True
-	# nah
-	# b_ob.animation_data.action = None
 
 
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
@@ -137,7 +135,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		# store ovs name
 		b_action["stream"] = manis.stream
-		stash(b_armature_ob, b_action, mi.name, 0)
 		# print(mi)
 		logging.debug(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
@@ -189,6 +186,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				b_action.frame_start = 0
 				b_action.frame_end = mi.frame_count-1
 				reporter.show_error(f"Decompressing {mi.name} failed, skipping")
+
+				stash(b_armature_ob, b_action, mi.name, 0)
 				continue
 
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
@@ -212,6 +211,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					# 	key = out
 					out_frames.append(frame_i)
 					out_keys.append(key)
+
+			stash(b_armature_ob, b_action, mi.name, 0)
 			# skip uncompressed anim
 			continue
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
@@ -249,6 +250,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				key = corrector.to_blender(mat).to_scale()
 				out_frames.append(frame_i)
 				out_keys.append(key)
+		stash(b_armature_ob, b_action, mi.name, 0)
 
 	scene.frame_start = 0
 	scene.frame_end = mi.frame_count-1
