@@ -76,6 +76,7 @@ type_module_name_map = {
 	'LimbTrackData': 'generated.formats.manis.compounds.LimbTrackData',
 	'UshortLut': 'generated.formats.manis.compounds.UshortLut',
 	'UncompressedManiDataPC2': 'generated.formats.manis.compounds.UncompressedManiDataPC2',
+	'SmallChunk': 'generated.formats.manis.compounds.SmallChunk',
 	'CompressedManiDataPC2': 'generated.formats.manis.compounds.CompressedManiDataPC2',
 	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 }

@@ -354,12 +354,50 @@
 		<add name="target_bone_count" type="uint64" />
     </compound>
 
+    <compound name="SmallChunk" >
+		PC2: 20 bytes
+		c+b=a
+		<add name="a" type="uint" />
+		<add name="b" type="uint" />
+		<add name="c" type="uint" />
+		<add name="d" type="uint" />increasing
+		<add name="half" type="ushort" />
+		<add name="full" type="ushort" />
+    </compound>
+
 	<compound name="CompressedManiDataPC2" >
 		in compressed manis
 		<add name="size" type="uint" />
 		<add name="ref" type="Empty"/>
-		<add name="databytes" type="ubyte" arr1="size-4" />
+
+		<add name="u0" type="uint" />variable
+		<add name="constant" type="ubyte" arr1="8" />
+		<add name="bone_count" type="uint" />
+		<add name="FrameCount" type="uint"/>
+		<add name="fps" type="float"/>
+		<add name="unk_float" type="float"/>maybe two hfloats?
+		<add name="frame_segments_count" type="uint"/>
+		<add name="u3" type="uint"/>
+		<add name="OriBoneCount" type="uint"/>
+		<add name="PosBoneCount" type="uint"/>
+		<add name="SclBoneCount" type="ushort"/>
+		<add name="MorphBoneCount" type="ushort"/>
+		<add name="unk_count_1" type="uint"/>
+		<add name="unk_count_2" type="uint"/>
+		<add name="unk_count_3" type="uint"/>
+		@64
+		<add name="ff" type="int"/>
+		@68
+		<add name="count" type="uint"/>
+		<add name="s1" type="uint"/>
+		<add name="s2" type="uint"/>
+		<add name="s3" type="uint"/>
+		<add name="frame_segments" type="uint" arr1="frame_segments_count"/>
+		<add name="ff2" type="int"/>
+		<add name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
 		<add name="ref2" type="Empty"/>
+		<add name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
+		<add name="ref3" type="Empty"/>
 <!--		<add name="pad" type="PadAlign" template="ref" arg="4"/>-->
     </compound>
 
