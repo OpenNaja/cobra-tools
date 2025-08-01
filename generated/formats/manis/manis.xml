@@ -356,10 +356,9 @@
 
 	<compound name="CompressedManiDataPC2" >
 		in compressed manis
-		<add name="following_size" type="ushort" />
-<!--		<add name="following_size" type="uint" />-->
+		<add name="size" type="uint" />
 		<add name="ref" type="Empty"/>
-		<add name="databytes" type="ubyte" arr1="following_size" />apparently includes the two 00 00 after following_size or it oversteps the padding bounds
+		<add name="databytes" type="ubyte" arr1="size-4" />
 		<add name="ref2" type="Empty"/>
 <!--		<add name="pad" type="PadAlign" template="ref" arg="4"/>-->
     </compound>
