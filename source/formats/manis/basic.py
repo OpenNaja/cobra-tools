@@ -25,7 +25,9 @@ class ChannelName:
         try:
             return context.name_buffer.target_names[ind]
         except (IndexError, ValueError):
-            raise IndexError(f"Index '{ind}' exceeds names list '{context.name_buffer.target_names}' at offset {stream.tell()}")
+            # raise IndexError(f"Index '{ind}' exceeds names list '{context.name_buffer.target_names}' at offset {stream.tell()}")
+            logging.warning(f"Index '{ind}' exceeds names list '{context.name_buffer.target_names}' at offset {stream.tell()}")
+            return "bad_name"
 
     @classmethod
     def to_stream(cls, instance, stream, context, arg=0, template=None):

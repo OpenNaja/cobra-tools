@@ -43,13 +43,15 @@ class KeysReader(BaseStruct):
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
-				raise
+				# raise
+				break
 		cls.pad_to_start(instance, stream)
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
 	def pad_to_start(cls, instance, stream):
-		pad_size = get_padding_size(stream.tell() - instance.io_start)
+		pad_size = get_padding_size(stream.tell() - instance.io_start, alignment=16)
+		logging.info(f"padding {pad_size} bytes at {stream.tell()}")
 		padding = stream.read(pad_size)
 		if padding != b"\x00" * pad_size:
 			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
