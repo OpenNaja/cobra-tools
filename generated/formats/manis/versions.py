@@ -23,12 +23,13 @@ def set_jwe(context):
 
 
 def is_jwe2(context):
-	if context.version == 262:
+	if context.version == 262 and context.mani_version == 279:
 		return True
 
 
 def set_jwe2(context):
 	context.version = 262
+	context.mani_version = 279
 
 
 def is_jwe2dev(context):
@@ -79,12 +80,13 @@ def set_pz16(context):
 
 
 def is_war(context):
-	if context.version == 262:
+	if context.version == 262 and context.mani_version == 279:
 		return True
 
 
 def set_war(context):
 	context.version = 262
+	context.mani_version = 279
 
 
 def is_ztuac(context):

@@ -9,7 +9,7 @@
 		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
 		<verexpr token="#JWE2DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
-		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr>
+		<verexpr token="#JWE2#" string="(#VER# #EQ# 262) #AND# (#MVER# #EQ# 279))">JWE2</verexpr>WH uses the same vercond
 		<verexpr token="#PC2#" string="((#VER# #EQ# 262) #AND# (#MVER# #EQ# 282))">PC2</verexpr>
 	</token>
 
@@ -28,8 +28,8 @@
 	<version id="JWE" version="258" >Jurassic World Evolution</version>
 	<version id="PZ" version="260" >Planet Zoo</version>
 	<version id="JWE2DEV" version="261" >Jurassic World Evolution 2 Dev</version>
-	<version id="JWE2" version="262" >Jurassic World Evolution 2</version>
-	<version id="WAR" version="262" >Warhammer Age of Sigmar - Realms of Ruin</version>version conflict -.-
+	<version id="JWE2" version="262" mani_version="279" >Jurassic World Evolution 2</version>
+	<version id="WAR" version="262" mani_version="279" >Warhammer Age of Sigmar - Realms of Ruin</version>version conflict -.-
 	<version id="PC2" version="262" mani_version="282">Planet Coaster 2</version>
 
     <basic name="ChannelName" integral="true" countable="true">
@@ -331,15 +331,17 @@
     </compound>
 
     <compound name="UshortLut" >
+		found in WH
 		in seemingly uncompressed manis
 		<add name="ref" type="Empty"/>
-		<add name="align" type="uint64" arr1="1316" />
+<!--		<add name="align" type="uint64" arr1="1316" />-->
+		<add name="align" type="SmartPadding" />
 		<add name="a" type="ubyte" arr1="48" />
 		<add name="b" type="ubyte" arr1="48" />
 		<add name="zeros" type="ubyte" arr1="48" />
 		<add name="target_bone_count" type="uint"/>
-		<add name="offsets" type="uint" arr1="82" />
-		<add name="flags" type="ubyte" arr1="96" />
+		<add name="offsets" type="uint" arr1="82" /> probably not fixed count
+		<add name="flags" type="ubyte" arr1="96" /> probably not fixed count
 		<add name="ref2" type="Empty"/>
 		the uncompressed keys that follow appear to be interleaved with some kind of lut
     </compound>

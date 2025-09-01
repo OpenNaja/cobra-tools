@@ -6,6 +6,7 @@ from generated.formats.manis.imports import name_type_map
 class UshortLut(BaseStruct):
 
 	"""
+	found in WH
 	in seemingly uncompressed manis
 	"""
 
@@ -15,7 +16,7 @@ class UshortLut(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.ref = name_type_map['Empty'](self.context, 0, None)
-		self.align = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
+		self.align = name_type_map['SmartPadding'](self.context, 0, None)
 		self.a = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.b = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
@@ -30,7 +31,7 @@ class UshortLut(BaseStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
-		yield 'align', Array, (0, None, (1316,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'align', name_type_map['SmartPadding'], (0, None), (False, None), (None, None)
 		yield 'a', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None), (None, None)
 		yield 'b', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None), (None, None)
 		yield 'zeros', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None), (None, None)
@@ -43,7 +44,7 @@ class UshortLut(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ref', name_type_map['Empty'], (0, None), (False, None)
-		yield 'align', Array, (0, None, (1316,), name_type_map['Uint64']), (False, None)
+		yield 'align', name_type_map['SmartPadding'], (0, None), (False, None)
 		yield 'a', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None)
 		yield 'b', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None)
 		yield 'zeros', Array, (0, None, (48,), name_type_map['Ubyte']), (False, None)
