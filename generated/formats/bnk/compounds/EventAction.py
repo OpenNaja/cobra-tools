@@ -18,14 +18,9 @@ class EventAction(HircObject):
 		self.params = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.values = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.zero_2 = name_type_map['Ubyte'](self.context, 0, None)
-		self.four = name_type_map['Ubyte'](self.context, 0, None)
-		self.flag = name_type_map['Ubyte'](self.context, 0, None)
-		self.extra_id = name_type_map['Ushort'](self.context, 0, None)
-		self.state_group_id = name_type_map['Uint'](self.context, 0, None)
-		self.state_id = name_type_map['Uint'](self.context, 0, None)
-		self.switch_group_id = name_type_map['Uint'](self.context, 0, None)
-		self.switch_id = name_type_map['Uint'](self.context, 0, None)
-		self.end_flag = name_type_map['Ubyte'](self.context, 0, None)
+
+		# instead of the stuff below
+		self.raw = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		if set_default:
 			self.set_defaults()
 
@@ -40,14 +35,7 @@ class EventAction(HircObject):
 		yield 'params', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
 		yield 'values', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'four', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'flag', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'extra_id', name_type_map['Ushort'], (0, None), (False, None), (None, True)
-		yield 'state_group_id', name_type_map['Uint'], (0, None), (False, None), (None, True)
-		yield 'state_id', name_type_map['Uint'], (0, None), (False, None), (None, True)
-		yield 'switch_group_id', name_type_map['Uint'], (0, None), (False, None), (None, True)
-		yield 'switch_id', name_type_map['Uint'], (0, None), (False, None), (None, True)
-		yield 'end_flag', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'raw', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -60,14 +48,4 @@ class EventAction(HircObject):
 		yield 'params', Array, (0, None, (instance.num_params,), name_type_map['Ubyte']), (False, None)
 		yield 'values', Array, (0, None, (instance.num_params,), name_type_map['Uint']), (False, None)
 		yield 'zero_2', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'four', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'flag', name_type_map['Ubyte'], (0, None), (False, None)
-		if instance.action_type == 4:
-			yield 'extra_id', name_type_map['Ushort'], (0, None), (False, None)
-		if instance.action_type == 18:
-			yield 'state_group_id', name_type_map['Uint'], (0, None), (False, None)
-			yield 'state_id', name_type_map['Uint'], (0, None), (False, None)
-		if instance.action_type == 25:
-			yield 'switch_group_id', name_type_map['Uint'], (0, None), (False, None)
-			yield 'switch_id', name_type_map['Uint'], (0, None), (False, None)
-		yield 'end_flag', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'raw', Array, (0, None, (instance.length - (13 + (instance.num_params * 5)),), name_type_map['Byte']), (False, None)

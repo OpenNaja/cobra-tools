@@ -119,17 +119,17 @@
         <add name="params" type="ubyte" arr1="num_params"/>
         <add name="values" type="uint" arr1="num_params"/>
         <add name="zero2" type="ubyte"/>
-<!--        <add name="raw" type="byte" arr1="length - ( 13 + (num_params * 5))">instead of the stuff below</add>-->
-        <add name="four" type="ubyte"/>
-        <add name="flag" type="ubyte"/>
-        the following is apparently conditional on action type
-        <add name="extra id" type="ushort" cond="action_type #EQ# 4" />
-        <add name="State Group id" type="uint" cond="action_type #EQ# 0x12"/>
-        <add name="State id" type="uint" cond="action_type #EQ# 0x12"/>
-        <add name="Switch Group id" type="uint" cond="action_type #EQ# 0x19"/>
-        <add name="Switch id" type="uint" cond="action_type #EQ# 0x19"/>
-
-        <add name="end flag" type="ubyte"/>0 or 1
+        <add name="raw" type="byte" arr1="length - ( 13 + (num_params * 5))">instead of the stuff below</add>
+<!--        todo the spec below is incomplete for the action types-->
+<!--        <add name="four" type="ubyte"/>-->
+<!--        <add name="flag" type="ubyte"/>-->
+<!--        the following is conditional on action type-->
+<!--        <add name="extra id" type="ushort" cond="action_type #EQ# 4" />-->
+<!--        <add name="State Group id" type="uint" cond="action_type #EQ# 18"/>-->
+<!--        <add name="State id" type="uint" cond="action_type #EQ# 18"/>-->
+<!--        <add name="Switch Group id" type="uint" cond="action_type #EQ# 25"/>-->
+<!--        <add name="Switch id" type="uint" cond="action_type #EQ# 25"/>-->
+<!--        <add name="end flag" type="ubyte"/>0 or 1-->
     </compound>
 
     <compound name="AkMediaInformation">
@@ -171,6 +171,7 @@
         <add name="NodeBaseParams" type="NodeBaseParams"/>
         <add name="eTrackType" type="ubyte"/>
         <add name="iLookAheadTime" type="int"/>
+        <add name="padding" type="ushort"/>apparently
     </compound>
 
     <compound name="TypeOther">
