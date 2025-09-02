@@ -87,7 +87,7 @@ class AuxFileContainer(BaseStruct):
 		logging.info("updating hirc data size")
 		if self.hirc:
 			for pointer in self.hirc.hirc_pointers:
-				if pointer.id == 2:
+				if pointer.id == HircType.SOUND_SFX_VOICE:
 					if pointer.hash == wem_id:
 						logging.info(f"found a match {pointer.hash}, updating wem data size")
 						pointer.data.wem_length = os.path.getsize(wem_path)
