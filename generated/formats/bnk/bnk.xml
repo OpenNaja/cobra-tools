@@ -3,16 +3,8 @@
 <niftoolsxml version="0.7.1.0">
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-	
-    <compound name="DataPointer">
-        second Section of a soundbank aux
-        <add name="wem id" type="uint"/>
-        <add name="data section offset" type="uint" >offset into data section</add>
-        <add name="wem filesize" type="uint" >length of the wem file</add>
-    </compound>
 
     <compound name="BKHDSection">
-        First Section of a soundbank aux
         <add name="length" type="uint" >length of following data</add>
         <add name="version" type="uint" ></add>
         <add name="IdA" type="uint" ></add>
@@ -23,16 +15,20 @@
         <add name="zeroes" type="ubyte" cond="length #GTE# 24" arr1="length - 24">sometimes present</add>
     </compound>
 
+    <compound name="DataPointer">
+        <add name="wem id" type="uint"/>
+        <add name="data section offset" type="uint" >offset into data section</add>
+        <add name="wem filesize" type="uint" >length of the wem file</add>
+    </compound>
+
     <compound name="DIDXSection">
-        second Section of a soundback aux
         <add name="length" type="uint" >length of following data</add>
         <add name="data pointers" type="DataPointer" arr1="length/12"/>
     </compound>
 
     <compound name="DATASection">
-        second Section of a soundback aux
         <add name="length" type="uint" >length of following data</add>
-        <add name="wem datas" type="byte" arr1="length"/>
+        <add name="wem datas" type="byte" arr1="length">binary data of the wem files</add>
     </compound>
 
     <enum name="HircType" numbytes="1" storage="ubyte" default="0">

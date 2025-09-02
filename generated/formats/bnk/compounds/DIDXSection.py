@@ -5,10 +5,6 @@ from generated.formats.bnk.imports import name_type_map
 
 class DIDXSection(BaseStruct):
 
-	"""
-	second Section of a soundback aux
-	"""
-
 	__name__ = 'DIDXSection'
 
 

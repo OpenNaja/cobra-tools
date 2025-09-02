@@ -5,10 +5,6 @@ from generated.formats.bnk.imports import name_type_map
 
 class BKHDSection(BaseStruct):
 
-	"""
-	First Section of a soundbank aux
-	"""
-
 	__name__ = 'BKHDSection'
 
 

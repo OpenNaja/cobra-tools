@@ -5,10 +5,6 @@ from generated.formats.bnk.imports import name_type_map
 
 class DATASection(BaseStruct):
 
-	"""
-	second Section of a soundback aux
-	"""
-
 	__name__ = 'DATASection'
 
 
@@ -17,6 +13,8 @@ class DATASection(BaseStruct):
 
 		# length of following data
 		self.length = name_type_map['Uint'](self.context, 0, None)
+
+		# binary data of the wem files
 		self.wem_datas = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		if set_default:
 			self.set_defaults()

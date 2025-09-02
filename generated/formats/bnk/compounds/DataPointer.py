@@ -4,10 +4,6 @@ from generated.formats.bnk.imports import name_type_map
 
 class DataPointer(BaseStruct):
 
-	"""
-	second Section of a soundbank aux
-	"""
-
 	__name__ = 'DataPointer'
 
 
