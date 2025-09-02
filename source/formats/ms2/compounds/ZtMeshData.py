@@ -112,7 +112,7 @@ class ZtMeshData:
 			self.vertices[:] = self.colors_data["pos"]
 
 		# first cast to the float uvs array so unpacking doesn't use int division
-		if self.colors is not None:
+		if "colors" in self.dt_colors.fields:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.colors_data["colors"]
 			unpack_ubyte_color(self.colors)
