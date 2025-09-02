@@ -77,7 +77,6 @@
     </enum>
 
     <compound name="HircObject">
-        <add name="length" type="uint">length of this section</add>
         <add name="id" type="uint" >id of this Sound SFX object</add>
     </compound>
 
@@ -87,7 +86,7 @@
         <add name="didx id" type="uint" >?</add>
         <add name="wem length" type="uint" >?</add> cond="source #EQ# 0"
 
-        <add name="extra" type="byte" arr1="length - 17" >?</add>
+        <add name="extra" type="byte" arr1="#ARG# - 17" >?</add>length
        # the more precise spec below does not work for JWE2 dinos
         #offset to wem?
 <!--        <add name="zero" type="uint64" >?</add>-->
@@ -100,7 +99,7 @@
 <!--        # extra instead of below, but doesn't work for some reason-->
 <!--&lt;!&ndash;        <add name="other_count" type="ubyte" cond="other_flag #EQ# 1">?</add>&ndash;&gt;-->
 <!--&lt;!&ndash;        <add name="other_values" type="uint"  cond="other_flag #EQ# 1" arr1="other_count" >?</add>&ndash;&gt;-->
-<!--        <add name="extra" type="byte" arr1="length - (48 + (some_count * 5))" >?</add>-->
+<!--        <add name="extra" type="byte" arr1="#ARG# - (48 + (some_count * 5))" >?</add>-->length
 <!--        <add name="zeros3" type="ubyte" arr1="7">?</add>-->
 <!--        <add name="rest" type="ubyte" arr1="9" >?</add>-->
     </compound>
@@ -119,7 +118,7 @@
         <add name="params" type="ubyte" arr1="num_params"/>
         <add name="values" type="uint" arr1="num_params"/>
         <add name="zero2" type="ubyte"/>
-        <add name="raw" type="byte" arr1="length - ( 13 + (num_params * 5))">instead of the stuff below</add>
+        <add name="raw" type="byte" arr1="#ARG# - ( 13 + (num_params * 5))">instead of the stuff below</add>
 <!--        todo the spec below is incomplete for the action types-->
 <!--        <add name="four" type="ubyte"/>-->
 <!--        <add name="flag" type="ubyte"/>-->
@@ -176,17 +175,17 @@
 
     <compound name="TypeOther">
         generic
-        <add name="length" type="uint">length of this section</add>
-        <add name="raw" type="byte" arr1="length">id of this Sound SFX object</add>
+        <add name="raw" type="byte" arr1="#ARG#">raw bytes</add>
     </compound>
 
     <compound name="HircPointer">
         <add name="id" type="HircType"/>
-        <add name="data" type="SoundSfxVoice" cond="id == 2"/>
-        <add name="data" type="EventAction" cond="id == 3"/>
-        <add name="data" type="Event" cond="id == 4"/>
-        <add name="data" type="MusicTrack" cond="id == 11"/>
-        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 11)"/>
+        <add name="length" type="uint">length of this section</add>
+        <add name="data" arg="length" type="SoundSfxVoice" cond="id == 2"/>
+        <add name="data" arg="length" type="EventAction" cond="id == 3"/>
+        <add name="data" arg="length" type="Event" cond="id == 4"/>
+        <add name="data" arg="length" type="MusicTrack" cond="id == 11"/>
+        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 11)"/>
     </compound>
 
     <compound name="HIRCSection">

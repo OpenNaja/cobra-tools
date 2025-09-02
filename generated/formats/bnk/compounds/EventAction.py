@@ -48,4 +48,4 @@ class EventAction(HircObject):
 		yield 'params', Array, (0, None, (instance.num_params,), name_type_map['Ubyte']), (False, None)
 		yield 'values', Array, (0, None, (instance.num_params,), name_type_map['Uint']), (False, None)
 		yield 'zero_2', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'raw', Array, (0, None, (instance.length - (13 + (instance.num_params * 5)),), name_type_map['Byte']), (False, None)
+		yield 'raw', Array, (0, None, (instance.arg - (13 + (instance.num_params * 5)),), name_type_map['Byte']), (False, None)

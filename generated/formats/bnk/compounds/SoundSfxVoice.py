@@ -44,4 +44,4 @@ class SoundSfxVoice(HircObject):
 		yield 'source', name_type_map['StreamSource'], (0, None), (False, None)
 		yield 'didx_id', name_type_map['Uint'], (0, None), (False, None)
 		yield 'wem_length', name_type_map['Uint'], (0, None), (False, None)
-		yield 'extra', Array, (0, None, (instance.length - 17,), name_type_map['Byte']), (False, None)
+		yield 'extra', Array, (0, None, (instance.arg - 17,), name_type_map['Byte']), (False, None)
