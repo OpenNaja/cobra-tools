@@ -17,7 +17,7 @@ class BnkLoader(BaseFile):
 		return f"{self.ovl.basename}_{bnk_barename}_bnk_{aux_suffix}.aux"
 
 	def collect(self):
-		super(BnkLoader, self).collect()
+		super().collect()
 		self.aux_external = {}
 		# read intermediate aux to flush back to disk on saving
 		for aux_suffix, aux_handle in self.aux_data.items():
@@ -62,7 +62,7 @@ class BnkLoader(BaseFile):
 			bnk_header = BnkBufferData.from_stream(stream, self.context)
 
 		# ensure that aux files are where they should be
-		for aux_suffix in self.aux_data:
+		for aux_suffix in self.aux_external:
 			aux_suffix = aux_suffix.lower()
 			if aux_suffix == "b":
 				assert bnk_header.external_b_suffix.lower() == "b"
