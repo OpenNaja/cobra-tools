@@ -15,7 +15,7 @@ class HircPointer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.id = name_type_map['HircType'](self.context, 0, None)
 
-		# length of this section
+		# length of the following data block
 		self.length = name_type_map['Uint'](self.context, 0, None)
 		self.data = name_type_map['TypeOther'](self.context, self.length, None)
 		if set_default:

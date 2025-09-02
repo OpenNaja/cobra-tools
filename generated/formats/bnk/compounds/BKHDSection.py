@@ -39,7 +39,7 @@ class BKHDSection(BaseStruct):
 		yield 'constant_a', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'constant_b', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zeroes', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
+		yield 'zeroes', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -51,4 +51,5 @@ class BKHDSection(BaseStruct):
 		yield 'constant_a', name_type_map['Uint'], (0, None), (False, None)
 		yield 'constant_b', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zeroes', Array, (0, None, (instance.length - 24,), name_type_map['Ubyte']), (False, None)
+		if instance.length >= 24:
+			yield 'zeroes', Array, (0, None, (instance.length - 24,), name_type_map['Ubyte']), (False, None)

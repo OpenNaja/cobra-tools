@@ -20,7 +20,7 @@
         <add name="constantA" type="uint" ></add>
         <add name="constantB" type="uint" ></add>
         <add name="unk" type="uint" ></add>
-        <add name="zeroes" type="ubyte" arr1="length - 24">sometimes present</add>
+        <add name="zeroes" type="ubyte" cond="length #GTE# 24" arr1="length - 24">sometimes present</add>
     </compound>
 
     <compound name="DIDXSection">
@@ -180,7 +180,7 @@
 
     <compound name="HircPointer">
         <add name="id" type="HircType"/>
-        <add name="length" type="uint">length of this section</add>
+        <add name="length" type="uint">length of the following data block</add>
         <add name="data" arg="length" type="SoundSfxVoice" cond="id == 2"/>
         <add name="data" arg="length" type="EventAction" cond="id == 3"/>
         <add name="data" arg="length" type="Event" cond="id == 4"/>

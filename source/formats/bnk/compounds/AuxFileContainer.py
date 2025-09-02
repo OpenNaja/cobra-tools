@@ -49,7 +49,7 @@ class AuxFileContainer(BaseStruct):
 					instance.data = DATASection.from_stream(stream, instance.context, 0, None)
 					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b'\x00' * len(chunk_id):
-					# empty chunk, could be end
+					# empty chunk, could be the end of the file
 					break
 				else:
 					raise NotImplementedError(f"Unknown chunk {chunk_id}!")
