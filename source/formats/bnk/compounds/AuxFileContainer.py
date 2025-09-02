@@ -8,6 +8,7 @@ from generated.formats.bnk.compounds.DIDXSection import DIDXSection
 from generated.formats.bnk.compounds.HIRCSection import HIRCSection
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding
+from generated.formats.bnk.enums.HircType import HircType
 from modules.formats.shared import fmt_hash
 
 
@@ -60,7 +61,7 @@ class AuxFileContainer(BaseStruct):
 			# id the pointers
 			if instance.hirc:
 				for pointer in instance.hirc.hirc_pointers:
-					if pointer.id == 2:
+					if pointer.id == HircType.SOUND_SFX_VOICE:
 						pointer.hash = fmt_hash(pointer.data.didx_id)
 			if instance.didx:
 				for pointer in instance.didx.data_pointers:

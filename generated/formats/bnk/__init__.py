@@ -23,7 +23,6 @@ class BnkFile(BnkFileContainer, IoFile):
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
 		self.data_map = {}
-		print(self)
 		# self.s_map = {}
 		# alternatively, bnk_name from bnk header
 		self.bnk_dir, self.bnk_name = os.path.split(filepath)
