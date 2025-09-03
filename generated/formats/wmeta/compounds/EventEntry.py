@@ -7,6 +7,7 @@ class EventEntry(MemStruct):
 	"""
 	PC: 56 bytes
 	JWE2: 40 bytes
+	PC2: 44 bytes
 	# todo - improve versioning
 	"""
 
@@ -29,6 +30,7 @@ class EventEntry(MemStruct):
 		self.zero_4 = name_type_map['Uint'](self.context, 0, None)
 		self.u_2 = name_type_map['Uint'](self.context, 0, None)
 		self.u_1 = name_type_map['Uint'](self.context, 0, None)
+		self.u_4 = name_type_map['Uint'](self.context, 0, None)
 		self.block_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
@@ -51,6 +53,7 @@ class EventEntry(MemStruct):
 		yield 'zero_4', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'u_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None)
 		yield 'u_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None)
+		yield 'u_4', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19 and context.is_pc_2, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -73,3 +76,5 @@ class EventEntry(MemStruct):
 		if instance.context.version >= 19:
 			yield 'u_2', name_type_map['Uint'], (0, None), (False, None)
 			yield 'u_1', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 19 and instance.context.is_pc_2:
+			yield 'u_4', name_type_map['Uint'], (0, None), (False, None)

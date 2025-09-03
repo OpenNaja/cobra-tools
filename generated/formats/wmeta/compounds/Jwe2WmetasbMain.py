@@ -4,6 +4,10 @@ from generated.formats.wmeta.imports import name_type_map
 
 class Jwe2WmetasbMain(MemStruct):
 
+	"""
+	JWE2, PC2: 32 bytes
+	"""
+
 	__name__ = 'JWE2WmetasbMain'
 
 

@@ -17,15 +17,15 @@ class WmetasbRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'levels', name_type_map['ArrayPointer'], (None, name_type_map['Jwe2WmetasbMain']), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None)
-		yield 'levels', name_type_map['ArrayPointer'], (None, name_type_map['WmetasbMain']), (False, None), (lambda context: not (context.user_version.use_djb and (context.version == 20)), None)
+		yield 'levels', name_type_map['ArrayPointer'], (None, name_type_map['Jwe2WmetasbMain']), (False, None), (lambda context: (context.user_version.use_djb and (context.version == 20)) or context.is_pc_2, None)
+		yield 'levels', name_type_map['ArrayPointer'], (None, name_type_map['WmetasbMain']), (False, None), (lambda context: not ((context.user_version.use_djb and (context.version == 20)) or context.is_pc_2), None)
 		yield 'count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		if instance.context.user_version.use_djb and (instance.context.version == 20):
+		if (instance.context.user_version.use_djb and (instance.context.version == 20)) or instance.context.is_pc_2:
 			yield 'levels', name_type_map['ArrayPointer'], (instance.count, name_type_map['Jwe2WmetasbMain']), (False, None)
-		if not (instance.context.user_version.use_djb and (instance.context.version == 20)):
+		if not ((instance.context.user_version.use_djb and (instance.context.version == 20)) or instance.context.is_pc_2):
 			yield 'levels', name_type_map['ArrayPointer'], (instance.count, name_type_map['WmetasbMain']), (False, None)
 		yield 'count', name_type_map['Uint64'], (0, None), (False, None)
