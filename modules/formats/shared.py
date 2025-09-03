@@ -29,13 +29,24 @@ def djb2(s: str):
 	return n & 0xFFFFFFFF
 
 
+def fnv1_32(b: bytes):
+	"""calculates fnv1 (32 bit) hash for bytes b"""
+	# adapted from https://github.com/znerol/py-fnvhash/blob/main/fnvhash/__init__.py
+	assert isinstance(b, bytes)
+	n = 0x811c9dc5
+	for byte in b:
+		n = (n * 0x01000193) % (2**32)
+		n = n ^ byte
+	return n
+
+
 def fnv64(b: bytes):
 	"""calculates fnv64 hash for bytes b"""
 	n = 0xcbf29ce484222325
-	for b in b:
+	for byte in b:
 		n *= 0x100000001b3
 		n &= 0xffffffffffffffff
-		n ^= b
+		n ^= byte
 	return n
 
 
