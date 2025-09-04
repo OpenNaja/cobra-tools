@@ -108,6 +108,12 @@ Float = class_from_struct(Struct("<f"), float)
 Double = class_from_struct(Struct("<d"), float)
 Hfloat = class_from_struct(Struct("<e"), float)
 
+class UintHash(Uint):
+
+	@staticmethod
+	def to_xml(elem, prop, instance, arg, template, debug):
+		elem.attrib[prop] = hex(instance)
+
 
 # @staticmethod
 def r_zstr(rfunc):

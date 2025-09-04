@@ -7,6 +7,7 @@ type_module_name_map = {
 	'Uint64': 'generated.formats.base.basic',
 	'Int64': 'generated.formats.base.basic',
 	'Uint': 'generated.formats.base.basic',
+	'UintHash': 'generated.formats.base.basic',
 	'Ushort': 'generated.formats.base.basic',
 	'Int': 'generated.formats.base.basic',
 	'Short': 'generated.formats.base.basic',

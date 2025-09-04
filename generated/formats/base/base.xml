@@ -43,6 +43,11 @@
     <basic name="uint" integral="true" countable="true">
         An unsigned 32-bit integer.
     </basic>
+
+    <basic name="UintHash" integral="true" countable="true">
+        An unsigned 32-bit integer, printing to xml as hash
+    </basic>
+
     <basic name="ushort" integral="true" countable="true">
         An unsigned 16-bit integer.
     </basic>
