@@ -3,7 +3,8 @@ import shutil
 import logging
 import tempfile
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MenuItem
+from gui.app_utils import get_icon
+from gui.widgets import MenuItem, GameSelectorWidget
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
@@ -30,17 +31,32 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
 
-		right_frame = QtWidgets.QWidget()
-		hbox = QtWidgets.QVBoxLayout()
-		hbox.addWidget(self.file_widget)
-		hbox.addWidget(self.files_container)
-		right_frame.setLayout(hbox)
+		self.bnk_map = {}
+		self.tree = QtWidgets.QTreeWidget(self)
+		self.tree.setColumnCount(1)
+		self.tree.setHeaderHidden(True)
+		self.tree.itemDoubleClicked.connect(self.bnk_selected)
+		self.game_choice = GameSelectorWidget(self)
 
-		self.qgrid = QtWidgets.QGridLayout()
+		right_frame = widgets.pack_in_box(
+			self.file_widget,
+			self.files_container
+		)
 
-		self.qgrid.addWidget(right_frame, 5, 0, 1, 5)
-		self.qgrid.addWidget(self.progress, 6, 0, 1, 5)
+		left_frame = widgets.pack_in_box(
+			self.tree,
+			self.game_choice
+		)
 
+		splitter = QtWidgets.QSplitter()
+		splitter.addWidget(left_frame)
+		splitter.addWidget(right_frame)
+		splitter.setSizes([20, 50])
+		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+		self.qgrid = QtWidgets.QVBoxLayout()
+		self.qgrid.addWidget(splitter)
+		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
 
 		self.build_menus({
@@ -51,6 +67,58 @@ class MainWindow(widgets.MainWindow):
 			],
 			widgets.HELP_MENU: self.help_menu_items
 		})
+
+		self.fill_bnks()
+	
+	def get_subfolders(self, dir_path):
+		for name in os.listdir(dir_path):
+			sub_dir_path = os.path.join(dir_path, name)
+			if os.path.isdir(sub_dir_path):
+				yield sub_dir_path
+		
+	def fill_bnks(self):
+		self.bnk_map = {}
+		suffices = ("_Media", "_Events", "_DistMedia")
+		game = self.game_choice.get_selected_game()
+		game_dir = self.cfg.get("games").get(game)
+		# content packs
+		for cp in self.get_subfolders(game_dir):
+			audio_dir = os.path.join(cp, "Audio")
+			if os.path.isdir(audio_dir):
+				cp_name = os.path.basename(cp)
+				cp_item = QtWidgets.QTreeWidgetItem(self.tree)
+				cp_item.setText(0, cp_name)
+				cp_item.setIcon(0, get_icon("dir"))
+				cp_map = {}
+				self.bnk_map[cp_name] = cp_map
+				for bnk_dir in self.get_subfolders(audio_dir):
+					bnk_name = os.path.basename(bnk_dir)
+					for s in suffices:
+						bnk_name = bnk_name.removesuffix(s)
+						bnk_name = bnk_name.removesuffix(s.lower())
+					if bnk_name not in cp_map:
+						cp_map[bnk_name] = []
+					cp_map[bnk_name].append(bnk_dir)
+				for bnk_name in sorted(cp_map.keys()):
+					bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
+					bnk_item.setText(0, bnk_name)
+					bnk_item.setIcon(0, get_icon("bnk"))
+
+	def get_parents(self, item):
+		names = [item.text(0), ]
+		while item.parent():
+			item = item.parent()
+			names.insert(0, item.text(0))
+		return names
+
+	def bnk_selected(self, item):
+		names = self.get_parents(item)
+		if len(names) > 1:
+			cp = names[0]
+			bnk = names[-1]
+			bnk_dirs = self.bnk_map[cp][bnk]
+			print(bnk_dirs)
+			# todo load ovls with bnk files from those paths
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []

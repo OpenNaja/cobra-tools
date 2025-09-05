@@ -144,7 +144,6 @@ class MainWindow(widgets.MainWindow):
 				menu.exec(self.tree.mapToGlobal(pos))
 
 	def get_parents(self, item):
-		# item = item
 		names = [item.text(0), ]
 		while item.parent():
 			item = item.parent()
