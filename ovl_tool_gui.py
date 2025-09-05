@@ -50,9 +50,8 @@ class MainWindow(widgets.MainWindow):
 
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
-		self.installed_games = widgets.GamesWidget(
+		self.ovl_manager = widgets.OvlManagerWidget(
 			self,
-			[g.value for g in games],
 			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
 			search_content_fn=self.search_ovl_contents,
@@ -61,7 +60,7 @@ class MainWindow(widgets.MainWindow):
 				QtWidgets.QAction(widgets.get_icon("rename"), "Rename Files"): self.rename_batch,
 				QtWidgets.QAction(widgets.get_icon("rename_contents"), "Rename Contents"): self.rename_contents_batch,
 				})
-		self.installed_games.set_selected_game()
+		self.ovl_manager.set_selected_game()
 
 		# create the table
 		self.files_container = widgets.SortableTable(
@@ -100,20 +99,13 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.compression_choice, 1, 2)
 		grid.addWidget(self.extract_types_choice, 2, 2)
 
-		left_frame = widgets.pack_in_box(
-			self.installed_games.search,
-			self.installed_games.filters,
-			self.installed_games.dirs,
-			self.installed_games,
-			margins=(0, 0, 1, 0)
-		)
 		right_frame = widgets.pack_in_box(
 			self.file_widget,
 			self.files_container,
 			self.included_ovls_view,
 			margins=(3, 0, 0, 0)
 		)
-		self.create_main_splitter(grid, left_frame, right_frame)
+		self.create_main_splitter(grid, self.ovl_manager, right_frame)
 
 		# Setup Menus
 		self.build_menus({
@@ -185,7 +177,7 @@ class MainWindow(widgets.MainWindow):
 		self.preferences_widget.show()
 
 	def abs_path_from_row(self, row_data):
-		start_dir = self.installed_games.get_root()
+		start_dir = self.ovl_manager.dirs.get_root()
 		full_path = os.path.join(start_dir, row_data[2])
 		return PurePath(full_path).as_posix()
 
@@ -243,7 +235,7 @@ class MainWindow(widgets.MainWindow):
 			results_container.closed.connect(remove_view)
 			self.search_views[search_str] = results_container
 
-			start_dir = self.installed_games.get_root()
+			start_dir = self.ovl_manager.dirs.get_root()
 			# thread this to immediately show the window
 			self.run_in_threadpool(walker.search_for_files_in_ovls, (), self, start_dir, search_str)
 		else:
@@ -259,9 +251,9 @@ class MainWindow(widgets.MainWindow):
 
 	def enable_gui_options(self, enable=True):
 		self.compression_choice.setEnabled(enable)
-		self.installed_games.play_button.setEnabled(enable)
-		self.installed_games.dirs.setEnabled(enable)
-		self.installed_games.search.setEnabled(enable)
+		self.ovl_manager.game_choice.setEnabled(enable)
+		self.ovl_manager.dirs.setEnabled(enable)
+		self.ovl_manager.search.setEnabled(enable)
 		self.file_widget.setEnabled(enable)
 		self.file_widget.icon.setEnabled(enable)
 		self.file_widget.entry.setEnabled(enable)
@@ -419,7 +411,7 @@ class MainWindow(widgets.MainWindow):
 			# logging.debug(f"Loading threaded {threaded}")
 			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
 			if not self.suppress_popups:
-				self.installed_games.set_selected_path(filepath)
+				self.ovl_manager.dirs.set_selected_path(filepath)
 				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, self.print_debug_ovl), filepath, commands)
 			else:
 				try:
@@ -463,7 +455,7 @@ class MainWindow(widgets.MainWindow):
 
 	def run_current_game(self):
 		if self.cfg.get("play_on_saving", False):
-			self.installed_games.run_selected_game()
+			self.ovl_manager.run_selected_game()
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
@@ -630,12 +622,12 @@ class MainWindow(widgets.MainWindow):
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 
 	def game_root(self):
-		if self.installed_games.get_root().endswith("ovldata"):
-			return self.installed_games.get_root()
+		if self.ovl_manager.dirs.get_root().endswith("ovldata"):
+			return self.ovl_manager.dirs.get_root()
 		return ""
 	
 	def walk_root(self):
-		selected = self.installed_games.get_selected_dir()
+		selected = self.ovl_manager.dirs.get_selected_dir()
 		# fall back on game root dir if selected dir is not child of current game's dir tree
 		return selected if PurePath(self.game_root()) in PurePath(selected).parents else self.game_root()
 

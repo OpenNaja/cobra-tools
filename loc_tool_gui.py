@@ -26,7 +26,7 @@ class MainWindow(widgets.MainWindow):
 
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
-		self.installed_games = widgets.GamesWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
+		self.ovl_manager = widgets.OvlManagerWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
 
 		self.files_container = widgets.SortableTable(["ID", "Localisation"], {}, ignore_drop_type="OVL", opt_hide=True, editable_columns=("Localisation",))
 
@@ -34,8 +34,8 @@ class MainWindow(widgets.MainWindow):
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.game_choice)
 		hbox.addWidget(self.compression_choice)
-		hbox.addWidget(self.installed_games)
-		hbox.addWidget(self.installed_games.dirs)
+		hbox.addWidget(self.ovl_manager)
+		hbox.addWidget(self.ovl_manager.dirs)
 		hbox.setContentsMargins(0, 0, 1, 0)
 		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
 		left_frame.setLayout(hbox)
@@ -60,7 +60,7 @@ class MainWindow(widgets.MainWindow):
 		if current_game is None:
 			current_game = self.cfg.get("current_game")
 		logging.debug(f"Setting Current Game to {current_game}")
-		if self.installed_games.set_selected_game(current_game):
+		if self.ovl_manager.set_selected_game(current_game):
 			self.game_choice.entry.setText(current_game)
 
 	def open_clicked_file(self, filepath: str):
