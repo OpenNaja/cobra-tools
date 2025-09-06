@@ -2895,6 +2895,8 @@ class GameSelectorWidget(QWidget):
         return QFileDialog.getExistingDirectory(self, "Open game folder")
 
     def set_games(self) -> None:
+        if "games" not in self.cfg:
+            self.cfg["games"] = {}
         self.cfg["games"].update(get_steam_games(self.games_list))
         self.set_data(self.cfg["games"])
 

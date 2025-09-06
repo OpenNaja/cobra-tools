@@ -48,8 +48,6 @@ class MainWindow(widgets.MainWindow):
 		self.extract_types_choice.addItems(self.ovl_data.formats_dict.extractables)
 		self.extract_types_choice.setToolTip("Select file formats processed by batch tasks")
 
-		if "games" not in self.cfg:
-			self.cfg["games"] = {}
 		self.ovl_manager = widgets.OvlManagerWidget(
 			self,
 			game_chosen_fn=self.set_ovl_game_choice_game,
