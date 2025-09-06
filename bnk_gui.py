@@ -2,14 +2,18 @@ import os
 import shutil
 import logging
 import tempfile
+
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.app_utils import get_icon
 from gui.widgets import MenuItem, GameSelectorWidget
 from generated.formats.bnk import BnkFile, AuxFile
+from generated.formats.ovl import OvlFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
 
 from PyQt5 import QtWidgets, QtGui, QtCore
+
+suffices = ("_Media", "_Events", "_DistMedia")
 
 
 class MainWindow(widgets.MainWindow):
@@ -17,10 +21,13 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "BNK Editor", opts=opts)
 		self.bnk_file = BnkFile()
+		self.tmp_dir = os.path.join(os.path.dirname(__file__), "bnk")
+		os.makedirs(self.tmp_dir, exist_ok=True)
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
 		self.file_widget = self.make_file_widget(ftype="BNK")
+		self.file_widget.setHidden(True)
 
 		header_names = ["Name", "File Type", "File Size"]
 
@@ -40,7 +47,6 @@ class MainWindow(widgets.MainWindow):
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 
 		right_frame = widgets.pack_in_box(
-			self.file_widget,
 			self.files_container
 		)
 
@@ -76,12 +82,14 @@ class MainWindow(widgets.MainWindow):
 			sub_dir_path = os.path.join(dir_path, name)
 			if os.path.isdir(sub_dir_path):
 				yield sub_dir_path
-		
+
+	def clear_tmp_dir(self):
+		for fp in os.listdir(self.tmp_dir):
+			os.remove(os.path.join(self.tmp_dir, fp))
+
 	def fill_bnks(self):
-		print("fill")
 		self.tree.clear()
 		self.bnk_map = {}
-		suffices = ("_Media", "_Events", "_DistMedia")
 		game = self.game_choice.get_selected_game()
 		if game:
 			game_dir = self.cfg.get("games").get(game)
@@ -120,9 +128,27 @@ class MainWindow(widgets.MainWindow):
 		if len(names) > 1:
 			cp = names[0]
 			bnk = names[-1]
+			self.clear_tmp_dir()
+			self.setWindowTitle("BNK Editor", file=bnk)
 			bnk_dirs = self.bnk_map[cp][bnk]
-			print(bnk_dirs)
-			# todo load ovls with bnk files from those paths
+			for bnk_dir in bnk_dirs:
+				for s in suffices:
+					# load ovls with bnk files from those paths
+					# todo better logic for finding paths
+					# PC2: misses loc ovls
+					filepath = os.path.join(bnk_dir, f"{bnk}{s}.ovl")
+					if os.path.isfile(filepath):
+						ovl_data = OvlFile()
+						ovl_data.load(filepath, {"game": self.game_choice.entry.currentText(), })
+						fps = ovl_data.extract(self.tmp_dir)
+						if s == "_Media":
+							for fp in fps:
+								if fp.endswith(".bnk"):
+									self.filepath_media = fp
+									self.open(fp)
+						elif s == "_Events":
+							# todo load events and store handles to each bnk
+							pass
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
@@ -140,7 +166,7 @@ class MainWindow(widgets.MainWindow):
 		return out_files
 
 	def inject_wem(self, wem_file_paths):
-		bnk_dir, bnk_name = os.path.split(self.file_widget.filepath)
+		bnk_dir, bnk_name = os.path.split(self.filepath_media)
 		for wem_file_path in wem_file_paths:
 			logging.info(f"Trying to inject {wem_file_path}")
 			aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
@@ -210,7 +236,7 @@ class MainWindow(widgets.MainWindow):
 				# print(self.bnk_file)
 
 	def is_open_bnk(self):
-		if not self.file_widget.filename:
+		if not self.filepath_media:
 			self.showwarning("You must open a BNK file first!")
 		else:
 			return True
