@@ -2843,7 +2843,6 @@ class GameSelectorWidget(QWidget):
         self.entry = CleverCombo(self, options=[])
         self.entry.setEditable(False)
         self.entry.setToolTip("Select game for easy access")
-        self.set_data(self.cfg["games"])
 
         self.play_button = QPushButton(get_icon("play"), "")
         self.play_button.setMaximumWidth(20)
@@ -2861,7 +2860,6 @@ class GameSelectorWidget(QWidget):
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.set_games()
-
         self.play_button.clicked.connect(self.run_selected_game)
 
     def set_data(self, available_games: dict) -> None:
