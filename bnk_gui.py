@@ -37,6 +37,7 @@ class MainWindow(widgets.MainWindow):
 		self.tree.setHeaderHidden(True)
 		self.tree.itemDoubleClicked.connect(self.bnk_selected)
 		self.game_choice = GameSelectorWidget(self)
+		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 
 		right_frame = widgets.pack_in_box(
 			self.file_widget,
@@ -77,6 +78,8 @@ class MainWindow(widgets.MainWindow):
 				yield sub_dir_path
 		
 	def fill_bnks(self):
+		print("fill")
+		self.tree.clear()
 		self.bnk_map = {}
 		suffices = ("_Media", "_Events", "_DistMedia")
 		game = self.game_choice.get_selected_game()

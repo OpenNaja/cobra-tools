@@ -2745,7 +2745,8 @@ class OvlDataFilesystemModel(QFileSystemModel):
 
 
 class OvlDataTreeView(QTreeView):
-
+    dir_dbl_clicked = pyqtSignal(str)
+    file_dbl_clicked = pyqtSignal(str)
     def __init__(self, parent: Optional[QWidget] = None, actions={}, filters=()) -> None:
         super().__init__(parent)
         self.actions = actions
@@ -2765,6 +2766,26 @@ class OvlDataTreeView(QTreeView):
         self.setAnimated(False)
         self.setIndentation(12)
         self.setSortingEnabled(True)
+
+        self.clicked.connect(self.item_clicked)
+        self.doubleClicked.connect(self.item_dbl_clicked)
+
+    def item_clicked(self, idx: QModelIndex) -> None:
+        if not self.isExpanded(idx):
+            self.expand(idx)
+
+    def item_dbl_clicked(self, idx: QModelIndex) -> None:
+        try:
+            file_path = self.file_model.filePath(idx)
+            # open folder in explorer
+            if os.path.isdir(file_path):
+                os.startfile(file_path)
+                self.dir_dbl_clicked.emit(file_path)
+            # open in tool
+            else:
+                self.file_dbl_clicked.emit(file_path)
+        except:
+            logging.exception("Item double-click failed")
 
     def set_root(self, dir_game: str) -> None:
         root_index = self.file_model.setRootPath(dir_game)
@@ -2860,6 +2881,9 @@ class GameSelectorWidget(QWidget):
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.set_games()
+
+        self.entry.textActivated.connect(self.game_chosen)
+        self.add_button.clicked.connect(self.add_installed_game_manually)
         self.play_button.clicked.connect(self.run_selected_game)
 
     def set_data(self, available_games: dict) -> None:
@@ -2906,6 +2930,25 @@ class GameSelectorWidget(QWidget):
         # only update the ovl game version choice if it is a valid game
         if game in self.games_list:
             self.installed_game_chosen.emit(game)
+
+    def add_installed_game_manually(self) -> None:
+        """Manually add a new game to the list of available games. Works for both game root or ovldata folders"""
+        dir_game = self.ask_game_dir()
+        if dir_game:
+            dir_game = os.path.normpath(dir_game)
+            # try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
+            pattern = re.compile(r"\\win64\\ovldata", re.IGNORECASE)
+            without_suffix = pattern.sub("", dir_game)
+            current_game = os.path.basename(without_suffix)
+            # suffix the dir without suffix again and store that if it exists
+            added_suffix = os.path.join(without_suffix, "win64", "ovldata")
+            if os.path.isdir(added_suffix):
+                dir_game = added_suffix
+            # store this newly chosen game in cfg
+            self.cfg["games"][current_game] = dir_game
+            # update available games
+            self.set_data(self.cfg["games"])
+            self.game_chosen(current_game)
 
 
 class OvlSearchWidget(QWidget):
@@ -2989,9 +3032,6 @@ class OvlFilterWidget(QWidget):
 
 class OvlManagerWidget(QWidget):
     """Installed games combo box with optional search and directory widgets (caller has to add them to layout)"""
-    dir_dbl_clicked = pyqtSignal(str)
-    file_dbl_clicked = pyqtSignal(str)
-
     def __init__(self, parent: "MainWindow",
                  filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
@@ -3003,17 +3043,13 @@ class OvlManagerWidget(QWidget):
         self.cfg: dict[str, Any] = parent.cfg
 
         self.game_choice = GameSelectorWidget(self)
+        self.game_choice.installed_game_chosen.connect(self.set_selected_game)
 
-        self.game_choice.entry.textActivated.connect(self.set_selected_game)
-        self.game_choice.add_button.clicked.connect(self.add_installed_game_manually)
-        
         self.search = OvlSearchWidget(self)
 
         if filters is None:
             filters = ["*.ovl", ]
         self.dirs = OvlDataTreeView(actions=actions, filters=filters)
-        self.dirs.clicked.connect(self.item_clicked)
-        self.dirs.doubleClicked.connect(self.item_dbl_clicked)
 
         self.filters = OvlFilterWidget(self)
         self.filters.filter_regex.connect(self.dirs.set_regex)
@@ -3028,28 +3064,11 @@ class OvlManagerWidget(QWidget):
         if game_chosen_fn is not None:
             self.game_choice.installed_game_chosen.connect(game_chosen_fn)
         if dir_dbl_click_fn is not None:
-            self.dir_dbl_clicked.connect(dir_dbl_click_fn)
+            self.dirs.dir_dbl_clicked.connect(dir_dbl_click_fn)
         if file_dbl_click_fn is not None:
-            self.file_dbl_clicked.connect(file_dbl_click_fn)
+            self.dirs.file_dbl_clicked.connect(file_dbl_click_fn)
         if search_content_fn is not None:
             self.search.search_content_clicked.connect(search_content_fn)
-
-    def item_clicked(self, idx: QModelIndex) -> None:
-        if not self.dirs.isExpanded(idx):
-            self.dirs.expand(idx)
-
-    def item_dbl_clicked(self, idx: QModelIndex) -> None:
-        try:
-            file_path = self.dirs.file_model.filePath(idx)
-            # open folder in explorer
-            if os.path.isdir(file_path):
-                os.startfile(file_path)
-                self.dir_dbl_clicked.emit(file_path)
-            # open in tool
-            else:
-                self.file_dbl_clicked.emit(file_path)
-        except:
-            logging.exception("Item double-click failed")
 
     def set_selected_game(self, game: str = None):
         # if current_game hasn't been set (no config.json), fall back on currently selected game
@@ -3061,27 +3080,6 @@ class OvlManagerWidget(QWidget):
             self.dirs.set_root(dir_game)
             self.dirs.set_selected_path(self.cfg.get("last_ovl_in", None))
             self.game_choice.entry.setText(game)
-            self.game_choice.game_chosen(game)
-
-    def add_installed_game_manually(self) -> None:
-        """Manually add a new game to the list of available games. Works for both game root or ovldata folders"""
-        dir_game = self.game_choice.ask_game_dir()
-        if dir_game:
-            dir_game = os.path.normpath(dir_game)
-            # try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
-            pattern = re.compile(r"\\win64\\ovldata", re.IGNORECASE)
-            without_suffix = pattern.sub("", dir_game)
-            current_game = os.path.basename(without_suffix)
-            # suffix the dir without suffix again and store that if it exists
-            added_suffix = os.path.join(without_suffix, "win64", "ovldata")
-            if os.path.isdir(added_suffix):
-                dir_game = added_suffix
-            # store this newly chosen game in cfg
-            self.cfg["games"][current_game] = dir_game
-            self.cfg["current_game"] = current_game
-            # update available games
-            self.game_choice.set_data(self.cfg["games"])
-            self.set_selected_game(current_game)
 
 
 class EditCombo(QWidget):
