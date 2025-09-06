@@ -80,29 +80,30 @@ class MainWindow(widgets.MainWindow):
 		self.bnk_map = {}
 		suffices = ("_Media", "_Events", "_DistMedia")
 		game = self.game_choice.get_selected_game()
-		game_dir = self.cfg.get("games").get(game)
-		# content packs
-		for cp in self.get_subfolders(game_dir):
-			audio_dir = os.path.join(cp, "Audio")
-			if os.path.isdir(audio_dir):
-				cp_name = os.path.basename(cp)
-				cp_item = QtWidgets.QTreeWidgetItem(self.tree)
-				cp_item.setText(0, cp_name)
-				cp_item.setIcon(0, get_icon("dir"))
-				cp_map = {}
-				self.bnk_map[cp_name] = cp_map
-				for bnk_dir in self.get_subfolders(audio_dir):
-					bnk_name = os.path.basename(bnk_dir)
-					for s in suffices:
-						bnk_name = bnk_name.removesuffix(s)
-						bnk_name = bnk_name.removesuffix(s.lower())
-					if bnk_name not in cp_map:
-						cp_map[bnk_name] = []
-					cp_map[bnk_name].append(bnk_dir)
-				for bnk_name in sorted(cp_map.keys()):
-					bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
-					bnk_item.setText(0, bnk_name)
-					bnk_item.setIcon(0, get_icon("bnk"))
+		if game:
+			game_dir = self.cfg.get("games").get(game)
+			# content packs
+			for cp in self.get_subfolders(game_dir):
+				audio_dir = os.path.join(cp, "Audio")
+				if os.path.isdir(audio_dir):
+					cp_name = os.path.basename(cp)
+					cp_item = QtWidgets.QTreeWidgetItem(self.tree)
+					cp_item.setText(0, cp_name)
+					cp_item.setIcon(0, get_icon("dir"))
+					cp_map = {}
+					self.bnk_map[cp_name] = cp_map
+					for bnk_dir in self.get_subfolders(audio_dir):
+						bnk_name = os.path.basename(bnk_dir)
+						for s in suffices:
+							bnk_name = bnk_name.removesuffix(s)
+							bnk_name = bnk_name.removesuffix(s.lower())
+						if bnk_name not in cp_map:
+							cp_map[bnk_name] = []
+						cp_map[bnk_name].append(bnk_dir)
+					for bnk_name in sorted(cp_map.keys()):
+						bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
+						bnk_item.setText(0, bnk_name)
+						bnk_item.setIcon(0, get_icon("bnk"))
 
 	def get_parents(self, item):
 		names = [item.text(0), ]
