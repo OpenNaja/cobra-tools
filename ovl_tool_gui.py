@@ -59,6 +59,7 @@ class MainWindow(widgets.MainWindow):
 				QtWidgets.QAction(widgets.get_icon("rename_contents"), "Rename Contents"): self.rename_contents_batch,
 				})
 		self.ovl_manager.set_selected_game()
+		self.ovl_manager.game_choice.game_chosen(self.ovl_manager.game_choice.entry.currentText())
 
 		# create the table
 		self.files_container = widgets.SortableTable(
