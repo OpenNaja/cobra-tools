@@ -6,7 +6,7 @@
 
     <compound name="MotiongraphHeader" inherit="MemStruct">
         # if self.ovl.context.version > 47:
-        <add name="root_frag" type="Pointer" template="MotiongraphRootFrag"/>
+        <add name="root_frag" type="Pointer" template="MotiongraphRootFrag"/>not (always?) used in PC2
         points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
         <add name="state output entries" type="Pointer" template="StateArray"/>
         <add name="MGTwo" type="Pointer" template="MGTwo"/>
@@ -188,7 +188,8 @@
         40 bytes
         <add name="unk" type="uint"/>
         <add name="activities count" type="uint"/>
-        <add name="activities" type="Pointer" template="RefList" arg="activities count"/>
+        <add name="activities" type="Pointer" template="Activities" arg="activities count"/>
+<!--        <add name="activities" type="Pointer" template="RefList" arg="activities count"/>-->
         <add name="count 2" type="uint64"/>
         this one links to other states, infinite recursion danger
         <add name="array 2" type="Pointer" template="TransStructStopList" arg="count 2"/>
@@ -567,8 +568,7 @@
         <add name="EnumVariable" type="Pointer" template="ZString"/>
         # points to activities in the main activities array
         <add name="Activities" type="Pointer" template="ActivitiesLinks" arg="num_activities"/>
-        <add name="num_activities" type="uint64"/>
-        # todo - the following two may be mixed up in the xml spec!!
+        <add name="num_activities" type="uint"/>
         <add name="BlendTime" type="float"/>
         <add name="Mode" type="SelectActivityActivityMode"/>
     </compound>
