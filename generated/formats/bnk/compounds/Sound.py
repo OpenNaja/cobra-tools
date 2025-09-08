@@ -3,9 +3,9 @@ from generated.formats.bnk.compounds.HircObject import HircObject
 from generated.formats.bnk.imports import name_type_map
 
 
-class SoundSfxVoice(HircObject):
+class Sound(HircObject):
 
-	__name__ = 'SoundSfxVoice'
+	__name__ = 'Sound'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

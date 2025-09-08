@@ -238,9 +238,9 @@ class MainWindow(widgets.MainWindow):
 				# print(self.bnk_media.aux_b)
 
 				# map the hirc to the wem id from events bnk
-				#todo need more lut to resolve the link between EventAction and SoundSfxVoice, eg. in RANDOM_OR_SEQUENCE_CONTAINER
+				#todo need more lut to resolve the link between EventAction and Sound, eg. in RANDOM_OR_SEQUENCE_CONTAINER
 				event_map = {action_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.EVENT for action_id in hirc.data.action_ids }
-				hirc_map = {hirc.data.didx_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND_SFX_VOICE}
+				hirc_map = {hirc.data.didx_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
 				# print(hirc_map)
 				# get the lut of fnv1 of the sound names
 				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})

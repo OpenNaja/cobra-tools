@@ -26,7 +26,7 @@ class HircPointer(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'id', name_type_map['HircType'], (0, None), (False, None), (None, None)
 		yield 'length', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'data', name_type_map['SoundSfxVoice'], (None, None), (False, None), (None, True)
+		yield 'data', name_type_map['Sound'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['EventAction'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['Event'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['MusicTrack'], (None, None), (False, None), (None, True)
@@ -38,7 +38,7 @@ class HircPointer(BaseStruct):
 		yield 'id', name_type_map['HircType'], (0, None), (False, None)
 		yield 'length', name_type_map['Uint'], (0, None), (False, None)
 		if instance.id == 2:
-			yield 'data', name_type_map['SoundSfxVoice'], (instance.length, None), (False, None)
+			yield 'data', name_type_map['Sound'], (instance.length, None), (False, None)
 		if instance.id == 3:
 			yield 'data', name_type_map['EventAction'], (instance.length, None), (False, None)
 		if instance.id == 4:

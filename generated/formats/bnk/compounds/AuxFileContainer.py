@@ -61,7 +61,7 @@ class AuxFileContainer(BaseStruct):
 			# id the pointers
 			if instance.hirc:
 				for pointer in instance.hirc.hirc_pointers:
-					if pointer.id == HircType.SOUND_SFX_VOICE:
+					if pointer.id == HircType.SOUND:
 						pointer.hash = fmt_hash(pointer.data.didx_id)
 			if instance.didx:
 				for pointer in instance.didx.data_pointers:
@@ -87,7 +87,7 @@ class AuxFileContainer(BaseStruct):
 		logging.info("updating hirc data size")
 		if self.hirc:
 			for pointer in self.hirc.hirc_pointers:
-				if pointer.id == HircType.SOUND_SFX_VOICE:
+				if pointer.id == HircType.SOUND:
 					if pointer.hash == wem_id:
 						logging.info(f"found a match {pointer.hash}, updating wem data size")
 						pointer.data.wem_length = os.path.getsize(wem_path)

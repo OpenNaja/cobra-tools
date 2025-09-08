@@ -51,7 +51,7 @@ type_module_name_map = {
 	'StreamSource': 'generated.formats.bnk.enums.StreamSource',
 	'ActionScope': 'generated.formats.bnk.enums.ActionScope',
 	'HircObject': 'generated.formats.bnk.compounds.HircObject',
-	'SoundSfxVoice': 'generated.formats.bnk.compounds.SoundSfxVoice',
+	'Sound': 'generated.formats.bnk.compounds.Sound',
 	'Event': 'generated.formats.bnk.compounds.Event',
 	'EventAction': 'generated.formats.bnk.compounds.EventAction',
 	'AkMediaInformation': 'generated.formats.bnk.compounds.AkMediaInformation',
