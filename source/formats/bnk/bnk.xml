@@ -110,10 +110,10 @@
         <add name="scope" type="ActionScope"/>
         <add name="action_type" type="ubyte"/>
         <add name="game obj" type="uint" />
-        <add name="zero1" type="ubyte"/>
+        <add name="idExt_4" type="ubyte"/>
         <add name="num_params" type="ubyte"/>
         <add name="params" type="ubyte" arr1="num_params"/>
-        <add name="values" type="uint" arr1="num_params"/>
+        <add name="params_types" type="uint" arr1="num_params"/>
         <add name="zero2" type="ubyte"/>
         <add name="raw" type="byte" arr1="#ARG# - ( 13 + (num_params * 5))">instead of the stuff below</add>
 <!--        todo the spec below is incomplete for the action types-->
@@ -126,6 +126,34 @@
 <!--        <add name="Switch Group id" type="uint" cond="action_type #EQ# 25"/>-->
 <!--        <add name="Switch id" type="uint" cond="action_type #EQ# 25"/>-->
 <!--        <add name="end flag" type="ubyte"/>0 or 1-->
+    </compound>
+
+    <compound name="AkPlaylistItem">
+        <add name="ulPlayID" type="uint"/>
+        <add name="weight" type="uint"/>
+    </compound>
+
+    <compound name="RandomOrSequenceContainer" inherit="HircObject">
+        wwiser CAkRanSeqCntr__SetInitialValues
+
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
+
+        <add name="sLoopCount" type="ushort"/>
+        <add name="sLoopModMin" type="ushort"/>
+        <add name="sLoopModMax" type="ushort"/>
+        <add name="fTransitionTime" type="float"/>
+        <add name="fTransitionTimeModMin" type="float"/>
+        <add name="fTransitionTimeModMax" type="float"/>
+        <add name="wAvoidRepeatCount" type="ushort"/>
+        <add name="eTransitionMode" type="ubyte"/>
+        <add name="eRandomMode" type="ubyte"/>
+        <add name="eMode" type="ubyte"/>
+        <add name="byBitVector" type="ubyte"/>
+        <add name="Num_Children" type="uint"/>
+        <add name="Children" type="uint" arr1="Num_Children"/>
+        <add name="num_PlayListItem" type="ushort"/>
+        <add name="PlayListItem" type="AkPlaylistItem" arr1="num_PlayListItem"/>
+
     </compound>
 
     <compound name="AkMediaInformation">
@@ -150,8 +178,70 @@
         <add name="fSrcDuration" type="double"/>
     </compound>
 
+    <compound name="NodeInitialFxParams">
+        <add name="bIsOverrideParentFX" type="byte"/>
+        <add name="uNumFx" type="byte"/>
+    </compound>
+
+    <compound name="AkPropBundle">
+        <add name="cProps" type="ubyte"/>
+<!--        todo find dtype of pProps-->
+        <add name="pProps" type="byte" arr1="cProps"/>
+    </compound>
+
+    <compound name="NodeInitialParams">
+        <add name="AkPropBundle1" type="AkPropBundle"/>
+        <add name="AkPropBundle2" type="AkPropBundle"/>
+    </compound>
+
+    <compound name="PositioningParams">
+        <add name="uBitsPositioning" type="ubyte"/>
+    </compound>
+
+    <compound name="AuxParams">
+        <add name="byBitVector" type="ubyte"/>
+        <add name="reflectionsAuxBus" type="uint"/>
+    </compound>
+
+    <compound name="AdvSettingsParams">
+        <add name="byBitVector" type="ubyte"/>
+        <add name="eVirtualQueueBehavior" type="ubyte"/>
+        <add name="u16MaxNumInstance" type="ushort"/>
+        <add name="eBelowThresholdBehavior" type="ubyte"/>
+        <add name="byBitVector" type="ubyte"/>
+    </compound>
+
+    <compound name="StateChunk">
+<!--        todo varint-->
+        <add name="ulNumStateProps" type="ubyte"/>
+<!--        todo dtype-->
+        <add name="stateProps" type="ubyte" arr1="ulNumStateProps"/>
+<!--        todo varint-->
+        <add name="ulNumStateGroups" type="ubyte"/>
+<!--        todo dtype-->
+        <add name="pStateChunks" type="ubyte" arr1="ulNumStateGroups"/>
+    </compound>
+
+    <compound name="InitialRTPC">
+        <add name="ulNumRTPC" type="ushort"/>
+<!--        todo dtype-->
+        <add name="pRTPCMgr" type="ubyte" arr1="ulNumRTPC"/>
+    </compound>
+
     <compound name="NodeBaseParams">
-        <add name="raw" type="byte" arr1="30"/>
+        <add name="NodeInitialFxParams" type="NodeInitialFxParams"/>
+        <add name="bIsOverrideParentMetadata" type="byte"/>
+        <add name="uNumFx" type="byte"/>
+        <add name="bOverrideAttachmentParams" type="byte"/>
+        <add name="OverrideBusId" type="uint"/>
+        <add name="DirectParentID" type="uint"/>
+        <add name="byBitVector" type="ubyte"/>
+        <add name="NodeInitialParams" type="NodeInitialParams"/>
+        <add name="PositioningParams" type="PositioningParams"/>
+        <add name="AuxParams" type="AuxParams"/>
+        <add name="AdvSettingsParams" type="AdvSettingsParams"/>
+        <add name="StateChunk" type="StateChunk"/>
+        <add name="InitialRTPC" type="InitialRTPC"/>
     </compound>
 
     <compound name="MusicTrack" inherit="HircObject">
@@ -181,8 +271,9 @@
         <add name="data" arg="length" type="Sound" cond="id == 2"/>
         <add name="data" arg="length" type="EventAction" cond="id == 3"/>
         <add name="data" arg="length" type="Event" cond="id == 4"/>
+        <add name="data" arg="length" type="RandomOrSequenceContainer" cond="id == 5"/>
         <add name="data" arg="length" type="MusicTrack" cond="id == 11"/>
-        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 11)"/>
+        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 11)"/>
     </compound>
 
     <compound name="HIRCSection">

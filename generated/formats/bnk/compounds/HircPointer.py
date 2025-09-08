@@ -29,6 +29,7 @@ class HircPointer(BaseStruct):
 		yield 'data', name_type_map['Sound'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['EventAction'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['Event'], (None, None), (False, None), (None, True)
+		yield 'data', name_type_map['RandomOrSequenceContainer'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['MusicTrack'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['TypeOther'], (None, None), (False, None), (None, True)
 
@@ -43,9 +44,11 @@ class HircPointer(BaseStruct):
 			yield 'data', name_type_map['EventAction'], (instance.length, None), (False, None)
 		if instance.id == 4:
 			yield 'data', name_type_map['Event'], (instance.length, None), (False, None)
+		if instance.id == 5:
+			yield 'data', name_type_map['RandomOrSequenceContainer'], (instance.length, None), (False, None)
 		if instance.id == 11:
 			yield 'data', name_type_map['MusicTrack'], (instance.length, None), (False, None)
-		if (instance.id != 2) and ((instance.id != 3) and ((instance.id != 4) and (instance.id != 11))):
+		if (instance.id != 2) and ((instance.id != 3) and ((instance.id != 4) and ((instance.id != 5) and (instance.id != 11)))):
 			yield 'data', name_type_map['TypeOther'], (instance.length, None), (False, None)
 
 	@classmethod
