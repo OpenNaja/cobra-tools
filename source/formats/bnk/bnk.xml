@@ -33,25 +33,25 @@
 
     <enum name="HircType" numbytes="1" storage="ubyte" default="0">
 		<option value="0" name="NONE" />
-		<option value="1" name="State" />
+		<option value="1" name="Settings" />
 		<option value="2" name="Sound" />
-		<option value="3" name="Action" />
+		<option value="3" name="EventAction" />
 		<option value="4" name="Event" />
-		<option value="5" name="RandomSequenceContainer" />
+		<option value="5" name="RandomOrSequenceContainer" />
 		<option value="6" name="SwitchContainer" />
 		<option value="7" name="ActorMixer" />
-		<option value="8" name="Bus" />
-		<option value="9" name="LayerContainer" />
+		<option value="8" name="AudioBus" />
+		<option value="9" name="BlendContainer" />
 		<option value="10" name="MusicSegment" />
 		<option value="11" name="MusicTrack" />
 		<option value="12" name="MusicSwitchContainer" />
-		<option value="13" name="MusicRandomSequence" />
+		<option value="13" name="MusicPlaylistContainer" />
 		<option value="14" name="Attenuation" />
 		<option value="15" name="DialogueEvent" />
-		<option value="16" name="FeedbackBus" />
-		<option value="17" name="FeedbackNode" />
-		<option value="18" name="FxShareSet" />
-		<option value="19" name="FxCustom" />
+		<option value="16" name="MotionBus" />
+		<option value="17" name="MotionFx" />
+		<option value="18" name="Effect" />
+		<option value="19" name="EffectCustom" />
 		<option value="20" name="AuxiliaryBus" />
 		<option value="21" name="LFO" />
 		<option value="22" name="Envelope" />
