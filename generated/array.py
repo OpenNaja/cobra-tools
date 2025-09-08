@@ -218,6 +218,23 @@ class Array(list):
                 for i in range(instance.shape[0]):
                     yield i, dtype, (arg, template), (False, None)
 
+    def get_condition_fields(self, condition_function, include_abstract=True, enter_condition=lambda x: True):
+        """Return all fields in a tree of struct self matching condition_function"""
+        for attribute in self._get_filtered_attribute_list(
+                self,
+                self.dtype,
+                include_abstract):
+            f_name, f_type, field_arguments = attribute[0:3]
+            field = self.get_field(self, f_name)
+            if condition_function(attribute):
+                yield field
+            if enter_condition(attribute):
+                # check if this has a filtered attribute list
+                if callable(getattr(field, "get_condition_fields", None)):
+                    yield from field.get_condition_fields(
+                        condition_function,
+                        include_abstract)
+
     @classmethod
     def validate_instance(cls, instance, context, arg, template, shape, dtype):
         if cls.is_ragged_shape(shape):
