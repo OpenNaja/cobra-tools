@@ -20,7 +20,7 @@ class MotiongraphLoader(MemStructLoader):
 			if ovl_versions.is_jwe(self.ovl):
 				return
 			super().collect()
-			print(set(s for s in self.get_audio_strings()))
+			# print(set(s for s in self.get_audio_strings()))
 
 	def get_audio_strings(self):
 		def cond(x):

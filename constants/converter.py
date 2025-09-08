@@ -26,6 +26,13 @@ def write_hashes_dict(out_fp, hashes):
 		f.write("\n}\n")
 
 
+def write_audio_dict(out_fp, audio):
+	with open(out_fp, "w") as f:
+		f.write("audio = {\n")
+		f.write(",\n".join(f"\t{k}: \"{v}\"" for k, v in sorted(audio.items(), key=lambda item: item[1])))
+		f.write("\n}\n")
+
+
 def write_mimes_dict(out_fp, mimes):
 	with open(out_fp, "w") as f:
 		f.write(f"from constants import Mime\n\n")

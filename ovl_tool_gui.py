@@ -137,6 +137,7 @@ class MainWindow(widgets.MainWindow):
 						MenuItem("Inspect MS2", self.inspect_models, icon="ms2"),
 						MenuItem("Inspect FGM", self.walker_fgm, icon="fgm"),
 						MenuItem("Inspect MANIS", self.walker_manis, icon="manis"),
+						MenuItem("Generate Audio Events", self.walker_audio, icon="bnk"),
 						MenuItem("Generate Hash Table", self.walker_hash),
 						MenuItem("Dump Debug Data", self.dump_debug_data, icon="dump_debug"),
 					]
@@ -629,6 +630,9 @@ class MainWindow(widgets.MainWindow):
 		selected = self.ovl_manager.dirs.get_selected_dir()
 		# fall back on game root dir if selected dir is not child of current game's dir tree
 		return selected if PurePath(self.game_root()) in PurePath(selected).parents else self.game_root()
+
+	def walker_audio(self, ):
+		self.run_in_threadpool(walker.get_audio_names, (), self, self.game_root())
 
 	def walker_hash(self, ):
 		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root())

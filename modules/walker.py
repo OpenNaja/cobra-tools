@@ -6,9 +6,9 @@ from collections import Counter
 from pathlib import Path
 
 from modules.formats.FGM import FgmContext
-from modules.formats.shared import walk_type
+from modules.formats.shared import walk_type, fnv1_32
 from ovl_util.logs import ANSI
-from constants.converter import write_mimes_dict, write_hashes_dict
+from constants.converter import write_mimes_dict, write_hashes_dict, write_audio_dict
 from generated.array import Array
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.manis.compounds.ManiInfo import ManiInfo
@@ -583,3 +583,28 @@ def get_manis_values(gui, start_dir, walk_ovls=True, official_only=True):
 		# 	logging.info(f"unk count {dtype} - {len(files)} files {sorted(files)[:10]}")
 	except:
 		logging.exception(f"Failed")
+
+
+def get_audio_names(gui, start_dir, walk_ovls=True, official_only=True):
+	names = {}
+	if start_dir:
+		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".motiongraph",)):
+			if official_only and not filter_accept_official(ovl_path):
+				continue
+			ovl_name = os.path.basename(ovl_path)
+			ovl_name = os.path.splitext(ovl_name)[0]
+			try:
+				for loader in ovl_data.loaders.values():
+					print(loader.name)
+					if loader.ext == ".motiongraph":
+						for s in loader.get_audio_strings():
+							h = fnv1_32(s.lower().encode())
+							names[h] = s
+							print(s)
+			except:
+				logging.exception(f"Failed")
+
+		out_dir = get_game_constants_dir(start_dir)
+		os.makedirs(out_dir, exist_ok=True)
+		write_audio_dict(os.path.join(out_dir, "audio.py"), names)
+
