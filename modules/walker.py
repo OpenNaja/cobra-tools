@@ -595,12 +595,12 @@ def get_audio_names(gui, start_dir, walk_ovls=True, official_only=True):
 			ovl_name = os.path.splitext(ovl_name)[0]
 			try:
 				for loader in ovl_data.loaders.values():
-					print(loader.name)
+					# print(loader.name)
 					if loader.ext == ".motiongraph":
 						for s in loader.get_audio_strings():
 							h = fnv1_32(s.lower().encode())
 							names[h] = s
-							print(s)
+							# print(s)
 			except:
 				logging.exception(f"Failed")
 

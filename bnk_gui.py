@@ -8,6 +8,8 @@ from gui.app_utils import get_icon
 from gui.widgets import MenuItem, GameSelectorWidget
 from generated.formats.bnk import BnkFile, AuxFile
 from generated.formats.ovl import OvlFile
+from constants import ConstantsProvider
+from generated.formats.bnk.enums.HircType import HircType
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
 
@@ -20,9 +22,12 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "BNK Editor", opts=opts)
-		self.bnk_file = BnkFile()
+		self.bnk_media = BnkFile()
+		self.bnk_events = BnkFile()
 		self.tmp_dir = os.path.join(os.path.dirname(__file__), "bnk")
 		os.makedirs(self.tmp_dir, exist_ok=True)
+
+		self.constants = ConstantsProvider()
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
@@ -145,10 +150,13 @@ class MainWindow(widgets.MainWindow):
 							for fp in fps:
 								if fp.endswith(".bnk"):
 									self.filepath_media = fp
-									self.open(fp)
+									# self.open(fp)
 						elif s == "_Events":
 							# todo load events and store handles to each bnk
-							pass
+							for fp in fps:
+								if fp.endswith(".bnk"):
+									self.filepath_events = fp
+			self.open("")
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
@@ -157,9 +165,9 @@ class MainWindow(widgets.MainWindow):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 		if not hashes:
-			hashes = self.bnk_file.data_map.keys()
+			hashes = self.bnk_media.data_map.keys()
 		for id_hash in hashes:
-			data, aux_name = self.bnk_file.data_map[id_hash]
+			data, aux_name = self.bnk_media.data_map[id_hash]
 			out_file = write_riff_file(data, out_dir_func(f"{aux_name}_{id_hash}"))
 			if out_file:
 				out_files.append(out_file)
@@ -177,7 +185,7 @@ class MainWindow(widgets.MainWindow):
 			# if os.path.isfile(aux_path):
 			# 	pass
 			# get the names of the bnk files and make sure they match the input
-			media_bnk = self.bnk_file.bnk_header.name
+			media_bnk = self.bnk_media.bnk_header.name
 			assert "_media_" in aux_path_bare.lower()
 			assert media_bnk.lower() in aux_path_bare.lower()
 			events_bnk = f"{media_bnk.rsplit('_', 1)[0]}_events"
@@ -219,21 +227,33 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def open(self, filepath):
-		if filepath:
+	def open(self, dummy_filepath):
+		if self.filepath_media:
 			self.set_file_modified(False)
 			try:
-				self.bnk_file.load(filepath)
-				print(self.bnk_file)
-				print(self.bnk_file.aux_b)
-				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
-				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:
-					f_list.extend([(pointer.hash, "b", pointer.wem_filesize) for pointer in self.bnk_file.aux_b.didx.data_pointers])
+				self.bnk_media.load(self.filepath_media)
+				self.bnk_events.load(self.filepath_events)
+				print(self.bnk_events.aux_b)
+				# print(self.bnk_media)
+				# print(self.bnk_media.aux_b)
+
+				# map the hirc to the wem id from events bnk
+				#todo need more lut to resolve the link between EventAction and SoundSfxVoice, eg. in RANDOM_OR_SEQUENCE_CONTAINER
+				event_map = {action_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.EVENT for action_id in hirc.data.action_ids }
+				hirc_map = {hirc.data.didx_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND_SFX_VOICE}
+				# print(hirc_map)
+				# get the lut of fnv1 of the sound names
+				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
+				print(lut)
+				def get_name(snd_id):
+					return lut.get(snd_id, f"0x{fmt_hash(snd_id)}")
+				f_list = [(get_name(hirc_map[stream_info.event_id]), "s", stream_info.size) for stream_info in self.bnk_media.bnk_header.streams]
+				if self.bnk_media.aux_b and self.bnk_media.aux_b.didx:
+					f_list.extend([(get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])
 				f_list.sort(key=lambda t: (t[1], t[0]))
 				self.files_container.set_data(f_list)
 			except:
 				self.handle_error("Loading failed, see log!")
-				# print(self.bnk_file)
 
 	def is_open_bnk(self):
 		if not self.filepath_media:
@@ -243,9 +263,9 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath) -> None:
 		try:
-			self.bnk_file.save(filepath)
+			self.bnk_media.save(filepath)
 			self.set_file_modified(False)
-			self.set_progress_message(f"Saved {self.bnk_file.bnk_name}")
+			self.set_progress_message(f"Saved {self.bnk_media.bnk_name}")
 		except:
 			self.handle_error("Loading failed, see log!")
 
@@ -265,7 +285,7 @@ class MainWindow(widgets.MainWindow):
 			self.inject_files(files)
 
 	def inject_files(self, files):
-		"""Tries to inject files into self.bnk_file"""
+		"""Tries to inject files into self.bnk_media"""
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
