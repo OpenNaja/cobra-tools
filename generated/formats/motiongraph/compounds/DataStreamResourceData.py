@@ -1,3 +1,7 @@
+import logging
+from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.motiongraph.imports import name_type_map
+
 from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
@@ -41,3 +45,8 @@ class DataStreamResourceData(MemStruct):
 		yield 'bone_i_d', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'location', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'curve', name_type_map['CurveData'], (0, None), (False, None)
+
+	def get_audio_name(self):
+		if self.type.data == "AudioEvent":
+			return self.ds_name.data
+

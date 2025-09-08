@@ -17,7 +17,7 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.num_xmls = name_type_map['Uint64'](self.context, 0, None)
-		self.activities = name_type_map['Pointer'](self.context, self.num_activities, name_type_map['Activities'])
+		self.activities = name_type_map['ArrayPointer'](self.context, self.num_activities, name_type_map['ActivityReference'])
 		self.ptr_1 = name_type_map['Pointer'](self.context, 0, name_type_map['MRFArray1'])
 		self.ptr_2 = name_type_map['Pointer'](self.context, self.count_2, name_type_map['MRFArray2'])
 		self.ptr_xmls = name_type_map['Pointer'](self.context, self.num_xmls, name_type_map['XMLArray'])
@@ -28,7 +28,7 @@ class MotiongraphRootFrag(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'num_activities', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'activities', name_type_map['Pointer'], (None, name_type_map['Activities']), (False, None), (None, None)
+		yield 'activities', name_type_map['ArrayPointer'], (None, name_type_map['ActivityReference']), (False, None), (None, None)
 		yield 'count_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'ptr_1', name_type_map['Pointer'], (0, name_type_map['MRFArray1']), (False, None), (None, None)
 		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -40,7 +40,7 @@ class MotiongraphRootFrag(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'num_activities', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'activities', name_type_map['Pointer'], (instance.num_activities, name_type_map['Activities']), (False, None)
+		yield 'activities', name_type_map['ArrayPointer'], (instance.num_activities, name_type_map['ActivityReference']), (False, None)
 		yield 'count_1', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'ptr_1', name_type_map['Pointer'], (0, name_type_map['MRFArray1']), (False, None)
 		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None)

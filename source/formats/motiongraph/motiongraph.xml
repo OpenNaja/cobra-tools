@@ -33,7 +33,7 @@
     <compound name="MotiongraphRootFrag" inherit="MemStruct">
         64 bytes
         <add name="num_activities" type="uint64"/>
-        <add name="activities" type="Pointer" template="Activities" arg="num_activities"/>
+        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
 
         <add name="count_1" type="uint64"/>
         when enabled, creates a giant tree
@@ -47,22 +47,23 @@
         <add name="ptr_xmls" type="Pointer" template="XMLArray" arg="num_xmls"/>
     </compound>
 
-    <compound name="ActivityEntry" inherit="MemStruct">
+    <compound name="StateReference" inherit="MemStruct">
         8 bytes
-        <add name="value" type="Pointer" template="Activity"/>
+        <add name="state" type="Pointer" template="State"/>
     </compound>
 
-    <compound name="Activities" inherit="MemStruct" >
-        <add name="states" type="ActivityEntry" arr1="#ARG#" />
+    <compound name="ActivityReference" inherit="MemStruct">
+        8 bytes
+        <add name="activity" type="Pointer" template="Activity"/>
     </compound>
 
     <compound name="Activity" inherit="MemStruct">
         48 bytes
         <add name="data_type" type="Pointer" template="ZString"/>
-        <add name="ptr" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</add>
-        <add name="count_2" type="uint64"/>
-        <add name="count_3" type="uint64"/>
-        <add name="minus one" type="int64"/>
+        <add name="data" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</add>
+        <add name="count_2" type="uint64" default="0" optional="True"/>
+        <add name="count_3" type="uint64" default="0" optional="True"/>
+        <add name="minus one" type="int64" default="-1" optional="True"/>
         <add name="name b" type="Pointer" template="ZString"/>
     </compound>
 
@@ -72,7 +73,7 @@
     </compound>
 
     <compound name="MRFArray1" inherit="MemStruct" >
-        <add name="states" type="MRFEntry1" arr1="#ARG#" />
+        <add name="states_1" type="MRFEntry1" arr1="#ARG#" />
     </compound>
 
     <compound name="MotiongraphVar" inherit="MemStruct">
@@ -109,7 +110,7 @@
     </compound>
 
     <compound name="MRFArray2" inherit="MemStruct" >
-        <add name="states" type="MRFEntry2" arr1="#ARG#" />
+        <add name="states_2" type="MRFEntry2" arr1="#ARG#" />
     </compound>
 
     <compound name="MRFMember2" inherit="MemStruct">
@@ -150,8 +151,8 @@
 
     <compound name="StateArray" inherit="MemStruct">
         16 bytes
-        <add name="count" type="uint64"/>
-        <add name="ptr" type="Pointer" template="StateList" arg="count"/>
+        <add name="states count" type="uint64"/>
+        <add name="states" type="ArrayPointer" template="StateReference" arg="states count"/>
     </compound>
 
     <compound name="TransStruct" inherit="MemStruct">
@@ -187,17 +188,13 @@
         name uncertain
         40 bytes
         <add name="unk" type="uint"/>
-        <add name="activities count" type="uint"/>
-        <add name="activities" type="Pointer" template="Activities" arg="activities count"/>
-<!--        <add name="activities" type="Pointer" template="RefList" arg="activities count"/>-->
-        <add name="count 2" type="uint64"/>
+        <add name="num_activities" type="uint"/>
+        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
+        <add name="array 2 count" type="uint64"/>
         this one links to other states, infinite recursion danger
-        <add name="array 2" type="Pointer" template="TransStructStopList" arg="count 2"/>
+        <add name="array 2" type="Pointer" template="TransStructStopList" arg="array 2 count"/>
         <add name="id" type="Pointer" template="ZString"/>
     </compound>
-
-
-
 
     <compound name="XMLEntry" inherit="MemStruct">
         8 bytes
@@ -245,15 +242,10 @@
 <!--        <add name="Comment" type="Pointer" template="ZString"/>-->
     </compound>
 
-    <compound name="CurveDataPoints" inherit="MemStruct">
-        array
-        <add name="data" type="CurveDataPoint" arr1="#ARG#" />
-    </compound>
-
     <compound name="CurveData" inherit="MemStruct">
         16 bytes
         <add name="count" type="uint64"/>
-        <add name="Points" type="Pointer" template="CurveDataPoints" arg="count" />
+        <add name="Points" type="ArrayPointer" template="CurveDataPoint" arg="count" />
     </compound>
 
     <compound name="DataStreamResourceData" inherit="MemStruct">
@@ -267,15 +259,10 @@
 <!--        <add name="Comment" type="Pointer" template="ZString"/>-->
     </compound>
 
-    <compound name="DataStreamResourceDataPoints" inherit="MemStruct">
-        array
-        <add name="data" type="DataStreamResourceData" arr1="#ARG#" />
-    </compound>
-
     <compound name="DataStreamResourceDataList" inherit="MemStruct">
         16 bytes
-        <add name="count" type="uint64"/>
-        <add name="DataStreamResourceData" type="Pointer" template="DataStreamResourceDataPoints" arg="count"/>
+        <add name="DataStreamResourceData count" type="uint64"/>
+        <add name="DataStreamResourceData" type="ArrayPointer" template="DataStreamResourceData" arg="DataStreamResourceData count"/>
     </compound>
 
     <compound name="AnimationActivityData" inherit="MemStruct">
@@ -555,19 +542,11 @@
         <add name="PropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="ActivitiesLink" inherit="MemStruct">
-        <add name="linked" type="Pointer" />
-    </compound>
-
-    <compound name="ActivitiesLinks" inherit="MemStruct">
-        <add name="activities" type="ActivitiesLink" arr1="#ARG#" />
-    </compound>
-
     <compound name="SelectActivityActivityData" inherit="MemStruct">
         32 bytes
         <add name="EnumVariable" type="Pointer" template="ZString"/>
         # points to activities in the main activities array
-        <add name="Activities" type="Pointer" template="ActivitiesLinks" arg="num_activities"/>
+        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <add name="num_activities" type="uint"/>
         <add name="BlendTime" type="float"/>
         <add name="Mode" type="SelectActivityActivityMode"/>
@@ -576,15 +555,15 @@
     <compound name="GroupedActivityActivityData" inherit="MemStruct">
         ? bytes
         # points to activities in the main activities array
-        <add name="Activities" type="Pointer" template="ActivitiesLinks" arg="num_activities"/>
+        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <add name="num_activities" type="uint64"/>
     </compound>
 
     <compound name="RandomActivityActivityInfoData" inherit="MemStruct">
          bytes
         <add name="EnumVariable" type="Pointer" template="ZString"/>
-        <add name="Activities" type="Pointer" />
-        <add name="Activities count" type="uint64"/>
+        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
+        <add name="num_activities" type="uint"/>
         <add name="BlendTime" type="float"/>
         <add name="Mode" type="SelectActivityActivityMode"/>
 
@@ -632,11 +611,6 @@
     <compound name="PtrList" inherit="MemStruct">
         8 * arg bytes
         <add name="ptrs" type="SinglePtr" arr1="#ARG#" template="#T#"/>
-    </compound>
-
-    <compound name="StateList" inherit="MemStruct">
-        8 * arg bytes
-        <add name="ptrs" type="SinglePtr" arr1="#ARG#" template="State"/>
     </compound>
 
     <compound name="MotiongraphVars" inherit="MemStruct">

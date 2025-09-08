@@ -17,7 +17,7 @@ class Activity(MemStruct):
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
-		if prop == "ptr":
+		if prop == "data":
 			activity = self.data_type.data
 			key = f"{activity}Data"
 			try:
