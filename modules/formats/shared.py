@@ -3,8 +3,8 @@ import logging
 import os
 import struct
 import time
+import re
 from pathlib import Path
-
 
 def get_padding_size(size, alignment=16):
 	mod = size % alignment
@@ -38,6 +38,27 @@ def fnv1_32(b: bytes):
 		n = (n * 0x01000193) % (2**32)
 		n = n ^ byte
 	return n
+
+
+alphanum = re.compile(r"[^0-9A-Za-z]", re.IGNORECASE)
+
+
+def hash_guid(guid_str: str) -> int:
+	# Remove all non-alphanumeric characters
+	filtered = alphanum.sub("", guid_str)
+
+	# Mixed-endian byte order
+	byte_order = [3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11, 12, 13, 14, 15]
+
+	# Convert the reordered hex pairs to bytes
+	guid_bytes = bytearray()
+	for i in byte_order:
+		hex_pair = filtered[i * 2:i * 2 + 2]
+		guid_bytes.append(int(hex_pair, 16))
+
+	mask = 1073741823  # Bitmask for first 30 bits
+	hash_32 = fnv1_32(guid_bytes)
+	return (hash_32 >> 30) ^ (hash_32 & mask)  # XOR folding
 
 
 def fnv64(b: bytes):
