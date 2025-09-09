@@ -34,7 +34,7 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget(ftype="BNK")
 		self.file_widget.setHidden(True)
 
-		header_names = ["Name", "File Type", "File Size"]
+		header_names = ["Name", "Event Name", "File Type", "File Size"]
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
@@ -236,20 +236,50 @@ class MainWindow(widgets.MainWindow):
 				print(self.bnk_events.aux_b)
 				# print(self.bnk_media)
 				# print(self.bnk_media.aux_b)
-
-				# map the hirc to the wem id from events bnk
-				#todo need more lut to resolve the link between EventAction and Sound, eg. in RANDOM_OR_SEQUENCE_CONTAINER
-				event_map = {action_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.EVENT for action_id in hirc.data.action_ids }
-				hirc_map = {hirc.data.didx_id: hirc.data.id for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
-				# print(hirc_map)
+				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
+				game_obj_2_hirc = {}
 				# get the lut of fnv1 of the sound names
 				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
-				print(lut)
-				def get_name(snd_id):
-					return lut.get(snd_id, f"0x{fmt_hash(snd_id)}")
-				f_list = [(get_name(hirc_map[stream_info.event_id]), "s", stream_info.size) for stream_info in self.bnk_media.bnk_header.streams]
+				# propagate names
+				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+					hirc.name = None
+				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+					if hirc.id == HircType.EVENT:
+						# map to actions
+						name = lut.get(hirc.data.id)
+						print(name)
+						for action_id in hirc.data.action_ids:
+							action = sid_2_hirc[action_id]
+							action.name = name
+							print(f"action.name {action.name}")
+					if hirc.id == HircType.EVENT_ACTION:
+						# map by game obj
+						game_obj_2_hirc[hirc.data.game_obj] = hirc
+				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+					if hirc.id == HircType.RANDOM_OR_SEQUENCE_CONTAINER:
+						pid = hirc.data.node_base_params.direct_parent_i_d
+						if pid in game_obj_2_hirc:
+							hirc.name = game_obj_2_hirc[pid].name
+						else:
+							logging.warning(f"Parent {pid} not found")
+						for child_id in hirc.data.children:
+							child = sid_2_hirc[child_id]
+							child.name = hirc.name
+							print(f"child.name {child.name}")
+				# print(game_obj_2_hirc)
+				# map the hirc to the wem id from events bnk
+				hirc_map = {hirc.data.didx_id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
+				# print(hirc_map)
+				# print(lut)
+				def get_name(hirc):
+					if hirc.name:
+						return hirc.name
+					# return f"0x{fmt_hash(hirc.data.id)}"
+					return f""
+
+				f_list = [(fmt_hash(stream_info.event_id), get_name(hirc_map[stream_info.event_id]), "s", stream_info.size) for stream_info in self.bnk_media.bnk_header.streams]
 				if self.bnk_media.aux_b and self.bnk_media.aux_b.didx:
-					f_list.extend([(get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])
+					f_list.extend([(fmt_hash(pointer.wem_id), get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])
 				f_list.sort(key=lambda t: (t[1], t[0]))
 				self.files_container.set_data(f_list)
 			except:

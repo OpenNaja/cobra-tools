@@ -1,3 +1,4 @@
+import logging
 from ast import literal_eval
 import numpy as np
 from struct import Struct
@@ -38,6 +39,11 @@ def class_from_struct(struct, from_value_func):
 
 		@staticmethod
 		def create_array(shape, default=None, context=None, arg=0, template=None):
+			if isinstance(shape, int):
+				if shape < 0:
+					shape = 0
+			elif len(shape) == 1 and shape[0] < 0:
+				shape = (0, )
 			if default:
 				return np.full(shape, default, dtype)
 			else:

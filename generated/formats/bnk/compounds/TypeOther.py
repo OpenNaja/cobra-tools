@@ -1,9 +1,9 @@
 from generated.array import Array
-from generated.base_struct import BaseStruct
+from generated.formats.bnk.compounds.HircObject import HircObject
 from generated.formats.bnk.imports import name_type_map
 
 
-class TypeOther(BaseStruct):
+class TypeOther(HircObject):
 
 	"""
 	generic
@@ -28,4 +28,4 @@ class TypeOther(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'raw', Array, (0, None, (instance.arg,), name_type_map['Byte']), (False, None)
+		yield 'raw', Array, (0, None, (instance.arg - 4,), name_type_map['Byte']), (False, None)

@@ -292,7 +292,10 @@ class Array(list):
                 fields_str = "\n".join(lines_new)
                 return f"[\n{fields_str}]"
         else:
-            fields_str = ',\n'.join([f_type.format_indented(array[f_name], indent+INDENT_COUNT) for f_name, f_type, _, _ in cls._get_filtered_attribute_list(array, array.dtype)])
+            # include array index for easier printing
+            fields_str = ',\n'.join([
+                    f"#{i} " + f_type.format_indented(array[f_name], indent+INDENT_COUNT)
+                    for i, (f_name, f_type, _, _) in enumerate(cls._get_filtered_attribute_list(array, array.dtype))])
             return f"[\n{fields_str}]"
 
     @property

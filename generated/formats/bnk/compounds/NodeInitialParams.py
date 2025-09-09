@@ -1,3 +1,4 @@
+from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.bnk.imports import name_type_map
 
@@ -9,19 +10,25 @@ class NodeInitialParams(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ak_prop_bundle_1 = name_type_map['AkPropBundle'](self.context, 0, None)
-		self.ak_prop_bundle_2 = name_type_map['AkPropBundle'](self.context, 0, None)
+		self.c_props_1 = name_type_map['Ubyte'](self.context, 0, None)
+		self.p_props_1 = Array(self.context, 0, None, (0,), name_type_map['AkPropValue'])
+		self.c_props_2 = name_type_map['Ubyte'](self.context, 0, None)
+		self.p_props_2 = Array(self.context, 0, None, (0,), name_type_map['AkPropMinMax'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'ak_prop_bundle_1', name_type_map['AkPropBundle'], (0, None), (False, None), (None, None)
-		yield 'ak_prop_bundle_2', name_type_map['AkPropBundle'], (0, None), (False, None), (None, None)
+		yield 'c_props_1', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'p_props_1', Array, (0, None, (None,), name_type_map['AkPropValue']), (False, None), (None, None)
+		yield 'c_props_2', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'p_props_2', Array, (0, None, (None,), name_type_map['AkPropMinMax']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ak_prop_bundle_1', name_type_map['AkPropBundle'], (0, None), (False, None)
-		yield 'ak_prop_bundle_2', name_type_map['AkPropBundle'], (0, None), (False, None)
+		yield 'c_props_1', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'p_props_1', Array, (0, None, (instance.c_props_1,), name_type_map['AkPropValue']), (False, None)
+		yield 'c_props_2', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'p_props_2', Array, (0, None, (instance.c_props_2,), name_type_map['AkPropMinMax']), (False, None)

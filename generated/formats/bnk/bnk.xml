@@ -183,15 +183,22 @@
         <add name="uNumFx" type="byte"/>
     </compound>
 
-    <compound name="AkPropBundle">
-        <add name="cProps" type="ubyte"/>
-<!--        todo find dtype of pProps-->
-        <add name="pProps" type="byte" arr1="cProps"/>
+    <compound name="AkPropValue">
+        <add name="pID" type="ubyte"/>0x00 [Volume], 0x02 [Pitch]
+        <add name="value" type="float"/>apparently also uint, depends on pID
+    </compound>
+
+    <compound name="AkPropMinMax">
+        <add name="pID" type="ubyte"/>0x00 [Volume], 0x02 [Pitch]
+        <add name="min" type="float"/>apparently also uint, depends on pID
+        <add name="max" type="float"/>apparently also uint, depends on pID
     </compound>
 
     <compound name="NodeInitialParams">
-        <add name="AkPropBundle1" type="AkPropBundle"/>
-        <add name="AkPropBundle2" type="AkPropBundle"/>
+        <add name="cProps1" type="ubyte"/>
+        <add name="pProps1" type="AkPropValue" arr1="cProps1"/>
+        <add name="cProps2" type="ubyte"/>
+        <add name="pProps2" type="AkPropMinMax" arr1="cProps2"/>
     </compound>
 
     <compound name="PositioningParams">
@@ -222,10 +229,26 @@
         <add name="pStateChunks" type="ubyte" arr1="ulNumStateGroups"/>
     </compound>
 
+    <compound name="AkRTPCGraphPoint">
+        <add name="From_v" type="float"/>
+        <add name="To_v" type="float"/>
+        <add name="Interp" type="uint"/>
+    </compound>
+
+    <compound name="RTPC">
+        <add name="RTPCID" type="uint"/>
+        <add name="rtpcType" type="ubyte"/>
+        <add name="rtpcAccum" type="ubyte"/>
+        <add name="ParamID" type="ubyte"/>todo varint
+        <add name="rtpcCurveID" type="uint"/>
+        <add name="eScaling" type="ubyte"/>
+        <add name="ulSize" type="ushort"/>
+        <add name="graph" type="AkRTPCGraphPoint" arr1="ulSize"/>
+    </compound>
+
     <compound name="InitialRTPC">
         <add name="ulNumRTPC" type="ushort"/>
-<!--        todo dtype-->
-        <add name="pRTPCMgr" type="ubyte" arr1="ulNumRTPC"/>
+        <add name="pRTPCMgr" type="RTPC" arr1="ulNumRTPC"/>
     </compound>
 
     <compound name="NodeBaseParams">
@@ -260,9 +283,9 @@
         <add name="padding" type="ushort"/>apparently
     </compound>
 
-    <compound name="TypeOther">
+    <compound name="TypeOther" inherit="HircObject">
         generic
-        <add name="raw" type="byte" arr1="#ARG#">raw bytes</add>
+        <add name="raw" type="byte" arr1="#ARG# - 4">raw bytes</add>
     </compound>
 
     <compound name="HircPointer">
