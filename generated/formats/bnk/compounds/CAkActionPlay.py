@@ -1,10 +1,9 @@
 from generated.formats.bnk.compounds.HircObject import HircObject
-from generated.formats.bnk.imports import name_type_map
 
 
-class Sound(HircObject):
+class CAkActionPlay(HircObject):
 
-	__name__ = 'Sound'
+	__name__ = 'CAkActionPlay'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -15,11 +14,7 @@ class Sound(HircObject):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'ak_bank_source_data', name_type_map['AkBankSourceData'], (0, None), (False, None), (None, None)
-		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ak_bank_source_data', name_type_map['AkBankSourceData'], (0, None), (False, None)
-		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None)

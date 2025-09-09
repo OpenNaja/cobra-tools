@@ -62,7 +62,7 @@ class AuxFileContainer(BaseStruct):
 			if instance.hirc:
 				for pointer in instance.hirc.hirc_pointers:
 					if pointer.id == HircType.SOUND:
-						pointer.hash = fmt_hash(pointer.data.didx_id)
+						pointer.hash = fmt_hash(pointer.data.ak_bank_source_data.ak_media_information.source_i_d)
 			if instance.didx:
 				for pointer in instance.didx.data_pointers:
 					pointer.data = bytes(instance.data.wem_datas[pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])

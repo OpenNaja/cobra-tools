@@ -58,10 +58,84 @@
 		<option value="23" name="AudioDevice" />
     </enum>
 
-    <enum name="StreamSource" numbytes="1" storage="ubyte" default="0">
-		<option value="0" name="Embedded" />
-		<option value="1" name="Streamed" />
-		<option value="2" name="Prefetched" />
+    <enum name="AKBKSourceType" numbytes="1" storage="ubyte" default="0">
+		<option value="0" name="Data" />
+		<option value="1" name="PrefetchStreaming" />
+		<option value="2" name="Streaming" />
+    </enum>
+
+    <enum name="AkPropID" numbytes="1" storage="ubyte" default="0"><option value="0" name="Volume" />
+        <option value="1" name="LFE" />
+        <option value="2" name="Pitch" />
+        <option value="3" name="LPF" />
+        <option value="4" name="HPF" />
+        <option value="5" name="BusVolume" />
+        <option value="6" name="MakeUpGain" />
+        <option value="7" name="Priority" />
+        <option value="8" name="PriorityDistanceOffset" />
+        <option value="11" name="MuteRatio" />
+        <option value="12" name="PAN_LR" />
+        <option value="13" name="PAN_FR" />
+        <option value="14" name="CenterPCT" />
+        <option value="15" name="DelayTime" />
+        <option value="16" name="TransitionTime" />
+        <option value="17" name="Probability" />
+        <option value="18" name="DialogueMode" />
+        <option value="19" name="UserAuxSendVolume0" />
+        <option value="20" name="UserAuxSendVolume1" />
+        <option value="21" name="UserAuxSendVolume2" />
+        <option value="22" name="UserAuxSendVolume3" />
+        <option value="23" name="GameAuxSendVolume" />
+        <option value="24" name="OutputBusVolume" />
+        <option value="25" name="OutputBusHPF" />
+        <option value="26" name="OutputBusLPF" />
+        <option value="27" name="HDRBusThreshold" />
+        <option value="28" name="HDRBusRatio" />
+        <option value="29" name="HDRBusReleaseTime" />
+        <option value="30" name="HDRBusGameParam" />
+        <option value="31" name="HDRBusGameParamMin" />
+        <option value="32" name="HDRBusGameParamMax" />
+        <option value="33" name="HDRActiveRange" />
+        <option value="34" name="LoopStart" />
+        <option value="35" name="LoopEnd" />
+        <option value="36" name="TrimInTime" />
+        <option value="37" name="TrimOutTime" />
+        <option value="38" name="FadeInTime" />
+        <option value="39" name="FadeOutTime" />
+        <option value="40" name="FadeInCurve" />
+        <option value="41" name="FadeOutCurve" />
+        <option value="42" name="LoopCrossfadeDuration" />
+        <option value="43" name="CrossfadeUpCurve" />
+        <option value="44" name="CrossfadeDownCurve" />
+        <option value="45" name="MidiTrackingRootNote" />
+        <option value="46" name="MidiPlayOnNoteType" />
+        <option value="47" name="MidiTransposition" />
+        <option value="48" name="MidiVelocityOffset" />
+        <option value="49" name="MidiKeyRangeMin" />
+        <option value="50" name="MidiKeyRangeMax" />
+        <option value="51" name="MidiVelocityRangeMin" />
+        <option value="52" name="MidiVelocityRangeMax" />
+        <option value="53" name="MidiChannelMask" />
+        <option value="54" name="PlaybackSpeed" />
+        <option value="55" name="MidiTempoSource" />
+        <option value="56" name="MidiTargetNode" />
+        <option value="57" name="AttachedPluginFXID" />
+        <option value="58" name="Loop" />
+        <option value="59" name="InitialDelay" />
+        <option value="60" name="UserAuxSendLPF0" />
+        <option value="61" name="UserAuxSendLPF1" />
+        <option value="62" name="UserAuxSendLPF2" />
+        <option value="63" name="UserAuxSendLPF3" />
+        <option value="64" name="UserAuxSendHPF0" />
+        <option value="65" name="UserAuxSendHPF1" />
+        <option value="66" name="UserAuxSendHPF2" />
+        <option value="67" name="UserAuxSendHPF3" />
+        <option value="68" name="GameAuxSendLPF" />
+        <option value="69" name="GameAuxSendHPF" />
+        <option value="70" name="AttenuationID" />
+        <option value="71" name="PositioningTypeBlend" />
+        <option value="72" name="ReflectionBusVolume" />
+        <option value="73" name="PAN_UD" />
     </enum>
 
     <enum name="ActionScope" numbytes="1" storage="ubyte" default="0">
@@ -78,32 +152,16 @@
     </compound>
 
     <compound name="Sound" inherit="HircObject">
-        <add name="const a" type="uint" >four unknown bytes</add>
-        <add name="source" type="StreamSource" >whether the sound is included in the SoundBank or streamed</add>
-        <add name="didx id" type="uint" >?</add>
-        <add name="wem length" type="uint" >?</add> cond="source #EQ# 0"
-
-        <add name="extra" type="byte" arr1="#ARG# - 17" >?</add>length
-       # the more precise spec below does not work for JWE2 dinos
-        #offset to wem?
-<!--        <add name="zero" type="uint64" >?</add>-->
-<!--        <add name="some id" type="uint" >?</add>-->
-<!--        <add name="zero2" type="ubyte" >?</add>-->
-<!--        <add name="some_count" type="ubyte" >?</add>-->
-<!--        <add name="some_types" type="ubyte" arr1="some_count" >?</add>-->
-<!--        <add name="some_values" type="uint" arr1="some_count" >?</add>-->
-<!--        <add name="other_flag" type="ubyte" >?</add>-->
-<!--        # extra instead of below, but doesn't work for some reason-->
-<!--&lt;!&ndash;        <add name="other_count" type="ubyte" cond="other_flag #EQ# 1">?</add>&ndash;&gt;-->
-<!--&lt;!&ndash;        <add name="other_values" type="uint"  cond="other_flag #EQ# 1" arr1="other_count" >?</add>&ndash;&gt;-->
-<!--        <add name="extra" type="byte" arr1="#ARG# - (48 + (some_count * 5))" >?</add>-->length
-<!--        <add name="zeros3" type="ubyte" arr1="7">?</add>-->
-<!--        <add name="rest" type="ubyte" arr1="9" >?</add>-->
+        <add name="AkBankSourceData" type="AkBankSourceData"/>
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
     </compound>
 
     <compound name="Event" inherit="HircObject">
         <add name="num actions" type="ubyte"/>
         <add name="action ids" type="uint" arr1="num_actions"/>
+    </compound>
+
+    <compound name="CAkActionPlay" inherit="HircObject">
     </compound>
 
     <compound name="EventAction" inherit="HircObject">
@@ -162,10 +220,17 @@
         <add name="uSourceBits" type="ubyte"/>
     </compound>
 
+	<bitfield name="ulPluginID" storage="uint">
+		<member width="16" pos="16" name="plugin_id" type="int"/>
+		<member width="12" pos="4" name="company_id" type="int"/>
+		<member width="4" pos="0" name="plugin_type" type="int"/>
+	</bitfield>
+
     <compound name="AkBankSourceData">
-        <add name="ulPluginID" type="uint"/>
-        <add name="StreamType" type="ubyte"/>
+        <add name="ulPluginID" type="ulPluginID"/>
+        <add name="StreamType" type="AKBKSourceType"/>
         <add name="AkMediaInformation" type="AkMediaInformation"/>
+        <add name="size" type="uint" cond="ulPluginID\plugin_type #EQ# 2"/>
     </compound>
 
     <compound name="AkTrackSrcInfo">
@@ -178,18 +243,27 @@
         <add name="fSrcDuration" type="double"/>
     </compound>
 
+    <compound name="FXChunk">
+        <add name="uFXIndex" type="byte"/>
+        <add name="fxID" type="byte"/>
+        <add name="bIsShareSet" type="byte"/>
+        <add name="bIsRendered" type="byte" />
+    </compound>
+
     <compound name="NodeInitialFxParams">
         <add name="bIsOverrideParentFX" type="byte"/>
         <add name="uNumFx" type="byte"/>
+        <add name="bitsFXBypass" type="byte" cond="uNumFx"/>
+        <add name="fx" type="FXChunk" arr1="uNumFx"/>
     </compound>
 
     <compound name="AkPropValue">
-        <add name="pID" type="ubyte"/>0x00 [Volume], 0x02 [Pitch]
+        <add name="pID" type="AkPropID"/>
         <add name="value" type="float"/>apparently also uint, depends on pID
     </compound>
 
     <compound name="AkPropMinMax">
-        <add name="pID" type="ubyte"/>0x00 [Volume], 0x02 [Pitch]
+        <add name="pID" type="AkPropID"/>
         <add name="min" type="float"/>apparently also uint, depends on pID
         <add name="max" type="float"/>apparently also uint, depends on pID
     </compound>
@@ -218,15 +292,34 @@
         <add name="byBitVector" type="ubyte"/>
     </compound>
 
+    <compound name="AkStatePropertyInfo">
+<!--        todo varint-->
+        <add name="PropertyId" type="ubyte"/>
+        <add name="accumType" type="ubyte" />
+        <add name="inDb" type="ubyte" />
+    </compound>
+
+    <compound name="AkState">
+        <add name="ulStateID" type="uint"/>
+        <add name="ulStateInstanceID" type="uint"/>
+    </compound>
+
+    <compound name="AkStateGroupChunk">
+        <add name="ulStateGroupID" type="uint"/>
+        <add name="eStateSyncType" type="ubyte" />
+<!--        todo varint-->
+        <add name="ulNumStates" type="ubyte" />
+        <add name="states" type="AkState" arr1="ulNumStates"/>
+    </compound>
+
+
     <compound name="StateChunk">
 <!--        todo varint-->
         <add name="ulNumStateProps" type="ubyte"/>
-<!--        todo dtype-->
-        <add name="stateProps" type="ubyte" arr1="ulNumStateProps"/>
+        <add name="stateProps" type="AkStatePropertyInfo" arr1="ulNumStateProps"/>
 <!--        todo varint-->
         <add name="ulNumStateGroups" type="ubyte"/>
-<!--        todo dtype-->
-        <add name="pStateChunks" type="ubyte" arr1="ulNumStateGroups"/>
+        <add name="stateGroups" type="AkStateGroupChunk" arr1="ulNumStateGroups"/>
     </compound>
 
     <compound name="AkRTPCGraphPoint">

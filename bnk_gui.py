@@ -233,7 +233,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
-				print(self.bnk_events.aux_b)
+				logging.info(self.bnk_events.aux_b)
 				# print(self.bnk_media)
 				# print(self.bnk_media.aux_b)
 				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
@@ -247,11 +247,11 @@ class MainWindow(widgets.MainWindow):
 					if hirc.id == HircType.EVENT:
 						# map to actions
 						name = lut.get(hirc.data.id)
-						print(name)
+						# print(name)
 						for action_id in hirc.data.action_ids:
 							action = sid_2_hirc[action_id]
 							action.name = name
-							print(f"action.name {action.name}")
+							# print(f"action.name {action.name}")
 					if hirc.id == HircType.EVENT_ACTION:
 						# map by game obj
 						game_obj_2_hirc[hirc.data.game_obj] = hirc
@@ -265,10 +265,10 @@ class MainWindow(widgets.MainWindow):
 						for child_id in hirc.data.children:
 							child = sid_2_hirc[child_id]
 							child.name = hirc.name
-							print(f"child.name {child.name}")
+							# print(f"child.name {child.name}")
 				# print(game_obj_2_hirc)
 				# map the hirc to the wem id from events bnk
-				hirc_map = {hirc.data.didx_id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
+				hirc_map = {hirc.data.ak_bank_source_data.ak_media_information.source_i_d: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
 				# print(hirc_map)
 				# print(lut)
 				def get_name(hirc):

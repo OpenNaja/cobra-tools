@@ -2,11 +2,11 @@ from generated.base_enum import BaseEnum
 from generated.formats.base.basic import Ubyte
 
 
-class StreamSource(BaseEnum):
+class AKBKSourceType(BaseEnum):
 
-	__name__ = 'StreamSource'
+	__name__ = 'AKBKSourceType'
 	_storage = Ubyte
 
-	EMBEDDED = 0
-	STREAMED = 1
-	PREFETCHED = 2
+	DATA = 0
+	PREFETCH_STREAMING = 1
+	STREAMING = 2
