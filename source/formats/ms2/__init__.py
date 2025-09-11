@@ -148,9 +148,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if self.buffer_infos and self.info.static_buffer_index > -1:
 			i = self.info.static_buffer_index
 			# hack for DLA, static buffer index is different here
+			# arcade_ridequeue_: vertex_buffer_count = 1, static = 1 -> static index 0
+			# mr_front_: vertex_buffer_count = 2, static = 1 -> static index 1
 			if self.context.version == 7:
-				i = 0
-			# ZTUAC does not use static_buffer_index eg.
+				i = self.info.vertex_buffer_count - i
+			# ZTUAC does not use static_buffer_index e.g.
 			# * vertex_buffer_count = 4
 			# * static_buffer_index = 3
 			# all four buffer_infos use modelstream files, and ms2 just has names and bones buffers
@@ -175,6 +177,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
 		logging.debug(f"Attaching streams to {buffer_info.name}")
+		logging.debug(buffer_info)
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
@@ -183,7 +186,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				logging.debug(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
 				# dump each for easy debugging
-				if dump:
+				if dump and b:
 					with open(f"{self.filepath}_{buffer_name}.dmp", "wb") as f:
 						f.write(b)
 			else:
