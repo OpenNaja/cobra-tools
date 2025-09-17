@@ -47,6 +47,7 @@ texchannels = {
 	'pIridescenceStrength': {"": "IM"},
 	'pIridescenceTexture': {"": "IR"},
 	'pLeucisticBaseColourAndMaskTexture': {"RGB": "LE", "A": "LE_HM"},
+	'pLeucisticColourAndMaskTexture': {"RGB": "LE", "A": "LE_HM"},  # seems to be a modded name
 	'pMacroDamageBlendMap': {"": ""},
 	'pMacroDiffuse': {"": ""},
 	'pMarkingNoise': {"": "MN"},

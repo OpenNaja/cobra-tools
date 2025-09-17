@@ -354,7 +354,7 @@ class DdsLoader(MemStructLoader):
 				png_path = imarray.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
 				return self.load_png(png_path, tmp_dir)
 			except FileNotFoundError:
-				# logging.exception("file missing")
+				logging.exception("Could not convert to .dds due to missing .png")
 				return None
 
 	def get_names(self, file_path):

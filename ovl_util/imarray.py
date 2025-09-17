@@ -131,7 +131,8 @@ def get_split_mode(game, png_name, compression):
 		# prioritize game-based hand rolled dicts
 		all_tex_channels = constants[game]["texchannels"]
 		all_tex_channels_lower = {tex_type.lower(): tex_channels for tex_type, tex_channels in all_tex_channels.items()}
-		tex_channels_map = all_tex_channels_lower.get(tex_type[1:])  # strip the leading .
+		tex_id = tex_type[1:].split("_")[0]  # strip the leading . and remove any array suffices
+		tex_channels_map = all_tex_channels_lower.get(tex_id)
 		suggested_channels = set(tex_channels_map.keys())
 		# remove empty channel ids
 		valid_channels = [channel_id for channel_id in suggested_channels if channel_id]
@@ -152,7 +153,7 @@ def get_split_mode(game, png_name, compression):
 		out_channels = sorted(out_channels, key=lambda k: "RGBA".index(k[0]))
 		return "_".join(out_channels)  # ignore empty identifiers = RGBA
 	except:
-		logging.warning(f"Game based splitting failed, falling back on legacy splitting rules")
+		logging.exception(f"Game based splitting failed, falling back on legacy splitting rules")
 
 	if check_any(("BC5",), compression):
 		# two channels
@@ -209,6 +210,10 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 		im = None
 		for ch_name, ch_slice in channel_iter(channels):
 			tile_png_path = f"{path_basename}_{ch_name}{ext}"
+			if not os.path.isfile(tile_png_path):
+				raise FileNotFoundError(f"Tile {os.path.basename(tile_png_path)} of {channels} does not exist")
+				# logging.warning(f"Tile {os.path.basename(tile_png_path)} of {channels} does not exist")
+				# continue
 			tile = imread(tile_png_path)
 			if im is None:
 				im = np.zeros(tile.shape, dtype=np.uint8)
