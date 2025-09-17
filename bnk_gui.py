@@ -280,8 +280,8 @@ class MainWindow(widgets.MainWindow):
 						pid = hirc.data.node_base_params.direct_parent_i_d
 						if pid in game_obj_2_hirc:
 							hirc.name = game_obj_2_hirc[pid].name
-						else:
-							logging.warning(f"Parent {pid} not found")
+						# else:
+						# 	logging.warning(f"Parent {pid} not found")
 						for child_id in hirc.data.children:
 							child = sid_2_hirc[child_id]
 							child.name = hirc.name

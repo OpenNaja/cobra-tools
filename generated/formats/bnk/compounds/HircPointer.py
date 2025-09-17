@@ -58,8 +58,10 @@ class HircPointer(BaseStruct):
 		except:
 			logging.warning(f"HIRC block {instance.id} at offset {instance.io_start} failed to read")
 			stream.seek(instance.data.io_start + instance.length)
-			return
+			# return
+			raise IOError("Reading failed")
 		if instance.data.io_size != instance.length:
 			logging.warning(f"HIRC block {instance.id} at offset {instance.io_start} expected {instance.length}, but read {instance.data.io_size} bytes")
 			stream.seek(instance.data.io_start + instance.length)
 			logging.warning(instance)
+			raise IOError("Reading failed")

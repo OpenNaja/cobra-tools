@@ -1,3 +1,4 @@
+from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.bnk.imports import name_type_map
 
@@ -12,6 +13,7 @@ class NodeBaseParams(BaseStruct):
 		self.node_initial_fx_params = name_type_map['NodeInitialFxParams'](self.context, 0, None)
 		self.b_is_override_parent_metadata = name_type_map['Byte'](self.context, 0, None)
 		self.u_num_fx = name_type_map['Byte'](self.context, 0, None)
+		self.fx = Array(self.context, 0, None, (0,), name_type_map['FXChunkBase'])
 		self.b_override_attachment_params = name_type_map['Byte'](self.context, 0, None)
 		self.override_bus_id = name_type_map['Uint'](self.context, 0, None)
 		self.direct_parent_i_d = name_type_map['Uint'](self.context, 0, None)
@@ -29,8 +31,9 @@ class NodeBaseParams(BaseStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'node_initial_fx_params', name_type_map['NodeInitialFxParams'], (0, None), (False, None), (None, None)
-		yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None), (None, None)
-		yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 140, None)
+		yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 140, None)
+		yield 'fx', Array, (0, None, (None,), name_type_map['FXChunkBase']), (False, None), (lambda context: context.version >= 140, None)
 		yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None), (None, None)
 		yield 'override_bus_id', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'direct_parent_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -46,8 +49,10 @@ class NodeBaseParams(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'node_initial_fx_params', name_type_map['NodeInitialFxParams'], (0, None), (False, None)
-		yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None)
-		yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None)
+		if instance.context.version >= 140:
+			yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None)
+			yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None)
+			yield 'fx', Array, (0, None, (instance.u_num_fx,), name_type_map['FXChunkBase']), (False, None)
 		yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None)
 		yield 'override_bus_id', name_type_map['Uint'], (0, None), (False, None)
 		yield 'direct_parent_i_d', name_type_map['Uint'], (0, None), (False, None)

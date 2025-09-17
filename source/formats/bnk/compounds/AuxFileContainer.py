@@ -34,6 +34,7 @@ class AuxFileContainer(BaseStruct):
 				chunk_id = stream.read(4)
 				after_size_pos = stream.tell() + 4
 				logging.debug(f"reading chunk {chunk_id} at {stream.tell()}")
+				logging.debug(f"version={instance.context.version}")
 				if chunk_id == b"BKHD":
 					instance.bhkd = BKHDSection.from_stream(stream, instance.context, 0, None)
 					# print(instance.bhkd)
