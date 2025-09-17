@@ -96,6 +96,12 @@ class MainWindow(widgets.MainWindow):
 			if os.path.isdir(sub_dir_path):
 				yield sub_dir_path
 
+	def get_ovl_files(self, dir_path):
+		for name in os.listdir(dir_path):
+			file_path = os.path.join(dir_path, name)
+			if os.path.isfile(file_path) and file_path.endswith(".ovl"):
+				yield file_path
+
 	def clear_tmp_dir(self):
 		for fp in os.listdir(self.tmp_dir):
 			os.remove(os.path.join(self.tmp_dir, fp))
@@ -110,24 +116,38 @@ class MainWindow(widgets.MainWindow):
 			for cp in self.get_subfolders(game_dir):
 				audio_dir = os.path.join(cp, "Audio")
 				if os.path.isdir(audio_dir):
-					cp_name = os.path.basename(cp)
-					cp_item = QtWidgets.QTreeWidgetItem(self.bnks_tree)
-					cp_item.setText(0, cp_name)
-					cp_item.setIcon(0, get_icon("dir"))
 					cp_map = {}
+					cp_name = os.path.basename(cp)
 					self.bnk_map[cp_name] = cp_map
-					for bnk_dir in self.get_subfolders(audio_dir):
-						bnk_name = os.path.basename(bnk_dir)
-						for s in suffices:
-							bnk_name = bnk_name.removesuffix(s)
-							bnk_name = bnk_name.removesuffix(s.lower())
-						if bnk_name not in cp_map:
-							cp_map[bnk_name] = []
-						cp_map[bnk_name].append(bnk_dir)
-					for bnk_name in sorted(cp_map.keys()):
-						bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
-						bnk_item.setText(0, bnk_name)
-						bnk_item.setIcon(0, get_icon("bnk"))
+					if game == "Planet Coaster 2":
+						# todo better logic for finding paths
+						# PC2: misses loc ovls?
+						# subfolder and separate ovls
+						for bnk_dir in self.get_subfolders(audio_dir):
+							bnk_name = os.path.basename(bnk_dir)
+							for s in suffices:
+								bnk_name = bnk_name.removesuffix(s)
+								bnk_name = bnk_name.removesuffix(s.lower())
+							for ovl_path in self.get_ovl_files(bnk_dir):
+								self.store_bnk_ref(ovl_path, bnk_name, cp_map)
+					else:
+						# ovls directly in audio dir
+						for ovl_path in self.get_ovl_files(audio_dir):
+							bnk_name = os.path.splitext(os.path.basename(ovl_path))[0]
+							self.store_bnk_ref(ovl_path, bnk_name, cp_map)
+		for cp_name, cp_map in sorted(self.bnk_map.items()):
+			cp_item = QtWidgets.QTreeWidgetItem(self.bnks_tree)
+			cp_item.setText(0, cp_name)
+			cp_item.setIcon(0, get_icon("dir"))
+			for bnk_name in sorted(cp_map.keys()):
+				bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
+				bnk_item.setText(0, bnk_name)
+				bnk_item.setIcon(0, get_icon("bnk"))
+
+	def store_bnk_ref(self, ovl_path, bnk_name, cp_map):
+		if bnk_name not in cp_map:
+			cp_map[bnk_name] = []
+		cp_map[bnk_name].append(ovl_path)
 
 	def get_parents(self, item):
 		names = [item.text(0), ]
@@ -143,27 +163,16 @@ class MainWindow(widgets.MainWindow):
 			bnk = names[-1]
 			self.clear_tmp_dir()
 			self.setWindowTitle("BNK Editor", file=bnk)
-			bnk_dirs = self.bnk_map[cp][bnk]
-			for bnk_dir in bnk_dirs:
-				for s in suffices:
-					# load ovls with bnk files from those paths
-					# todo better logic for finding paths
-					# PC2: misses loc ovls
-					filepath = os.path.join(bnk_dir, f"{bnk}{s}.ovl")
-					if os.path.isfile(filepath):
-						ovl_data = OvlFile()
-						ovl_data.load(filepath, {"game": self.game_choice.entry.currentText(), })
-						fps = ovl_data.extract(self.tmp_dir)
-						if s == "_Media":
-							for fp in fps:
-								if fp.endswith(".bnk"):
-									self.filepath_media = fp
-									# self.open(fp)
-						elif s == "_Events":
-							# todo load events and store handles to each bnk
-							for fp in fps:
-								if fp.endswith(".bnk"):
-									self.filepath_events = fp
+			ovl_paths = self.bnk_map[cp][bnk]
+			for ovl_path in ovl_paths:
+				ovl_data = OvlFile()
+				ovl_data.load(ovl_path, {"game": self.game_choice.entry.currentText(), })
+				for fp in ovl_data.extract(self.tmp_dir):
+					if fp.endswith(".bnk"):
+						if "_events" in fp.lower():
+							self.filepath_events = fp
+						if "_media" in fp.lower():
+							self.filepath_media = fp
 			self.open("")
 
 	def extract_audio(self, out_dir, hashes=()):
@@ -241,9 +250,12 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
-				logging.info(self.bnk_events.aux_b)
+				# logging.info(self.bnk_events.aux_b)
 				# print(self.bnk_media)
 				# print(self.bnk_media.aux_b)
+				if not self.bnk_events.aux_b.hirc:
+					logging.warning("No hirc found")
+					return
 				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
 				game_obj_2_hirc = {}
 				# get the lut of fnv1 of the sound names

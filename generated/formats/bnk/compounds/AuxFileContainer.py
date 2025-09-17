@@ -69,7 +69,6 @@ class AuxFileContainer(BaseStruct):
 					pointer.hash = fmt_hash(pointer.wem_id)
 					pointer.pad = b""
 		except:
-			print(instance)
 			raise
 
 	def inject_audio(self, wem_path, wem_id):
