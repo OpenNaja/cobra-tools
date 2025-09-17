@@ -15,6 +15,7 @@ class MotiongraphLoader(MemStructLoader):
 		return self.ovl.cfg.get("motiongraph_rename_sound", False)
 	
 	def collect(self):
+		self.context.recursion = {}
 		if self.ovl.version >= 19:
 			# structs are too different, doesn't register anim names, would break rename contents
 			if ovl_versions.is_jwe(self.ovl):

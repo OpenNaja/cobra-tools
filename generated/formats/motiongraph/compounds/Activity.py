@@ -19,7 +19,8 @@ class Activity(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.count_2 = name_type_map['Uint64'].from_value(0)
 		self.count_3 = name_type_map['Uint64'].from_value(0)
-		self.minus_one = name_type_map['Int64'].from_value(-1)
+		self.index_a = name_type_map['Int'].from_value(-1)
+		self.index_b = name_type_map['Int'].from_value(-1)
 		self.data_type = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 
 		# template has to be defined according to data type ie 'AnimationActivity' + 'Data'
@@ -35,7 +36,8 @@ class Activity(MemStruct):
 		yield 'data', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 		yield 'count_2', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 		yield 'count_3', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
-		yield 'minus_one', name_type_map['Int64'], (0, None), (True, -1), (None, None)
+		yield 'index_a', name_type_map['Int'], (0, None), (True, -1), (None, None)
+		yield 'index_b', name_type_map['Int'], (0, None), (True, -1), (None, None)
 		yield 'name_b', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
@@ -45,7 +47,8 @@ class Activity(MemStruct):
 		yield 'data', name_type_map['Pointer'], (0, None), (False, None)
 		yield 'count_2', name_type_map['Uint64'], (0, None), (True, 0)
 		yield 'count_3', name_type_map['Uint64'], (0, None), (True, 0)
-		yield 'minus_one', name_type_map['Int64'], (0, None), (True, -1)
+		yield 'index_a', name_type_map['Int'], (0, None), (True, -1)
+		yield 'index_b', name_type_map['Int'], (0, None), (True, -1)
 		yield 'name_b', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 
 	def get_ptr_template(self, prop):

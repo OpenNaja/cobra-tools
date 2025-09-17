@@ -88,7 +88,21 @@ class Pointer(BaseStruct):
 			# we are now (potentially) in a new pool
 			self.pool_type = self.target_pool.type
 			stream = self.target_pool.stream_at(self.target_offset)
+			# this is a rather hacky implementation for motiongraph
+			if hasattr(self.context, "recursion"):
+				if self.template and link in self.context.recursion:
+					data = self.context.recursion[link]
+					# activity names must be allowed to be reused
+					if isinstance(data, str):
+						self.data = data
+					else:
+						# anything else could break from recursion during printing
+						self.data = None
+					return
 			self.read_template(stream)
+			if hasattr(self.context, "recursion"):
+				if self.template:
+					self.context.recursion[link] = self.data
 
 	def read_template(self, stream):
 		if self.template:

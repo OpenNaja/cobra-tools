@@ -7,7 +7,7 @@
     <compound name="MotiongraphHeader" inherit="MemStruct">
         # if self.ovl.context.version > 47:
         <add name="root_frag" type="Pointer" template="MotiongraphRootFrag"/>not (always?) used in PC2
-        points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
+        points to all data of size 40 used in MRF_Reference1 if lua is MotionGraph.StateOutput
         <add name="state output entries" type="Pointer" template="StateArray"/>
         <add name="MGTwo" type="Pointer" template="MGTwo"/>
         when enabled, creates a giant tree
@@ -41,7 +41,7 @@
         <add name="ptr_1" type="Pointer" template="MRFArray1" />
 
         <add name="count_2" type="uint64"/>
-        <add name="ptr_2" type="Pointer" template="MRFArray2" arg="count_2"/>
+        <add name="ptr_2" type="ArrayPointer" template="MRF_Reference2" arg="count_2"/>
 
         <add name="num_xmls" type="uint64"/>
         <add name="ptr_xmls" type="Pointer" template="XMLArray" arg="num_xmls"/>
@@ -63,17 +63,18 @@
         <add name="data" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</add>
         <add name="count_2" type="uint64" default="0" optional="True"/>
         <add name="count_3" type="uint64" default="0" optional="True"/>
-        <add name="minus one" type="int64" default="-1" optional="True"/>
+        <add name="index_a" type="int" default="-1" optional="True"/>
+        <add name="index_b" type="int" default="-1" optional="True"/>
         <add name="name b" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="MRFEntry1" inherit="MemStruct">
+    <compound name="MRF_Reference1" inherit="MemStruct">
         8 bytes
         <add name="value" type="Pointer" template="MRFMember1"/>
     </compound>
 
     <compound name="MRFArray1" inherit="MemStruct" >
-        <add name="states_1" type="MRFEntry1" arr1="#ARG#" />
+        <add name="states_1" type="MRF_Reference1" arr1="#ARG#" />
     </compound>
 
     <compound name="MotiongraphVar" inherit="MemStruct">
@@ -104,13 +105,9 @@
         <add name="id" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="MRFEntry2" inherit="MemStruct">
+    <compound name="MRF_Reference2" inherit="MemStruct">
         8 bytes
         <add name="value" type="Pointer" template="MRFMember2" />
-    </compound>
-
-    <compound name="MRFArray2" inherit="MemStruct" >
-        <add name="states_2" type="MRFEntry2" arr1="#ARG#" />
     </compound>
 
     <compound name="MRFMember2" inherit="MemStruct">
@@ -145,7 +142,7 @@
         <add name="ptr 0" type="Pointer" template="PtrList" arg="count_1" />
 
         <add name="count_2" type="uint64"/>
-        <add name="ptr 1" type="Pointer" template="TransStructArray" arg="count_2"/>
+        <add name="ptr 1" type="ArrayPointer" template="TransStruct" arg="count_2"/>
         <add name="id" type="Pointer" template="ZString"/>
     </compound>
 
@@ -157,31 +154,15 @@
 
     <compound name="TransStruct" inherit="MemStruct">
         24 bytes
-        <add name="another mrfentry2" type="Pointer" />
+        <add name="another MRF_Reference2" type="Pointer" />
         links to other states
         <add name="states" type="StateArray" />
-    </compound>
-
-    <compound name="TransStructArray" inherit="MemStruct">
-        <add name="array" type="TransStruct" arr1="#ARG#"/>
     </compound>
 
     <compound name="MGTwo" inherit="MemStruct">
         16 bytes
         <add name="count" type="uint64"/>
         <add name="ptr" type="Pointer" template="PtrList" arg="count"/>
-    </compound>
-
-    <compound name="TransStructStop" inherit="MemStruct">
-        24 bytes
-        actually same as above, just don't keep reading here
-        <add name="another mrfentry2" type="Reference" />
-        links to other states,
-        <add name="other states" type="MGTwo" />
-    </compound>
-
-    <compound name="TransStructStopList" inherit="MemStruct">
-        <add name="ptrs" type="TransStructStop" arr1="#ARG#" />
     </compound>
 
     <compound name="State" inherit="MemStruct">
@@ -192,7 +173,7 @@
         <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <add name="array 2 count" type="uint64"/>
         this one links to other states, infinite recursion danger
-        <add name="array 2" type="Pointer" template="TransStructStopList" arg="array 2 count"/>
+        <add name="array 2" type="ArrayPointer" template="TransStruct" arg="array 2 count"/>
         <add name="id" type="Pointer" template="ZString"/>
     </compound>
 

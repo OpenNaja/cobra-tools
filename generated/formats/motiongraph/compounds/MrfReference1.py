@@ -2,13 +2,13 @@ from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class MRFEntry1(MemStruct):
+class MrfReference1(MemStruct):
 
 	"""
 	8 bytes
 	"""
 
-	__name__ = 'MRFEntry1'
+	__name__ = 'MRF_Reference1'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
