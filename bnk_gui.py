@@ -250,7 +250,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
-				# logging.info(self.bnk_events.aux_b)
+				logging.info(self.bnk_events.aux_b)
 				# print(self.bnk_media)
 				# print(self.bnk_media.aux_b)
 				if not self.bnk_events.aux_b.hirc:
@@ -274,7 +274,10 @@ class MainWindow(widgets.MainWindow):
 							# print(f"action.name {action.name}")
 					if hirc.id == HircType.EVENT_ACTION:
 						# map by game obj
+						print(sid_2_hirc.get(hirc.data.game_obj))
 						game_obj_2_hirc[hirc.data.game_obj] = hirc
+						# action = sid_2_hirc[hirc.data.extra_id]
+						# action.name = hirc.name
 				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 					if hirc.id == HircType.RANDOM_OR_SEQUENCE_CONTAINER:
 						pid = hirc.data.node_base_params.direct_parent_i_d
@@ -296,7 +299,7 @@ class MainWindow(widgets.MainWindow):
 						return hirc.name
 					# return f"0x{fmt_hash(hirc.data.id)}"
 					return f""
-
+				print([pointer.wem_id for pointer in self.bnk_media.aux_b.didx.data_pointers])
 				f_list = [(fmt_hash(stream_info.event_id), get_name(hirc_map[stream_info.event_id]), "s", stream_info.size) for stream_info in self.bnk_media.bnk_header.streams]
 				if self.bnk_media.aux_b and self.bnk_media.aux_b.didx:
 					f_list.extend([(fmt_hash(pointer.wem_id), get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])

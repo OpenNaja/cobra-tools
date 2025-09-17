@@ -147,6 +147,54 @@
 		<option value="9" name="AllExceptId" />
     </enum>
 
+    <enum name="ActionType" numbytes="1" storage="ubyte" default="0">
+        <option value="0x00" name="None" />
+        <option value="0x12" name="SetState" />
+        <option value="0x1A" name="BypassFX" />
+        <option value="0x1B" name="ResetBypassFX" />
+        <option value="0x19" name="SetSwitch" />
+        <option value="0x10" name="UseState" />
+        <option value="0x11" name="UnuseState" />
+        <option value="0x04" name="Play" />
+        <option value="0x05" name="PlayAndContinue" />
+        <option value="0x01" name="Stop" />
+        <option value="0x02" name="Pause" />
+        <option value="0x03" name="Resume" />
+        <option value="0x1C" name="Break" />
+        <option value="0x06" name="Mute" />
+        <option value="0x07" name="Unmute" />
+        <option value="0x0A" name="SetVolume" />
+        <option value="0x0B" name="ResetVolume" />
+        <option value="0x08" name="SetPitch" />
+        <option value="0x09" name="ResetPitch" />
+        <option value="0x0E" name="SetLPF" />
+        <option value="0x0F" name="ResetLPF" />
+        <option value="0x20" name="SetHPF" />
+        <option value="0x30" name="ResetHPF" />
+        <option value="0x0C" name="SetBusVolume" />
+        <option value="0x0D" name="ResetBusVolume" />
+        <option value="0x21" name="PlayEvent" />
+        <option value="0x15" name="StopEvent" />
+        <option value="0x16" name="PauseEvent" />
+        <option value="0x17" name="ResumeEvent" />
+        <option value="0x18" name="Duck" />
+        <option value="0x1D" name="Trigger" />
+        <option value="0x1E" name="Seek" />
+        <option value="0x22" name="ResetPlaylist" />
+        <option value="0x13" name="SetGameParameter" />
+        <option value="0x14" name="ResetGameParameter" />
+        <option value="0x1F" name="Release" />
+        <option value="0x23" name="PlayEventUnknown_O" />
+        <option value="0x31" name="SetFX" />
+        <option value="0x32" name="ResetSetFX" />
+        <option value="0x40" name="NoOp" />
+        <option value="0x33" name="SetBypassFXSlot" />
+        <option value="0x34" name="ResetBypassFXSlot" />
+        <option value="0x35" name="SetBypassAllFX" />
+        <option value="0x36" name="ResetBypassAllFX" />
+        <option value="0x37" name="ResetAllBypassFX" />
+    </enum>
+
     <compound name="HircObject">
         <add name="id" type="uint" >id of this Sound SFX object</add>
     </compound>
@@ -166,24 +214,20 @@
 
     <compound name="EventAction" inherit="HircObject">
         <add name="scope" type="ActionScope"/>
-        <add name="action_type" type="ubyte"/>
+        <add name="action_type" type="ActionType"/>
         <add name="game obj" type="uint" />
         <add name="idExt_4" type="ubyte"/>
-        <add name="num_params" type="ubyte"/>
-        <add name="params" type="ubyte" arr1="num_params"/>
-        <add name="params_types" type="uint" arr1="num_params"/>
-        <add name="zero2" type="ubyte"/>
-        <add name="raw" type="byte" arr1="#ARG# - ( 13 + (num_params * 5))">instead of the stuff below</add>
-<!--        todo the spec below is incomplete for the action types-->
-<!--        <add name="four" type="ubyte"/>-->
-<!--        <add name="flag" type="ubyte"/>-->
+        # instead of the stuff below?
+        <add name="NodeInitialParams" type="NodeInitialParams"/>
+<!--        <add name="num_params" type="ubyte"/>-->
+<!--        <add name="params" type="ubyte" arr1="num_params"/>-->
+<!--        <add name="num_params_types" type="ubyte"/>-->
+<!--        <add name="params_types" type="uint" arr1="num_params_types"/>-->
+
 <!--        the following is conditional on action type-->
-<!--        <add name="extra id" type="ushort" cond="action_type #EQ# 4" />-->
-<!--        <add name="State Group id" type="uint" cond="action_type #EQ# 18"/>-->
-<!--        <add name="State id" type="uint" cond="action_type #EQ# 18"/>-->
-<!--        <add name="Switch Group id" type="uint" cond="action_type #EQ# 25"/>-->
-<!--        <add name="Switch id" type="uint" cond="action_type #EQ# 25"/>-->
-<!--        <add name="end flag" type="ubyte"/>0 or 1-->
+        <add name="raw" type="byte" arr1="#ARG# - ( 11 + (NodeInitialParams\io_size))" cond="action_type != 4"/>
+        <add name="byBitVector" type="ubyte" default="4" cond="action_type #EQ# 4" />
+        <add name="bankID" type="uint" cond="action_type #EQ# 4" />
     </compound>
 
     <compound name="AkPlaylistItem">

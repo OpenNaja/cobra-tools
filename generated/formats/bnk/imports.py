@@ -51,6 +51,7 @@ type_module_name_map = {
 	'AKBKSourceType': 'generated.formats.bnk.enums.AKBKSourceType',
 	'AkPropID': 'generated.formats.bnk.enums.AkPropID',
 	'ActionScope': 'generated.formats.bnk.enums.ActionScope',
+	'ActionType': 'generated.formats.bnk.enums.ActionType',
 	'HircObject': 'generated.formats.bnk.compounds.HircObject',
 	'Sound': 'generated.formats.bnk.compounds.Sound',
 	'Event': 'generated.formats.bnk.compounds.Event',
