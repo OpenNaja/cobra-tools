@@ -44,19 +44,27 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.files_dropped.connect(self.inject_files)
 
 		self.bnk_map = {}
-		self.tree = QtWidgets.QTreeWidget(self)
-		self.tree.setColumnCount(1)
-		self.tree.setHeaderHidden(True)
-		self.tree.itemDoubleClicked.connect(self.bnk_selected)
+		self.bnks_tree = QtWidgets.QTreeWidget(self)
+		self.bnks_tree.setColumnCount(1)
+		self.bnks_tree.setHeaderHidden(True)
+		self.bnks_tree.itemDoubleClicked.connect(self.bnk_selected)
+
+		self.events_tree = QtWidgets.QTreeWidget(self)
+		self.events_tree.setColumnCount(1)
+		self.events_tree.setHeaderHidden(True)
+		# self.events_tree.itemDoubleClicked.connect(self.bnk_selected)
+		
+		
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 
 		right_frame = widgets.pack_in_box(
-			self.files_container
-		)
+			self.files_container,
+			self.events_tree,
+			layout=QtWidgets.QHBoxLayout)
 
 		left_frame = widgets.pack_in_box(
-			self.tree,
+			self.bnks_tree,
 			self.game_choice
 		)
 
@@ -93,7 +101,7 @@ class MainWindow(widgets.MainWindow):
 			os.remove(os.path.join(self.tmp_dir, fp))
 
 	def fill_bnks(self):
-		self.tree.clear()
+		self.bnks_tree.clear()
 		self.bnk_map = {}
 		game = self.game_choice.get_selected_game()
 		if game:
@@ -103,7 +111,7 @@ class MainWindow(widgets.MainWindow):
 				audio_dir = os.path.join(cp, "Audio")
 				if os.path.isdir(audio_dir):
 					cp_name = os.path.basename(cp)
-					cp_item = QtWidgets.QTreeWidgetItem(self.tree)
+					cp_item = QtWidgets.QTreeWidgetItem(self.bnks_tree)
 					cp_item.setText(0, cp_name)
 					cp_item.setIcon(0, get_icon("dir"))
 					cp_map = {}
@@ -225,7 +233,7 @@ class MainWindow(widgets.MainWindow):
 			logging.info(f"Tried to extract {len(file_names)} files")
 		except:
 			self.handle_error("Extraction failed, see log!")
-		shutil.rmtree(temp_dir)
+		shutil.rmbnks_tree(temp_dir)
 
 	def open(self, dummy_filepath):
 		if self.filepath_media:
@@ -246,11 +254,11 @@ class MainWindow(widgets.MainWindow):
 				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 					if hirc.id == HircType.EVENT:
 						# map to actions
-						name = lut.get(hirc.data.id)
+						hirc.name = lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
 						# print(name)
 						for action_id in hirc.data.action_ids:
 							action = sid_2_hirc[action_id]
-							action.name = name
+							action.name = hirc.name
 							# print(f"action.name {action.name}")
 					if hirc.id == HircType.EVENT_ACTION:
 						# map by game obj
@@ -282,6 +290,28 @@ class MainWindow(widgets.MainWindow):
 					f_list.extend([(fmt_hash(pointer.wem_id), get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])
 				f_list.sort(key=lambda t: (t[1], t[0]))
 				self.files_container.set_data(f_list)
+
+				self.events_tree.clear()
+				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+					if hirc.id == HircType.EVENT:
+						# cp_name = os.path.basename(cp)
+						event_item = QtWidgets.QTreeWidgetItem(self.events_tree)
+						event_item.setText(0, hirc.name)
+						event_item.setIcon(0, get_icon("dir"))
+							# cp_map = {}
+							# self.bnk_map[cp_name] = cp_map
+							# for bnk_dir in self.get_subfolders(audio_dir):
+							# 	bnk_name = os.path.basename(bnk_dir)
+							# 	for s in suffices:
+							# 		bnk_name = bnk_name.removesuffix(s)
+							# 		bnk_name = bnk_name.removesuffix(s.lower())
+							# 	if bnk_name not in cp_map:
+							# 		cp_map[bnk_name] = []
+							# 	cp_map[bnk_name].append(bnk_dir)
+							# for bnk_name in sorted(cp_map.keys()):
+							# 	bnk_item = QtWidgets.QTreeWidgetItem(event_item)
+							# 	bnk_item.setText(0, bnk_name)
+							# 	bnk_item.setIcon(0, get_icon("bnk"))
 			except:
 				self.handle_error("Loading failed, see log!")
 

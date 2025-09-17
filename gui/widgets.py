@@ -4667,12 +4667,12 @@ def get_main_window():
             return w
 
 
-def pack_in_box(*widgets, margins=(0, 0, 0, 0)):
+def pack_in_box(*widgets, margins=(0, 0, 0, 0), layout=QtWidgets.QVBoxLayout):
     frame = QtWidgets.QWidget()
-    box = QtWidgets.QVBoxLayout()
+    box = layout()
     for w in widgets:
         box.addWidget(w)
     box.setContentsMargins(*margins)
-    box.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
+    box.setSizeConstraint(layout.SizeConstraint.SetNoConstraint)
     frame.setLayout(box)
     return frame

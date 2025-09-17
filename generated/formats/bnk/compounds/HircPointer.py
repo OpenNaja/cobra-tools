@@ -60,6 +60,6 @@ class HircPointer(BaseStruct):
 			stream.seek(instance.data.io_start + instance.length)
 			return
 		if instance.data.io_size != instance.length:
-			logging.warning(f"HIRC block {instance.id.name} at offset {instance.io_start} expected {instance.length}, but read {instance.data.io_size} bytes")
+			logging.warning(f"HIRC block {instance.id} at offset {instance.io_start} expected {instance.length}, but read {instance.data.io_size} bytes")
 			stream.seek(instance.data.io_start + instance.length)
 			logging.warning(instance)
