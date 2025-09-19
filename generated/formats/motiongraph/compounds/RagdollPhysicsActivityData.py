@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class RagdollPhysicsActivityData(MemStruct):
 
 	"""
-	? bytes
+	152 bytes
 	"""
 
 	__name__ = 'RagdollPhysicsActivityData'
@@ -13,6 +13,7 @@ class RagdollPhysicsActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.weight = name_type_map['FloatInputData'](self.context, 0, None)
 		self.flag = name_type_map['RagdollPhysicsActivityFlags'](self.context, 0, None)
 		self._flag_pad = name_type_map['Uint'](self.context, 0, None)
 		self.collision_exclude_mask = name_type_map['Uint64'](self.context, 0, None)
@@ -39,6 +40,7 @@ class RagdollPhysicsActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
+		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
 		yield 'flag', name_type_map['RagdollPhysicsActivityFlags'], (0, None), (False, None), (None, None)
 		yield '_flag_pad', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'root_bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
@@ -63,6 +65,7 @@ class RagdollPhysicsActivityData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
+		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None)
 		yield 'flag', name_type_map['RagdollPhysicsActivityFlags'], (0, None), (False, None)
 		yield '_flag_pad', name_type_map['Uint'], (0, None), (False, None)
 		yield 'root_bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)

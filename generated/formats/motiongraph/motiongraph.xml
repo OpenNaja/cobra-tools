@@ -67,10 +67,12 @@
         48 bytes
         <add name="data_type" type="Pointer" template="ZString"/>
         <add name="data" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</add>
-        <add name="count_2" type="uint64" default="0" optional="True"/>
-        <add name="count_3" type="uint64" default="0" optional="True"/>
-        <add name="index_a" type="int" default="-1" optional="True"/>
-        <add name="index_b" type="int" default="-1" optional="True"/>
+        <add name="num_sub_activities" type="uint" default="0" optional="True"/>rarely used
+        <add name="num_other_activities" type="uint" default="0" optional="True"/>only seen in sub-activities
+        <add name="sub_activities" type="ArrayPointer" template="ActivityReference" arg="num_sub_activities"/>
+        <add name="index_a" type="int" default="-1" optional="True" cond="!num_other_activities"/>
+        <add name="index_b" type="int" default="-1" optional="True" cond="!num_other_activities"/>
+        <add name="other_activities" type="ArrayPointer" template="ActivityReference" arg="num_other_activities" cond="num_other_activities"/>
         <add name="name b" type="Pointer" template="ZString"/>
     </compound>
 
@@ -119,17 +121,16 @@
     <compound name="MRFMember2" inherit="MemStruct">
         72 bytes
         only used if transition is in 'id'
+
         <add name="transition" type="Pointer" template="Transition"/>
-
         <add name="count_0" type="uint64"/>
-        <add name="count_1" type="uint64"/>
-
-        <add name="count_2" type="uint64" />
+        <add name="trigger" type="Pointer" template="ZString"/>
+        <add name="activities" type="Pointer" template="ActivityReference" arg="num_activities"/>
 
         <add name="count_3a" type="short"/>
         <add name="count_3b" type="short"/>
         <add name="count_3c" type="int"/>
-        <add name="count_4" type="uint64"/>
+        <add name="num_activities" type="uint64"/>
 
         <add name="count_5" type="uint64" />
 
@@ -165,10 +166,18 @@
         <add name="states" type="StateArray" />
     </compound>
 
+    <compound name="SubNestedZStr" inherit="MemStruct">
+        <add name="ab" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="NestedZStr" inherit="MemStruct">
+        <add name="bc" type="Pointer" template="SubNestedZStr"/>
+    </compound>
+
     <compound name="MGTwo" inherit="MemStruct">
         16 bytes
         <add name="count" type="uint64"/>
-        <add name="ptr" type="Pointer" template="PtrList" arg="count"/>
+        <add name="ptr" type="ArrayPointer" template="NestedZStr" arg="count"/>
     </compound>
 
     <compound name="State" inherit="MemStruct">
@@ -400,7 +409,8 @@
     </bitstruct>
 
     <compound name="RagdollPhysicsActivityData" inherit="MemStruct">
-        ? bytes
+        152 bytes
+        <add name="Weight" type="FloatInputData"/>
         <add name="flag" type="RagdollPhysicsActivityFlags" />
         <add name="_flag_pad" type="uint" />
         <add name="RootBoneName" type="Pointer" template="ZString"/>
@@ -525,18 +535,30 @@
         <add name="PropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="RandomSelectActivityActivityData" inherit="MemStruct">
+    <compound name="TriggeredActivityActivityData" inherit="MemStruct">
+        <add name="Trigger" type="Pointer" template="ZString"/>
+        <add name="activity" type="Pointer" template="Activity" />doesn't show up in xml somehow
+        <add name="BlendInTime" type="float"/>
+        <add name="BlendOutTime" type="float"/>
+        <add name="m_autoStart" type="ubyte" default="0"/>
+        <add name="m_allowRestart" type="ubyte" default="0"/>
+        <add name="m_allowMortal" type="ubyte" default="0"/>
+    </compound>
 
+    <compound name="RandomSelectActivityActivityData" inherit="MemStruct">
         <add name="Activities" type="ArrayPointer" template="RandomActivityActivityInfo" arg="num_activities"/>
         <add name="num_activities" type="uint"/>
         <add name="BlendInTime" type="float"/>
         <add name="BlendOutTime" type="float"/>
         <add name="AllowRestartingActivity" type="ubyte" default="0"/>
+        <add name="_pad_AllowRestartingActivity" type="ubyte" arr1="3"/>
         <add name="BlockActivityRestartTime" type="float" default="0.0"/>
         <add name="RandomAnimationFlags" type="uint"/>
         <add name="AlwaysActive" type="ubyte" default="0"/>
-        <add name="MinGap" type="float"/>
-        <add name="MaxGap" type="float"/>
+        <add name="_pad_AlwaysActive" type="ubyte" arr1="3"/>
+        <add name="MinGap" type="float" default="7.0"/>
+        <add name="MaxGap" type="float" default="10.0"/>
+        <add name="_MaxGap_pad" type="uint" />
         <add name="RandomNumberVar" type="Pointer" template="ZString"/>
     </compound>
 
