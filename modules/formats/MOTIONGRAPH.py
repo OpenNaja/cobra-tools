@@ -32,7 +32,7 @@ class MotiongraphLoader(MemStructLoader):
 		# condition_function = lambda x: hasattr(x[1], "__name__") and x[1].__name__ == "DataStreamResourceData"
 		# condition_function = lambda x:  issubclass(x[1], DataStreamResourceData)
 		for data_stream_resource_data in self.header.get_condition_fields(cond):
-			if data_stream_resource_data.type.data == "AudioEvent":
+			if data_stream_resource_data.type.data in ("AudioEvent", "AudioLoopingEvent", "AudioBlend", "AudioRTPC"):
 				yield data_stream_resource_data.ds_name.data
 
 
@@ -41,5 +41,5 @@ class MotiongraphLoader(MemStructLoader):
 		# anims have @ eg. Acrocanthosaurus@JumpAttackDefendFlankLeft
 		if "@" in in_str:
 			return True
-		# sound events don't, eg. Acrocanthosaurus_FightReact
+		# sound events don't, e.g. Acrocanthosaurus_FightReact
 		return self.motiongraph_rename_sound
