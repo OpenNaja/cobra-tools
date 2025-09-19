@@ -326,6 +326,7 @@ class MainWindow(widgets.MainWindow):
 					if hirc.id == HircType.EVENT:
 						self.show_node(hirc, self.events_tree, sid_2_hirc, lut)
 				self.events_tree.expandAll()
+				self.events_tree.sortItems(0, QtCore.Qt.AscendingOrder)
 				self.events_tree.resizeColumnToContents(0)
 				self.events_tree.resizeColumnToContents(1)
 				self.events_tree.resizeColumnToContents(2)
