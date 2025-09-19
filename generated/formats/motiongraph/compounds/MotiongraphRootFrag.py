@@ -20,7 +20,7 @@ class MotiongraphRootFrag(MemStruct):
 		self.activities = name_type_map['ArrayPointer'](self.context, self.num_activities, name_type_map['ActivityReference'])
 		self.ptr_1 = name_type_map['Pointer'](self.context, 0, name_type_map['MRFArray1'])
 		self.ptr_2 = name_type_map['ArrayPointer'](self.context, self.count_2, name_type_map['MrfReference2'])
-		self.ptr_xmls = name_type_map['Pointer'](self.context, self.num_xmls, name_type_map['XMLArray'])
+		self.xmls = name_type_map['ArrayPointer'](self.context, self.num_xmls, name_type_map['XMLEntry'])
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +34,7 @@ class MotiongraphRootFrag(MemStruct):
 		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'ptr_2', name_type_map['ArrayPointer'], (None, name_type_map['MrfReference2']), (False, None), (None, None)
 		yield 'num_xmls', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'ptr_xmls', name_type_map['Pointer'], (None, name_type_map['XMLArray']), (False, None), (None, None)
+		yield 'xmls', name_type_map['ArrayPointer'], (None, name_type_map['XMLEntry']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,4 +46,4 @@ class MotiongraphRootFrag(MemStruct):
 		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'ptr_2', name_type_map['ArrayPointer'], (instance.count_2, name_type_map['MrfReference2']), (False, None)
 		yield 'num_xmls', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'ptr_xmls', name_type_map['Pointer'], (instance.num_xmls, name_type_map['XMLArray']), (False, None)
+		yield 'xmls', name_type_map['ArrayPointer'], (instance.num_xmls, name_type_map['XMLEntry']), (False, None)

@@ -44,7 +44,7 @@
         <add name="ptr_2" type="ArrayPointer" template="MRF_Reference2" arg="count_2"/>
 
         <add name="num_xmls" type="uint64"/>
-        <add name="ptr_xmls" type="Pointer" template="XMLArray" arg="num_xmls"/>
+        <add name="xmls" type="ArrayPointer" template="XMLEntry" arg="num_xmls"/>
     </compound>
 
     <compound name="StateReference" inherit="MemStruct">
@@ -55,6 +55,12 @@
     <compound name="ActivityReference" inherit="MemStruct">
         8 bytes
         <add name="activity" type="Pointer" template="Activity"/>
+    </compound>
+
+    <compound name="RandomActivityActivityInfo" inherit="MemStruct">
+        <add name="activity" type="Pointer" template="Activity"/>
+        <add name="Weighting" type="uint" />
+        <add name="_padding" type="uint" />
     </compound>
 
     <compound name="Activity" inherit="MemStruct">
@@ -180,10 +186,6 @@
     <compound name="XMLEntry" inherit="MemStruct">
         8 bytes
         <add name="xml_string" type="Pointer" template="ZString"/>
-    </compound>
-
-    <compound name="XMLArray" inherit="MemStruct" >
-        <add name="xmls" type="XMLEntry" arr1="#ARG#" />
     </compound>
 
     <bitstruct name="AnimationFlags" numbytes="4" storage="uint">
@@ -523,6 +525,21 @@
         <add name="PropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="RandomSelectActivityActivityData" inherit="MemStruct">
+
+        <add name="Activities" type="ArrayPointer" template="RandomActivityActivityInfo" arg="num_activities"/>
+        <add name="num_activities" type="uint"/>
+        <add name="BlendInTime" type="float"/>
+        <add name="BlendOutTime" type="float"/>
+        <add name="AllowRestartingActivity" type="ubyte" default="0"/>
+        <add name="BlockActivityRestartTime" type="float" default="0.0"/>
+        <add name="RandomAnimationFlags" type="uint"/>
+        <add name="AlwaysActive" type="ubyte" default="0"/>
+        <add name="MinGap" type="float"/>
+        <add name="MaxGap" type="float"/>
+        <add name="RandomNumberVar" type="Pointer" template="ZString"/>
+    </compound>
+
     <compound name="SelectActivityActivityData" inherit="MemStruct">
         32 bytes
         <add name="EnumVariable" type="Pointer" template="ZString"/>
@@ -538,40 +555,6 @@
         # points to activities in the main activities array
         <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <add name="num_activities" type="uint64"/>
-    </compound>
-
-    <compound name="RandomActivityActivityInfoData" inherit="MemStruct">
-         bytes
-        <add name="EnumVariable" type="Pointer" template="ZString"/>
-        <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
-        <add name="num_activities" type="uint"/>
-        <add name="BlendTime" type="float"/>
-        <add name="Mode" type="SelectActivityActivityMode"/>
-
-
-<!--        								<array def="RandomActivityActivityInfo" name="Activities" type="struct" />-->
-<!--								<count32 name="Activities" />-->
-<!--								<float name="BlendInTime" />-->
-<!--								<float name="BlendOutTime" />-->
-<!--								<uint8 max="1" min="0" name="AllowRestartingActivity">0</uint8>-->
-<!--								<float name="BlockActivityRestartTime">0.0</float>-->
-<!--								<flags32 def="RandomActivityAnimationFlags" name="Flags" />-->
-<!--								<uint8 max="1" min="0" name="AlwaysActive">0</uint8>-->
-<!--								<float name="MinGap">7.0</float>-->
-<!--								<float name="MaxGap">10.0</float>-->
-<!--								<ascii name="RandomNumberVar" />-->
-<!--        <add name="CurveType" type="uint64"/>-->
-<!--        <add name="DS Name" type="Pointer" template="ZString"/>-->
-<!--        <add name="Type" type="Pointer" template="ZString"/>-->
-<!--        <add name="BoneID" type="Pointer" template="ZString"/>-->
-<!--        <add name="Location" type="Pointer" template="ZString"/>-->
-<!--        <add name="Curve" type="CurveData" />-->
-<!--        <add name="TimeLimitMode" type="TimeLimitMode"/>-->
-
-<!--        <add name="AlwaysActive" type="ushort"/>-->
-<!--        <add name="MinGap" type="float"/>-->
-<!--        <add name="MaxGap" type="float"/>-->
-<!--        <add name="RandomNumberVar" type="Pointer" template="ZString"/>-->
     </compound>
 
     <compound name="SinglePtr" inherit="MemStruct">
