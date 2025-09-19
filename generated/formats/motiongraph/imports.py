@@ -51,7 +51,6 @@ type_module_name_map = {
 	'RandomActivityActivityInfo': 'generated.formats.motiongraph.compounds.RandomActivityActivityInfo',
 	'Activity': 'generated.formats.motiongraph.compounds.Activity',
 	'MrfReference1': 'generated.formats.motiongraph.compounds.MrfReference1',
-	'MRFArray1': 'generated.formats.motiongraph.compounds.MRFArray1',
 	'MotiongraphVar': 'generated.formats.motiongraph.compounds.MotiongraphVar',
 	'MRFMember1': 'generated.formats.motiongraph.compounds.MRFMember1',
 	'MrfReference2': 'generated.formats.motiongraph.compounds.MrfReference2',

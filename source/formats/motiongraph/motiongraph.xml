@@ -35,13 +35,11 @@
         <add name="num_activities" type="uint64"/>
         <add name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
 
-        <add name="count_1" type="uint64"/>
-        when enabled, creates a giant tree
-<!--        <add name="ptr_1" type="Pointer" template="MRFArray1" arg="count_1"/>-->
-        <add name="ptr_1" type="Pointer" template="MRFArray1" />
+        <add name="num_mrf1" type="uint64"/>
+        <add name="mrf1" type="ArrayPointer" template="MRF_Reference1" arg="num_mrf1"/>
 
-        <add name="count_2" type="uint64"/>
-        <add name="ptr_2" type="ArrayPointer" template="MRF_Reference2" arg="count_2"/>
+        <add name="num_mrf2" type="uint64"/>
+        <add name="mrf2" type="ArrayPointer" template="MRF_Reference2" arg="num_mrf2"/>
 
         <add name="num_xmls" type="uint64"/>
         <add name="xmls" type="ArrayPointer" template="XMLEntry" arg="num_xmls"/>
@@ -81,10 +79,6 @@
         <add name="value" type="Pointer" template="MRFMember1"/>
     </compound>
 
-    <compound name="MRFArray1" inherit="MemStruct" >
-        <add name="states_1" type="MRF_Reference1" arr1="#ARG#" />
-    </compound>
-
     <compound name="MotiongraphVar" inherit="MemStruct">
         24 bytes (?)
         <add name="var_name" type="Pointer" template="ZString"/>
@@ -102,6 +96,9 @@
         variable size, maybe related to counts
         apparently, differing data - may be related to LuaMethod or one of the counts as dtype instead
         <add name="MotiongraphVars" type="Pointer" template="MotiongraphVars" arg="dtype"/>
+
+        16 bytes for arg = 7
+        40 bytes for arg = 8
         7 = state or scope
         8 = output
         <add name="dtype" type="uint64"/>
@@ -145,8 +142,8 @@
         only used if transition is in 'id'
         <add name="count_0" type="uint"/>
 
-        <add name="count_1" type="uint"/>
-        <add name="ptr 0" type="Pointer" template="PtrList" arg="count_1" />
+        <add name="num_activities" type="uint"/>
+        <add name="activities" type="ArrayPointer" template="ActivityReference" arg="num_activities" />
 
         <add name="count_2" type="uint64"/>
         <add name="ptr 1" type="ArrayPointer" template="TransStruct" arg="count_2"/>
@@ -600,10 +597,9 @@
     </compound>
 
     <compound name="MotiongraphVars" inherit="MemStruct">
-        16 bytes for arg = 7
-        40 bytes for arg = 8
-        <add name="ptr" type="ArrayPointer" template="MotiongraphVar" arg="count"/>
-        <add name="count" type="uint64"/>
+        <add name="ptr" type="ArrayPointer" template="MotiongraphVar" arg="count" cond="#ARG# #EQ# 7"/>
+        <add name="count" type="uint64" cond="#ARG# #EQ# 7"/>
+        <add name="transition" type="Transition" cond="#ARG# #EQ# 8"/>
     </compound>
 
     <compound name="Something" inherit="MemStruct">
