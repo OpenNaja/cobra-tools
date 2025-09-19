@@ -3,13 +3,13 @@ from generated.formats.bnk.compounds.HircObject import HircObject
 from generated.formats.bnk.imports import name_type_map
 
 
-class RandomOrSequenceContainer(HircObject):
+class RanSeqContainer(HircObject):
 
 	"""
 	wwiser CAkRanSeqCntr__SetInitialValues
 	"""
 
-	__name__ = 'RandomOrSequenceContainer'
+	__name__ = 'RanSeqContainer'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

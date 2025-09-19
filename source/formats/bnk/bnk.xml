@@ -37,7 +37,7 @@
 		<option value="2" name="Sound" />
 		<option value="3" name="EventAction" />
 		<option value="4" name="Event" />
-		<option value="5" name="RandomOrSequenceContainer" />
+		<option value="5" name="RanSeqContainer" />
 		<option value="6" name="SwitchContainer" />
 		<option value="7" name="ActorMixer" />
 		<option value="8" name="AudioBus" />
@@ -60,8 +60,8 @@
 
     <enum name="AKBKSourceType" numbytes="1" storage="ubyte" default="0">
 		<option value="0" name="Data" />
-		<option value="1" name="PrefetchStreaming" />
-		<option value="2" name="Streaming" />
+		<option value="1" name="PrefetchStream" />
+		<option value="2" name="Stream" />
     </enum>
 
     <enum name="AkPropID" numbytes="1" storage="ubyte" default="0"><option value="0" name="Volume" />
@@ -206,7 +206,7 @@
 
     <compound name="Event" inherit="HircObject">
         <add name="num actions" type="ubyte"/>
-        <add name="action ids" type="uint" arr1="num_actions"/>
+        <add name="children" type="uint" arr1="num_actions"/>
     </compound>
 
     <compound name="CAkActionPlay" inherit="HircObject">
@@ -215,7 +215,7 @@
     <compound name="EventAction" inherit="HircObject">
         <add name="scope" type="ActionScope"/>
         <add name="action_type" type="ActionType"/>
-        <add name="game obj" type="uint" />
+        <add name="children" type="uint" arr1="1"/>
         <add name="idExt_4" type="ubyte"/>
         # instead of the stuff below?
         <add name="NodeInitialParams" type="NodeInitialParams"/>
@@ -235,7 +235,7 @@
         <add name="weight" type="uint"/>
     </compound>
 
-    <compound name="RandomOrSequenceContainer" inherit="HircObject">
+    <compound name="RanSeqContainer" inherit="HircObject">
         wwiser CAkRanSeqCntr__SetInitialValues
 
         <add name="NodeBaseParams" type="NodeBaseParams"/>
@@ -256,6 +256,36 @@
         <add name="num_PlayListItem" type="ushort"/>
         <add name="PlayListItem" type="AkPlaylistItem" arr1="num_PlayListItem"/>
 
+    </compound>
+
+    <compound name="CAkSwitchPackage">
+        <add name="ulSwitchID" type="uint"/>
+        <add name="ulNumItems" type="uint"/>
+        <add name="nodes" type="uint" arr1="ulNumItems"/>
+    </compound>
+
+    <compound name="AkSwitchNodeParams">
+        <add name="ulNodeID" type="uint"/>
+        <add name="byBitVector1" type="ubyte"/>
+        <add name="byBitVector2" type="ubyte"/>
+        <add name="FadeOutTime" type="int"/>
+        <add name="FadeInTime" type="int"/>
+    </compound>
+
+    <compound name="SwitchContainer" inherit="HircObject">
+
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
+
+        <add name="eGroupType" type="ubyte"/>
+        <add name="ulGroupID" type="uint"/>
+        <add name="ulDefaultSwitch" type="uint"/>
+        <add name="bIsContinuousValidation" type="ubyte"/>
+        <add name="Num_Children" type="uint"/>
+        <add name="Children" type="uint" arr1="Num_Children"/>
+        <add name="ulNumSwitchGroups" type="uint"/>
+        <add name="SwitchGroups" type="CAkSwitchPackage" arr1="ulNumSwitchGroups"/>
+        <add name="ulNumSwitchParams" type="uint"/>
+        <add name="SwitchNodeParams" type="AkSwitchNodeParams" arr1="ulNumSwitchParams"/>
     </compound>
 
     <compound name="AkMediaInformation">
@@ -445,9 +475,10 @@
         <add name="data" arg="length" type="Sound" cond="id == 2"/>
         <add name="data" arg="length" type="EventAction" cond="id == 3"/>
         <add name="data" arg="length" type="Event" cond="id == 4"/>
-        <add name="data" arg="length" type="RandomOrSequenceContainer" cond="id == 5"/>
+        <add name="data" arg="length" type="RanSeqContainer" cond="id == 5"/>
+        <add name="data" arg="length" type="SwitchContainer" cond="id == 6"/>
         <add name="data" arg="length" type="MusicTrack" cond="id == 11"/>
-        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 11)"/>
+        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 11)"/>
     </compound>
 
     <compound name="HIRCSection">

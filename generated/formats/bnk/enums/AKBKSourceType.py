@@ -8,5 +8,5 @@ class AKBKSourceType(BaseEnum):
 	_storage = Ubyte
 
 	DATA = 0
-	PREFETCH_STREAMING = 1
-	STREAMING = 2
+	PREFETCH_STREAM = 1
+	STREAM = 2

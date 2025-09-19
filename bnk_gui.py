@@ -34,15 +34,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget(ftype="BNK")
 		self.file_widget.setHidden(True)
 
-		header_names = ["Name", "Event Name", "File Type", "File Size"]
-
-		# create the table
-		self.files_container = widgets.SortableTable(header_names, ())
-		# connect the interaction functions
-		# self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
-		self.files_container.table.files_dragged.connect(self.drag_files)
-		self.files_container.table.files_dropped.connect(self.inject_files)
-
 		self.bnk_map = {}
 		self.bnks_tree = QtWidgets.QTreeWidget(self)
 		self.bnks_tree.setColumnCount(1)
@@ -50,28 +41,24 @@ class MainWindow(widgets.MainWindow):
 		self.bnks_tree.itemDoubleClicked.connect(self.bnk_selected)
 
 		self.events_tree = QtWidgets.QTreeWidget(self)
-		self.events_tree.setColumnCount(1)
-		self.events_tree.setHeaderHidden(True)
+		self.events_tree.setColumnCount(3)
+		self.events_tree.setHeaderLabels(("Name", "File Type", "Size"))
+		self.events_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+		self.events_tree.customContextMenuRequested.connect(self.context_menu)
+		self.events_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 		# self.events_tree.itemDoubleClicked.connect(self.bnk_selected)
 		
 		
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 
-		right_frame = widgets.pack_in_box(
-			self.files_container,
-			self.events_tree,
-			layout=QtWidgets.QHBoxLayout)
-
-		left_frame = widgets.pack_in_box(
-			self.bnks_tree,
-			self.game_choice
-		)
+		left_frame = widgets.pack_in_box(self.bnks_tree, self.game_choice)
 
 		splitter = QtWidgets.QSplitter()
 		splitter.addWidget(left_frame)
-		splitter.addWidget(right_frame)
-		splitter.setSizes([20, 50])
+		splitter.addWidget(self.events_tree)
+		splitter.setStretchFactor(0, 1)
+		splitter.setStretchFactor(1, 3)
 		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.qgrid = QtWidgets.QVBoxLayout()
@@ -89,6 +76,49 @@ class MainWindow(widgets.MainWindow):
 		})
 
 		self.fill_bnks()
+
+	def context_menu(self, pos):
+		item = self.events_tree.itemAt(pos)
+		if item:
+			if "WEM" in item.text(1):
+				menu = QtWidgets.QMenu("Test", self.events_tree)
+				extract = QtWidgets.QAction("Extract")
+				wem_hash = item.text(0)[2:]
+				# hirc_map = {hirc.data.ak_bank_source_data.ak_media_information.source_i_d: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
+				# print([pointer.wem_id for pointer in self.bnk_media.aux_b.didx.data_pointers])
+
+				def extract_cb(checked):
+					out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
+					print("extracting")
+					self.extract_audio(out_dir, hashes=(wem_hash,))
+
+				extract.triggered.connect(extract_cb)
+				menu.addAction(extract)
+				# delete = QtWidgets.QAction(f"Delete {bone_name}")
+				# menu.addAction(delete)
+				menu.exec(self.events_tree.mapToGlobal(pos))
+
+				# names = self.get_parents(item)
+				# print(names)
+				# if len(names) == 1:
+				# 	mani_name, = names
+				# elif len(names) == 3:
+				# 	mani_name, dtype, bone_name = names
+				# 	menu = QtWidgets.QMenu("Test", self.events_tree)
+				# 	show_keys = QtWidgets.QAction("Show Keys")
+				#
+				# 	def show_keys_cb(checked):
+				# 		with self.update_plot():
+				# 			try:
+				# 				self.manis_file.show_keys_by_dtype(mani_name, dtype, bone_name, self.ax)
+				# 			except:
+				# 				logging.exception(f"failed")
+				#
+				# 	show_keys.triggered.connect(show_keys_cb)
+				# 	menu.addAction(show_keys)
+				# 	delete = QtWidgets.QAction(f"Delete {bone_name}")
+				# 	menu.addAction(delete)
+				# 	menu.exec(self.events_tree.mapToGlobal(pos))
 	
 	def get_subfolders(self, dir_path):
 		for name in os.listdir(dir_path):
@@ -184,10 +214,13 @@ class MainWindow(widgets.MainWindow):
 		if not hashes:
 			hashes = self.bnk_media.data_map.keys()
 		for id_hash in hashes:
-			data, aux_name = self.bnk_media.data_map[id_hash]
-			out_file = write_riff_file(data, out_dir_func(f"{aux_name}_{id_hash}"))
-			if out_file:
-				out_files.append(out_file)
+			try:
+				data, aux_name = self.bnk_media.data_map[id_hash]
+				out_file = write_riff_file(data, out_dir_func(f"{aux_name}_{id_hash}"))
+				if out_file:
+					out_files.append(out_file)
+			except:
+				logging.exception(f"Failed to extract audio for {id_hash}")
 		return out_files
 
 	def inject_wem(self, wem_file_paths):
@@ -244,89 +277,58 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmbnks_tree(temp_dir)
 
+	def show_node(self, hirc, qt_parent, sid_2_hirc, lut):
+		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
+		name = lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
+		hirc_item.setText(0, name)
+		hirc_item.setIcon(0, get_icon("dir"))
+		hirc_item.setText(1, hirc.id.name)
+		if hasattr(hirc.data, "children"):
+			hirc_item.setText(2, str(len(hirc.data.children)))
+			for child_id in hirc.data.children:
+				child = sid_2_hirc.get(child_id)
+				if not child:
+					logging.warning(f"Child {child_id} not found")
+					continue
+				self.show_node(child, hirc_item, sid_2_hirc, lut)
+		if hirc.id == HircType.SOUND:
+			sbi = hirc.data.ak_bank_source_data
+			info = sbi.ak_media_information
+			wem_hash = fmt_hash(info.source_i_d)
+			src_item = QtWidgets.QTreeWidgetItem(hirc_item)
+			src_item.setText(0, f"0x{wem_hash}")
+			icon = get_icon("bnk")
+			src_item.setIcon(0, icon)
+			src_item.setText(1, f"WEM {sbi.stream_type.name}")
+			src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
+			# external sound from another bnk file
+			if wem_hash not in self.bnk_media.data_map:
+				src_item.setDisabled(True)
+	
 	def open(self, dummy_filepath):
 		if self.filepath_media:
 			self.set_file_modified(False)
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
-				logging.info(self.bnk_events.aux_b)
+				# logging.info(self.bnk_events.aux_b)
 				# print(self.bnk_media)
 				# print(self.bnk_media.aux_b)
 				if not self.bnk_events.aux_b.hirc:
 					logging.warning("No hirc found")
 					return
 				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
-				game_obj_2_hirc = {}
 				# get the lut of fnv1 of the sound names
 				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
-				# propagate names
-				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
-					hirc.name = None
-				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
-					if hirc.id == HircType.EVENT:
-						# map to actions
-						hirc.name = lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
-						# print(name)
-						for action_id in hirc.data.action_ids:
-							action = sid_2_hirc[action_id]
-							action.name = hirc.name
-							# print(f"action.name {action.name}")
-					if hirc.id == HircType.EVENT_ACTION:
-						# map by game obj
-						print(sid_2_hirc.get(hirc.data.game_obj))
-						game_obj_2_hirc[hirc.data.game_obj] = hirc
-						# action = sid_2_hirc[hirc.data.extra_id]
-						# action.name = hirc.name
-				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
-					if hirc.id == HircType.RANDOM_OR_SEQUENCE_CONTAINER:
-						pid = hirc.data.node_base_params.direct_parent_i_d
-						if pid in game_obj_2_hirc:
-							hirc.name = game_obj_2_hirc[pid].name
-						# else:
-						# 	logging.warning(f"Parent {pid} not found")
-						for child_id in hirc.data.children:
-							child = sid_2_hirc[child_id]
-							child.name = hirc.name
-							# print(f"child.name {child.name}")
-				# print(game_obj_2_hirc)
-				# map the hirc to the wem id from events bnk
-				hirc_map = {hirc.data.ak_bank_source_data.ak_media_information.source_i_d: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
-				# print(hirc_map)
-				# print(lut)
-				def get_name(hirc):
-					if hirc.name:
-						return hirc.name
-					# return f"0x{fmt_hash(hirc.data.id)}"
-					return f""
-				print([pointer.wem_id for pointer in self.bnk_media.aux_b.didx.data_pointers])
-				f_list = [(fmt_hash(stream_info.event_id), get_name(hirc_map[stream_info.event_id]), "s", stream_info.size) for stream_info in self.bnk_media.bnk_header.streams]
-				if self.bnk_media.aux_b and self.bnk_media.aux_b.didx:
-					f_list.extend([(fmt_hash(pointer.wem_id), get_name(hirc_map[pointer.wem_id]), "b", pointer.wem_filesize) for pointer in self.bnk_media.aux_b.didx.data_pointers])
-				f_list.sort(key=lambda t: (t[1], t[0]))
-				self.files_container.set_data(f_list)
 
 				self.events_tree.clear()
 				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 					if hirc.id == HircType.EVENT:
-						# cp_name = os.path.basename(cp)
-						event_item = QtWidgets.QTreeWidgetItem(self.events_tree)
-						event_item.setText(0, hirc.name)
-						event_item.setIcon(0, get_icon("dir"))
-							# cp_map = {}
-							# self.bnk_map[cp_name] = cp_map
-							# for bnk_dir in self.get_subfolders(audio_dir):
-							# 	bnk_name = os.path.basename(bnk_dir)
-							# 	for s in suffices:
-							# 		bnk_name = bnk_name.removesuffix(s)
-							# 		bnk_name = bnk_name.removesuffix(s.lower())
-							# 	if bnk_name not in cp_map:
-							# 		cp_map[bnk_name] = []
-							# 	cp_map[bnk_name].append(bnk_dir)
-							# for bnk_name in sorted(cp_map.keys()):
-							# 	bnk_item = QtWidgets.QTreeWidgetItem(event_item)
-							# 	bnk_item.setText(0, bnk_name)
-							# 	bnk_item.setIcon(0, get_icon("bnk"))
+						self.show_node(hirc, self.events_tree, sid_2_hirc, lut)
+				self.events_tree.expandAll()
+				self.events_tree.resizeColumnToContents(0)
+				self.events_tree.resizeColumnToContents(1)
+				self.events_tree.resizeColumnToContents(2)
 			except:
 				self.handle_error("Loading failed, see log!")
 
