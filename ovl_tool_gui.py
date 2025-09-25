@@ -406,7 +406,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open(self, filepath):
 		if filepath:
-			commands = {"game": self.ovl_game_choice.entry.currentText()}
+			commands = {"game": self.ovl_game_choice.entry.currentText(), "update_aux": self.cfg.get("update_aux")}
 			self.set_clean()
 			# logging.debug(f"Loading threaded {threaded}")
 			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
@@ -459,11 +459,12 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
+		commands = {"update_aux" : self.cfg.get("update_aux")}
 		if not self.suppress_popups:
-			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, self.run_current_game), filepath)
+			self.run_in_threadpool(self.ovl_data.save, (self.set_clean, self.run_current_game), filepath, commands=commands)
 		else:
 			try:
-				self.ovl_data.save(filepath)
+				self.ovl_data.save(filepath, commands=commands)
 				self.set_clean()
 			except:
 				self.handle_error("Saving OVL failed, see log!")

@@ -59,6 +59,7 @@ class Config(dict):
 	lua_decompile = TransientSetting("Decompile LUA", "Try to decompile LUA; does not always work and slows down full extractions", True, (True, False))
 	lua_flatten = TransientSetting("Flatten LUA subfolders", "Flatten LUA filenames that are in subfolders on injection and unflatten into folders on extraction", False, (True, False))
 	motiongraph_rename_sound = TransientSetting("Replace sounds in MOTIONGRAPH", "Rename references to sound events during rename contents. Make sure to refer to existing events only", False, (True, False))
+	update_aux = TransientSetting("Rewrite AUX files", "Rewrite AUX files when saving the OVL", True, (True, False))
 	play_on_saving = TransientSetting("Run Game on Saving", "Always run the currently selected game after saving an OVL", False, (True, False))
 	# GUI appearance
 	enable_logger_widget = RestartSetting("Enable Logger", "Enable Logger widget in GUI", True, (True, False))

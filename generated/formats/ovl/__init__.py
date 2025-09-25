@@ -932,8 +932,9 @@ class OvlFile(Header):
 				file_name = self.files_name[f_i]
 				self.loaders[file_name].open_aux_readers(aux_suffix, aux_size)
 			self.load_archives()
-			for loader in self.get_loaders_with_aux():
-				loader.close_aux_handles()
+			if self.commands.get("update_aux", True):
+				for loader in self.get_loaders_with_aux():
+					loader.close_aux_handles()
 
 	def get_dep_name(self, h, ext, using_file):
 		"""Gets the name for a dependency identified by hash h"""
@@ -1119,19 +1120,23 @@ class OvlFile(Header):
 			return int(name.replace(f"{UNK_HASH.lower()}_", ""))
 		return djb2(name)
 
-	def rebuild_ovl_arrays(self):
+	def rebuild_ovl_arrays(self, update_aux):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
 
 		# clear ovl lists
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
 		loaders_with_aux = self.get_loaders_with_aux()
-		for loader in loaders_with_aux:
-			loader.close_aux_handles()
-		# sorted by name of tex loader for most tex files in PC2, the rest is idiosyncratic
-		for loader_name, loader in sorted(self.loaders.items()):
-			loader.flush_to_aux()
-		for loader in loaders_with_aux:
-			loader.delete_unused()
+		if update_aux:
+			for loader in loaders_with_aux:
+				loader.close_aux_handles()
+			# sorted by name of tex loader for most tex files in PC2, the rest is idiosyncratic
+			for loader_name, loader in sorted(self.loaders.items()):
+				loader.flush_to_aux()
+			for loader in loaders_with_aux:
+				loader.delete_unused()
+		# else:
+		# 	self.loaders[file_name].open_aux_readers(aux_suffix, aux_size)
+
 		loaders_with_aux = self.get_loaders_with_aux()
 
 		# update file hashes and extend entries per loader
@@ -1454,11 +1459,13 @@ class OvlFile(Header):
 				loader.dump_buffer_infos(f)
 				loader.dump_buffers(out_dir_func)
 
-	def save(self, filepath, use_threads=True):
+	def save(self, filepath, commands={}):
+		# store commands
+		self.commands = commands
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Writing {self.name}"):
 			# do this last so we also catch the assets & sets
-			self.rebuild_ovl_arrays()
+			self.rebuild_ovl_arrays(self.commands.get("update_aux", True))
 			# these need to be done after the rest
 			self.update_stream_files()
 			ovs_types = set()
@@ -1477,7 +1484,7 @@ class OvlFile(Header):
 					# write archive into bytes IO stream
 					uncompressed = archive.content.write_archive()
 					archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
-						uncompressed, use_threads)
+						uncompressed, self.commands.get("use_threads", True))
 					# update set data size
 					archive.set_data_size = archive.content.set_header.io_size
 					if archive.name == "STATIC":

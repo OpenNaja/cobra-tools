@@ -108,8 +108,10 @@ class BaseFile:
 
 	def get_aux_size(self, aux_suffix):
 		"""Return aux file size from aux_data"""
-		aux_handle = self.aux_data[aux_suffix]
-		return aux_handle.tell()
+		# aux_handle = self.aux_data[aux_suffix]
+		# return aux_handle.tell()
+		# this is independent of flushing the aux
+		return os.path.getsize(self.get_aux_path(aux_suffix))
 
 	@property
 	def controlled_loaders(self):
