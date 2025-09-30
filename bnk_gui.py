@@ -68,6 +68,8 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget(ftype="BNK")
 		self.file_widget.setHidden(True)
 
+		self.bnk_name = ""
+		self.cp_name = ""
 		self.filepath_events = None
 		self.filepath_media = None
 		self.bnk_map = {}
@@ -172,12 +174,12 @@ class MainWindow(widgets.MainWindow):
 								bnk_name = bnk_name.removesuffix(s)
 								bnk_name = bnk_name.removesuffix(s.lower())
 							for ovl_path in self.get_ovl_files(bnk_dir):
-								self.store_bnk_ref(ovl_path, bnk_name, cp_map)
+								self.store_ovl_paths(ovl_path, bnk_name, cp_map)
 					else:
 						# ovls directly in audio dir
 						for ovl_path in self.get_ovl_files(audio_dir):
 							bnk_name = os.path.splitext(os.path.basename(ovl_path))[0]
-							self.store_bnk_ref(ovl_path, bnk_name, cp_map)
+							self.store_ovl_paths(ovl_path, bnk_name, cp_map)
 		for cp_name, cp_map in sorted(self.bnk_map.items()):
 			cp_item = QtWidgets.QTreeWidgetItem(self.bnks_tree)
 			cp_item.setText(0, cp_name)
@@ -187,7 +189,7 @@ class MainWindow(widgets.MainWindow):
 				bnk_item.setText(0, bnk_name)
 				bnk_item.setIcon(0, get_icon("bnk"))
 
-	def store_bnk_ref(self, ovl_path, bnk_name, cp_map):
+	def store_ovl_paths(self, ovl_path, bnk_name, cp_map):
 		if bnk_name not in cp_map:
 			cp_map[bnk_name] = []
 		cp_map[bnk_name].append(ovl_path)
@@ -204,11 +206,11 @@ class MainWindow(widgets.MainWindow):
 		if len(names) > 1:
 			self.filepath_events = None
 			self.filepath_media = None
-			cp = names[0]
-			bnk = names[-1]
+			self.cp_name = names[0]
+			self.bnk_name = names[-1]
 			self.clear_tmp_dir()
-			self.setWindowTitle("BNK Editor", file=bnk)
-			ovl_paths = self.bnk_map[cp][bnk]
+			self.setWindowTitle("BNK Editor", file=self.bnk_name)
+			ovl_paths = self.bnk_map[self.cp_name][self.bnk_name]
 			for ovl_path in ovl_paths:
 				ovl_data = OvlFile()
 				ovl_data.load(ovl_path, {"game": self.game_choice.entry.currentText(), })
@@ -222,7 +224,7 @@ class MainWindow(widgets.MainWindow):
 				# set a dummy path so file_widget knows a file is open
 				# self.file_widget.filepath = self.filepath_media
 				# self.open("")
-				self.file_widget.open_file(f"//{bnk}")
+				self.file_widget.open_file(f"//{self.bnk_name}")
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
@@ -247,6 +249,9 @@ class MainWindow(widgets.MainWindow):
 			assert os.path.isfile(self.filepath_media)
 			assert os.path.isfile(self.filepath_events)
 			for wem_file_path in wem_file_paths:
+				if not wem_file_path.lower().endswith(".wem"):
+					logging.warning(f"Wrong file format, ignoring {wem_file_path}")
+					continue
 				logging.info(f"Trying to inject {wem_file_path}")
 				try:
 					aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
@@ -341,10 +346,22 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath) -> None:
 		try:
+			# save aux
+			self.bnk_media.aux_b.save(self.filepath_media)
+			self.bnk_events.aux_b.save(self.filepath_events)
+			# save bnk
 			self.bnk_media.save(self.filepath_media)
 			self.bnk_events.save(self.filepath_events)
-			# todo - save aux
-			# todo - inject into the ovls
+			# inject into the ovls
+			ovl_paths = self.bnk_map[self.cp_name][self.bnk_name]
+			for ovl_path in ovl_paths:
+				ovl_data = OvlFile()
+				ovl_data.load_hash_table()
+				ovl_data.load(ovl_path, commands={"game": self.game_choice.entry.currentText(), })
+				file_paths = [os.path.join(self.tmp_dir, filename) for filename in ovl_data.loaders]
+				# inject
+				ovl_data.add_files(file_paths, common_root_dir=self.tmp_dir)
+				ovl_data.save(ovl_path, commands={})
 			self.set_clean()
 			self.set_progress_message(f"Saved {self.bnk_media.bnk_name}")
 		except:
