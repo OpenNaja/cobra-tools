@@ -1145,7 +1145,7 @@ class OvlFile(Header):
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
 		# flat list of all dependencies
 		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
-		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_data]
+		loaders_and_aux = [(aux_suffix, loader) for loader in loaders_with_aux for aux_suffix in loader.aux_handles]
 		ovl_includes = sorted(set(self.included_ovl_names))
 		ovl_includes = [ovl_path.replace(".ovl", "") for ovl_path in ovl_includes]
 
@@ -1251,7 +1251,7 @@ class OvlFile(Header):
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 	def get_loaders_with_aux(self):
-		return [loader for loader in self.loaders.values() if loader.aux_data]
+		return [loader for loader in self.loaders.values() if loader.aux_handles]
 	
 	def get_loaders_by_ext(self):
 		"""Return dict of all extensions and the loaders that use them"""

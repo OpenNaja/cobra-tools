@@ -20,7 +20,7 @@ class BnkLoader(BaseFile):
 		super().collect()
 		self.aux_external = {}
 		# read intermediate aux to flush back to disk on saving
-		for aux_suffix, aux_handle in self.aux_data.items():
+		for aux_suffix, aux_handle in self.aux_handles.items():
 			self.aux_external[aux_suffix] = self.get_aux_data(aux_suffix, 0, -1)
 
 	def flush_to_aux(self):

@@ -626,6 +626,6 @@ class TexelLoader(MemStructLoader):
 		self.write_memory_data()
 
 	def delete_unused(self):
-		if not self.aux_data:
+		if not self.aux_handles:
 			logging.info(f"Deleting {self.name} as it is no longer used")
 			self.ovl.loaders.pop(self.name)

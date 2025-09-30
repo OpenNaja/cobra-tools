@@ -49,34 +49,34 @@ class BaseFile:
 		self.root_ptr = (None, 0)
 
 		self.same = False
-		self.aux_data = {}
+		self.aux_handles = {}
 
 	def flush_to_aux(self):
 		pass
 
 	def close_aux_handles(self):
-		"""Close existing aux readers / writers, then clear aux_data"""
-		for aux_suffix, aux_handle in self.aux_data.items():
+		"""Close existing aux readers / writers, then clear aux_handles"""
+		for aux_suffix, aux_handle in self.aux_handles.items():
 			aux_handle.close()
-		self.aux_data.clear()
+		self.aux_handles.clear()
 
 	def get_aux_handle(self, aux_suffix, aux_size, mode):
 		"""init reader if it doesn't exist"""
-		if aux_suffix not in self.aux_data:
+		if aux_suffix not in self.aux_handles:
 			aux_path = self.get_aux_path(aux_suffix, aux_size)
 			try:
-				self.aux_data[aux_suffix] = open(aux_path, mode)
+				self.aux_handles[aux_suffix] = open(aux_path, mode)
 			except FileNotFoundError:
-				logging.exception(f"Couldn't find {aux_path}")
-				self.aux_data[aux_suffix] = io.BytesIO()
-		return self.aux_data[aux_suffix]
+				logging.warning(f"Couldn't find {aux_path}")
+				self.aux_handles[aux_suffix] = io.BytesIO()
+		return self.aux_handles[aux_suffix]
 
 	def open_aux_readers(self, aux_suffix: str, aux_size: int = 0):
-		"""Store aux bytes in loader's aux_data dict"""
+		"""Store aux bytes in loader's aux_handles dict"""
 		self.get_aux_handle(aux_suffix, aux_size, "rb")
 
 	def write_aux_data(self, aux_suffix: str, data):
-		"""Write data to aux_data, return offset and size"""
+		"""Write data to the handle for aux_suffix in aux_handles, return offset and size"""
 		aux_writer = self.get_aux_handle(aux_suffix, len(data), "wb")
 		offset = aux_writer.tell()
 		aux_writer.write(data)
@@ -84,7 +84,7 @@ class BaseFile:
 
 	def get_aux_data(self, aux_suffix: str, offset: int, size: int = -1):
 		"""Get aux data from storage"""
-		aux_reader = self.aux_data[aux_suffix]
+		aux_reader = self.aux_handles[aux_suffix]
 		aux_reader.seek(offset)
 		data = aux_reader.read(size)
 		if size >= 0:
@@ -107,8 +107,8 @@ class BaseFile:
 			raise LookupError(f"Found no matching .aux file for {self.name}!")
 
 	def get_aux_size(self, aux_suffix):
-		"""Return aux file size from aux_data"""
-		# aux_handle = self.aux_data[aux_suffix]
+		"""Return aux file size from aux_handles"""
+		# aux_handle = self.aux_handles[aux_suffix]
 		# return aux_handle.tell()
 		# this is independent of flushing the aux
 		return os.path.getsize(self.get_aux_path(aux_suffix))
@@ -571,8 +571,8 @@ class BaseFile:
 		self.check(len(self.extra_loaders), len(other.extra_loaders), "Amount of extra loaders")
 		for stream, other_stream in zip(self.streams, other.streams):
 			self.check(stream, other_stream, "Stream entry")
-		self.check(len(self.aux_data), len(other.aux_data), "Amount of aux entries")
-		for aux_suffix in self.aux_data:
+		self.check(len(self.aux_handles), len(other.aux_handles), "Amount of aux entries")
+		for aux_suffix in self.aux_handles:
 			own_aux = self.get_aux_data(aux_suffix, 0, size=-1)
 			other_aux = other.get_aux_data(aux_suffix, 0, size=-1)
 			self.check(own_aux, other_aux, "Aux entry")
