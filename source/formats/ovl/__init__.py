@@ -1246,8 +1246,10 @@ class OvlFile(Header):
 		self.aux_entries["file_index"] = [loader.file_index for aux_suffix, loader in loaders_and_aux]
 		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_suffices]
 		self.aux_entries["size"] = [loader.get_aux_size(aux_suffix) for aux_suffix, loader in loaders_and_aux]
-		for loader in loaders_with_aux:
-			loader.close_aux_handles()
+
+		if update_aux:
+			for loader in loaders_with_aux:
+				loader.close_aux_handles()
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 	def get_loaders_with_aux(self):
