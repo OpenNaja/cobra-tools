@@ -3,10 +3,11 @@ import shutil
 import logging
 import tempfile
 
+
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.app_utils import get_icon
 from gui.widgets import MenuItem, GameSelectorWidget
-from generated.formats.bnk import BnkFile, AuxFile
+from generated.formats.bnk import BnkFile
 from generated.formats.ovl import OvlFile
 from constants import ConstantsProvider
 from generated.formats.bnk.enums.HircType import HircType
@@ -15,7 +16,40 @@ from modules.formats.shared import fmt_hash
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
+
 suffices = ("_Media", "_Events", "_DistMedia")
+
+class EventTree(QtWidgets.QTreeWidget):
+	files_dropped = QtCore.pyqtSignal(list)
+
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		self.setAcceptDrops(True)
+		self.ignore_drop_type = ""
+
+	def accept_ignore(self, e: QtGui.QDropEvent) -> None:
+		if not self.ignore_drop_type:
+			e.accept()
+			return
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if not path.lower().endswith(f".{self.ignore_drop_type.lower()}"):
+			e.accept()
+		else:
+			e.ignore()
+
+	def dragMoveEvent(self, event: QtGui.QDragMoveEvent) -> None:
+		self.accept_ignore(event)
+
+	def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
+		self.accept_ignore(event)
+
+	def dropEvent(self, event: QtGui.QDropEvent) -> None:
+		data = event.mimeData()
+		urls = data.urls()
+		if urls and urls[0].scheme() == 'file':
+			file_paths = [str(url.path())[1:] for url in urls]
+			self.files_dropped.emit(file_paths)
+			event.accept()
 
 
 class MainWindow(widgets.MainWindow):
@@ -34,20 +68,23 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget(ftype="BNK")
 		self.file_widget.setHidden(True)
 
+		self.filepath_events = None
+		self.filepath_media = None
 		self.bnk_map = {}
 		self.bnks_tree = QtWidgets.QTreeWidget(self)
 		self.bnks_tree.setColumnCount(1)
 		self.bnks_tree.setHeaderHidden(True)
 		self.bnks_tree.itemDoubleClicked.connect(self.bnk_selected)
 
-		self.events_tree = QtWidgets.QTreeWidget(self)
+		self.events_tree = EventTree(self)
 		self.events_tree.setColumnCount(3)
 		self.events_tree.setHeaderLabels(("Name", "File Type", "Size"))
 		self.events_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 		self.events_tree.customContextMenuRequested.connect(self.context_menu)
 		self.events_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+		self.events_tree.files_dropped.connect(self.inject_wem)
 		# self.events_tree.itemDoubleClicked.connect(self.bnk_selected)
-		
+
 		
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
@@ -84,12 +121,10 @@ class MainWindow(widgets.MainWindow):
 				menu = QtWidgets.QMenu("Test", self.events_tree)
 				extract = QtWidgets.QAction("Extract")
 				wem_hash = item.text(0)[2:]
-				# hirc_map = {hirc.data.ak_bank_source_data.ak_media_information.source_i_d: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers if hirc.id == HircType.SOUND}
-				# print([pointer.wem_id for pointer in self.bnk_media.aux_b.didx.data_pointers])
 
 				def extract_cb(checked):
 					out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
-					print("extracting")
+					logging.info(f"extracting {wem_hash}")
 					self.extract_audio(out_dir, hashes=(wem_hash,))
 
 				extract.triggered.connect(extract_cb)
@@ -97,28 +132,6 @@ class MainWindow(widgets.MainWindow):
 				# delete = QtWidgets.QAction(f"Delete {bone_name}")
 				# menu.addAction(delete)
 				menu.exec(self.events_tree.mapToGlobal(pos))
-
-				# names = self.get_parents(item)
-				# print(names)
-				# if len(names) == 1:
-				# 	mani_name, = names
-				# elif len(names) == 3:
-				# 	mani_name, dtype, bone_name = names
-				# 	menu = QtWidgets.QMenu("Test", self.events_tree)
-				# 	show_keys = QtWidgets.QAction("Show Keys")
-				#
-				# 	def show_keys_cb(checked):
-				# 		with self.update_plot():
-				# 			try:
-				# 				self.manis_file.show_keys_by_dtype(mani_name, dtype, bone_name, self.ax)
-				# 			except:
-				# 				logging.exception(f"failed")
-				#
-				# 	show_keys.triggered.connect(show_keys_cb)
-				# 	menu.addAction(show_keys)
-				# 	delete = QtWidgets.QAction(f"Delete {bone_name}")
-				# 	menu.addAction(delete)
-				# 	menu.exec(self.events_tree.mapToGlobal(pos))
 	
 	def get_subfolders(self, dir_path):
 		for name in os.listdir(dir_path):
@@ -189,6 +202,8 @@ class MainWindow(widgets.MainWindow):
 	def bnk_selected(self, item):
 		names = self.get_parents(item)
 		if len(names) > 1:
+			self.filepath_events = None
+			self.filepath_media = None
 			cp = names[0]
 			bnk = names[-1]
 			self.clear_tmp_dir()
@@ -203,7 +218,11 @@ class MainWindow(widgets.MainWindow):
 							self.filepath_events = fp
 						if "_media" in fp.lower():
 							self.filepath_media = fp
-			self.open("")
+			if self.filepath_media and self.filepath_events:
+				# set a dummy path so file_widget knows a file is open
+				# self.file_widget.filepath = self.filepath_media
+				# self.open("")
+				self.file_widget.open_file(f"//{bnk}")
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
@@ -224,43 +243,30 @@ class MainWindow(widgets.MainWindow):
 		return out_files
 
 	def inject_wem(self, wem_file_paths):
-		bnk_dir, bnk_name = os.path.split(self.filepath_media)
-		for wem_file_path in wem_file_paths:
-			logging.info(f"Trying to inject {wem_file_path}")
-			aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
-			logging.info(f"WEM id: {wem_id} into aux {aux_path_bare}")
+		if self.filepath_media:
+			assert os.path.isfile(self.filepath_media)
+			assert os.path.isfile(self.filepath_events)
+			for wem_file_path in wem_file_paths:
+				logging.info(f"Trying to inject {wem_file_path}")
+				try:
+					aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
+					logging.info(f"WEM id: {wem_id} into aux {aux_path_bare}")
 
-			aux_path = f"{aux_path_bare}.aux"
-			# check if target aux file exists
-			# if os.path.isfile(aux_path):
-			# 	pass
-			# get the names of the bnk files and make sure they match the input
-			media_bnk = self.bnk_media.bnk_header.name
-			assert "_media_" in aux_path_bare.lower()
-			assert media_bnk.lower() in aux_path_bare.lower()
-			events_bnk = f"{media_bnk.rsplit('_', 1)[0]}_events"
-			logging.info(f"Media: {media_bnk}, Events: {events_bnk}")
-			# aux_path_bare
-			# for base_dir in (self.ovl.dir, os.path.dirname(wem_file_path)):
+					# get the names of the bnk files and make sure they match the input
+					media_bnk = self.bnk_media.bnk_header.name
+					assert "_media_" in aux_path_bare.lower()
+					assert media_bnk.lower() in aux_path_bare.lower()
+					events_bnk = f"{media_bnk.rsplit('_', 1)[0]}_events"
+					logging.info(f"Media: {media_bnk}, Events: {events_bnk}")
 
-			ovl_basename = os.path.basename(aux_path_bare).lower().split(media_bnk.lower())[0][:-1]
-			print(ovl_basename)
-			media_path = os.path.join(bnk_dir, f"{ovl_basename}_{media_bnk}_bnk_b.aux")
-			events_path = os.path.join(bnk_dir, f"{ovl_basename}_{events_bnk}_bnk_b.aux")
-			print(media_path)
-			print(events_path)
-			if os.path.isfile(media_path) and os.path.isfile(events_path):
-				media = AuxFile()
-				media.load(media_path)
-				media.inject_audio(wem_file_path, wem_id)
-				media.save(media_path)
+					ovl_basename = os.path.basename(aux_path_bare).lower().split(media_bnk.lower())[0][:-1]
 
-				events = AuxFile()
-				events.load(events_path)
-				events.inject_hirc(wem_file_path, wem_id)
-				events.save(events_path)
-
-				logging.info(f"Injected {wem_file_path} {wem_id}")
+					self.bnk_media.aux_b.inject_audio(wem_file_path, wem_id)
+					self.bnk_events.aux_b.inject_hirc(wem_file_path, wem_id)
+					self.set_dirty()
+					logging.info(f"Injected {wem_file_path} {wem_id}")
+				except BaseException:
+					logging.exception(f"Failed to inject {wem_file_path}")
 
 	def drag_files(self, file_names):
 		drag = QtGui.QDrag(self)
@@ -307,7 +313,7 @@ class MainWindow(widgets.MainWindow):
 	
 	def open(self, dummy_filepath):
 		if self.filepath_media:
-			self.set_file_modified(False)
+			self.set_clean()
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
@@ -333,16 +339,13 @@ class MainWindow(widgets.MainWindow):
 			except:
 				self.handle_error("Loading failed, see log!")
 
-	def is_open_bnk(self):
-		if not self.filepath_media:
-			self.showwarning("You must open a BNK file first!")
-		else:
-			return True
-
 	def save(self, filepath) -> None:
 		try:
-			self.bnk_media.save(filepath)
-			self.set_file_modified(False)
+			self.bnk_media.save(self.filepath_media)
+			self.bnk_events.save(self.filepath_events)
+			# todo - save aux
+			# todo - inject into the ovls
+			self.set_clean()
 			self.set_progress_message(f"Saved {self.bnk_media.bnk_name}")
 		except:
 			self.handle_error("Loading failed, see log!")
@@ -357,7 +360,7 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Extracting failed, see log!")
 
 	def inject_ask(self):
-		if self.is_open_bnk():
+		if self.file_widget.is_open():
 			files = QtWidgets.QFileDialog.getOpenFileNames(
 				self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
 			self.inject_files(files)
@@ -368,7 +371,6 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
 				error_files = self.inject_wem(files)
-				self.set_file_modified(True)
 				self.set_progress_message("Injection completed")
 			except:
 				self.handle_error("Injecting failed, see log!")
