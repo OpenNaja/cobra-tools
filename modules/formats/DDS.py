@@ -470,29 +470,33 @@ class DdsLoader(MemStructLoader):
 		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
 
-		# get joined output buffer
-		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		# set compression
 		dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
 		tiles = self.get_tiles(size_info)
 		# set num_tiles to unpack the mips
-		if hasattr(size_info, "num_tiles"):
-			dds_file.dx_10.num_tiles = size_info.num_tiles
-		else:
-			# DLA has no num_tiles
-			dds_file.dx_10.num_tiles = 1
+		dds_file.dx_10.num_tiles = len(tiles)
 		if not self.context.is_pc_2:
+			# get joined output buffer
+			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 			image_buffer = buffer_data
 		else:
+			# take the unweaved mip data
+			image_buffer = b"".join(self.mip_data)
 			if self.ovl.do_debug:
 				texbuffer_path = out_dir(f"{self.basename}.texbuffer")
 				with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
 					pass
 				out_files.append(texbuffer_path)
-			image_buffer = b"".join(self.mip_data)
+				img_path = out_dir(f"{self.basename}.img")
+				with open(img_path, "wb") as img:
+					img.write(image_buffer)
+				out_files.append(img_path)
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
 			tile_datas = (image_buffer,)
+		elif self.context.is_pc_2:
+			# PC2 swaps nesting of tiles and mips
+			tile_datas = dds_file.unpack_mips_pc2(image_buffer)
 		else:
 			tile_datas = dds_file.unpack_mips(image_buffer)
 		# set to no tiles for dds export
