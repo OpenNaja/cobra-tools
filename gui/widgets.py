@@ -42,7 +42,12 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QFrame, QLayout, QGridLayout, QBoxLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QSplitter, QToolBar, QWidgetAction, QTextBrowser, QProxyStyle, QStyleOption,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox)
-from PyQt5.QtWinExtras import QWinTaskbarButton
+
+try:
+    from PyQt5.QtWinExtras import QWinTaskbarButton
+    win_available = True
+except ImportError:
+    win_available = False
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 from __version__ import VERSION, COMMIT_HASH
 
@@ -3904,11 +3909,12 @@ class MainWindow(FramelessMainWindow):
         self.logger: Optional[LoggerWidget] = None
         self.log_splitter: Optional[QSplitter] = None
 
-        self.taskbar_button = QWinTaskbarButton(self)
-        self.taskbar_button.setWindow(self.windowHandle())
-        self.taskbar_progress = self.taskbar_button.progress()
-        self.taskbar_progress.setRange(0, 100)
-        self.taskbar_progress.show()
+        if win_available:
+            self.taskbar_button = QWinTaskbarButton(self)
+            self.taskbar_button.setWindow(self.windowHandle())
+            self.taskbar_progress = self.taskbar_button.progress()
+            self.taskbar_progress.setRange(0, 100)
+            self.taskbar_progress.show()
 
         self.progress = QProgressBar(self)
         self.progress.setGeometry(0, 0, 200, 15)
@@ -4337,7 +4343,8 @@ class MainWindow(FramelessMainWindow):
 
     def set_progress(self, value: int) -> None:
         self.progress.setValue(value)
-        self.taskbar_progress.setValue(value)
+        if win_available:
+            self.taskbar_progress.setValue(value)
         if self.progress.value() >= self.progress.maximum():
             self.status_timer.start()
 
@@ -4345,10 +4352,12 @@ class MainWindow(FramelessMainWindow):
         if self.progress.isHidden():
             self.show_progress()
         self.progress.setMaximum(value)
-        self.taskbar_progress.setMaximum(value)
+        if win_available:
+            self.taskbar_progress.setMaximum(value)
 
     def reset_progress(self) -> None:
-        self.taskbar_progress.setValue(0)
+        if win_available:
+            self.taskbar_progress.setValue(0)
         self.progress.setValue(0)
         self.progress.hide()
         self.status_bar.clearMessage()
