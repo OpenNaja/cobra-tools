@@ -4345,10 +4345,14 @@ class MainWindow(FramelessMainWindow):
         self.progress.setValue(value)
         if win_available:
             self.taskbar_progress.setValue(value)
+        # start the countdown for hiding the progress bar if progress is finished
         if self.progress.value() >= self.progress.maximum():
             self.status_timer.start()
 
     def set_progress_total(self, value: int) -> None:
+        # stop any running timers that would hide the progress bar
+        if self.status_timer.isActive():
+            self.status_timer.stop()
         if self.progress.isHidden():
             self.show_progress()
         self.progress.setMaximum(value)

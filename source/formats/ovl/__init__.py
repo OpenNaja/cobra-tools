@@ -1000,7 +1000,7 @@ class OvlFile(Header):
 				# the index goes into the flattened list of ovl pools
 				pool.offset_2_link[l_o] = n
 			# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
-			for archive in self.archives:
+			for archive in self.reporter.iter_progress(self.archives, "Sorting pointers"):
 				try:
 					ovs = archive.content
 					# attach all pointers to their pool
