@@ -6,6 +6,7 @@ import html
 import time
 import threading
 import abc
+import fnmatch
 from collections import deque
 from abc import abstractmethod
 from pathlib import Path
@@ -349,6 +350,12 @@ class SortableTable(QWidget):
         self.filter_invert.setToolTip("Invert filtering - show hidden items, and vice versa")
         self.filter_invert.toggled.connect(self.toggle_invert)
 
+        self.filter_regex = IconButton("regex")
+        self.filter_regex.setCheckable(True)
+        self.filter_regex.setToolTip("Enable regular expression matching for the filter")
+        self.filter_regex.toggled.connect(self.toggle_regex)
+        self.table.regex_error.connect(self.set_filter_error_state)
+
         self.filter_clear = IconButton("clear_filter")
         self.filter_clear.setToolTip("Clear Filter")
         self.filter_clear.pressed.connect(self.clear_filter)
@@ -363,8 +370,9 @@ class SortableTable(QWidget):
         filter_bar = FlowWidget(self)
         filter_bar_lay = FlowHLayout(filter_bar)
         filter_bar_lay.addWidget(self.filter_entry, hide_index=-1)
-        filter_bar_lay.addWidget(self.filter_invert, hide_index=3)
-        filter_bar_lay.addWidget(self.filter_clear, hide_index=5)
+        filter_bar_lay.addWidget(self.filter_clear, hide_index=4)
+        filter_bar_lay.addWidget(self.filter_regex, hide_index=3)
+        filter_bar_lay.addWidget(self.filter_invert, hide_index=2)
         filter_bar_lay.addWidget(self.show_hidden, hide_index=0)
         filter_bar_lay.setContentsMargins(0, 0, 0, 0)
         filter_bar.show()
@@ -388,7 +396,16 @@ class SortableTable(QWidget):
         self.filter_entry.entry.setText("")
         self.show_hidden.setChecked(False)
         self.filter_invert.setChecked(False)
+        self.filter_regex.setChecked(False)
+        self.set_filter_error_state(False)
         self.table.clear_filter()
+
+    def set_filter_error_state(self, is_error: bool) -> None:
+        """Changes the filter entry's border color to indicate a regex error."""
+        if is_error:
+            self.filter_entry.entry.setStyleSheet("border: 1px solid red; border-radius: 2px;")
+        else:
+            self.filter_entry.entry.setStyleSheet("")
 
     def toggle_show_hidden(self, state: Qt.CheckState) -> None:
         self.table.set_show_hidden_filter(state != Qt.CheckState.Checked)
@@ -396,6 +413,9 @@ class SortableTable(QWidget):
     def toggle_invert(self, checked: bool) -> None:
         self.table.inverted = checked
         self.table.update_filter_function()
+
+    def toggle_regex(self, checked: bool) -> None:
+        self.table.set_regex_enabled(checked)
 
     def add_button(self, btn) -> None:
         if not self.button_count:
@@ -413,6 +433,7 @@ class TableView(QTableView):
     file_selected = pyqtSignal(int)
     file_selected_count = pyqtSignal(int)
     file_double_clicked = pyqtSignal(list)
+    regex_error = pyqtSignal(bool)
 
     def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str, actions={}, editable_columns=("Name",)) -> None:
         super().__init__()
@@ -441,6 +462,7 @@ class TableView(QTableView):
         self.proxy_model.setFilterFixedString("")
         self.proxy_model.setFilterKeyColumn(0)
         self.inverted = False
+        self.regex_enabled = False
         self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
         self.doubleClicked.connect(self.on_double_click)
 
@@ -461,11 +483,38 @@ class TableView(QTableView):
         row_i = self.proxy_model.mapToSource(index).row()
         self.file_double_clicked.emit(self.table_model._data[row_i])
 
+    def set_regex_enabled(self, enabled: bool) -> None:
+        """Sets the filter mode to regex or wildcard and reapplies the filter."""
+        self.regex_enabled = enabled
+        self.update_filter_function()
+
     def update_filter_function(self) -> None:
-        if self.inverted:
-            self.proxy_model.addFilterFunction('name', lambda r, s: s not in r[0])
+        search_string = self.proxy_model.filterString
+        # Reset UI error state
+        self.regex_error.emit(False)
+        if self.regex_enabled:
+            if not search_string:
+                # Empty regex
+                filter_func = (lambda r, s: False) if self.inverted else (lambda r, s: True)
+                self.proxy_model.addFilterFunction('name', filter_func)
+                return
+            try:
+                # Valid regex
+                compiled_regex = re.compile(search_string, re.IGNORECASE)
+                if self.inverted:
+                    self.proxy_model.addFilterFunction('name', lambda r, s: not compiled_regex.search(r[0]))
+                else:
+                    self.proxy_model.addFilterFunction('name', lambda r, s: bool(compiled_regex.search(r[0])))
+            except re.error:
+                # Invalid regex, apply a filter that hides all rows
+                self.regex_error.emit(True)  # Show error in UI
+                self.proxy_model.addFilterFunction('name', lambda r, s: False)
         else:
-            self.proxy_model.addFilterFunction('name', lambda r, s: s in r[0])
+            # Wildcard search by default
+            if self.inverted:
+                self.proxy_model.addFilterFunction('name', lambda r, s: not fnmatch.fnmatch(r[0].lower(), f'*{s}*'))
+            else:
+                self.proxy_model.addFilterFunction('name', lambda r, s: fnmatch.fnmatch(r[0].lower(), f'*{s}*'))
 
     def set_filter(self, fixed_string: str) -> None:
         self.proxy_model.setFilterFixedString(fixed_string)
@@ -2640,34 +2689,161 @@ class CheckableComboBox(QComboBox):
         return res
 
 
-class OvlDataFilterProxy(QSortFilterProxyModel):
-    """Base proxy class for OvlManagerWidget directory model"""
+from PyQt5.QtCore import QDirIterator
+class DirectoryCacher(QObject):
+    """Builds a cache mapping each directory to its set of filtered files"""
+    cache_ready = pyqtSignal(dict, str)
 
+    @pyqtSlot(str, list)
+    def start_scan(self, root_path: str, name_filters: list[str]) -> None:
+        logging.debug(f"Starting cache map build for: {root_path}")
+        if not root_path or not os.path.isdir(root_path):
+            self.cache_ready.emit({}, root_path)
+            return
+
+        cache_map = {}
+        iterator = QDirIterator(
+            root_path, name_filters,
+            QDir.Files | QDir.NoDotAndDotDot,
+            QDirIterator.Subdirectories
+        )
+
+        while iterator.hasNext():
+            file_path = iterator.next()
+            dir_path = os.path.dirname(file_path)
+            # Normalize paths for case-insensitive matching
+            norm_dir = os.path.normcase(os.path.normpath(dir_path))
+            norm_file = os.path.normcase(os.path.normpath(file_path))
+            # Add the file to its parent directory's set
+            if norm_dir not in cache_map:
+                cache_map[norm_dir] = set()
+            cache_map[norm_dir].add(norm_file)
+
+        logging.debug(f"Scan complete. Found {len(cache_map)} valid directories.")
+        self.cache_ready.emit(cache_map, root_path)
+
+
+class OvlDataFilterProxy(QSortFilterProxyModel):
     def __init__(self, parent: Optional[QObject] = None) -> None:
-        super(OvlDataFilterProxy, self).__init__(parent)
+        super().__init__(parent)
         self.setDynamicSortFilter(True)
-        self.setRecursiveFilteringEnabled(True)
         self.max_depth: int = 255
         self.root_idx: Optional[QModelIndex] = None
         self.root_depth: int = 0
-        # self.test_str = "Init"
+        # The complete map of {dir -> {files}} from the cacher
+        self._full_cache_map: dict[str, set[str]] = {}
+        # The set of paths that should be visible for the current filter
+        self._filter_results: set[str] = set()
+        self._root_path_norm: str = ""
+        self._use_filter_cache = False
 
-    def depth(self, index: QModelIndex) -> int:
+    def set_directory_cache(self, cache_map: dict, root_path_norm: str) -> None:
+        self._full_cache_map = cache_map
+        self._root_path_norm = root_path_norm
+        self.setFilterRegularExpression(self.filterRegularExpression())
+
+    def clear_cache(self) -> None:
+        """Resets all cache and filter data to a clean state."""
+        self._full_cache_map: dict[str, set[str]] = {}
+        self._filter_results: set[str] = set()
+        self._root_path_norm: str = ""
+        self._use_filter_cache = False
+        self.invalidateFilter()
+
+    def setFilterRegularExpression(self, regex: QRegularExpression) -> None:
+        """Pre-computes and caches filter results on filter set"""
+        super().setFilterRegularExpression(regex)
+        self._filter_results.clear()
+
+        if not self._full_cache_map:
+            self._use_filter_cache = False
+            self.invalidateFilter()
+            return
+
+        if not regex or not regex.pattern():
+            self._filter_results = set(self._full_cache_map.keys())
+            for file_set in self._full_cache_map.values():
+                self._filter_results.update(file_set)
+            if self._root_path_norm:
+                self._filter_results.add(self._root_path_norm)
+            self._use_filter_cache = False
+            self.invalidateFilter()
+            return
+
+        # Find all files that match the filter first
+        matching_files = set()
+        for files_in_dir in self._full_cache_map.values():
+            for file_path in files_in_dir:
+                if regex.match(file_path).hasMatch():
+                    matching_files.add(file_path)
+
+        self._use_filter_cache = True
+
+        # Add the matching files and all their parents to the results
+        self._filter_results.update(matching_files)
+        for file_path in matching_files:
+            parent = os.path.dirname(file_path)
+            while len(parent) >= len(self._root_path_norm):
+                # Stop if we've already processed this parent chain
+                if parent in self._filter_results:
+                    break
+                self._filter_results.add(parent)
+                if parent == self._root_path_norm:
+                    break
+                # Move to the next parent up
+                new_parent = os.path.dirname(parent)
+                if new_parent == parent:
+                    break
+                parent = new_parent
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
+        """
+        Emulates rootPath/rootIndex and uses cached filter results when possible
+        """
+        model = self.sourceModel()
+        source_index = model.index(source_row, 0, source_parent)
+
+        # Implement setRootPath/setRootIndex behavior for proxy
+        is_dir = model.isDir(source_index)
+        if is_dir and (self.root_depth == 0 or self.depth(source_index) <= self.root_depth):
+            return True
+
+        if self._use_filter_cache:
+            # The cache is ready and a filter has been applied
+            path = os.path.normcase(os.path.normpath(model.filePath(source_index)))
+            return path in self._filter_results
+        else:
+            # Fall back to standard behavior for no filter/cache
+            # This ensures tree is working and updates when cache is not available
+            regex = self.filterRegularExpression()
+            item_path = model.filePath(source_index)
+            if regex.match(item_path).hasMatch():
+                return True
+            if is_dir:
+                if model.canFetchMore(source_index):
+                    # Keep filter results accurate in absence of cache
+                    model.fetchMore(source_index)
+                for i in range(model.rowCount(source_index)):
+                    if self.filterAcceptsRow(i, source_index):
+                        return True
+            return False
+
+    def depth(self, source_index: QModelIndex) -> int:
         """Depth of the file or directory in the filesystem"""
         level = 0
-        while index.parent().isValid():
+        while source_index.parent().isValid():
             level += 1
-            index = index.parent()
+            source_index = source_index.parent()
         return level
 
     def set_max_depth(self, depth: int) -> None:
         """Set max subfolder depth. 0 depth = ovldata root folders only."""
         self.max_depth = depth
 
-    def update_root(self, index: QModelIndex) -> None:
+    def update_root(self, source_index: QModelIndex) -> None:
         """Update root index and store base depth for ovldata subfolder"""
-        self.root_idx = index
-        self.root_depth = self.depth(index)
+        self.root_depth = self.depth(source_index)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QFileSystemModel.Roles.FileIconRole:
@@ -2709,20 +2885,6 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         # same types
         return self._human_key(model.fileInfo(left).fileName()) < self._human_key(model.fileInfo(right).fileName())
 
-    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
-        model = cast("OvlDataFilesystemModel", self.sourceModel())
-        idx = source_parent.child(source_row, 0)
-
-        regex = self.filterRegularExpression()
-        if not regex.pattern():
-            return True
-
-        # Do not filter if root_depth hasn't been set or for folders before ovldata
-        if self.root_depth == 0 or self.depth(idx) <= self.root_depth:
-            return True
-
-        return regex.match(model.filePath(idx)).hasMatch()
-
 
 class OvlDataFilesystemModel(QFileSystemModel):
 
@@ -2752,6 +2914,9 @@ class OvlDataFilesystemModel(QFileSystemModel):
 class OvlDataTreeView(QTreeView):
     dir_dbl_clicked = pyqtSignal(str)
     file_dbl_clicked = pyqtSignal(str)
+    # Signal to request a new directory scan on the worker thread
+    scan_requested = pyqtSignal(str, list)
+
     def __init__(self, parent: Optional[QWidget] = None, actions={}, filters=()) -> None:
         super().__init__(parent)
         self.actions = actions
@@ -2765,6 +2930,7 @@ class OvlDataTreeView(QTreeView):
         self.setColumnHidden(2, True)
         self.setColumnHidden(3, True)
         self.setExpandsOnDoubleClick(False)
+        self.setUniformRowHeights(True)
 
         self.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
         self.model().sort(self.header().sortIndicatorSection(), self.header().sortIndicatorOrder())
@@ -2774,6 +2940,38 @@ class OvlDataTreeView(QTreeView):
 
         self.clicked.connect(self.item_clicked)
         self.doubleClicked.connect(self.item_dbl_clicked)
+
+        # Setup the background thread and the directory cacher worker
+        self.cacher_thread = QThread()
+        self.directory_cacher = DirectoryCacher()
+        self.directory_cacher.moveToThread(self.cacher_thread)
+        self.cache_ready = False
+        # Connect signals and slots for thread communication
+        self.scan_requested.connect(self.directory_cacher.start_scan)
+        self.directory_cacher.cache_ready.connect(self.on_cache_ready)
+        self.cacher_thread.start()
+        # State flag to safely control the iterative expansion process
+        self._is_expanding = False
+        # Store filter text to restore
+        self.filter_text = ""
+
+    @pyqtSlot(dict, str)
+    def on_cache_ready(self, cache_map: dict, scanned_root: str):
+        """Slot to receive the directory cache and apply it to the proxy"""
+        current_root = self.file_model.rootPath()
+        # Normalize to handle differences in slashes or casing
+        if os.path.normpath(os.path.normcase(scanned_root)) == os.path.normpath(os.path.normcase(current_root)):
+            logging.debug(
+                f"Cache applied for {scanned_root} with {len(cache_map)} directories"
+            )
+            root_path_norm = os.path.normcase(os.path.normpath(scanned_root))
+            self.proxy.set_directory_cache(cache_map, root_path_norm)
+            self.cache_ready = True
+        else:
+            logging.debug(f"Ignoring stale cache for {scanned_root} (Current: {current_root})")
+
+        # Restore existing filter text
+        self.set_filter(self.filter_text)
 
     def item_clicked(self, idx: QModelIndex) -> None:
         if not self.isExpanded(idx):
@@ -2793,9 +2991,27 @@ class OvlDataTreeView(QTreeView):
             logging.exception("Item double-click failed")
 
     def set_root(self, dir_game: str) -> None:
+        logging.debug(f"OvlDataTreeView set root: {dir_game}")
+        if os.path.normcase(os.path.normpath(self.file_model.rootPath())) == os.path.normcase(os.path.normpath(dir_game)):
+            logging.debug("Root Path already set.")
+            return
+        self.cache_ready = False
+        # Clear the old cache immediately. This makes all directories visible
+        # while the new cache is being generated, preventing an empty view.
+        self.proxy.setFilterRegularExpression(QRegularExpression())
+        self.proxy.clear_cache()
+        # Sync root path/index
         root_index = self.file_model.setRootPath(dir_game)
+        self.proxy.invalidate()
         self.setRootIndex(root_index)
-        self.proxy.update_root(self.rootIndex())
+        self.proxy.update_root(root_index)
+        # Trigger a new scan in the background thread after a small delay
+        QTimer.singleShot(50, lambda: self.start_background_scan(dir_game))
+
+    def start_background_scan(self, path: str) -> None:
+        """Starts the scan in the background thread"""
+        logging.debug(f"Starting delayed background scan for {path}")
+        self.scan_requested.emit(path, self.file_model.nameFilters())
 
     def get_root(self) -> str:
         return self.file_model.rootPath()
@@ -2812,12 +3028,75 @@ class OvlDataTreeView(QTreeView):
         # if a file is selected, get its containing dir
         return file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
 
-    def set_regex(self, regex):
-        if regex:
-            # expand to also filter folders have not been opened before - sometimes slow but easy
-            self.expandAll()
-        self.proxy.setFilterRegularExpression(QRegularExpression(regex,
-                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
+    def set_filter(self, filter_str: str) -> None:
+        """Applies the filter and starts the view update process"""
+        logging.debug(f"Setting Filter Regex: {filter_str}")
+        # Store the most recent filter string
+        self.filter_text = filter_str
+        if self._is_expanding:
+            self._is_expanding = False
+        # Apply the filter
+        self.proxy.setFilterRegularExpression(
+            QRegularExpression(filter_str,
+                               options=QRegularExpression.PatternOption.CaseInsensitiveOption)
+        )
+        if filter_str:
+            # Start expanding on a small delay
+            QTimer.singleShot(50, self._start_iterative_expand)
+        else:
+            # Simply collapse all on filter clear
+            self.collapseAll()
+
+    def _start_iterative_expand(self) -> None:
+        """Begins the iterative tree expansion"""
+        if self._is_expanding:
+            return
+        self._is_expanding = True
+        # Start the first step of the expansion
+        self._iterative_expand_step()
+
+    def _iterative_expand_step(self) -> None:
+        """
+        Performs one pass of expanding all currently visible, collapsed items.
+        Schedules itself to run again if it made any progress.
+        """
+        if not self._is_expanding:
+            return
+        # State of this pass
+        items_were_expanded = False
+        # Use a queue for a breadth-first traversal of the visible tree
+        queue = [self.rootIndex()]
+        head = 0
+
+        self.setUpdatesEnabled(False)
+        try:
+            # This loop traverses all items currently visible in the tree
+            while head < len(queue):
+                parent_index = queue[head]
+                head += 1
+                if not parent_index.isValid():
+                    continue
+                # Check all children of the current item.
+                for row in range(self.model().rowCount(parent_index)):
+                    child_index = self.model().index(row, 0, parent_index)
+                    # We only care about items the view is actually showing
+                    if not self.isIndexHidden(child_index):
+                        # If it's a directory that is currently collapsed, expand it
+                        if self.model().hasChildren(child_index) and not self.isExpanded(child_index):
+                            self.expand(child_index)
+                            items_were_expanded = True
+                        # Add every visible item to the queue to check its children
+                        queue.append(child_index)
+        finally:
+            self.setUpdatesEnabled(True)
+
+        # If we made progress, schedule another pass. This gives the model
+        # time to lazily load the children of the items we just expanded
+        if items_were_expanded or not self.cache_ready:
+            QTimer.singleShot(60, self._iterative_expand_step)
+        else:
+            # No progress was made in a full pass, so we are finished
+            self._is_expanding = False
 
     def map_index(self, index: QModelIndex) -> QModelIndex:
         """Map from source if applicable"""
@@ -2858,6 +3137,11 @@ class OvlDataTreeView(QTreeView):
                 if res in self.actions:
                     func = self.actions[res]
                     func()
+
+    def closeEvent(self, event: QCloseEvent):
+        self.cacher_thread.quit()
+        self.cacher_thread.wait()
+        super().closeEvent(event)
 
 
 class GameSelectorWidget(QWidget):
@@ -2985,7 +3269,7 @@ class OvlSearchWidget(QWidget):
 
 class OvlFilterWidget(QWidget):
     
-    filter_regex = pyqtSignal(str)
+    filter_changed = pyqtSignal(str)
     
     def __init__(self, parent):
         super().__init__(parent)
@@ -3011,28 +3295,29 @@ class OvlFilterWidget(QWidget):
         if checked:
             self.filter_entry.entry.setText("")
             self.show_official_button.setChecked(False)
-            self.filter_regex.emit(f"^((?!({'|'.join(valid_packages)})).)*$")
+            self.filter_changed.emit(rf"^(?:(?!(?:{'|'.join(valid_packages)})).)*\Z")
         else:
-            self.filter_regex.emit("")
+            self.filter_changed.emit("")
 
     def show_official_toggle(self, checked: bool) -> None:
         if checked:
             self.filter_entry.entry.setText("")
             self.show_modded_button.setChecked(False)
-            self.filter_regex.emit(f"^.*({'|'.join(valid_packages)}).*$")
+            self.filter_changed.emit(rf"^.*(?:{'|'.join(valid_packages)}).*\Z")
         else:
-            self.filter_regex.emit("")
+            self.filter_changed.emit("")
 
     def set_filter(self):
         filter_str = self.filter_entry.entry.text()
-        if filter_str:
-            # turn off the other filters if a filter search string was entered
-            self.show_modded_button.setChecked(False)
-            self.show_official_button.setChecked(False)
-            # set filter function for search string
-            self.filter_regex.emit(f"^.*({filter_str}).*$")
-        else:
-            self.filter_regex.emit("")
+        if not filter_str:
+            self.filter_changed.emit("")
+            return
+        # Turn off the other filters if a search string was entered
+        self.show_modded_button.setChecked(False)
+        self.show_official_button.setChecked(False)
+        # Wildcard (*, ?) substring search
+        final_pattern = fnmatch.translate(f"ovldata*{filter_str}*")  # translate() adds \Z, so wrap with *
+        self.filter_changed.emit(final_pattern)
 
 
 class OvlManagerWidget(QWidget):
@@ -3057,7 +3342,7 @@ class OvlManagerWidget(QWidget):
         self.dirs = OvlDataTreeView(actions=actions, filters=filters)
 
         self.filters = OvlFilterWidget(self)
-        self.filters.filter_regex.connect(self.dirs.set_regex)
+        self.filters.filter_changed.connect(self.dirs.set_filter)
 
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.search)
