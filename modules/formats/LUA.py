@@ -53,32 +53,25 @@ class LuaLoader(MemStructLoader):
 			buffer_data = buffer_data[8:]
 		out_files = []
 		if buffer_data[1:4] == b"Lua":
-			# logging.debug("compiled lua")
+			# Compiled Lua, attempt to decompile
 			bin_path = lua_path + ".bin"
 			with open(bin_path, 'wb') as outfile:
 				outfile.write(buffer_data)
+
+			decompiled_bytes, err = (None, None)
 			if self.lua_decompile:
-				# try to decompile it
-				decompiled_bytes = texconv.bin_to_lua(bin_path)
-				if decompiled_bytes:
-					with open(lua_path, 'wb') as outfile:
-						outfile.write(decompiled_bytes)
-					out_files.append(lua_path)
-					# also include the compiled version if needed
-					if error_flag in decompiled_bytes:
-						out_files.append(bin_path)
-						logging.warning(f"Decompiler error in {self.name} - refer to the compiled lua")
-					elif self.show_temp_files:
-						out_files.append(bin_path)
-				# no conversion result, just get bin
-				else:
-					out_files.append(bin_path)
-			else:
+				decompiled_bytes, err = texconv.bin_to_lua(bin_path)
+
+			if decompiled_bytes:
+				with open(lua_path, 'wb') as outfile:
+					outfile.write(decompiled_bytes)
+				out_files.append(lua_path)
+
+			if not decompiled_bytes or err or self.show_temp_files:
 				out_files.append(bin_path)
 		else:
-			# logging.debug("uncompiled lua")
+			# Uncompiled Lua, write the plaintext buffer
 			with open(lua_path, 'wb') as outfile:
-				# write the buffer
 				outfile.write(buffer_data)
 			out_files.append(lua_path)
 		return out_files

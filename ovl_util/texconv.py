@@ -15,6 +15,50 @@ revorb = os.path.normpath(os.path.join(util_dir, "revorb/revorb.exe"))
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
 luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
 
+DECOMPILE_TIMEOUT = 10
+PREFAB_ROOT = b"l_0_2"
+
+BYTE_REPLACEMENTS_PREFAB = [
+	# Replacements for Prefab Lua specifically
+	# Example: b'= .setmetatable' -> b'= setmetatable'
+	(br'(=\s*)\.\s*(setmetatable|_G)\b', br'\1\2'),
+	# Example: b'(.require)' -> b'require'
+	(br'\(\s*\.\s*(module|require|math)\s*\)', br'\1'),
+	# Example: b'.Root' -> b'l_0_2.Root'
+	(br'\.(FlattenedRoot|Root|GetRoot|GetFlattenedRoot)\b', br'l_0_2.\1'),
+]
+
+BYTE_REPLACEMENTS = [
+	# Syntax Errors from custom Lua
+	# < 0, 0, 0 > -> vec3_const(0, 0, 0)
+	(
+		br'<\s*?([0-9\-\.]+(?:e[+-]?[0-9]+)?)\s*?,\s*?([0-9\-\.]+(?:e[+-]?[0-9]+)?)\s*?,\s*?([0-9\-\.]+(?:e[+-]?[0-9]+)?)\s*?>',
+		br'vec3_const(\1, \2, \3)'
+	),
+	(br'\s\.end\b', br' nil'),
+]
+
+COMPILED_BYTE_REPLACEMENTS = [
+	(re.compile(pattern), replacement) for pattern, replacement in BYTE_REPLACEMENTS
+]
+
+COMPILED_BYTE_REPLACEMENTS_PREFAB = [
+	(re.compile(pattern), replacement) for pattern, replacement in BYTE_REPLACEMENTS_PREFAB
+]
+
+def sanitize_lua_content(content: bytes) -> bytes:
+	"""
+	Performs a series of regex replacements on the raw Lua content
+	to fix custom syntax
+	"""
+	if PREFAB_ROOT in content:
+		for compiled_pattern, replacement in COMPILED_BYTE_REPLACEMENTS_PREFAB:
+			content = compiled_pattern.sub(replacement, content)
+
+	for compiled_pattern, replacement in COMPILED_BYTE_REPLACEMENTS:
+		content = compiled_pattern.sub(replacement, content)
+	
+	return content
 
 def run_smart(args):
 	subprocess.check_call(args)
@@ -47,15 +91,36 @@ def write_riff_file(riff_buffer, out_file_path):
 		logging.warning(f"Unknown resource format {f_type} in {out_file_path}! Please report to the devs!")
 
 
-def bin_to_lua(bin_path):
-	try:
-		for call_sig in (f'"{luadec}" "{bin_path}"', f'"{luadec}" -s "{bin_path}"'):
-			output = subprocess.Popen(call_sig, stdout=subprocess.PIPE).communicate()[0]
-			if len(output) > 0:
-				return output
-		logging.warning(f"Decompiling {bin_path} returned no result")
-	except subprocess.CalledProcessError:
-		logging.exception(f"Decompiling {bin_path} failed")
+def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, None]:
+	file_name = os.path.basename(bin_path)
+	for call_sig in (f'"{luadec}" "{bin_path}"', f'"{luadec}" -s "{bin_path}"'):
+		try:
+			proc = subprocess.Popen(call_sig, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			output, err = proc.communicate(timeout=DECOMPILE_TIMEOUT)
+			err_msg = err.decode(errors='ignore').strip()
+			if output:
+				# If there was also a message on stderr, log it as a warning
+				if err_msg:
+					logging.warning(f"Decompiler warnings for {file_name}", extra={"details": err_msg})
+				return sanitize_lua_content(output), err_msg
+			# The decompiler produced no output, but printed an error message
+			elif err_msg:
+				logging.error(f"Decompiling {file_name} failed with errors", extra={"details": err_msg})
+				return None, err_msg
+		except subprocess.TimeoutExpired:
+			# Kill long luadec processes to recover from bad files
+			proc.kill()
+			output, err = proc.communicate()
+			err_msg = err.decode(errors='ignore').strip()
+			log_message = f"Decompiling {file_name} timed out after {DECOMPILE_TIMEOUT} seconds."
+			logging.error(log_message, extra={"details": err_msg})
+			return None, err_msg
+		except Exception:
+			logging.exception(f"Decompiling {file_name} failed with an unexpected error.")
+			return None, None
+
+	logging.error(f"Decompiling {file_name} returned no result.")
+	return None, None
 
 
 error_code_filters: dict[int, tuple[str, ...]] = {
