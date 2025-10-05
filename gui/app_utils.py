@@ -241,7 +241,7 @@ def url_to_html(raw_line: str) -> str:
 # region ------------------------------------------------------------------- #
 
 def get_steam_games(games_list: list[str]) -> dict[str, str]:
-    try:
+    if WINDOWS:
         # get steam folder from windows registry
         hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
         steam_query = winreg.QueryValueEx(hkey, "InstallPath")
@@ -250,34 +250,33 @@ def get_steam_games(games_list: list[str]) -> dict[str, str]:
         steam_path = steam_query[0]
         library_folders = {steam_path}
         vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
-        # check if there are other steam library folders (eg. on external drives)
+        # check if there are other steam library folders (e.g. on external drives)
         try:
-            v = vdf.load(open(vdf_path))
-            for folder in v["libraryfolders"].values():
-                library_folders.add(folder["path"])
+            with open(vdf_path) as vdf_reader:
+                v = vdf.load(vdf_reader)
+                for folder in v["libraryfolders"].values():
+                    library_folders.add(folder["path"])
         except:
             logging.warning(
                 f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
 
-        # map all installed fdev game names to their path
+        # map all installed fdev game names to their ovldata folder
         fdev_games = {}
         # list all games for each library folder
         for steam_path in library_folders:
-            try:
-                apps_path = os.path.join(steam_path, "steamapps\\common")
-                if os.path.isdir(apps_path):
-                    # filter with supported fdev games
-                    fdev_in_lib = [game for game in os.listdir(apps_path) if game in games_list]
-                    # generate the whole path for each game, add to dict
-                    # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-                    fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
-            except FileNotFoundError as e:
-                logging.warning(e)
+            apps_path = os.path.join(steam_path, "steamapps", "common")
+            if os.path.isdir(apps_path):
+                # filter with supported fdev games
+                fdev_in_lib = [game for game in os.listdir(apps_path) if game in games_list]
+                # generate the whole path for each game, add to dict
+                # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+                fdev_games.update({game: os.path.join(apps_path, game, "win64", "ovldata") for game in fdev_in_lib})
+
         logging.info(f"Found {len(fdev_games)} Cobra games from Steam")
         return fdev_games
-    except:
-        logging.exception(f"Getting installed games from steam folder failed")
-        return {}
+
+    logging.warning(f"Can only get games from Steam on Windows")
+    return {}
 
 # endregion
 
