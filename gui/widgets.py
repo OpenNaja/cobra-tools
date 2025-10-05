@@ -3138,10 +3138,10 @@ class OvlDataTreeView(QTreeView):
                     func = self.actions[res]
                     func()
 
-    def closeEvent(self, event: QCloseEvent):
-        self.cacher_thread.quit()
-        self.cacher_thread.wait()
-        super().closeEvent(event)
+    #def closeEvent(self, event: QCloseEvent):
+    #    self.cacher_thread.quit()
+    #    self.cacher_thread.wait()
+    #    super().closeEvent(event)
 
 
 class GameSelectorWidget(QWidget):
