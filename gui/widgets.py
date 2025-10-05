@@ -1346,17 +1346,17 @@ class LogViewDelegate(QStyledItemDelegate):
         row_txt_summary = str(index.data(LogModel.TEXT) or "")
         has_details = bool(index.data(LogModel.DETAIL))
 
-        content_rect = option.rect.adjusted(
+        content_rect: QRect = option.rect.adjusted(
             self.TEXT_PADDING,       # Left padding from item edge
             self.TEXT_PADDING // 2,  # Top padding from item edge
             -self.TEXT_PADDING,      # Right padding from item edge
             -self.TEXT_PADDING // 2  # Bottom padding from item edge
         )
         # Effective vertical drawing area for text/indicator:
-        drawing_y = content_rect.top()
-        drawing_height = content_rect.height()
+        drawing_y: int = content_rect.top()
+        drawing_height: int = content_rect.height()
         # Define where text will start horizontally
-        text_summary_start_x = option.rect.left() + self.ICON_AREA_WIDTH
+        text_summary_start_x: int = option.rect.left() + self.ICON_AREA_WIDTH
 
         # Colored Gradients
         if content_rect.isValid():
@@ -1395,7 +1395,9 @@ class LogViewDelegate(QStyledItemDelegate):
         # Draw Icon
         icon_x_start = option.rect.left() + self.TEXT_PADDING
         if icon_pixmap and isinstance(icon_pixmap, QtGui.QPixmap):
-            icon_y = drawing_y + (drawing_height - icon_pixmap.height()) // 2
+            dpr = icon_pixmap.devicePixelRatioF()
+            logical_icon_height = int(icon_pixmap.height() / dpr)
+            icon_y = drawing_y + (drawing_height - logical_icon_height) // 2
             painter.drawPixmap(icon_x_start, icon_y, icon_pixmap)
 
         # Determine if hover indicator for details should be shown
@@ -1455,7 +1457,9 @@ class LogViewDelegate(QStyledItemDelegate):
             painter.drawText(details_txt_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, details_txt)
 
             if indicator_pixmap:
-                arrow_y = drawing_y + (drawing_height - indicator_pixmap.height()) // 2
+                dpr = indicator_pixmap.devicePixelRatioF()
+                logical_icon_height = int(indicator_pixmap.height() / dpr)
+                arrow_y = drawing_y + (drawing_height - logical_icon_height) // 2
                 painter.drawPixmap(details_txt_draw_x, arrow_y, indicator_pixmap)
         elif has_details:
             indicator_block_width = self.DETAIL_INDICATOR_SVG_SIZE.width() + self.INDICATOR_SPACING
@@ -1470,7 +1474,9 @@ class LogViewDelegate(QStyledItemDelegate):
             if indicator_block_x_start < text_summary_start_x + self.INDICATOR_SPACING:
                  indicator_block_x_start = text_summary_start_x + self.INDICATOR_SPACING
             if indicator_pixmap:
-                info_y = drawing_y + (drawing_height - indicator_pixmap.height()) // 2
+                dpr = indicator_pixmap.devicePixelRatioF()
+                logical_icon_height = int(indicator_pixmap.height() / dpr)
+                info_y = drawing_y + (drawing_height - logical_icon_height) // 2
                 painter.drawPixmap(indicator_block_x_start, info_y, indicator_pixmap)
 
         # Calculate Text Summary Rect (respecting indicator)
