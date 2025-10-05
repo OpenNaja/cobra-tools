@@ -2452,7 +2452,9 @@ class IconEdit(QWidget):
 
     def search_text_changed(self):
         # wait for 250 ms before
-        self.typing_timer.start(250)
+        if self.typing_timer.isActive():
+            self.typing_timer.stop()
+        self.typing_timer.start(350)
 
     def timer_up(self):
         # emit the text on the signal
