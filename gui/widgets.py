@@ -2941,15 +2941,15 @@ class OvlDataTreeView(QTreeView):
         self.clicked.connect(self.item_clicked)
         self.doubleClicked.connect(self.item_dbl_clicked)
 
-        ## Setup the background thread and the directory cacher worker
-        #self.cacher_thread = QThread()
-        #self.directory_cacher = DirectoryCacher()
-        #self.directory_cacher.moveToThread(self.cacher_thread)
+        # Setup the background thread and the directory cacher worker
+        self.cacher_thread = QThread(parent=self)
+        self.directory_cacher = DirectoryCacher()
+        self.directory_cacher.moveToThread(self.cacher_thread)
         self.cache_ready = False
-        ## Connect signals and slots for thread communication
-        #self.scan_requested.connect(self.directory_cacher.start_scan)
-        #self.directory_cacher.cache_ready.connect(self.on_cache_ready)
-        #self.cacher_thread.start()
+        # Connect signals and slots for thread communication
+        self.scan_requested.connect(self.directory_cacher.start_scan)
+        self.directory_cacher.cache_ready.connect(self.on_cache_ready)
+        self.cacher_thread.start()
         # State flag to safely control the iterative expansion process
         self._is_expanding = False
         # Store filter text to restore
@@ -3138,10 +3138,11 @@ class OvlDataTreeView(QTreeView):
                     func = self.actions[res]
                     func()
 
-    #def closeEvent(self, event: QCloseEvent):
-    #    self.cacher_thread.quit()
-    #    self.cacher_thread.wait()
-    #    super().closeEvent(event)
+    def closeEvent(self, event: QCloseEvent):
+        if self.cacher_thread and self.cacher_thread.isRunning():
+            self.cacher_thread.quit()
+            self.cacher_thread.wait()
+        super().closeEvent(event)
 
 
 class GameSelectorWidget(QWidget):
