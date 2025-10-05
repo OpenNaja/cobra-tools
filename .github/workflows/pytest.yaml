@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .[gui,dev]
+          pip install .[gui,dev,manis_tool_gui]
       - name: Install GitHub plugins
         run: |
           pip install pytest-github-actions-annotate-failures
