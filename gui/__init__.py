@@ -5,7 +5,7 @@ import platform
 from dataclasses import dataclass
 from typing import NamedTuple, Optional
 from pathlib import Path
-from ovl_util import logs
+from ovl_util import auto_updater, logs
 from ovl_util.config import save_config
 from gui.widgets import MainWindow
 from gui.tools.layout_visualizer import install_layout_visualizer
@@ -106,6 +106,7 @@ def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplicat
 
 def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 	"""Startup the window, set the theme, handle config and logs on application exit"""
+	auto_updater.run_update_check(tool_name=opts.log_name)
 	if platform.system() == "Windows":
 		import ctypes
 		myappid = 'Open Naja OVL Tools'  # arbitrary string

@@ -12,7 +12,7 @@ from abc import abstractmethod
 from pathlib import Path
 from dataclasses import dataclass, field
 
-from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
+#from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
 from ovl_util import logs
 from ovl_util.config import Config, ImmediateSetting, RestartSetting
 
