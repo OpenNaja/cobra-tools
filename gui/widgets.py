@@ -2021,7 +2021,7 @@ class LoggerWidget(SnapCollapseWidget):
         self._handler_poll_timer.timeout.connect(self.poll_log_handler)
 
         if parent.file_widget:
-            parent.file_widget.file_begin_open.connect(self.clear)
+            parent.file_widget.file_clear_logger.connect(self.clear)
         parent.set_log_level.connect(self.on_log_level_changed)
 
         #self.snapped.connect(lambda collapsed: self.set_logging_speed("slow" if collapsed else "normal"))
@@ -3877,7 +3877,7 @@ class FileWidget(FileDirWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
-    file_begin_open = pyqtSignal(str)
+    file_clear_logger = pyqtSignal(str)
     file_opened = pyqtSignal(str)
     file_saved = pyqtSignal(str)
 
@@ -3911,7 +3911,7 @@ class FileWidget(FileDirWidget):
 
     def open_file(self, filepath: str) -> bool:
         if self.may_open_new_file(filepath):
-            self.file_begin_open.emit(filepath)
+            self.file_clear_logger.emit(filepath)
             self.set_file_path(filepath)
             self.cfg[self.cfg_last_dir_open] = self.dir
             self.cfg[self.cfg_last_file_open] = self.filepath
@@ -3975,6 +3975,7 @@ class FileWidget(FileDirWidget):
         #       although it is no longer hardcoded for OVL Tool
         dirpath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
         if self.accept_dir(dirpath):
+            self.file_clear_logger.emit(dirpath)
             self.dir_opened.emit(dirpath)
             # Store the parent directory so that the next File > New
             # opens in root to allow selection of sibling folders.
