@@ -540,18 +540,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/ceara/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
 	# for mo in m.model_infos:
 	# 	for me in mo.model.meshes:
 	# 		me.mesh.pack_verts()
@@ -560,50 +548,8 @@ if __name__ == "__main__":
 	# 		me.mesh.tris = ((-1, list(me.mesh.tris)), )
 	# 		# print(me.mesh.tri_indices)
 	# 		# print(m)
-	# m.save("C:/Users/arnfi/Desktop/models.ms2")
 	m.load("C:/Users/arnfi/Desktop/resize/resized/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	print(m)
-
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Genie/Genie/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/Coasters/Tracks/Shared/TracksShared/css_004_models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Hammer_Swing/FR_HSwing/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/The_Screaminator/FR_Scream/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Wild_Blue/FR_WBlue/models.ms2", read_editable=True)
-
-	# broken
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content4/Rides/Flat_Rides/Weisshorn/FR_WHorn/models.ms2", read_editable=True)
-	
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
-
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
-
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Wallsets/ST_Stone/ST_Stone/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Kraken/PR_Kraken/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta/LAG_NaturalWaterPool_Malta/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/Content0/Buildings/Shared/Props/CharacterScale/CharacterScale/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Aardvarks/Aardvark/Aardvark_Female/Aardvark_Female/aardvark_female_.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_working.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/ankylosaurus.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/calamite/tree_paleo_calamite.ms2", read_editable=True, dump=True)
-	# m.load("C:/Users/arnfi/Desktop/mango/tree_mango.ms2", read_editable=True, dump=True)
-	# m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_ - stock.ms2", read_editable=True)
-	# print(m)
-	# m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_.ms2", read_editable=True)
-	# print(m)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):
 	# 		# print(bi, bone.name)
@@ -621,78 +567,7 @@ if __name__ == "__main__":
 	# # 		# print(ragdoll.parent, ragdoll.child)
 	# # 		# print(ragdoll.rot.data)
 	# # 		# print(np.linalg.inv(ragdoll.rot.data))
-	# m.save("C:/Users/arnfi/Desktop/ankylosaurus_.ms2")
-	# print(m)
 
-# INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0
-# INFO | size 16 / count 1 = 16.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2; 0
-# INFO | size 16 / count 2 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
-# INFO | size 32 / count 3 = 10.666666666666666 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
-# INFO | size 32 / count 4 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_CHN/WF_CHN/models.ms2; 0
-# INFO | size 40 / count 5 = 8.0 in /PDLC_Vintage/Environment/Scenery/Wallset/VT_Wood/VT_Wood/vt_wood_merge_arch_half_4m.ms2; 0
-# INFO | size 80 / count 10 = 8.0 in /PDLC_Spooky/Environment/Scenery/Wallsets/SP_HauntedHouse/SP_HauntedHouse/models.ms2; 0
-# INFO | size 24 / count 3 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_SPN/WF_SPN/models.ms2; 0
-# INFO | size 24 / count 2 = 12.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
-# INFO | size 80 / count 9 = 8.88888888888889 in /PDLC_Adventure/Environment/Scenery/Themes/AD_Adventure/AD_Statue_Snake/AD_Statue_Snake/models.ms2; 0
-# INFO | size 72 / count 9 = 8.0 in /PDLC_Vintage/Environment/Scenery/Wallset/VT_Wood/VT_Wood/vt_wood_merge_arch_4m.ms2; 0
-# INFO | size 136 / count 16 = 8.5 in /Content0/Environment/Scenery/Themes/FT_FairyTale/FT_RoyalGazebo/FT_RoyalGazebo/models.ms2; 0
-# INFO | size 48 / count 5 = 9.6 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Arch_Pillar_Roofs/VT_Arch_Pillar_Roofs/models.ms2; 0
-# INFO | size 64 / count 7 = 9.142857142857142 in /PDLC_WorldFair/Environment/Scenery/Themes/WF_WorldFair/WF_Planter_FRA/WF_Planter_FRA/models.ms2; 0
-# INFO | size 96 / count 11 = 8.727272727272727 in /Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2; 0
-# INFO | size 40 / count 4 = 10.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
-# INFO | size 72 / count 8 = 9.0 in /Content0/Environment/Scenery/Wallsets/WD_Wood/WD_Wood/models.ms2; 0
-# INFO | size 56 / count 6 = 9.333333333333334 in /PDLC_WorldFair/Environment/Scenery/Themes/WF_WorldFair/WF_Gondola_ITA/WF_Gondola_ITA/models.ms2; 0
-# INFO | size 184 / count 23 = 8.0 in /Content0/Environment/Scenery/Themes/WS_Western/WS_PaddleSteamer/WS_PaddleSteamer/models.ms2; 0
-# INFO | size 48 / count 6 = 8.0 in /PDLC_Spooky/Environment/Scenery/Wallsets/SP_HauntedHouse/SP_HauntedHouse/models.ms2; 0
-# INFO | size 96 / count 12 = 8.0 in /Content0/Environment/Scenery/Wallsets/ST_Stone_B/ST_Stone_B/models.ms2; 0
-# INFO | size 88 / count 11 = 8.0 in /Content0/Environment/Scenery/Wallsets/ST_Stone_B/ST_Stone_B/models.ms2; 0
-# INFO | size 88 / count 10 = 8.8 in /Content2/Environment/Scenery/Themes/FT_Fairytale/FT_Rope_Pieces/FT_Rope_Pieces/models.ms2; 0
-# INFO | size 56 / count 6 = 9.333333333333334 in /Content0/Rides/TransportRides/Cars/Connie/TR_Connie/models.ms2; 1
-# INFO | size 40 / count 5 = 8.0 in /PDLC_Adventure/Rides/Coasters/Cars/GoldFever/CC_GoldFever/models.ms2; 1
-# INFO | size 40 / count 4 = 10.0 in /Content3/Rides/Coasters/Cars/ViperOne/CC_ViperOne/models.ms2; 1
-# INFO | size 56 / count 7 = 8.0 in /Content0/Rides/Coasters/Cars/Barghest/CC_Barghest/models.ms2; 1
-# INFO | size 32 / count 3 = 10.666666666666666 in /PDLC_RidePack1/Rides/Coasters/Cars/SteelMultiRole/CC_SteelMultiRole/models.ms2; 1
-# INFO | size 32 / count 4 = 8.0 in /Content4/Rides/Coasters/Cars/Zenith/CC_Zenith/models.ms2; 1
-# INFO | size 24 / count 3 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Cars/Jixxer/CC_Jixxer/models.ms2; 1
-# INFO | size 24 / count 2 = 12.0 in /PDLC_Vintage/Rides/Coasters/Cars/CC_FTurns/CC_FTurns/models.ms2; 1
-# INFO | size 16 / count 1 = 16.0 in /Content3/Rides/Coasters/Cars/Degen/CC_Degen/models.ms2; 1
-# INFO | size 48 / count 5 = 9.6 in /Content1/Rides/TransportRides/Cars/IronHorse/TR_IronHorse/models.ms2; 1
-# INFO | size 16 / count 2 = 8.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Cars/PMover/TR_PMover/models.ms2; 1
-# INFO | size 8 / count 1 = 8.0 in /PDLC_Spooky/Rides/Powered_Track_Rides/The_Huntsman/PTR_Huntsman/models.ms2; 1
-# INFO | size 80 / count 9 = 8.88888888888889 in /Content0/Rides/Coasters/Cars/Stingray/CC_SRay/models.ms2; 1
-# INFO | size 48 / count 6 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Cars/Jixxer/CC_Jixxer/models.ms2; 1
-# INFO | size 112 / count 13 = 8.615384615384615 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2; 0
-# INFO | size 104 / count 12 = 8.666666666666666 in /Content1/Environment/Scenery/Wallsets/HOL_GBread/HOL_Gbread/models.ms2; 0
-# INFO | size 56 / count 7 = 8.0 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Arch_Pillar_Roofs/VT_Arch_Pillar_Roofs/models.ms2; 0
-# INFO | size 24 / count 1 = 24.0 in /GameMain/Main/nullphysicsskeleton_.ms2; 1
-# INFO | size 64 / count 8 = 8.0 in /PDLC_RidePack1/Environment/Scenery/RP1_CycloidSpinBackboards/RP1_CycloidSpinBackboards/models.ms2; 0
-
-	#
-
-
-	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
-	# m.save("C:/Users/arnfi/Desktop/test.ms2")
-	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/moros/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/ankylodocus.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/rabbit_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
-	# print(m.models_reader.bone_infos[0])
-	# print(m)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/groundplane_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/footplantingtest_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
-	# print(m.models_reader.bone_infos[0])
 	# mods = set()
 	# flags = set()
 	# for bone_info in m.models_reader.bone_infos:
@@ -708,10 +583,6 @@ if __name__ == "__main__":
 	# 	# print(mo.model.objects)
 	# 	for i, me in enumerate(mo.model.meshes):
 	# 		# print(i, me)
-	# # 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-	# # 		# 	t.rot.a = 1.0
-	# # 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
-	# # 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
 	# 		for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
 	# 			# print(t, v)
 	# 			print(v)
@@ -720,10 +591,6 @@ if __name__ == "__main__":
 	# 			break
 	# 			# flags.add(tuple(v.flags))
 	# 		print(flags)
-			# 	pass
-			# 	# print(i, t.tris_offset)
-			# 	# print(i, v.vertex_offset % 16)
-			# 	mods.add(v.vertex_offset % 16)
 	# 		flags.add(me.mesh.flag)
 	# print(mods)
 			# if i in (12, 13, 14):
@@ -738,44 +605,3 @@ if __name__ == "__main__":
 			# 		# print(tri_ch.rot, pack_swizzle(av / np.linalg.norm(av)), pack_swizzle(md / np.linalg.norm(md)), vert_ch.normals[0])
 			# 		print(tri_ch.rot, pack_swizzle(vert_ch.normals[0]), pack_swizzle(vert_ch.normals[-1]), )
 			# 		print(np.linalg.norm((tri_ch.rot.x, tri_ch.rot.y, tri_ch.rot.z, )), )
-	# m.save("C:/Users/arnfi/Desktop/export/models.ms2")
-
-	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/park_snowwhite_.ms2", read_editable=True)
-	# print(m.models_reader.bone_infos[0].bone_names)
-	# print(m.buffer_0.names[142])
-	# m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/c_bz_shipparts_.ms2", read_editable=True)
-	# print(m)
-	# m.load("C:/Users/arnfi/Desktop/nile_lechwe_male_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/caribou/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC3/Dinosaurs/Land/Therizinosaurus/Therizinosaurus/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
-
-	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
-	# for model_info in m.model_infos:
-	# 	for w in model_info.model.meshes:
-	# 		me = w.mesh
-	# 		me.vertices[:, 1] += np.sin(np.pi * me.vertices[:, 2] * 0.2) * 2
-	# 		# me.vertices[:, 2] *= 2
-	# 		me.pack_verts()
-	# m.save("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2")
-
-	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
-	# m.save("C:/Users/arnfi/Desktop/models.ms2")
-	# m.load("C:/Users/arnfi/Desktop/paths_new/strips.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/bornean_orangutan_male_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/acacia/tree_acacia_umbrella_thorn.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/scimitar_horned_oryx_female_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/quetz.ms2", read_editable=True)
-	# m.save("C:/Users/arnfi/Desktop/models.ms2")
-	# print(m)
-	# print(m.model_infos[1].bone_info.joints.joint_infos)
