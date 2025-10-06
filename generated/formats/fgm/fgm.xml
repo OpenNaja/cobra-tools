@@ -14,14 +14,6 @@
 <!--    <version id="WAR" version="6">Warhammer Age of Sigmar - Realms of Ruin</version>-->
 <!--    <version id="PC2" version="7">Planet Coaster 2</version>-->
 
-    <compound name="Color" inherit="MemStruct">
-        4 bytes
-        <add name="r" type="ubyte"/>
-        <add name="g" type="ubyte"/>
-        <add name="b" type="ubyte"/>
-        <add name="a" type="ubyte"/>
-    </compound>
-
     <compound name="AttribData" inherit="MemStruct">
         <add name="value" type="float" arr1="1" cond="#ARG#\dtype #EQ# 0"/>
         <add name="value" type="float" arr1="2" cond="#ARG#\dtype #EQ# 1"/>
@@ -78,8 +70,8 @@
         # PC2 - 16 bytes
 		part of fgm fragment, per texture involved
         <add name="value" type="TexIndex" arr1="1" cond="dtype == 8" />
-		<add name="value" type="Color" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</add>
-		<add name="value" type="Color" arr1="1" cond="dtype == 7" until="17">Stores rgba color</add>
+		<add name="value" type="ByteColor" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</add>
+		<add name="value" type="ByteColor" arr1="1" cond="dtype == 7" until="17">Stores rgba color</add>
         used in JWE swatches, purpose unknown; dropped in PC2
         <add name="some_index_0" type="uint" since="18" vercond="mime_version != 7" default="0" optional="True" />
         <add name="some_index_1" type="uint" since="18" vercond="mime_version != 7" default="0" optional="True" />

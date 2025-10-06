@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'ResearchRoot': 'generated.formats.animalresearch.compounds.ResearchRoot',
 	'ResearchLevel': 'generated.formats.animalresearch.compounds.ResearchLevel',
 	'UnlockState': 'generated.formats.animalresearch.compounds.UnlockState',

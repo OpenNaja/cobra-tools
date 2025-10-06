@@ -31,22 +31,6 @@
         <add name="LoopFlag" type="uint">if 1381323599 then looped</add>
     </compound>
 
-    <compound name="BaniInfo">
-        Custom header struct
-        <add name="name" type="ZString"/>
-        <add name="data" type="BaniRoot"/>
-    </compound>
-
-    <compound name="BanisInfoHeader">
-        Custom header struct
-        <add name="version" type="uint"/>
-        <add name="num_anims" type="uint"/>
-        <add name="anims" type="BaniInfo" arr1="num_anims"/>
-        <add name="data" type="BanisRoot"/>
-        keyframe data follows
-    </compound>
-
-
     <compound name="StructA">
         PC2: 16 bytes
         <add name="data" type="byte" arr1="16"/>
@@ -93,6 +77,21 @@
 
         <add name="bani_count" type="uint" since="7"/>
         <add name="zero2" type="uint64" since="7"/>
+    </compound>
+
+    <compound name="BaniInfo">
+        Custom header struct
+        <add name="name" type="ZString"/>
+        <add name="data" type="BaniRoot"/>
+    </compound>
+
+    <compound name="BanisInfoHeader">
+        Custom header struct
+        <add name="version" type="uint"/>
+        <add name="num_anims" type="uint"/>
+        <add name="anims" type="BaniInfo" arr1="num_anims"/>
+        <add name="data" type="BanisRoot"/>
+        keyframe data follows
     </compound>
 
 </niftoolsxml>

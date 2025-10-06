@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'BrushIndex': 'generated.formats.compoundbrush.structs.BrushIndex',
 	'BrushStruct': 'generated.formats.compoundbrush.structs.BrushStruct',
 	'SomeStruct3Sub1': 'generated.formats.compoundbrush.structs.SomeStruct3Sub1',

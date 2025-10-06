@@ -14,6 +14,7 @@ class EventAction(HircObject):
 		self.action_type = name_type_map['ActionType'](self.context, 0, None)
 		self.children = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.id_ext_4 = name_type_map['Ubyte'](self.context, 0, None)
+		self.node_initial_params = name_type_map['NodeInitialParams'](self.context, 0, None)
 		self.raw = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		self.by_bit_vector = name_type_map['Ubyte'].from_value(4)
 		self.bank_i_d = name_type_map['Uint'](self.context, 0, None)

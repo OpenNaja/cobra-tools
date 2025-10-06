@@ -17,6 +17,7 @@ class BanisInfoHeader(BaseStruct):
 		self.version = name_type_map['Uint'](self.context, 0, None)
 		self.num_anims = name_type_map['Uint'](self.context, 0, None)
 		self.anims = Array(self.context, 0, None, (0,), name_type_map['BaniInfo'])
+		self.data = name_type_map['BanisRoot'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

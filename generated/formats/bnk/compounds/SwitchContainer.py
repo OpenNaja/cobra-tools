@@ -10,6 +10,7 @@ class SwitchContainer(HircObject):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
 		self.e_group_type = name_type_map['Ubyte'](self.context, 0, None)
 		self.ul_group_i_d = name_type_map['Uint'](self.context, 0, None)
 		self.ul_default_switch = name_type_map['Uint'](self.context, 0, None)

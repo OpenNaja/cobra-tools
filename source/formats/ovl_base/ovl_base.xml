@@ -135,4 +135,12 @@
         <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
+    <compound name="ByteColor" inherit="MemStruct">
+        4 bytes
+        <add name="r" type="ubyte"/>
+        <add name="g" type="ubyte"/>
+        <add name="b" type="ubyte"/>
+        <add name="a" type="ubyte"/>
+    </compound>
+
 </niftoolsxml>

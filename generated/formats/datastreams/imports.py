@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'DataStreamsRoot': 'generated.formats.datastreams.compounds.DataStreamsRoot',
 	'DataStreamsSettings': 'generated.formats.datastreams.compounds.DataStreamsSettings',
 	'SubCurveType': 'generated.formats.datastreams.enums.SubCurveType',

@@ -14,6 +14,7 @@ class RanSeqContainer(HircObject):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
 		self.s_loop_count = name_type_map['Ushort'](self.context, 0, None)
 		self.s_loop_mod_min = name_type_map['Ushort'](self.context, 0, None)
 		self.s_loop_mod_max = name_type_map['Ushort'](self.context, 0, None)

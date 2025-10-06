@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'TrackStationRoot': 'generated.formats.trackstation.compounds.TrackStationRoot',
 	'FlumeInfo': 'generated.formats.trackstation.compounds.FlumeInfo',
 	'Start': 'generated.formats.trackstation.compounds.Start',

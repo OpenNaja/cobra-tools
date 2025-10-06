@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'WorldHeader': 'generated.formats.world.compounds.WorldHeader',
 	'WorldSharedSettingsHeader': 'generated.formats.world.compounds.WorldSharedSettingsHeader',
 	'WorldArtSettingsHeader': 'generated.formats.world.compounds.WorldArtSettingsHeader',

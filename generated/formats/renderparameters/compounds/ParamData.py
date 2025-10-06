@@ -14,7 +14,7 @@ class ParamData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.data = Array(self.context, 0, None, (0,), name_type_map['Float'])
+		self.data = Array(self.context, 0, None, (0,), name_type_map['ZStrPtr'])
 		if set_default:
 			self.set_defaults()
 

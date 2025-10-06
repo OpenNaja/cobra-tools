@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'MimeEntry': 'generated.formats.ovl.compounds.MimeEntry',
 	'Triplet': 'generated.formats.ovl.compounds.Triplet',
 	'FileEntry': 'generated.formats.ovl.compounds.FileEntry',

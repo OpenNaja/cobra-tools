@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'PoseDriverDefRoot': 'generated.formats.posedriverdef.compounds.PoseDriverDefRoot',
 	'Driver': 'generated.formats.posedriverdef.compounds.Driver',
 	'Data': 'generated.formats.posedriverdef.compounds.Data',

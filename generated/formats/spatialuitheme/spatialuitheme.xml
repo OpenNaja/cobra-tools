@@ -12,16 +12,8 @@
     <compound name="SpatialUITheme_Texture" inherit="MemStruct">
         <add name="SpatialUITheme_Texture_Id" type="uint64" />
         <add name="SpatialUITheme_Texture_Name" type="Pointer" template="ZString"/>
-        <add name="SpatialUITheme_Colour" type="Color" />
+        <add name="SpatialUITheme_Colour" type="ByteColor" />
         <add name="SpatialUITheme_Colour_Unknown" type="int" />
-    </compound>
-
-    <compound name="Color" inherit="MemStruct">
-        4 bytes
-        <add name="r" type="ubyte"/>
-        <add name="g" type="ubyte"/>
-        <add name="b" type="ubyte"/>
-        <add name="a" type="ubyte"/>
     </compound>
 
 </niftoolsxml>

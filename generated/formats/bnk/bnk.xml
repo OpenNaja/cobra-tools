@@ -199,122 +199,9 @@
         <add name="id" type="uint" >id of this Sound SFX object</add>
     </compound>
 
-    <compound name="Sound" inherit="HircObject">
-        <add name="AkBankSourceData" type="AkBankSourceData"/>
-        <add name="NodeBaseParams" type="NodeBaseParams"/>
-    </compound>
-
     <compound name="Event" inherit="HircObject">
         <add name="num actions" type="ubyte"/>
         <add name="children" type="uint" arr1="num_actions"/>
-    </compound>
-
-    <compound name="CAkActionPlay" inherit="HircObject">
-    </compound>
-
-    <compound name="EventAction" inherit="HircObject">
-        <add name="scope" type="ActionScope"/>
-        <add name="action_type" type="ActionType"/>
-        <add name="children" type="uint" arr1="1"/>
-        <add name="idExt_4" type="ubyte"/>
-        # instead of the stuff below?
-        <add name="NodeInitialParams" type="NodeInitialParams"/>
-<!--        <add name="num_params" type="ubyte"/>-->
-<!--        <add name="params" type="ubyte" arr1="num_params"/>-->
-<!--        <add name="num_params_types" type="ubyte"/>-->
-<!--        <add name="params_types" type="uint" arr1="num_params_types"/>-->
-
-<!--        the following is conditional on action type-->
-        <add name="raw" type="byte" arr1="#ARG# - ( 11 + (NodeInitialParams\io_size))" cond="action_type != 4"/>
-        <add name="byBitVector" type="ubyte" default="4" cond="action_type #EQ# 4" />
-        <add name="bankID" type="uint" cond="action_type #EQ# 4" />
-    </compound>
-
-    <compound name="AkPlaylistItem">
-        <add name="ulPlayID" type="uint"/>
-        <add name="weight" type="uint"/>
-    </compound>
-
-    <compound name="RanSeqContainer" inherit="HircObject">
-        wwiser CAkRanSeqCntr__SetInitialValues
-
-        <add name="NodeBaseParams" type="NodeBaseParams"/>
-
-        <add name="sLoopCount" type="ushort"/>
-        <add name="sLoopModMin" type="ushort"/>
-        <add name="sLoopModMax" type="ushort"/>
-        <add name="fTransitionTime" type="float"/>
-        <add name="fTransitionTimeModMin" type="float"/>
-        <add name="fTransitionTimeModMax" type="float"/>
-        <add name="wAvoidRepeatCount" type="ushort"/>
-        <add name="eTransitionMode" type="ubyte"/>
-        <add name="eRandomMode" type="ubyte"/>
-        <add name="eMode" type="ubyte"/>
-        <add name="byBitVector" type="ubyte"/>
-        <add name="Num_Children" type="uint"/>
-        <add name="Children" type="uint" arr1="Num_Children"/>
-        <add name="num_PlayListItem" type="ushort"/>
-        <add name="PlayListItem" type="AkPlaylistItem" arr1="num_PlayListItem"/>
-
-    </compound>
-
-    <compound name="CAkSwitchPackage">
-        <add name="ulSwitchID" type="uint"/>
-        <add name="ulNumItems" type="uint"/>
-        <add name="nodes" type="uint" arr1="ulNumItems"/>
-    </compound>
-
-    <compound name="AkSwitchNodeParams">
-        <add name="ulNodeID" type="uint"/>
-        <add name="byBitVector1" type="ubyte"/>
-        <add name="byBitVector2" type="ubyte"/>
-        <add name="FadeOutTime" type="int"/>
-        <add name="FadeInTime" type="int"/>
-    </compound>
-
-    <compound name="SwitchContainer" inherit="HircObject">
-
-        <add name="NodeBaseParams" type="NodeBaseParams"/>
-
-        <add name="eGroupType" type="ubyte"/>
-        <add name="ulGroupID" type="uint"/>
-        <add name="ulDefaultSwitch" type="uint"/>
-        <add name="bIsContinuousValidation" type="ubyte"/>
-        <add name="Num_Children" type="uint"/>
-        <add name="Children" type="uint" arr1="Num_Children"/>
-        <add name="ulNumSwitchGroups" type="uint"/>
-        <add name="SwitchGroups" type="CAkSwitchPackage" arr1="ulNumSwitchGroups"/>
-        <add name="ulNumSwitchParams" type="uint"/>
-        <add name="SwitchNodeParams" type="AkSwitchNodeParams" arr1="ulNumSwitchParams"/>
-    </compound>
-
-    <compound name="AkMediaInformation">
-        <add name="sourceID" type="uint"/>
-        <add name="uInMemoryMediaSize" type="uint"/>
-        <add name="uSourceBits" type="ubyte"/>
-    </compound>
-
-	<bitfield name="ulPluginID" storage="uint">
-		<member width="16" pos="16" name="plugin_id" type="int"/>
-		<member width="12" pos="4" name="company_id" type="int"/>
-		<member width="4" pos="0" name="plugin_type" type="int"/>
-	</bitfield>
-
-    <compound name="AkBankSourceData">
-        <add name="ulPluginID" type="ulPluginID"/>
-        <add name="StreamType" type="AKBKSourceType"/>
-        <add name="AkMediaInformation" type="AkMediaInformation"/>
-        <add name="size" type="uint" cond="ulPluginID\plugin_type #EQ# 2"/>
-    </compound>
-
-    <compound name="AkTrackSrcInfo">
-        <add name="trackID" type="uint"/>
-        <add name="sourceID" type="uint"/>
-        <add name="eventID" type="uint"/>
-        <add name="fPlayAt" type="double"/>
-        <add name="fBeginTrimOffset" type="double"/>
-        <add name="fEndTrimOffset" type="double"/>
-        <add name="fSrcDuration" type="double"/>
     </compound>
 
     <compound name="FXChunk">
@@ -446,6 +333,119 @@
         <add name="AdvSettingsParams" type="AdvSettingsParams"/>
         <add name="StateChunk" type="StateChunk"/>
         <add name="InitialRTPC" type="InitialRTPC"/>
+    </compound>
+
+    <compound name="CAkActionPlay" inherit="HircObject">
+    </compound>
+
+    <compound name="EventAction" inherit="HircObject">
+        <add name="scope" type="ActionScope"/>
+        <add name="action_type" type="ActionType"/>
+        <add name="children" type="uint" arr1="1"/>
+        <add name="idExt_4" type="ubyte"/>
+        # instead of the stuff below?
+        <add name="NodeInitialParams" type="NodeInitialParams"/>
+<!--        <add name="num_params" type="ubyte"/>-->
+<!--        <add name="params" type="ubyte" arr1="num_params"/>-->
+<!--        <add name="num_params_types" type="ubyte"/>-->
+<!--        <add name="params_types" type="uint" arr1="num_params_types"/>-->
+
+<!--        the following is conditional on action type-->
+        <add name="raw" type="byte" arr1="#ARG# - ( 11 + (NodeInitialParams\io_size))" cond="action_type != 4"/>
+        <add name="byBitVector" type="ubyte" default="4" cond="action_type #EQ# 4" />
+        <add name="bankID" type="uint" cond="action_type #EQ# 4" />
+    </compound>
+
+    <compound name="AkPlaylistItem">
+        <add name="ulPlayID" type="uint"/>
+        <add name="weight" type="uint"/>
+    </compound>
+
+    <compound name="RanSeqContainer" inherit="HircObject">
+        wwiser CAkRanSeqCntr__SetInitialValues
+
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
+
+        <add name="sLoopCount" type="ushort"/>
+        <add name="sLoopModMin" type="ushort"/>
+        <add name="sLoopModMax" type="ushort"/>
+        <add name="fTransitionTime" type="float"/>
+        <add name="fTransitionTimeModMin" type="float"/>
+        <add name="fTransitionTimeModMax" type="float"/>
+        <add name="wAvoidRepeatCount" type="ushort"/>
+        <add name="eTransitionMode" type="ubyte"/>
+        <add name="eRandomMode" type="ubyte"/>
+        <add name="eMode" type="ubyte"/>
+        <add name="byBitVector" type="ubyte"/>
+        <add name="Num_Children" type="uint"/>
+        <add name="Children" type="uint" arr1="Num_Children"/>
+        <add name="num_PlayListItem" type="ushort"/>
+        <add name="PlayListItem" type="AkPlaylistItem" arr1="num_PlayListItem"/>
+
+    </compound>
+
+    <compound name="CAkSwitchPackage">
+        <add name="ulSwitchID" type="uint"/>
+        <add name="ulNumItems" type="uint"/>
+        <add name="nodes" type="uint" arr1="ulNumItems"/>
+    </compound>
+
+    <compound name="AkSwitchNodeParams">
+        <add name="ulNodeID" type="uint"/>
+        <add name="byBitVector1" type="ubyte"/>
+        <add name="byBitVector2" type="ubyte"/>
+        <add name="FadeOutTime" type="int"/>
+        <add name="FadeInTime" type="int"/>
+    </compound>
+
+    <compound name="SwitchContainer" inherit="HircObject">
+
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
+
+        <add name="eGroupType" type="ubyte"/>
+        <add name="ulGroupID" type="uint"/>
+        <add name="ulDefaultSwitch" type="uint"/>
+        <add name="bIsContinuousValidation" type="ubyte"/>
+        <add name="Num_Children" type="uint"/>
+        <add name="Children" type="uint" arr1="Num_Children"/>
+        <add name="ulNumSwitchGroups" type="uint"/>
+        <add name="SwitchGroups" type="CAkSwitchPackage" arr1="ulNumSwitchGroups"/>
+        <add name="ulNumSwitchParams" type="uint"/>
+        <add name="SwitchNodeParams" type="AkSwitchNodeParams" arr1="ulNumSwitchParams"/>
+    </compound>
+
+    <compound name="AkMediaInformation">
+        <add name="sourceID" type="uint"/>
+        <add name="uInMemoryMediaSize" type="uint"/>
+        <add name="uSourceBits" type="ubyte"/>
+    </compound>
+
+	<bitfield name="ulPluginID" storage="uint">
+		<member width="16" pos="16" name="plugin_id" type="int"/>
+		<member width="12" pos="4" name="company_id" type="int"/>
+		<member width="4" pos="0" name="plugin_type" type="int"/>
+	</bitfield>
+
+    <compound name="AkBankSourceData">
+        <add name="ulPluginID" type="ulPluginID"/>
+        <add name="StreamType" type="AKBKSourceType"/>
+        <add name="AkMediaInformation" type="AkMediaInformation"/>
+        <add name="size" type="uint" cond="ulPluginID\plugin_type #EQ# 2"/>
+    </compound>
+
+    <compound name="AkTrackSrcInfo">
+        <add name="trackID" type="uint"/>
+        <add name="sourceID" type="uint"/>
+        <add name="eventID" type="uint"/>
+        <add name="fPlayAt" type="double"/>
+        <add name="fBeginTrimOffset" type="double"/>
+        <add name="fEndTrimOffset" type="double"/>
+        <add name="fSrcDuration" type="double"/>
+    </compound>
+
+    <compound name="Sound" inherit="HircObject">
+        <add name="AkBankSourceData" type="AkBankSourceData"/>
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
     </compound>
 
     <compound name="MusicTrack" inherit="HircObject">

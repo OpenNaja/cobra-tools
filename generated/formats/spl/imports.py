@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'ByteVector3': 'generated.formats.spl.compounds.ByteVector3',
 	'ShortVector3': 'generated.formats.spl.compounds.ShortVector3',
 	'SplRoot': 'generated.formats.spl.compounds.SplRoot',

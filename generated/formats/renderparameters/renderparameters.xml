@@ -17,6 +17,11 @@
         <option value="9" name="String" />
     </enum>
 
+    <compound name="ZStrPtr" inherit="MemStruct">
+        need to wrap this to avoid setting template on the np arrays
+        <add name="string" type="Pointer" template="ZString" />
+    </compound>
+
     <compound name="ParamData" inherit="MemStruct">
         16 bytes
         <add name="data" type="bool" arr1="1" cond="#ARG# #EQ# 0" />
@@ -50,11 +55,6 @@
 
     <compound name="CurveList" inherit="NestedPointers" args="2">
         <add name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG1#" arg="#ARG2#"/>
-    </compound>
-
-    <compound name="ZStrPtr" inherit="MemStruct">
-        need to wrap this to avoid setting template on the np arrays
-        <add name="string" type="Pointer" template="ZString" />
     </compound>
 
     <compound name="Param" inherit="MemStruct">

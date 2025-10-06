@@ -18,7 +18,12 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.default_surface = name_type_map['Surface'](self.context, 0, None)
 		self.unk_64_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.only_names_j_w_e_1 = name_type_map['ArrWrapper'](self.context, 0, name_type_map['OnlyName'])
+		self.surfaces = name_type_map['ArrWrapper'](self.context, 0, name_type_map['SurfacePhysicsInfo'])
+		self.arr_2 = name_type_map['ArrWrapper'](self.context, 0, name_type_map['Struct2'])
+		self.only_names = name_type_map['ArrWrapper'](self.context, 0, name_type_map['OnlyName'])
 		self.unk_32_2 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_32_3 = name_type_map['Uint'](self.context, 0, None)
 		self.name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

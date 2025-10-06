@@ -9,6 +9,8 @@ class Sound(HircObject):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.ak_bank_source_data = name_type_map['AkBankSourceData'](self.context, 0, None)
+		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

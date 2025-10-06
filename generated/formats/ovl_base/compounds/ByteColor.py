@@ -1,14 +1,14 @@
-from generated.formats.fgm.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.imports import name_type_map
 
 
-class Color(MemStruct):
+class ByteColor(MemStruct):
 
 	"""
 	4 bytes
 	"""
 
-	__name__ = 'Color'
+	__name__ = 'ByteColor'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

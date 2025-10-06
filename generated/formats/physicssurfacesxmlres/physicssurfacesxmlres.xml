@@ -4,6 +4,24 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <compound name="ArrWrapper" inherit="MemStruct">
+        16 bytes
+        <add name="arr" type="ArrayPointer" template="#TEMPLATE#" arg="count"/>
+        <add name="count" type="ushort" />
+        <add name="flag" type="ushort" />255 if used, count can be positive regardless
+        <add name="unk" type="uint" />
+    </compound>
+
+    <compound name="Surface" inherit="MemStruct">
+        24 bytes
+        # todo: define the right property name for these values
+        <add name="surface_name" type="Pointer" template="ZString"/>
+        <add name="float1"   type="float" />
+        <add name="float2"   type="float" />
+        <add name="float3"   type="float" />
+        <add name="float4"   type="float" />
+    </compound>
+
     <compound name="PhysicsSurfaceXMLResRoot" inherit="MemStruct">
         all are mime version 3 .-.
         PC: 112 bytes
@@ -29,14 +47,6 @@
 
     </compound>
 
-    <compound name="ArrWrapper" inherit="MemStruct">
-        16 bytes
-        <add name="arr" type="ArrayPointer" template="#TEMPLATE#" arg="count"/>
-        <add name="count" type="ushort" />
-        <add name="flag" type="ushort" />255 if used, count can be positive regardless
-        <add name="unk" type="uint" />
-    </compound>
-
     <compound name="Struct2" inherit="MemStruct">
         PC: 24 bytes
         <add name="name1" type="Pointer" template="ZString"/>
@@ -44,16 +54,6 @@
         <add name="count"   type="ushort" />
         <add name="short2"   type="ushort" />255
         <add name="unk32_2"  type="uint" />
-    </compound>
-
-    <compound name="Surface" inherit="MemStruct">
-        24 bytes
-        # todo: define the right property name for these values
-        <add name="surface_name" type="Pointer" template="ZString"/>
-        <add name="float1"   type="float" />
-        <add name="float2"   type="float" />
-        <add name="float3"   type="float" />
-        <add name="float4"   type="float" />
     </compound>
 
     <compound name="Struct2Sub" inherit="MemStruct">

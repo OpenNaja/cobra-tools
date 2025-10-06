@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'FRenderContextSetRoot': 'generated.formats.frendercontextset.compounds.FRenderContextSetRoot',
 	'ContextSet1Item': 'generated.formats.frendercontextset.compounds.ContextSet1Item',
 	'ContextSet1SubItem': 'generated.formats.frendercontextset.compounds.ContextSet1SubItem',

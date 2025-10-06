@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'BiomeArtIcon': 'generated.formats.biome.structs.BiomeArtIcon',
 	'BiomeRoot': 'generated.formats.biome.structs.BiomeRoot',
 	'BiomeAudioSettingsRoot': 'generated.formats.biome.structs.BiomeAudioSettingsRoot',

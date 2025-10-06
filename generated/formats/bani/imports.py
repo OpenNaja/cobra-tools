@@ -43,16 +43,17 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'Vector3Short': 'generated.formats.bani.compounds.Vector3Short',
 	'Vector3Ushort': 'generated.formats.bani.compounds.Vector3Ushort',
 	'BaniRoot': 'generated.formats.bani.compounds.BaniRoot',
-	'BaniInfo': 'generated.formats.bani.compounds.BaniInfo',
-	'BanisInfoHeader': 'generated.formats.bani.compounds.BanisInfoHeader',
 	'StructA': 'generated.formats.bani.compounds.StructA',
 	'StructB': 'generated.formats.bani.compounds.StructB',
 	'Bone': 'generated.formats.bani.compounds.Bone',
 	'Keys': 'generated.formats.bani.compounds.Keys',
 	'BanisRoot': 'generated.formats.bani.compounds.BanisRoot',
+	'BaniInfo': 'generated.formats.bani.compounds.BaniInfo',
+	'BanisInfoHeader': 'generated.formats.bani.compounds.BanisInfoHeader',
 }
 
 name_type_map = {}

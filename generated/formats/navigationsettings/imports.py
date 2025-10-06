@@ -43,6 +43,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'NestedPointers': 'generated.formats.ovl_base.compounds.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'ByteColor': 'generated.formats.ovl_base.compounds.ByteColor',
 	'NavigationSettingsRoot': 'generated.formats.navigationsettings.compounds.NavigationSettingsRoot',
 	'NavigationTestList': 'generated.formats.navigationsettings.compounds.NavigationTestList',
 	'NavigationAreaCostsFilter': 'generated.formats.navigationsettings.compounds.NavigationAreaCostsFilter',
