@@ -2702,9 +2702,18 @@ class DirectoryCacher(QObject):
     """Builds a cache mapping each directory to its set of filtered files"""
     cache_ready = pyqtSignal(dict, str)
 
+    def __init__(self):
+        super().__init__()
+        self._is_running = False
+
+    def stop(self):
+        """Signal the worker to stop."""
+        self._is_running = False
+
     @pyqtSlot(str, list)
     def start_scan(self, root_path: str, name_filters: list[str]) -> None:
-        logging.debug(f"Starting cache map build for: {root_path}")
+        self._is_running = True
+        logging.debug(f"[DirectoryCacher] Starting cache map build for: {root_path}")
         if not root_path or not os.path.isdir(root_path):
             self.cache_ready.emit({}, root_path)
             return
@@ -2717,6 +2726,9 @@ class DirectoryCacher(QObject):
         )
 
         while iterator.hasNext():
+            if not self._is_running:
+                logging.debug("[DirectoryCacher] Scan cancelled.")
+                return 
             file_path = iterator.next()
             dir_path = os.path.dirname(file_path)
             # Normalize paths for case-insensitive matching
@@ -2727,8 +2739,9 @@ class DirectoryCacher(QObject):
                 cache_map[norm_dir] = set()
             cache_map[norm_dir].add(norm_file)
 
-        logging.debug(f"Scan complete. Found {len(cache_map)} valid directories.")
+        logging.debug(f"[DirectoryCacher] Scan complete. Found {len(cache_map)} valid directories.")
         self.cache_ready.emit(cache_map, root_path)
+        self._is_running = False
 
 
 class OvlDataFilterProxy(QSortFilterProxyModel):
@@ -2925,7 +2938,7 @@ class OvlDataTreeView(QTreeView):
     # Signal to request a new directory scan on the worker thread
     scan_requested = pyqtSignal(str, list)
 
-    def __init__(self, parent: Optional[QWidget] = None, actions={}, filters=()) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, main_window: 'MainWindow' = None, actions={}, filters=()) -> None:
         super().__init__(parent)
         self.actions = actions
         self.file_model = OvlDataFilesystemModel()
@@ -2957,6 +2970,8 @@ class OvlDataTreeView(QTreeView):
         # Connect signals and slots for thread communication
         self.scan_requested.connect(self.directory_cacher.start_scan)
         self.directory_cacher.cache_ready.connect(self.on_cache_ready)
+        main_window.aboutToQuit.connect(self.shutdown_cacher)
+        # Start the cacher
         self.cacher_thread.start()
         # State flag to safely control the iterative expansion process
         self._is_expanding = False
@@ -3146,11 +3161,11 @@ class OvlDataTreeView(QTreeView):
                     func = self.actions[res]
                     func()
 
-    def closeEvent(self, event: QCloseEvent):
+    def shutdown_cacher(self):
         if self.cacher_thread and self.cacher_thread.isRunning():
+            self.directory_cacher.stop()
             self.cacher_thread.quit()
             self.cacher_thread.wait()
-        super().closeEvent(event)
 
 
 class GameSelectorWidget(QWidget):
@@ -3348,7 +3363,7 @@ class OvlManagerWidget(QWidget):
 
         if filters is None:
             filters = ["*.ovl", ]
-        self.dirs = OvlDataTreeView(actions=actions, filters=filters)
+        self.dirs = OvlDataTreeView(self, parent, actions=actions, filters=filters)
 
         self.filters = OvlFilterWidget(self)
         self.filters.filter_changed.connect(self.dirs.set_filter)
@@ -4158,6 +4173,7 @@ class TitleBar(StandardTitleBar):
 
 
 class MainWindow(FramelessMainWindow):
+    aboutToQuit = pyqtSignal()
     modified = pyqtSignal(bool)
     set_log_level = pyqtSignal(str)
     change_log_speed = pyqtSignal(str)  # Emits "fast", "normal", "slow"
@@ -4241,6 +4257,8 @@ class MainWindow(FramelessMainWindow):
         self.threadpool = QtCore.QThreadPool.globalInstance()
         self.setCentralWidget(self.central_widget)
         self.resize(*opts.size)
+
+        QApplication.instance().aboutToQuit.connect(self.aboutToQuit)
 
     def showEvent(self, a0: QShowEvent) -> None:
         """Post-init setup on show"""
