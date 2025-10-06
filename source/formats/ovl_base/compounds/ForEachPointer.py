@@ -60,7 +60,7 @@ class ForEachPointer(Pointer):
 		sub = elem.find(f'./{src_prop}')
 		instance = cls(target.context, arg, template, set_default=False)
 		if sub is None:
-			logging.warning(f"Missing array '{prop}' on XML element '{elem.tag}'")
+			# logging.debug(f"Missing array '{prop}' on XML element '{elem.tag}'")
 			cls._from_xml(instance, ())
 		else:
 			cls._from_xml(instance, sub)

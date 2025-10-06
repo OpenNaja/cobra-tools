@@ -47,7 +47,8 @@ class ArrayPointer(Pointer):
 		# check if the pointer holds data
 		sub = elem.find(f'./{prop}')
 		if sub is None:
-			logging.warning(f"Missing array '{prop}' on XML element '{elem.tag}'")
+			if arg:
+				logging.warning(f"Missing array '{prop}' on XML element '{elem.tag}' for count {arg}")
 			cls._from_xml(instance, ())
 		else:
 			cls._from_xml(instance, sub)
