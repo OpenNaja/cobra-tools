@@ -41,9 +41,9 @@ class BanisRoot(MemStruct):
 		self.loc_min = name_type_map['Float'](self.context, 0, None)
 		self.bani_count = name_type_map['Uint'](self.context, 0, None)
 		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
-		self.arr_a = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['StructA'])
-		self.arr_b = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['StructB'])
-		self.arr_c = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['StructB'])
+		self.bani_data = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniData'])
+		self.bones_foreach_bani_data = name_type_map['ForEachPointer'](self.context, self.bani_data, name_type_map['BaniBones'])
+		self.bones_2_foreach_bani_data = name_type_map['ForEachPointer'](self.context, self.bani_data, name_type_map['BaniBones'])
 		self.keys = name_type_map['Pointer'](self.context, (self.num_frames, self.num_bones), name_type_map['Keys'])
 		if set_default:
 			self.set_defaults()
@@ -51,9 +51,9 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'arr_a', name_type_map['ArrayPointer'], (None, name_type_map['StructA']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'arr_b', name_type_map['ArrayPointer'], (None, name_type_map['StructB']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'arr_c', name_type_map['ArrayPointer'], (None, name_type_map['StructB']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'bani_data', name_type_map['ArrayPointer'], (None, name_type_map['BaniData']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'bones_foreach_bani_data', name_type_map['ForEachPointer'], (None, name_type_map['BaniBones']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'bones_2_foreach_bani_data', name_type_map['ForEachPointer'], (None, name_type_map['BaniBones']), (False, None), (lambda context: context.version >= 7, None)
 		yield 'keys', name_type_map['Pointer'], (None, name_type_map['Keys']), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 7, None)
 		yield 'count_a', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
@@ -74,9 +74,9 @@ class BanisRoot(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 7:
-			yield 'arr_a', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['StructA']), (False, None)
-			yield 'arr_b', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['StructB']), (False, None)
-			yield 'arr_c', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['StructB']), (False, None)
+			yield 'bani_data', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['BaniData']), (False, None)
+			yield 'bones_foreach_bani_data', name_type_map['ForEachPointer'], (instance.bani_data, name_type_map['BaniBones']), (False, None)
+			yield 'bones_2_foreach_bani_data', name_type_map['ForEachPointer'], (instance.bani_data, name_type_map['BaniBones']), (False, None)
 			yield 'keys', name_type_map['Pointer'], ((instance.num_frames, instance.num_bones), name_type_map['Keys']), (False, None)
 			yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 			yield 'count_a', name_type_map['Uint'], (0, None), (False, None)
