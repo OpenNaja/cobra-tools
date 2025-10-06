@@ -4097,7 +4097,7 @@ class StatusSpacer(QWidget):
 
 
 class WalkerDialog(QDialog):
-    def __init__(self, parent: Optional[QWidget] = None, title: str = "", walk_dir: str = "") -> None:
+    def __init__(self, parent: Optional[QWidget] = None, title: str = "", dir_walk: str = "") -> None:
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint, False)
@@ -4107,8 +4107,8 @@ class WalkerDialog(QDialog):
         # Directory selector
         self.dir_widget = DirWidget(self, {})
         self.dir_widget.entry.setMinimumWidth(480)
-        if walk_dir:
-            self.dir_widget.open_dir(walk_dir)
+        if dir_walk:
+            self.dir_widget.open_dir(dir_walk)
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.dir_widget)
 
@@ -4136,8 +4136,16 @@ class WalkerDialog(QDialog):
         hbox.addWidget(self.buttons)
 
     @property
-    def walk_dir(self):
+    def dir_walk(self):
         return self.dir_widget.filepath
+
+    @property
+    def official_only(self):
+        return self.chk_official.isChecked()
+
+    @property
+    def walk_ovls(self):
+        return self.chk_ovls.isChecked()
 
     def addWidget(self, widget: QWidget, row: int, column: int, rowSpan: int = 1, columnSpan: int = 1, alignment = Qt.Alignment()):
         """Add widget to options section of dialog"""

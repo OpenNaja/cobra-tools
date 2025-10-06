@@ -647,8 +647,8 @@ class MainWindow(widgets.MainWindow):
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_fgm_values, (), self, self.game_root(),
-				walk_dir=dialog.walk_dir, walk_ovls=dialog.chk_ovls.isChecked(),
-				official_only=dialog.chk_official.isChecked(), full_report=chk_full_report.isChecked()
+				dir_walk=dialog.dir_walk, walk_ovls=dialog.walk_ovls,
+				official_only=dialog.official_only, full_report=chk_full_report.isChecked()
 			)
 
 	def walker_manis(self, ):
@@ -656,8 +656,8 @@ class MainWindow(widgets.MainWindow):
 		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
-				walker.get_manis_values, (), self, dialog.walk_dir,
-				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
+				walker.get_manis_values, (), self, dir_walk=dialog.dir_walk,
+				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 
 	def inspect_models(self):
@@ -665,8 +665,8 @@ class MainWindow(widgets.MainWindow):
 		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
-				walker.bulk_test_models, (), self, dialog.walk_dir,
-				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
+				walker.bulk_test_models, (), self, self.game_root(), dir_walk=dialog.dir_walk,
+				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 
 
