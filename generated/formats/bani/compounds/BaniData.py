@@ -17,7 +17,7 @@ class BaniData(MemStruct):
 		self.b = name_type_map['Ushort'](self.context, 0, None)
 		self.unk = name_type_map['Float'](self.context, 0, None)
 		self.increment = name_type_map['Ushort'](self.context, 0, None)
-		self.c = name_type_map['Ubyte'](self.context, 0, None)
+		self.zero = name_type_map['Ubyte'].from_value(0)
 		self.num_bones = name_type_map['Ubyte'](self.context, 0, None)
 		self.index_reversed = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
@@ -30,7 +30,7 @@ class BaniData(MemStruct):
 		yield 'b', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'increment', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'c', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Ubyte'], (0, None), (False, 0), (None, None)
 		yield 'num_bones', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'index_reversed', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
@@ -41,6 +41,6 @@ class BaniData(MemStruct):
 		yield 'b', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk', name_type_map['Float'], (0, None), (False, None)
 		yield 'increment', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'c', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'zero', name_type_map['Ubyte'], (0, None), (False, 0)
 		yield 'num_bones', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'index_reversed', name_type_map['Uint'], (0, None), (False, None)

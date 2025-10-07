@@ -36,13 +36,13 @@
         <add name="a" type="ushort"/>
         <add name="b" type="ushort"/>
         <add name="unk" type="float"/>
-        <add name="increment" type="ushort"/>in guests by 15, in pigeon by 1
-        <add name="c" type="ubyte"/>?
+        <add name="increment" type="ushort"/>in guests by 15, in pigeon by 1, starts at bani_count?
+        <add name="zero" type="ubyte" default="0"/>
         <add name="num_bones" type="ubyte"/>
         <add name="index_reversed" type="uint"/>
     </compound>
 
-    <compound name="BoneInfo" inherit="MemStruct">
+    <compound name="BoneInfo" allow_np="true">
         PC2: 2 bytes
         <add name="index" type="ubyte"/>
         <add name="flag" type="ubyte"/>

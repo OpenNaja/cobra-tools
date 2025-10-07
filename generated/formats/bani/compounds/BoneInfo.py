@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.bani.imports import name_type_map
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class BoneInfo(MemStruct):
+class BoneInfo(BaseStruct):
 
 	"""
 	PC2: 2 bytes
@@ -10,6 +10,7 @@ class BoneInfo(MemStruct):
 
 	__name__ = 'BoneInfo'
 
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
