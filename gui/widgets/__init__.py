@@ -54,7 +54,7 @@ from __version__ import VERSION, COMMIT_HASH
 
 
 MAX_UINT = 4294967295
-root_dir = Path(__file__).resolve().parent.parent
+root_dir = Path(__file__).resolve().parent.parent.parent
 
 FILE_MENU = 'File'
 VIEW_MENU = 'View'
