@@ -2698,50 +2698,47 @@ class CheckableComboBox(QComboBox):
 
 
 from PyQt5.QtCore import QDirIterator
-class DirectoryCacher(QObject):
-    """Builds a cache mapping each directory to its set of filtered files"""
-    cache_ready = pyqtSignal(dict, str)
 
-    def __init__(self):
-        super().__init__()
-        self._is_running = False
+def cache_directory(root_path: str, name_filters: list[str],
+                    cancellation_check: Callable[[], bool]) -> tuple[dict, str] | None:
+    """
+    Scans a directory and builds a cache map. This function is designed
+    to be run in a WorkerRunnable.
+    
+    Returns a tuple (cache_map, root_path) on success, or None on cancellation.
+    """
+    logging.debug(f"[cache_directory] Starting cache map build for: {root_path}")
+    if not root_path or not os.path.isdir(root_path):
+        return {}, root_path
 
-    def stop(self):
-        """Signal the worker to stop."""
-        self._is_running = False
+    cache_map = {}
+    iterator = QDirIterator(
+        root_path, name_filters,
+        QDir.Files | QDir.NoDotAndDotDot,
+        QDirIterator.Subdirectories
+    )
 
-    @pyqtSlot(str, list)
-    def start_scan(self, root_path: str, name_filters: list[str]) -> None:
-        self._is_running = True
-        logging.debug(f"[DirectoryCacher] Starting cache map build for: {root_path}")
-        if not root_path or not os.path.isdir(root_path):
-            self.cache_ready.emit({}, root_path)
-            return
+    while iterator.hasNext():
+        # Use the injected cancellation check
+        if cancellation_check():
+            logging.debug("[cache_directory] Scan cancelled.")
+            return None  # Return None to signal cancellation
 
-        cache_map = {}
-        iterator = QDirIterator(
-            root_path, name_filters,
-            QDir.Files | QDir.NoDotAndDotDot,
-            QDirIterator.Subdirectories
-        )
+        file_path = iterator.next()
+        dir_path = os.path.dirname(file_path)
+        # Normalize paths for case-insensitive matching
+        norm_dir = os.path.normcase(os.path.normpath(dir_path))
+        norm_file = os.path.normcase(os.path.normpath(file_path))
+        # Add the file to its parent directory's set
+        if norm_dir not in cache_map:
+            cache_map[norm_dir] = set()
+        cache_map[norm_dir].add(norm_file)
 
-        while iterator.hasNext():
-            if not self._is_running:
-                logging.debug("[DirectoryCacher] Scan cancelled.")
-                return 
-            file_path = iterator.next()
-            dir_path = os.path.dirname(file_path)
-            # Normalize paths for case-insensitive matching
-            norm_dir = os.path.normcase(os.path.normpath(dir_path))
-            norm_file = os.path.normcase(os.path.normpath(file_path))
-            # Add the file to its parent directory's set
-            if norm_dir not in cache_map:
-                cache_map[norm_dir] = set()
-            cache_map[norm_dir].add(norm_file)
-
-        logging.debug(f"[DirectoryCacher] Scan complete. Found {len(cache_map)} valid directories.")
-        self.cache_ready.emit(cache_map, root_path)
-        self._is_running = False
+    total_files = sum(len(file_set) for file_set in cache_map.values())
+    logging.debug(f"[cache_directory] Scan complete. Found {total_files} files in {len(cache_map)} directories.")
+    
+    # Return the results instead of emitting a signal
+    return cache_map, root_path
 
 
 class OvlDataFilterProxy(QSortFilterProxyModel):
@@ -2962,21 +2959,30 @@ class OvlDataTreeView(QTreeView):
         self.clicked.connect(self.item_clicked)
         self.doubleClicked.connect(self.item_dbl_clicked)
 
-        # Setup the background thread and the directory cacher worker
-        self.cacher_thread = QThread(parent=self)
-        self.directory_cacher = DirectoryCacher()
-        self.directory_cacher.moveToThread(self.cacher_thread)
-        self.cache_ready = False
-        # Connect signals and slots for thread communication
-        self.scan_requested.connect(self.directory_cacher.start_scan)
-        self.directory_cacher.cache_ready.connect(self.on_cache_ready)
-        main_window.aboutToQuit.connect(self.shutdown_cacher)
-        # Start the cacher
-        self.cacher_thread.start()
-        # State flag to safely control the iterative expansion process
+        # Store a reference to the main window to access its threadpool
+        self.main_window = main_window
+        # Store cacher worker to cancel it if necessary
+        self.current_cacher_worker: Optional['WorkerRunnable'] = None
+        # State for the expansion process
         self._is_expanding = False
-        # Store filter text to restore
+        self._expand_retry_counter = 0
+        # Store filter text to restore on game change
         self.filter_text = ""
+
+    def start_background_scan(self, dir_game: str):
+        """Cancels any previous scan and asks the MainWindow to start a new one"""
+        if self.current_cacher_worker:
+            self.current_cacher_worker.cancel()
+        # Unpack result object
+        result_adapter = lambda result_tuple: self.on_cache_ready(result_tuple[0], result_tuple[1])
+        # Run cacher using MainWindow's facilities
+        self.current_cacher_worker = self.main_window.run_background_task(
+            func=cache_directory,
+            on_result=result_adapter,
+            # cache_directory args
+            root_path=dir_game,
+            name_filters=self.file_model.nameFilters()
+        )
 
     @pyqtSlot(dict, str)
     def on_cache_ready(self, cache_map: dict, scanned_root: str):
@@ -3031,11 +3037,6 @@ class OvlDataTreeView(QTreeView):
         # Trigger a new scan in the background thread after a small delay
         QTimer.singleShot(50, lambda: self.start_background_scan(dir_game))
 
-    def start_background_scan(self, path: str) -> None:
-        """Starts the scan in the background thread"""
-        logging.debug(f"Starting delayed background scan for {path}")
-        self.scan_requested.emit(path, self.file_model.nameFilters())
-
     def get_root(self) -> str:
         return self.file_model.rootPath()
 
@@ -3074,8 +3075,9 @@ class OvlDataTreeView(QTreeView):
         """Begins the iterative tree expansion"""
         if self._is_expanding:
             return
-        self._is_expanding = True
         # Start the first step of the expansion
+        self._is_expanding = True
+        self._expand_retry_counter = 0
         self._iterative_expand_step()
 
     def _iterative_expand_step(self) -> None:
@@ -3087,39 +3089,49 @@ class OvlDataTreeView(QTreeView):
             return
         # State of this pass
         items_were_expanded = False
-        # Use a queue for a breadth-first traversal of the visible tree
         queue = [self.rootIndex()]
         head = 0
-
+        # Pause GUI updates
         self.setUpdatesEnabled(False)
         try:
-            # This loop traverses all items currently visible in the tree
             while head < len(queue):
                 parent_index = queue[head]
+                #parent_data = parent_index.data() if parent_index.isValid() else "ROOT"
+                #logging.debug(f"  Processing queue item: head={head}, queue_size={len(queue)}, item='{parent_data}'")
                 head += 1
                 if not parent_index.isValid():
                     continue
-                # Check all children of the current item.
-                for row in range(self.model().rowCount(parent_index)):
-                    child_index = self.model().index(row, 0, parent_index)
-                    # We only care about items the view is actually showing
-                    if not self.isIndexHidden(child_index):
-                        # If it's a directory that is currently collapsed, expand it
-                        if self.model().hasChildren(child_index) and not self.isExpanded(child_index):
-                            self.expand(child_index)
-                            items_were_expanded = True
-                        # Add every visible item to the queue to check its children
-                        queue.append(child_index)
+                # Check for collapsed directories and expand them
+                isDir = self.file_model.isDir(self.proxy.mapToSource(parent_index))
+                if isDir:
+                    #logging.debug(f"    '{parent_data}' is dir")
+                    if not self.isExpanded(parent_index):
+                        #logging.debug(f"    >>> Expanding '{parent_data}'")
+                        self.expand(parent_index)
+                        items_were_expanded = True
+                    # Queue the dir's children dirs in this pass if loaded, or next pass
+                    for row in range(self.model().rowCount(parent_index)):
+                        child_index = self.model().index(row, 0, parent_index)
+                        if self.file_model.isDir(self.proxy.mapToSource(child_index)):
+                            queue.append(child_index)
         finally:
+            # Resume GUI updates no matter what
             self.setUpdatesEnabled(True)
 
-        # If we made progress, schedule another pass. This gives the model
-        # time to lazily load the children of the items we just expanded
-        if items_were_expanded or not self.cache_ready:
-            QTimer.singleShot(60, self._iterative_expand_step)
+        # If we made progress, reset the retry counter and continue the loop
+        if items_were_expanded:
+            self._expand_retry_counter = 0
+            QTimer.singleShot(50, self._iterative_expand_step)
         else:
-            # No progress was made in a full pass, so we are finished
-            self._is_expanding = False
+            # If no progress was made, increment the counter
+            self._expand_retry_counter += 1
+            # The loop continues if the cache isn't ready OR if we haven't
+            # exhausted our attempts. This gives the model time to load.
+            if not self.cache_ready or self._expand_retry_counter < 5:
+                QTimer.singleShot(200, self._iterative_expand_step)
+            else:
+                # No progress for several consecutive passes
+                self._is_expanding = False
 
     def map_index(self, index: QModelIndex) -> QModelIndex:
         """Map from source if applicable"""
@@ -3160,12 +3172,6 @@ class OvlDataTreeView(QTreeView):
                 if res in self.actions:
                     func = self.actions[res]
                     func()
-
-    def shutdown_cacher(self):
-        if self.cacher_thread and self.cacher_thread.isRunning():
-            self.directory_cacher.stop()
-            self.cacher_thread.quit()
-            self.cacher_thread.wait()
 
 
 class GameSelectorWidget(QWidget):
@@ -4739,6 +4745,42 @@ class MainWindow(FramelessMainWindow):
         self.threadpool.start(worker)
         self.enable_gui_options(False)
 
+    def run_background_task(self, func: Callable, on_result: Callable, *args, **kwargs) -> 'WorkerRunnable':
+        """
+        Runs a function in the threadpool for non-blocking UI tasks.
+        Does not disable the GUI or manage batch timing.
+
+        Args:
+            func: The function to execute in the worker.
+            on_result: The callback slot to connect to the worker's `result` signal.
+            *args, **kwargs: Arguments to pass to the function.
+
+        Returns:
+            The WorkerRunnable instance, allowing the caller to manage it (e.g., for cancellation).
+        """
+        logging.debug(f"Starting background task for '{func.__name__}'")
+        worker = WorkerRunnable(func, *args, **kwargs)
+
+        # Connect the essential signals
+        worker.signals.error_msg.connect(self.showerror)
+        worker.signals.result.connect(on_result) # Connect the specific result callback
+
+        # Add a simplified cleanup slot to remove the worker from the active set
+        # This ensures it's still tracked for a clean shutdown via cancel_workers()
+        def worker_cleanup_slot():
+            if worker in self.active_workers:
+                self.active_workers.remove(worker)
+            logging.debug(f"Background task '{func.__name__}' finished. Active workers: {len(self.active_workers)}")
+
+        worker.signals.finished.connect(worker_cleanup_slot)
+        
+        # Add the worker to the set and start it
+        self.active_workers.add(worker)
+        self.threadpool.start(worker)
+        
+        # Return the worker instance so the caller can manage it
+        return worker
+
     def cancel_workers(self):
         """Worker thread cancellation and wait."""
         # Print used in case logging no longer available
@@ -4898,7 +4940,7 @@ class WorkerSignals(QObject):
     - result: `object` data returned from processing, anything
     - progress: `tuple` indicating progress metadata
     '''
-    # result = pyqtSignal(object)
+    result = pyqtSignal(object)
     # progress = pyqtSignal(tuple)
     finished = pyqtSignal()
     error_msg = pyqtSignal(str)
@@ -4928,7 +4970,9 @@ class WorkerRunnable(QtCore.QRunnable):
             if 'cancellation_check' in sig.parameters:
                 # If so, inject our cancellation check method
                 self.kwargs['cancellation_check'] = lambda: self._is_cancelled
-            self.func(*self.args, **self.kwargs)
+            result_data = self.func(*self.args, **self.kwargs)
+            if not self._is_cancelled and result_data is not None:
+                self.signals.result.emit(result_data)
         except Exception as err:
             # Check if cancellation happened and func perhaps raised an error because of it
             if self._is_cancelled:
