@@ -653,7 +653,7 @@ class ManisFile(InfoHeader, IoFile):
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
 
-    def read_pos_keys(self, context, f, i, mani_info, segment_frames_count, segment_pos_bones):
+    def read_pos_keys(self, context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
@@ -698,6 +698,11 @@ class ManisFile(InfoHeader, IoFile):
                         final = base_key_float + out * 6.103888e-05
 
                         next_key_offset = 0 if out_frame_i == trg_frame_i else 4
+
+                        # todo next_key_offset being on seems to be a fairly rare case; usually/always? at the end of segments, eg.
+                        #  JWE2 dev: spino notmotionextracted.maniset7064666c.manis, spinosaurus@ragdolllefttostand, 39 def_c_tail1_joint, Y+Z frame 119 - 128 (seg bound)
+                        # if pos_index == 39 and segment_i == 3:
+                        #     print(segment_i* 32 + out_frame_i, next_key_offset)
                         # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
                         which_key_flag = True if next_key_offset else False
                         key_picked = vec if which_key_flag else final
@@ -714,13 +719,13 @@ class ManisFile(InfoHeader, IoFile):
             else:
                 # set all keyframes
                 segment_pos_bones[:, pos_index] = vec
-        logging.debug(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+        logging.debug(f"Segment[{segment_i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 
     def printm(self, v):
         """print in order of memory register"""
         print(list(reversed(v)))
 
-    def read_ori_keys(self, context, f, i, mani_info, segment_frames_count, segment_ori_bones):
+    def read_ori_keys(self, context, f, segment_i, mani_info, segment_frames_count, segment_ori_bones):
         q_scale = 2 * math.pi  # 6.283185
         epsilon = 1.1920929E-7
         zeros = np.zeros(4, dtype=np.float32)
@@ -1115,7 +1120,7 @@ class ManisFile(InfoHeader, IoFile):
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
-        logging.debug(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
+        logging.debug(f"Segment[{segment_i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
 
     def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):
         # the default initial scale seems to be for loc and rot
