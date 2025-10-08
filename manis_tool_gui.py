@@ -11,6 +11,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from matplotlib import pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+
 
 from gui.widgets import get_icon
 
@@ -49,8 +51,15 @@ class MainWindow(widgets.MainWindow):
 		self.setup_plot()
 		splitter = QtWidgets.QSplitter()
 		splitter.addWidget(self.tree)
-		splitter.addWidget(self.fig.canvas)
+
+		toolbar = NavigationToolbar(self.fig.canvas, self)
+
+		plot = widgets.pack_in_box(toolbar, self.fig.canvas)
+		self.fig.canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		plot.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		splitter.addWidget(plot)
 		splitter.setSizes([30, 50])
+		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		hbox = QtWidgets.QHBoxLayout()
 		hbox.addWidget(self.file_widget)
 		hbox.addWidget(self.stream_entry)
