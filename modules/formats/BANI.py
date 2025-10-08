@@ -38,13 +38,13 @@ class BanisLoader(MimeVersionedLoader):
 
 	def collect(self):
 		# if self.mime_version == 7 and self.name not in ("af.banisetfc27d51a.banis", "animation.baniset7b77b17d.banis"):
-		if self.mime_version == 7 and self.name not in ("animation.baniset7b77b17d.banis",):
+		if self.mime_version == 7 and self.name not in ("animation.baniset7b77b17d.banis", "animations.baniset39b52335.banis"):
 			# big banis are extremely slow even when vectorized, e.g. for guests
 			logging.warning(f"Skipping loading of {self.name} temporarily to speed up ovl loading")
 			pool, offset = self.root_ptr
 			stream = pool.stream_at(offset)
 			self.header = self.target_class.from_stream(stream, self.context)
-			# print(self.header)
+			print(self.header)
 			# keys_size does not completely line up with the counts, maybe re-using keys?
 			return
 		super().collect()
