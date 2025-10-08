@@ -597,7 +597,7 @@ class TextureVisual:
 			field.setSingleStep(.05)
 			field.valueChanged.connect(update_ind)
 		elif "bool" in t:
-			field = widgets.MySwitch()
+			field = widgets.OnOffSwitch()
 			field.clicked.connect(update_ind)
 		elif "int" in t:
 			default = int(default)

@@ -9,7 +9,7 @@ import webbrowser
 import shutil
 from functools import cache
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, cast
 from PyQt5.QtCore import QDir, QFileInfo, QSize
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter
 from PyQt5.QtWidgets import QFileIconProvider
@@ -240,7 +240,7 @@ def url_to_html(raw_line: str) -> str:
 #                                  STEAM                                     #
 # region ------------------------------------------------------------------- #
 
-def get_steam_path() -> [None, str]:
+def get_steam_path() -> str | None:
     if WINDOWS:
         # get steam folder from Windows registry
         try:
@@ -248,7 +248,7 @@ def get_steam_path() -> [None, str]:
             steam_query = winreg.QueryValueEx(hkey, "InstallPath")
             # get path to steam games folder
             # C:\\Program Files (x86)\\Steam
-            return steam_query[0]
+            return cast(str, steam_query[0])
         except FileNotFoundError:
             logging.warning(f"Steam folder not found in Windows registry")
             return "C:\\Program Files (x86)\\Steam"

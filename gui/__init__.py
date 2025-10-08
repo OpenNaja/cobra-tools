@@ -1,21 +1,44 @@
 import sys
-import time
 import logging
 import platform
 from dataclasses import dataclass
-from typing import NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional
 from pathlib import Path
+
+root_dir = Path(__file__).resolve().parent.parent
+
+# --- widgets.py migration ---
+# This code will run before the 'from gui import widgets'
+# statement can look for the 'widgets' submodule.
+gui_dir = root_dir / "gui"
+old_widgets_file = gui_dir / "widgets.py"
+new_widgets_package = gui_dir / "widgets"
+pycache_path = gui_dir / "__pycache__"
+
+if old_widgets_file.is_file() and new_widgets_package.is_dir():
+	try:
+		logging.warning(f"Old '{old_widgets_file}' found. Attempting to remove it.")
+		old_widgets_file.unlink()
+		if pycache_path.is_dir():
+			for old_pyc in pycache_path.glob("widgets.*.pyc"):
+				logging.warning(f"Removing orphaned bytecode file: {old_pyc.name}")
+				old_pyc.unlink()
+	except (OSError, PermissionError) as e:
+		logging.critical(f"CRITICAL ERROR: Could not remove conflicting file {old_widgets_file}. Please check permissions.", file=sys.stderr)
+		sys.exit(1)
+# --- End widgets.py migration ---
+
 from ovl_util import auto_updater, logs
 from ovl_util.config import save_config
-from gui.widgets import MainWindow
+
 from gui.tools.layout_visualizer import install_layout_visualizer
-from gui import qt_theme
+if TYPE_CHECKING:
+	from gui.widgets import MainWindow
 
 from PyQt5.QtCore import Qt, qVersion
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication, QStyleFactory
 
-root_dir = Path(__file__).resolve().parent.parent
 
 def check_64bit_env() -> None:
 	is_64bits = sys.maxsize > 2 ** 32
@@ -78,7 +101,7 @@ class GuiOptions:
 			self.size = Size(*self.size)
 
 
-def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplication]:
+def init(cls: type['MainWindow'], opts: GuiOptions) -> tuple['MainWindow', QApplication]:
 	"""Initialize the window class, logs, and QApplication if necessary"""
 	handler = logs.logging_setup(opts.log_name,
 								 log_to_file=opts.log_to_file,
@@ -104,7 +127,7 @@ def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplicat
 	return win, app
 
 
-def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
+def startup(cls: type['MainWindow'], opts: GuiOptions) -> None:
 	"""Startup the window, set the theme, handle config and logs on application exit"""
 	auto_updater.run_update_check(tool_name=opts.log_name)
 	if platform.system() == "Windows":
