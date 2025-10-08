@@ -38,7 +38,7 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def pad_to_start(cls, instance, stream):
 		pad_size = get_padding_size(stream.tell() - instance.io_start, alignment=16)
-		logging.info(f"padding {pad_size} bytes at {stream.tell()}")
+		# logging.info(f"padding {pad_size} bytes at {stream.tell()}")
 		padding = stream.read(pad_size)
 		if padding != b"\x00" * pad_size:
 			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")

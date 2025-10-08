@@ -658,36 +658,36 @@ class ManisFile(InfoHeader, IoFile):
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             frame_map = np.zeros(32, dtype=np.uint32)
-            ushort_storage = np.zeros(156, dtype=np.uint32)
-            # definitely not byte aligned as the key bytes can not be found in the manis data
-            # defines basic loc values and which channels are keyframed
+            raw_keys_storage = np.zeros((52, 3), dtype=np.uint32)
+            # not byte aligned
+            # defines basic loc value
             # logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
-            vec = self.read_vec3(f)
+            vec = self.read_vec3(f)[:3]
             vec *= scale
-            # logging.info(vec)
 
             # scale_pack = float(scale)
             # the scale per bone is always norm = 0 in acro_run
             scale_pack = self.get_pack_scale(mani_info)
-            keys_flag = f.read_uint_reversed(3)
+            # which channels are keyframed
+            keys_flag = f.read_uint(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, keys_flag, ushort_storage, new_wavelets_offset)
+                self.read_rel_keys(f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # set base keyframe
-                    segment_pos_bones[0, pos_index] = vec[:3]
+                    segment_pos_bones[0, pos_index] = vec
                     # set other keyframes
                     last_key_a = identity.copy()
                     last_key_b = identity.copy()
-                    key_picked = vec[:3].copy()
+                    key_picked = vec.copy()
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
                         if trg_frame_i == out_frame_i:
                             frame_inc += 1
-                        rel = ushort_storage[out_frame_i*3: out_frame_i*3+3]
+                        rel = raw_keys_storage[out_frame_i]
                         out = rel.astype(np.float32)
                         out[:] = self.make_signed(*rel)
                         last_key_delta = (last_key_b - last_key_a) + last_key_b
@@ -700,7 +700,7 @@ class ManisFile(InfoHeader, IoFile):
                         next_key_offset = 0 if out_frame_i == trg_frame_i else 4
                         # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
                         which_key_flag = True if next_key_offset else False
-                        key_picked = vec[:3] if which_key_flag else final
+                        key_picked = vec if which_key_flag else final
                         last_key_a = identity.copy() if which_key_flag else last_key_b.copy()
                         # this scale uses the calculated scale
                         last_key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale_pack
@@ -713,7 +713,7 @@ class ManisFile(InfoHeader, IoFile):
                 # print(segment_pos_bones[:, pos_index])
             else:
                 # set all keyframes
-                segment_pos_bones[:, pos_index] = vec[:3]
+                segment_pos_bones[:, pos_index] = vec
         logging.debug(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 
     def printm(self, v):
@@ -730,7 +730,7 @@ class ManisFile(InfoHeader, IoFile):
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             frame_map = np.zeros(32, dtype=np.uint32)
-            ushort_storage = np.zeros(156, dtype=np.uint32)
+            raw_keys_storage = np.zeros((52, 3), dtype=np.uint32)
             # defines basic rot values
             # logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
             vec = self.read_vec3(f)
@@ -756,15 +756,16 @@ class ManisFile(InfoHeader, IoFile):
                 # print(scale_fac, quat)
 
             # which channels are keyframed
-            keys_flag = f.read_uint_reversed(3)
+            keys_flag = f.read_uint(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, keys_flag, ushort_storage, new_wavelets_offset)
+                self.read_rel_keys(f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
-                    # print(ushort_storage)
+                    out = np.zeros(4, float)
+                    # print(raw_keys_storage)
                     # set base keyframe
                     # logging.info(f"BASE 0: {quat}, {ori_index}")
                     segment_ori_bones[0, ori_index] = quat
@@ -818,11 +819,9 @@ class ManisFile(InfoHeader, IoFile):
                         # [-0.13447537, 0.6683695, 0.5936446, 0.4275333]
                         # [-0.14934096, 0.63544095, 0.62107927, 0.43378872]
                         # [-0.16694918, 0.60123855, 0.6516094, 0.43132976]
-                        #
-                        # we're only accessing XYZ in code, but Q is set to 0.0 below so it's ok
-                        rel = ushort_storage[out_frame_i*3: out_frame_i*3+4]
-                        out = rel.astype(np.float32)
-                        out[:] = self.make_signed(*rel)
+
+                        rel = raw_keys_storage[out_frame_i]
+                        out[:3] = self.make_signed(*rel)
                         out[3] = 0.0
                         # self.printm(out)
                         # int key (good)
@@ -1135,17 +1134,17 @@ class ManisFile(InfoHeader, IoFile):
         # update the packed scale
         return 1 / quant_fac_clamped
 
-    def read_rel_keys(self, f, frame_map, keys_flag, ushort_storage, new_wavelets_offset):
-        for channel_i, is_active in enumerate((keys_flag.z, keys_flag.y, keys_flag.x)):
+    def read_rel_keys(self, f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset):
+        for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
                 # define the minimal key size for this channel
                 ch_key_size = f.read_uint_reversed(4)
-                ch_key_size_masked = ch_key_size & 0x1f
+                ch_key_size_masked = ch_key_size & 31
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
                 for trg_frame_i in frame_map[:new_wavelets_offset]:
-                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (0x20 - ch_key_size_masked)
+                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (32 - ch_key_size_masked)
                     # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
                     rel_key_size = f.read_bit_size_flag(32)
                     # todo this may have to be shifted only with the corresponding clamp applied
@@ -1163,7 +1162,7 @@ class ManisFile(InfoHeader, IoFile):
                         ch_rel_key = 0
                     # logging.info(f"key = {ch_rel_key}")
                     rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-                    ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
+                    raw_keys_storage[trg_frame_i, channel_i] = rel_key_masked
 
     def read_vec3(self, f):
         if self.context.version > 259:
