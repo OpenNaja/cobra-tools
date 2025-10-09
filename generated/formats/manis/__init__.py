@@ -685,8 +685,6 @@ class ManisFile(InfoHeader, IoFile):
                     key_picked = vec.copy()
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
-                        if trg_frame_i == out_frame_i:
-                            frame_inc += 1
                         rel = raw_keys_storage[out_frame_i]
                         out = rel.astype(np.float32)
                         out[:] = self.make_signed(*rel)
@@ -696,24 +694,23 @@ class ManisFile(InfoHeader, IoFile):
                         base_key_float = base_plus_delta
                         # instead of scale_pack, this scale is hard-coded to the corresponding float of 1 / 16383
                         final = base_key_float + out * 6.103888e-05
-
-                        next_key_offset = 0 if out_frame_i == trg_frame_i else 4
-
-                        # todo next_key_offset being on seems to be a fairly rare case; usually/always? at the end of segments, eg.
-                        #  JWE2 dev: spino notmotionextracted.maniset7064666c.manis, spinosaurus@ragdolllefttostand, 39 def_c_tail1_joint, Y+Z frame 119 - 128 (seg bound)
-                        # if pos_index == 39 and segment_i == 3:
-                        #     print(segment_i* 32 + out_frame_i, next_key_offset)
-                        # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
-                        which_key_flag = True if next_key_offset else False
-                        key_picked = vec if which_key_flag else final
-                        last_key_a = identity.copy() if which_key_flag else last_key_b.copy()
-                        # this scale uses the calculated scale
-                        last_key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale_pack
-                        # if (trg_frame_i != out_frame_i) {
-                        if next_key_offset:
+                        if out_frame_i == trg_frame_i:
+                            frame_inc += 1
+                            # a key is stored for this frame
+                            key_picked = final
+                            last_key_a = last_key_b.copy()
+                            # this scale uses the calculated scale
+                            last_key_b = last_key_delta.copy() + out * scale_pack
+                        else:
+                            # hold key from previous frame
+                            # print(pos_index, segment_i* 32 + out_frame_i)
+                            key_picked = final
+                            last_key_a = identity.copy()
+                            last_key_b = identity.copy()
                             # update scale_pack here, todo check if / what norm is used
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for sucessive bones
                             scale_pack = self.get_pack_scale(mani_info)
+                            final = segment_pos_bones[out_frame_i-1, pos_index]
                         segment_pos_bones[out_frame_i, pos_index] = final
                 # print(segment_pos_bones[:, pos_index])
             else:
