@@ -761,12 +761,13 @@ class ManisFile(InfoHeader, IoFile):
                     frame_inc = 0
                     out = np.zeros(4, float)
                     # print(raw_keys_storage)
+                    # sign flipping happens before setting quat itself but for cleaner output in the graphs
+                    quat = quat * -1 if quat[3] < 0 else quat
                     # set base keyframe
                     # logging.info(f"BASE 0: {quat}, {ori_index}")
                     segment_ori_bones[0, ori_index] = quat
+                    quat_pos = quat
                     last_key_a = zeros.copy()
-                    # sign flipping happens here
-                    quat_pos = quat * -1 if quat[3] < 0 else quat
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
