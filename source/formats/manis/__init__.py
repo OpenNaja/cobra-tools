@@ -701,7 +701,7 @@ class ManisFile(InfoHeader, IoFile):
                             key_picked = final
                             last_key_a = identity.copy()
                             last_key_b = identity.copy()
-                            # update scale_pack here, todo check if / what norm is used
+                            # update scale_pack here, todo check if / what norm is used with conditional breakpoint
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
                             scale_pack = self.get_pack_scale(mani_info)
                             final = segment_pos_bones[out_frame_i-1, pos_index]
