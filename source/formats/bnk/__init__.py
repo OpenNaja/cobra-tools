@@ -13,7 +13,7 @@ class BnkFile(BnkFileContainer, IoFile):
 
 	def __init__(self):
 		super().__init__(OvlContext())
-		self.aux_b = None
+		self.aux_b = AuxFile()
 		self.aux_b_name_bare = self.aux_b_path = self.aux_s_name_bare = self.aux_s_path = self.bnk_name_bare = self.bnk_dir = self.bnk_name = None
 		self.data_map = {}
 		# self.s_map = {}
@@ -29,14 +29,13 @@ class BnkFile(BnkFileContainer, IoFile):
 		if self.bnk_header.external_s_suffix:
 			self.aux_s_name_bare, self.aux_s_path = self.get_aux_path("s")
 			with open(self.aux_s_path, "rb") as f:
-				for i, stream_info in enumerate(self.bnk_header.streams):
+				for stream_info in self.bnk_header.streams:
 					f.seek(stream_info.offset)
 					id_hash = fmt_hash(stream_info.event_id)
 					self.data_map[id_hash] = f.read(stream_info.size), self.aux_s_name_bare
 		# since the b aux can be originally internal as a buffer, or an external file, we just check if the file now exists
 		self.aux_b_name_bare, self.aux_b_path = self.get_aux_path("b")
 		if self.aux_b_name_bare:
-			self.aux_b = AuxFile()
 			self.aux_b.load(self.aux_b_path)
 			if self.aux_b.didx:
 				for pointer in self.aux_b.didx.data_pointers:
@@ -63,6 +62,13 @@ class BnkFile(BnkFileContainer, IoFile):
 
 	def save(self, filepath):
 		self.old_size = os.path.getsize(filepath)
+		# ensure update of bnk_file.bnk_header.size_b, apparently both external or internal
+		self.bnk_header.size_b = os.path.getsize(self.aux_b_path)
+		logging.debug(f"bnk_file.bnk_header.size_b = {self.bnk_header.size_b}")
+
+		# save aux
+		self.aux_b.save(self.aux_b_path)
+		# save bnk
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
 

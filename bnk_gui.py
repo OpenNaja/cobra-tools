@@ -354,9 +354,6 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath) -> None:
 		try:
-			# save aux
-			self.bnk_media.aux_b.save(self.filepath_media)
-			self.bnk_events.aux_b.save(self.filepath_events)
 			# save bnk
 			self.bnk_media.save(self.filepath_media)
 			self.bnk_events.save(self.filepath_events)

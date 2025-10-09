@@ -30,11 +30,6 @@ class BnkLoader(BaseFile):
 	def create(self, file_path):
 		bnk_file = BnkFile()
 		bnk_file.load(file_path)
-		# ensure update of bnk_file.bnk_header.size_b
-		if bnk_file.bnk_header.external_aux_b_count:
-			# todo - apparently sum of both external and internal
-			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
-			logging.debug(f"bnk_file.bnk_header.size_b = {bnk_file.bnk_header.size_b}")
 		buffers = [as_bytes(bnk_file.bnk_header), ]
 		# internal aux b
 		if bnk_file.bnk_header.buffer_count > 1 and not bnk_file.bnk_header.external_aux_b_count:
