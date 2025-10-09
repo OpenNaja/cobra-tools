@@ -225,6 +225,14 @@ class MainWindow(widgets.MainWindow):
 				# self.file_widget.filepath = self.filepath_media
 				# self.open("")
 				self.file_widget.open_file(f"//{self.bnk_name}")
+		else:
+			# get folder path to open
+			game = self.game_choice.get_selected_game()
+			if game:
+				game_dir = self.cfg.get("games").get(game)
+				cp_name = names[0]
+				audio_dir = os.path.join(game_dir, cp_name, "Audio")
+				os.startfile(audio_dir)
 
 	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
