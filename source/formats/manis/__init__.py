@@ -658,13 +658,9 @@ class ManisFile(InfoHeader, IoFile):
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             frame_map = np.zeros(32, dtype=np.uint32)
             raw_keys_storage = np.zeros((52, 3), dtype=np.uint32)
-            # not byte aligned
-            # defines basic loc value
-            # logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
+            # defines basic loc value; not byte aligned
             vec = self.read_vec3(f)[:3]
             vec *= scale
-
-            # scale_pack = float(scale)
             # the scale per bone is always norm = 0 in acro_run
             scale_pack = self.get_pack_scale(mani_info)
             # which channels are keyframed
@@ -673,7 +669,6 @@ class ManisFile(InfoHeader, IoFile):
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset)
-                # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # set base keyframe
@@ -707,11 +702,10 @@ class ManisFile(InfoHeader, IoFile):
                             last_key_a = identity.copy()
                             last_key_b = identity.copy()
                             # update scale_pack here, todo check if / what norm is used
-                            # apparently also norm = 0 in acro_run, but too many to properly verify that for sucessive bones
+                            # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
                             scale_pack = self.get_pack_scale(mani_info)
                             final = segment_pos_bones[out_frame_i-1, pos_index]
                         segment_pos_bones[out_frame_i, pos_index] = final
-                # print(segment_pos_bones[:, pos_index])
             else:
                 # set all keyframes
                 segment_pos_bones[:, pos_index] = vec
