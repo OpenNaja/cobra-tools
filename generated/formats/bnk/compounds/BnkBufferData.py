@@ -22,7 +22,7 @@ class BnkBufferData(BaseStruct):
 		self.external_aux_b_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 1 for PC, 2 for PZ, JWE, 6 for ZTUAC
-		self.total_aux_count = name_type_map['Uint'](self.context, 0, None)
+		self.buffer_count = name_type_map['Uint'](self.context, 0, None)
 
 		# variable
 		self.streams_count = name_type_map['Uint'](self.context, 0, None)
@@ -52,7 +52,7 @@ class BnkBufferData(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'size_b', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'external_aux_b_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'total_aux_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'buffer_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'streams_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zeros', Array, (0, None, (7,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'zeros_per_buffer', Array, (0, None, (None, 2,), name_type_map['Uint64']), (False, None), (None, None)
@@ -66,7 +66,7 @@ class BnkBufferData(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'size_b', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'external_aux_b_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'total_aux_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'buffer_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'streams_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (7,), name_type_map['Uint']), (False, None)
 		yield 'zeros_per_buffer', Array, (0, None, (instance.external_aux_b_count, 2,), name_type_map['Uint64']), (False, None)

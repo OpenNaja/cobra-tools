@@ -32,10 +32,12 @@ class BnkLoader(BaseFile):
 		bnk_file.load(file_path)
 		# ensure update of bnk_file.bnk_header.size_b
 		if bnk_file.bnk_header.external_aux_b_count:
+			# todo - apparently sum of both external and internal
 			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
 			logging.debug(f"bnk_file.bnk_header.size_b = {bnk_file.bnk_header.size_b}")
 		buffers = [as_bytes(bnk_file.bnk_header), ]
-		if bnk_file.bnk_header.external_aux_b_count:
+		# internal aux b
+		if bnk_file.bnk_header.buffer_count > 1 and not bnk_file.bnk_header.external_aux_b_count:
 			logging.info(f"Loaded bnk {bnk_file.aux_b_name_bare} into OVL buffers")
 			with open(bnk_file.aux_b_path, "rb") as f:
 				buffers.append(f.read())
@@ -46,6 +48,7 @@ class BnkLoader(BaseFile):
 		self.aux_external = {}
 		for aux_suffix in (bnk_file.bnk_header.external_b_suffix, bnk_file.bnk_header.external_s_suffix):
 			if aux_suffix:
+				logging.info(f"Loaded bnk {aux_suffix} into OVL aux")
 				self.aux_external[aux_suffix] = self.get_content(self.get_aux_path(aux_suffix))
 
 	def extract(self, out_dir):

@@ -500,7 +500,7 @@
         Buffer data of bnk files
         <add name="size_b" type="uint64" >data size of aux of type b, can be in bnk's buffer 1, and maybe also an external aux b file</add>
         <add name="external_aux_b_count" type="uint" >1, guess</add>
-        <add name="total_aux_count" type="uint" >1 for PC, 2 for PZ, JWE, 6 for ZTUAC</add>
+        <add name="buffer_count" type="uint" >1 for PC, 2 for PZ, JWE, 6 for ZTUAC</add>
         <add name="streams_count" type="uint" >variable</add>
         <add name="zeros" type="uint" arr1="7">0</add>
         <add name="zeros_per_buffer" type="uint64" arr1="external_aux_b_count" arr2="2">variable</add>
