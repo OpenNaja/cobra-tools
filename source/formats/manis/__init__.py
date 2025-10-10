@@ -45,33 +45,27 @@ class BinStream:
     def seek(self, pos):
         self.pos = pos
 
-    def read(self, size):
+    def read(self, size) -> bitarray.bitarray:
         d = self.data[self.pos: self.pos + size]
         assert len(d) == size, f"Reached end of chunk reading {size} bits at bit {self.pos}, byte {self.pos/8}, got {len(d)} bits"
         self.pos += size
         return d
 
-    def read_int(self, size):
+    def read_int(self, size) -> int:
         bits = self.read(size)
         return bitarray.util.ba2int(bits, signed=True)
 
-    def read_uint(self, size):
+    def read_uint(self, size) -> int:
         bits = self.read(size)
         return bitarray.util.ba2int(bits, signed=False)
 
-    def read_uint_reversed(self, size):
-        out = 0
-        for _ in range(size):
-            new_bit = self.read_uint(1)
-            out = new_bit | (out * 2)
-        return out
+    def read_uint_reversed(self, size) -> int:
+        bits = self.read(size)
+        bits.reverse()
+        return bitarray.util.ba2int(bits, signed=False)
 
     def interpret_as_shift(self, size, flag):
-        out = 0
-        for _ in range(size):
-            out += flag
-            flag *= 2
-        return out
+        return flag * ((1 << size) - 1)
 
     def read_bit_size_flag(self, max_size):
         for rel_key_size in range(max_size):
@@ -122,14 +116,12 @@ class KeysContext:
                 self.do_increment = not self.do_increment
                 init_k = self.init_k_a if self.do_increment else self.init_k_b
                 assert init_k < 32
-                # run 0: init_k_a = 2
-                # run 1: init_k_b = 4
                 # logging.info(f"do_increment {do_increment} init_k {init_k} at {self.stream.pos}")
                 k_size = self.stream.read_bit_size_flag(32 - init_k)
                 k_flag = 1 << (init_k & 0x1f)
                 k_flag_out = self.stream.interpret_as_shift(k_size, k_flag)
                 # logging.info(
-                # 	f"pos before key {self.stream.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+                # 	f"pos before key {self.stream.pos}, k_flag_out {k_flag_out}, init_k bare {k_size}")
                 k_key = self.stream.read_uint_reversed(k_size + init_k)
                 assert k_size + init_k < 32
                 self.i_in_run = k_key + k_flag_out
@@ -682,6 +674,9 @@ class ManisFile(InfoHeader, IoFile):
                         rel = raw_keys_storage[out_frame_i]
                         out = rel.astype(np.float32)
                         out[:] = self.make_signed(*rel)
+                        # todo - scale or sth before for JWE2 dev acro
+                        #  motionextracted.manisetf96acca0.manis acrocanthosaurus@jumpattackdefendthrowright, segment 2, root
+                        #  only Y is bad, so it is probably fairly early
                         last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
                             frame_inc += 1
