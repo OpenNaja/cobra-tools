@@ -674,37 +674,32 @@ class ManisFile(InfoHeader, IoFile):
                     # set base keyframe
                     segment_pos_bones[0, pos_index] = vec
                     # set other keyframes
-                    last_key_a = identity.copy()
-                    last_key_b = identity.copy()
-                    key_picked = vec.copy()
+                    last_key_a = identity
+                    last_key_b = identity
+                    final = vec.copy()
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
                         rel = raw_keys_storage[out_frame_i]
                         out = rel.astype(np.float32)
                         out[:] = self.make_signed(*rel)
-                        last_key_delta = (last_key_b - last_key_a) + last_key_b
-                        base_plus_delta = last_key_delta + key_picked
-                        # todo do something here for base_key_float
-                        base_key_float = base_plus_delta
-                        # instead of scale_pack, this scale is hard-coded to the corresponding float of 1 / 16383
-                        final = base_key_float + out * 6.103888e-05
+                        last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
                             frame_inc += 1
                             # a key is stored for this frame
-                            key_picked = final
+                            # instead of scale_pack, this scale is hard-coded to the corresponding float of 1 / 16383
+                            final = final + last_key_delta + out * 6.103888e-05
                             last_key_a = last_key_b.copy()
                             # this scale uses the calculated scale
-                            last_key_b = last_key_delta.copy() + out * scale_pack
+                            last_key_b = last_key_delta + out * scale_pack
                         else:
                             # hold key from previous frame
                             # print(pos_index, segment_i* 32 + out_frame_i)
-                            key_picked = final
-                            last_key_a = identity.copy()
-                            last_key_b = identity.copy()
+                            final = segment_pos_bones[out_frame_i-1, pos_index]
+                            last_key_a = identity
+                            last_key_b = identity
                             # update scale_pack here, todo check if / what norm is used with conditional breakpoint
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
                             scale_pack = self.get_pack_scale(mani_info)
-                            final = segment_pos_bones[out_frame_i-1, pos_index]
                         segment_pos_bones[out_frame_i, pos_index] = final
             else:
                 # set all keyframes
