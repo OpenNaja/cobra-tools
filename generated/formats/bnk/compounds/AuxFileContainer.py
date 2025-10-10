@@ -80,6 +80,7 @@ class AuxFileContainer(BaseStruct):
 				logging.info(f"found a match {pointer.hash}, reading wem data")
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
+				pointer.wem_filesize = len(pointer.data)
 				break
 
 	def inject_hirc(self, wem_path, wem_id):
@@ -90,8 +91,7 @@ class AuxFileContainer(BaseStruct):
 				if pointer.id == HircType.SOUND:
 					if pointer.hash == wem_id:
 						logging.info(f"found a match {pointer.hash}, updating wem data size")
-						pointer.data.wem_length = os.path.getsize(wem_path)
-						# print(hirc_pointer.data)
+						pointer.data.ak_bank_source_data.size = os.path.getsize(wem_path)
 						break
 
 	def __repr__(self):
@@ -108,9 +108,8 @@ class AuxFileContainer(BaseStruct):
 		if instance.didx:
 			for pointer in instance.didx.data_pointers:
 				pointer.data_section_offset = offset
-				pointer.wem_filesize = len(pointer.data)
 				pointer.pad = get_padding(len(pointer.data), alignment=16)
-				offset += len(pointer.data + pointer.pad)
+				offset += len(pointer.data) + len(pointer.pad)
 		for chunk_id, chunk in instance.chunks:
 			if chunk_id == b"DATA":
 				continue
@@ -126,9 +125,7 @@ class AuxFileContainer(BaseStruct):
 		if instance.data:
 			data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
 			stream.write(b"DATA")
+			# ovl ignores the padding of the last wem
 			Uint.to_stream(len(data) - len(pointer.pad), stream)
 			stream.write(data)
-			# ovl ignores the padding of the last wem
-			# instance.size_for_ovl = stream.tell() - len(pointer.pad)
-		# logging.info(f"AUX size for OVL {instance.size_for_ovl}")
 
