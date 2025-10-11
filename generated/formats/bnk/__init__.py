@@ -62,16 +62,14 @@ class BnkFile(BnkFileContainer, IoFile):
 		return aux_file_name_bare, aux_path
 
 	def save(self, filepath):
-		self.old_size = os.path.getsize(filepath)
-		# ensure update of bnk_file.bnk_header.size_b, apparently both external or internal
-		self.bnk_header.size_b = os.path.getsize(self.aux_b_path)
-		logging.debug(f"bnk_file.bnk_header.size_b = {self.bnk_header.size_b}")
-
 		# save aux
 		self.aux_b.save(self.aux_b_path)
+		# ensure update of bnk_file.bnk_header.size_b, apparently both external or internal
+		self.bnk_header.size_b = self.aux_b.size_for_ovl
+		logging.debug(f"bnk_file.bnk_header.size_b = {self.bnk_header.size_b}")
+
 		# save bnk
-		with open(filepath, "wb") as stream:
-			self.write_fields(stream, self)
+		super().save(filepath)
 
 
 class AuxFile(AuxFileContainer, IoFile):
@@ -79,20 +77,8 @@ class AuxFile(AuxFileContainer, IoFile):
 	def __init__(self):
 		super().__init__(OvlContext())
 
-	def load(self, filepath):
-		with open(filepath, "rb") as stream:
-			self.read_fields(stream, self)
-
-	def save(self, filepath):
-		self.old_size = os.path.getsize(filepath)
-		with open(filepath, "wb") as stream:
-			self.write_fields(stream, self)
-
 
 if __name__ == "__main__":
-	# bnk = BnkFile()
-	# bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/aux files/dlc_dingo_dlc_dingo_media_bnk_B.aux")
-	# print(bnk)
 	bnk = BnkFile()
 	bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/aux files/music_vehicleradio_events.bnk")
 	print(bnk)

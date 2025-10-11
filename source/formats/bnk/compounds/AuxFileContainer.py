@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 
@@ -23,7 +24,6 @@ class AuxFileContainer(BaseStruct):
 		self.hirc = None
 		self.data = None
 		self.size_for_ovl = 0
-		self.old_size = 0
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -77,7 +77,7 @@ class AuxFileContainer(BaseStruct):
 		logging.info("Injecting audio")
 		for pointer in self.didx.data_pointers:
 			if pointer.hash == wem_id:
-				logging.info(f"found a match {pointer.hash}, reading wem data")
+				logging.info(f"found a match {pointer.hash} {len(pointer.data)} bytes, reading wem data")
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
 				pointer.wem_filesize = len(pointer.data)
@@ -104,12 +104,6 @@ class AuxFileContainer(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		"""Update representation, then write the container from the internal representation"""
-		offset = 0
-		if instance.didx:
-			for pointer in instance.didx.data_pointers:
-				pointer.data_section_offset = offset
-				pointer.pad = get_padding(len(pointer.data), alignment=16)
-				offset += len(pointer.data) + len(pointer.pad)
 		for chunk_id, chunk in instance.chunks:
 			if chunk_id == b"DATA":
 				continue
@@ -117,15 +111,24 @@ class AuxFileContainer(BaseStruct):
 			stream.write(chunk_id)
 			chunk.to_stream(chunk, stream, instance.context)
 		if instance.hirc:
-			# stream.write(bytearray(instance.old_size - stream.tell()))
 			# logging.info(f"End of HIRC at {stream.tell()}")
-			return
-		if not instance.didx.data_pointers:
-			return
-		if instance.data:
-			data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
+			pass
+		if instance.didx:
+			with io.BytesIO() as f:
+				for pointer in instance.didx.data_pointers:
+					# offset must be aligned to 16
+					f.write(get_padding(f.tell(), alignment=16))
+					# logging.info(f"before {pointer.data_section_offset}")
+					pointer.data_section_offset = f.tell()
+					# logging.info(f"after  {pointer.data_section_offset}")
+					f.write(pointer.data)
+				data = f.getvalue()
 			stream.write(b"DATA")
 			# ovl ignores the padding of the last wem
-			Uint.to_stream(len(data) - len(pointer.pad), stream)
+			data_size = len(data)
+			instance.size_for_ovl = stream.tell() + data_size
+			Uint.to_stream(data_size, stream)
 			stream.write(data)
+		instance.size_for_ovl = stream.tell()
+		stream.write(get_padding(stream.tell(), alignment=16))
 
