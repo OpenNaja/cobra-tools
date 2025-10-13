@@ -126,7 +126,7 @@ class MainWindow(widgets.MainWindow):
 
 				def extract_cb(checked):
 					out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
-					logging.info(f"extracting {wem_hash}")
+					logging.info(f"Extracting {wem_hash}")
 					self.extract_audio(out_dir, hashes=(wem_hash,))
 
 				extract.triggered.connect(extract_cb)
@@ -263,21 +263,9 @@ class MainWindow(widgets.MainWindow):
 				logging.info(f"Trying to inject {wem_file_path}")
 				try:
 					aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
-					logging.info(f"WEM id: {wem_id} into aux {aux_path_bare}")
-
-					# get the names of the bnk files and make sure they match the input
-					media_bnk = self.bnk_media.bnk_header.name
-					assert "_media_" in aux_path_bare.lower()
-					assert media_bnk.lower() in aux_path_bare.lower()
-					events_bnk = f"{media_bnk.rsplit('_', 1)[0]}_events"
-					logging.info(f"Media: {media_bnk}, Events: {events_bnk}")
-
-					ovl_basename = os.path.basename(aux_path_bare).lower().split(media_bnk.lower())[0][:-1]
-
 					self.bnk_media.aux_b.inject_audio(wem_file_path, wem_id)
 					self.bnk_events.aux_b.inject_hirc(wem_file_path, wem_id)
 					self.set_dirty()
-					logging.info(f"Injected {wem_file_path} {wem_id}")
 				except BaseException:
 					logging.exception(f"Failed to inject {wem_file_path}")
 

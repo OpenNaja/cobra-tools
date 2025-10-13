@@ -64,7 +64,8 @@
 		<option value="2" name="Stream" />
     </enum>
 
-    <enum name="AkPropID" numbytes="1" storage="ubyte" default="0"><option value="0" name="Volume" />
+    <enum name="AkPropID" numbytes="1" storage="ubyte" default="0">
+        <option value="0" name="Volume" />
         <option value="1" name="LFE" />
         <option value="2" name="Pitch" />
         <option value="3" name="LPF" />
@@ -136,6 +137,8 @@
         <option value="71" name="PositioningTypeBlend" />
         <option value="72" name="ReflectionBusVolume" />
         <option value="73" name="PAN_UD" />
+        <option value="193" name="unk_a" />
+        <option value="224" name="unk_b" />
     </enum>
 
     <enum name="ActionScope" numbytes="1" storage="ubyte" default="0">

@@ -16,13 +16,11 @@ class BnkFile(BnkFileContainer, IoFile):
 		self.aux_b = AuxFile()
 		self.aux_b_name_bare = self.aux_b_path = self.aux_s_name_bare = self.aux_s_path = self.bnk_name_bare = self.bnk_dir = self.bnk_name = None
 		self.data_map = {}
-		# self.s_map = {}
 
 	def load(self, filepath):
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
 		self.data_map = {}
-		# self.s_map = {}
 		# alternatively, bnk_name from bnk header
 		self.bnk_dir, self.bnk_name = os.path.split(filepath)
 		self.bnk_name_bare = os.path.splitext(self.bnk_name)[0]
@@ -65,8 +63,7 @@ class BnkFile(BnkFileContainer, IoFile):
 		self.aux_b.save(self.aux_b_path)
 		# ensure update of bnk_file.bnk_header.size_b, apparently both external or internal
 		self.bnk_header.size_b = self.aux_b.size_for_ovl
-		logging.debug(f"bnk_file.bnk_header.size_b = {self.bnk_header.size_b}")
-
+		# logging.debug(f"bnk_file.bnk_header.size_b = {self.bnk_header.size_b}")
 		# save bnk
 		super().save(filepath)
 
@@ -76,8 +73,3 @@ class AuxFile(AuxFileContainer, IoFile):
 	def __init__(self):
 		super().__init__(OvlContext())
 
-
-if __name__ == "__main__":
-	bnk = BnkFile()
-	bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/aux files/music_vehicleradio_events.bnk")
-	print(bnk)
