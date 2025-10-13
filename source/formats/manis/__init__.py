@@ -63,6 +63,11 @@ try:
                     return rel_key_size
             return -1
 
+        @staticmethod
+        def make_signed(*args):
+            # use zigzag encoding
+            return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]
+
         def find_all(self, bits):
             for match_offset in self.data.itersearch(bits):
                 yield match_offset
@@ -413,30 +418,6 @@ class ManisFile(InfoHeader, IoFile):
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
 
-    def show_keys(self, keys, bone_names, bone_name):
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            logging.warning("No matplotlib, can't show keys")
-            return
-        if bone_name in bone_names:
-            bone_i = bone_names.index(bone_name)
-            plt.plot(keys[:, bone_i, 0], label='X')
-            plt.plot(keys[:, bone_i, 1], label='Y')
-            plt.plot(keys[:, bone_i, 2], label='Z')
-            if len(keys[0, 0]) > 3:
-                dt = "Rot"
-                plt.plot(keys[:, bone_i, 3], label='Q')
-            else:
-                dt = "Loc"
-            # mark every 32 frame
-            plt.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
-            title_str = f"{dt} Keys for {bone_name} [{bone_i}]"
-            logging.info(f"Showing {title_str}")
-            plt.title(title_str)
-            plt.legend()
-            plt.show()
-
     def show_keys_by_dtype(self, mani_name, dtype, bone_name, ax: 'matplotlib.axes.Axes'):
         mani_info = self.get_mani(mani_name)
         k = mani_info.keys
@@ -461,24 +442,6 @@ class ManisFile(InfoHeader, IoFile):
             if len(keys[0, 0]) > 3:
                 ax.plot(keys[:, bone_i, 3], label='Q')
         ax.legend(loc="lower right")
-
-    def show_floats(self, mani_info, name_filter=""):
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            logging.warning("No matplotlib, can't show keys")
-            return
-        logging.info(f"Showing floats")
-        k = mani_info.keys
-        for f_i, f_name in sorted(enumerate(k.floats_names), key=lambda t: t[1]):
-            if name_filter and name_filter not in f_name:
-                continue
-            plt.plot(k.floats[:, f_i], label=f_name)
-        plt.xlabel('Frame')
-        plt.ylabel('Value')
-        plt.title(f"Float Keys for {mani_info.name}")
-        plt.legend()
-        plt.show()
 
     def decompress(self, mani_info, dump=False):
         if BinStream is None:
@@ -524,7 +487,7 @@ class ManisFile(InfoHeader, IoFile):
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             frame_map = np.zeros(32, dtype=np.uint32)
-            raw_keys_storage = np.zeros((52, 3), dtype=np.uint32)
+            raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
             # defines basic loc value; not byte aligned
             vec = self.read_vec3(f)[:3]
             vec *= scale
@@ -546,9 +509,7 @@ class ManisFile(InfoHeader, IoFile):
                     final = vec.copy()
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
-                        rel = raw_keys_storage[out_frame_i]
-                        out = rel.astype(np.float32)
-                        out[:] = self.make_signed(*rel)
+                        out = raw_keys_storage[out_frame_i]
                         # todo - scale or sth before for JWE2 dev acro, only single channels, so probably fairly early
                         #  motionextracted.manisetf96acca0.manis acrocanthosaurus@jumpattackdefendthrowright, segment[2], root, Y
                         #  motionextracted.maniset85c65403 acrocanthosaurus@walk, segment[0], def_horselink_joint_IKBlend.L, Z; segment[1] is fine
@@ -592,7 +553,7 @@ class ManisFile(InfoHeader, IoFile):
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             frame_map = np.zeros(32, dtype=np.uint32)
-            raw_keys_storage = np.zeros((52, 3), dtype=np.uint32)
+            raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
             # defines basic rot values
             # logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
             vec = self.read_vec3(f)
@@ -619,7 +580,6 @@ class ManisFile(InfoHeader, IoFile):
                 if segment_frames_count > 1:
                     frame_inc = 0
                     out = np.zeros(4, float)
-                    # print(raw_keys_storage)
                     # sign flipping happens before setting quat itself but for cleaner output in the graphs
                     quat = quat * -1 if quat[3] < 0 else quat
                     # set base keyframe
@@ -631,8 +591,7 @@ class ManisFile(InfoHeader, IoFile):
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
 
-                        rel = raw_keys_storage[out_frame_i]
-                        out[:3] = self.make_signed(*rel)
+                        out[:3] = raw_keys_storage[out_frame_i]
                         out[3] = 0.0
                         # todo figure out logic for scale
                         #  animationmotionextractedlocomotion.maniset535f4cdb, mandrill_male@runbase, bone 41 breaks after frame 2
@@ -775,7 +734,7 @@ class ManisFile(InfoHeader, IoFile):
                         ch_rel_key = 0
                     # logging.info(f"key = {ch_rel_key}")
                     rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-                    raw_keys_storage[trg_frame_i, channel_i] = rel_key_masked
+                    raw_keys_storage[trg_frame_i, channel_i] = f.make_signed(rel_key_masked)[0]
 
     def read_vec3(self, f):
         if self.context.version > 259:
@@ -789,11 +748,8 @@ class ManisFile(InfoHeader, IoFile):
             y = f.read_uint_reversed(15)
             z = f.read_uint_reversed(15)
         vec = np.zeros(4, dtype=np.float32)
-        vec[:] = self.make_signed(x, y, z, 0)
+        vec[:] = f.make_signed(x, y, z, 0)
         return vec
-
-    def make_signed(self, *args):
-        return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]
 
 
 def get_quat_scale_fac(norm_half_abs: float):
