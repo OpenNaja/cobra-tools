@@ -3,6 +3,7 @@ import logging
 import math
 import struct
 import os
+import time
 from copy import copy
 
 import numpy as np
@@ -614,6 +615,7 @@ class ManisFile(InfoHeader, IoFile):
         if BinStream is None:
             raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
+        start = time.time()
         logging.debug(
             f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
         ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
@@ -621,13 +623,13 @@ class ManisFile(InfoHeader, IoFile):
         assert ck.pos_bone_count == mani_info.pos_bone_count
         assert ck.ori_bone_count == mani_info.ori_bone_count
         frame_offset = 0
-        for segment_i, mb in enumerate(ck.segments):
+        for segment_i, segment in enumerate(ck.segments):
             # dump compressed segment data if needed
             if dump:
                 with open(os.path.join(self.dir, f"{mani_info.name}_{segment_i}.maniskeys"), "wb") as f:
-                    f.write(mb.data)
-            f = BinStream(mb.data)
-            f2 = BinStream(mb.data)
+                    f.write(segment.data)
+            f = BinStream(segment.data)
+            f2 = BinStream(segment.data)
             segment_frames_count = self.get_segment_frame_count(segment_i, mani_info.frame_count)
             # create views into the complete data for this segment
             segment_pos_bones = ck.pos_bones[frame_offset:frame_offset + segment_frames_count]
@@ -639,12 +641,14 @@ class ManisFile(InfoHeader, IoFile):
                 self.read_pos_keys(context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones)
                 self.read_ori_keys(context, f, segment_i, mani_info, segment_frames_count, segment_ori_bones)
             except:
-                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(mb.data)} bytes")
+                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {f.pos}, byte {f.pos / 8}, size {len(segment.data)} bytes")
             frame_offset += segment_frames_count
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
+        logging.debug(
+            f"Decompressed {mani_info.name} in {time.time() - start:.3f} seconds")
 
     def read_pos_keys(self, context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
@@ -922,31 +926,20 @@ class ManisFile(InfoHeader, IoFile):
 
 
 def get_quat_scale_fac2(norm_half_abs):
-    flip_scale = norm_half_abs < 0.0  # input is generally positive as it comes from a norm
-    clamped = np.abs(norm_half_abs)
-    clamped = clamped % (2*np.pi)  # wrap to 2pi range
-    quadrant = round(clamped * 0.6366197)  # 0.6366197 ~ 2 / pi
-    flip_q = quadrant in (2.0, 3.0)
-    wrap_phase = quadrant in (1.0, 3.0)
-    x = clamped - quadrant * 1.570313  # very close to pi/2
-    x -= quadrant * 0.0004837513
-    x = -x if wrap_phase else x
-    x -= quadrant * 7.54979e-08
-    x = -x if flip_q else x
-    cos = np.cos(x)
-    sin = np.sin(x)
-    # select between sine/cosine depending on phase
-    q, scale = (sin, cos) if wrap_phase else (cos, sin)
-    # apply flips
-    if flip_q:
-        q = -q
-    if flip_scale:
-        scale = -scale
-    return q, scale
+    epsilon = 1.1920929E-7
+    cos = np.cos(norm_half_abs)
+    sin = np.sin(norm_half_abs)
+    # wrap to 2pi range, then check whether to apply flips
+    octant = int(norm_half_abs % (2*np.pi) / np.pi * 4 - epsilon)
+    if 4 < octant < 7:
+        sin = -sin
+        cos = -cos
+    return cos, sin
 
 
 def test_get_scale_fac():
-    inp = np.arange(0, 4 * math.pi, math.pi*0.001)
+    inp = np.arange(0, 4 * math.pi, math.pi*0.0001)
+    # inp = np.arange(3.92, 3.93, math.pi*0.00001)
     q_data = np.zeros(len(inp))
     s_data = np.zeros(len(inp))
     q2_data = np.zeros(len(inp))
