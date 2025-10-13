@@ -11,6 +11,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from matplotlib import pyplot as plt
+plt.set_loglevel(level='warning')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 
 
