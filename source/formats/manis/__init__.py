@@ -23,9 +23,55 @@ from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 try:
     import bitarray
     import bitarray.util
+
+
+    class BinStream:
+        def __init__(self, val: bytes):
+            self.data = bitarray.bitarray(endian='little')
+            self.data.frombytes(val)
+            self.pos = 0
+
+        def seek(self, pos: int):
+            self.pos = pos
+
+        def read(self, size: int) -> bitarray.bitarray:
+            d = self.data[self.pos: self.pos + size]
+            assert len(d) == size, f"Reached end of chunk reading {size} bits at bit {self.pos}, byte {self.pos / 8}, got {len(d)} bits"
+            self.pos += size
+            return d
+
+        def read_int(self, size: int) -> int:
+            bits = self.read(size)
+            return bitarray.util.ba2int(bits, signed=True)
+
+        def read_uint(self, size: int) -> int:
+            bits = self.read(size)
+            return bitarray.util.ba2int(bits, signed=False)
+
+        def read_uint_reversed(self, size: int) -> int:
+            bits = self.read(size)
+            bits.reverse()
+            return bitarray.util.ba2int(bits, signed=False)
+
+        @staticmethod
+        def interpret_as_shift(size: int, flag: int):
+            return flag * ((1 << size) - 1)
+
+        def read_bit_size_flag(self, max_size: int):
+            for rel_key_size in range(max_size):
+                new_bit = self.read_uint(1)
+                if not new_bit:
+                    return rel_key_size
+            return -1
+
+        def find_all(self, bits):
+            for match_offset in self.data.itersearch(bits):
+                yield match_offset
+
 except:
-    bitarray = None
+    BinStream = None
     logging.warning(f"bitarray module is not installed")
+
 
 POS = "pos"
 ORI = "ori"
@@ -34,50 +80,6 @@ FLO = "float"
 EUL = "euler"
 root_name = "def_c_root_joint"
 srb_name = "srb"
-
-
-class BinStream:
-    def __init__(self, val):
-        self.data = bitarray.bitarray(endian='little')
-        self.data.frombytes(val)
-        self.pos = 0
-
-    def seek(self, pos):
-        self.pos = pos
-
-    def read(self, size) -> bitarray.bitarray:
-        d = self.data[self.pos: self.pos + size]
-        assert len(d) == size, f"Reached end of chunk reading {size} bits at bit {self.pos}, byte {self.pos/8}, got {len(d)} bits"
-        self.pos += size
-        return d
-
-    def read_int(self, size) -> int:
-        bits = self.read(size)
-        return bitarray.util.ba2int(bits, signed=True)
-
-    def read_uint(self, size) -> int:
-        bits = self.read(size)
-        return bitarray.util.ba2int(bits, signed=False)
-
-    def read_uint_reversed(self, size) -> int:
-        bits = self.read(size)
-        bits.reverse()
-        return bitarray.util.ba2int(bits, signed=False)
-
-    def interpret_as_shift(self, size, flag):
-        return flag * ((1 << size) - 1)
-
-    def read_bit_size_flag(self, max_size):
-        for rel_key_size in range(max_size):
-            new_bit = self.read_uint(1)
-            if not new_bit:
-                return rel_key_size
-        return -1
-
-    def find_all(self, bits):
-        for match_offset in self.data.itersearch(bits):
-            # logging.info(match)
-            yield match_offset
 
 
 class KeysContext:
@@ -609,7 +611,7 @@ class ManisFile(InfoHeader, IoFile):
         plt.show()
 
     def decompress(self, mani_info, dump=False):
-        if bitarray is None:
+        if BinStream is None:
             raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
         logging.debug(
@@ -921,37 +923,30 @@ class ManisFile(InfoHeader, IoFile):
 
 def get_quat_scale_fac2(norm_half_abs):
     flip_scale = norm_half_abs < 0.0  # input is generally positive as it comes from a norm
-    clamped = np.abs(np.float32(norm_half_abs))
+    clamped = np.abs(norm_half_abs)
     clamped = clamped % (2*np.pi)  # wrap to 2pi range
     quadrant = round(clamped * 0.6366197)  # 0.6366197 ~ 2 / pi
     flip_q = quadrant in (2.0, 3.0)
     wrap_phase = quadrant in (1.0, 3.0)
-    x = clamped - quadrant * np.float32(1.570313)  # very close to pi/2
-    x -= quadrant * np.float32(0.0004837513)
+    x = clamped - quadrant * 1.570313  # very close to pi/2
+    x -= quadrant * 0.0004837513
     x = -x if wrap_phase else x
-    x -= quadrant * np.float32(7.54979e-08)
+    x -= quadrant * 7.54979e-08
     x = -x if flip_q else x
-    scale = x * x
-    a = (np.float32(2.44332e-005) * scale + np.float32(-0.001388732)) * scale + np.float32(0.04166665)
-    b = (np.float32(-0.000195153) * scale + np.float32(0.008332161)) * scale + np.float32(-0.1666666)
-    a *= scale
-    a -= np.float32(0.5)
-    a *= scale
-    scale *= x
-    a += np.float32(1.0)
-    b *= scale
-    b += x
-    q = b if wrap_phase else a
-    scale = a if wrap_phase else b
-    q = -q if flip_q else q
-    scale = -scale if flip_scale else scale
+    cos = np.cos(x)
+    sin = np.sin(x)
+    # select between sine/cosine depending on phase
+    q, scale = (sin, cos) if wrap_phase else (cos, sin)
+    # apply flips
+    if flip_q:
+        q = -q
+    if flip_scale:
+        scale = -scale
     return q, scale
 
 
 def test_get_scale_fac():
-    # inp = np.arange(0, 4 * math.pi, math.pi*0.1)
-    # inp = np.arange(0, 2 * math.pi, math.pi*0.1)
-    inp = np.arange(0, 4 * math.pi, math.pi*0.01)
+    inp = np.arange(0, 4 * math.pi, math.pi*0.001)
     q_data = np.zeros(len(inp))
     s_data = np.zeros(len(inp))
     q2_data = np.zeros(len(inp))
@@ -977,108 +972,12 @@ if __name__ == "__main__":
     for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
         print(ManisDtype.from_value(k))
     mani = ManisFile()
-    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset48183260.manis")
-    # mani.parse_keys("giganotosaurusjw@walk", dump=True)
-    # mani.load("C:/Users/arnfi/Desktop/indominus/motionextracted.maniset39f6a438.manis")
     # WH
     # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
     # mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
-    # print(mani)
-    # ZTUAC
-    # mani.load("C:/Users/arnfi/Desktop/locomotion.maniset4838180b.manis")
-    # print(mani)
-    # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
-    # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
-    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
-    # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
-    # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
-    # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
-    # print(mani)
-    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset1d7ef17e.manis")
-    # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")
-    # mani.load("C:/Users/arnfi/Desktop/test.manis")
-    # print(mani)
-
-    # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
-    # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
-    # mani.load("C:/Users/arnfi/Desktop/swan/animationmotionextractedbehaviour.maniset86a13695.manis")
-    # mani.load("C:/Users/arnfi/Desktop/animation.maniset293c241f.manis")
-    # print(mani)
-    # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
-    # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
-    # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
-    # mani.dump_keys()
-
-    # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")  # stationary anims
-    # # mani.parse_keys("acrocanthosaurus@standidle01")
-    # mani.parse_keys("acrocanthosaurus@drinksocialinteractiona")
 
     # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset85c65403.manis")  # locomotion
     # # todo debug acrocanthosaurus@walk - def_horselink_joint_IKBlend.L segment[0] loc, segment[1] is fine
     # maybe create a dedicated copy of walk that includes just that bone?
     # mani.parse_keys("acrocanthosaurus@walk")
-
-    # # JWE1
-    # mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset2b08396d.manis")  # fighting
-    # print(mani)
-    # mani.parse_keys("ankylosaurus@standidle01")
-    # mani.load("C:/Users/arnfi/Desktop/notmotionextracted.manisetb28920cd.manis")  # stationary
-    # mani.parse_keys("ankylosaurus@standidle01")
-    # mani.load("C:/Users/arnfi/Desktop/locomotion.manisetdd6f52f3.manis")  # locomotion
-    # mani.parse_keys("ankylosaurus@walkbase")
-
-    # # JWE2
-    # # mani.load("C:/Users/arnfi/Desktop/notmotionextracted.maniset81182102.manis")
-    # # mani.parse_keys("ankylosaurus@standidlexx")
-    # mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset6dfd5af.manis")  # locomotion
-    # mani.parse_keys("ankylosaurus@walk")
-
-    # # PZ old
-    # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.manisete954492e_old.manis")  # locomotion
-    # mani.parse_keys("bengal_tiger_male@walkbase")
-    #
-    # # PZ new
-    # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.manisete954492e_new.manis")  # locomotion
-    # mani.parse_keys("bengal_tiger_male@walkbase")
-
-    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")  # hatchery anims
-    # mani.parse_keys("acrocanthosaurus@hatcheryexit_01")
-    # mani.log_rot_keys()
-    # mani.log_loc_keys()
-    # test_get_scale_fac()
-# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
-# mani.dump_keys()
-# mani.parse_keys()
-# # mani.load("C:/Users/arnfi/Desktop/gate/animation.manisetd2b36ae0.manis")
-# print(mani)
-# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
-# mani.parse_keys()
-# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
-# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c0.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c1.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c2.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animation.maniset9637aeb4.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedbehaviour.maniset5f721adf.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedlocomotion.maniset58076276.manis")
-# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
-# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
-# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
-
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/wheel/animation.maniset9637aeb4.manis")
-
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/Iron_piston/ugcres.maniset8982114c.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/pc dino/animation.maniset293c241f.manis")
-
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/notmotionextracted.manisetf2b1fd43.manis")  # ok 0000 24 bytes f
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1823adb0.manis")  # 0111 48 bytes f
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1bfb6052.manis")  # 0, 2, 3, 1
-
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/hatcheryexitcamera.maniset9762d823.manis")
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.maniset7e6b0db3.manis") # keys are external
-# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.manisetf2b6c52d.manis")
-# print(mani)
-
-# mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
-# mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
+    test_get_scale_fac()
