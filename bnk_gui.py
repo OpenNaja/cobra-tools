@@ -290,9 +290,16 @@ class MainWindow(widgets.MainWindow):
 		hirc_item.setText(0, name)
 		hirc_item.setIcon(0, get_icon("dir"))
 		hirc_item.setText(1, hirc.id.name)
+
 		if hasattr(hirc.data, "children"):
-			hirc_item.setText(2, str(len(hirc.data.children)))
-			for child_id in hirc.data.children:
+			children = hirc.data.children
+		elif hasattr(hirc.data, "music_node_params"):
+			children = hirc.data.music_node_params.children
+		else:
+			children = None
+		if children is not None:
+			hirc_item.setText(2, str(len(children)))
+			for child_id in children:
 				child = sid_2_hirc.get(child_id)
 				if not child:
 					logging.warning(f"Child {child_id} not found")
@@ -300,18 +307,24 @@ class MainWindow(widgets.MainWindow):
 				self.show_node(child, hirc_item, sid_2_hirc, lut)
 		if hirc.id == HircType.SOUND:
 			sbi = hirc.data.ak_bank_source_data
-			info = sbi.ak_media_information
-			wem_hash = fmt_hash(info.source_i_d)
-			src_item = QtWidgets.QTreeWidgetItem(hirc_item)
-			src_item.setText(0, f"0x{wem_hash}")
-			icon = get_icon("bnk")
-			src_item.setIcon(0, icon)
-			src_item.setText(1, f"WEM {sbi.stream_type.name}")
-			src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
-			# external sound from another bnk file
-			if wem_hash not in self.bnk_media.data_map:
-				src_item.setDisabled(True)
-	
+			self.show_sbi(hirc_item, sbi)
+		if hirc.id == HircType.MUSIC_TRACK:
+			for sbi in hirc.data.ak_bank_source_data:
+				self.show_sbi(hirc_item, sbi)
+
+	def show_sbi(self, hirc_item, sbi):
+		info = sbi.ak_media_information
+		wem_hash = fmt_hash(info.source_i_d)
+		src_item = QtWidgets.QTreeWidgetItem(hirc_item)
+		src_item.setText(0, f"0x{wem_hash}")
+		icon = get_icon("bnk")
+		src_item.setIcon(0, icon)
+		src_item.setText(1, f"WEM {sbi.stream_type.name}")
+		src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
+		# external sound from another bnk file
+		if wem_hash not in self.bnk_media.data_map:
+			src_item.setDisabled(True)
+
 	def open(self, dummy_filepath):
 		if self.filepath_media:
 			self.set_clean()

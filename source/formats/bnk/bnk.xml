@@ -492,10 +492,49 @@
         <add name="markers" type="AkMusicMarkerWwise" arr1="ulNumMarkers"/>
     </compound>
 
+    <compound name="AkMusicTransSrcRule" >
+        <add name="transitionTime" type="int"/>
+        <add name="eFadeCurve" type="uint"/>
+        <add name="iFadeOffset" type="int"/>
+        <add name="eSyncType" type="uint"/>
+        <add name="uCueFilterHash" type="uint"/>
+        <add name="bPlayPostExit" type="ubyte"/>
+    </compound>
+
+    <compound name="AkMusicTransDstRule" >
+        <add name="transitionTime" type="int"/>
+        <add name="eFadeCurve" type="uint"/>
+        <add name="iFadeOffset" type="int"/>
+        <add name="uCueFilterHash" type="uint"/>
+        <add name="uJumpToID" type="uint"/>
+        <add name="eJumpToType" type="ushort"/>
+        <add name="eEntryType" type="ushort"/>
+        <add name="bPlayPreEntry" type="ubyte"/>
+        <add name="bDestMatchSourceCueName" type="ubyte"/>
+    </compound>
+
+    <compound name="AkMusicTransitionRule" >
+        <add name="uNumSrc" type="uint"/>
+        <add name="srcID" type="uint" arr1="uNumSrc"/>
+        <add name="uNumDst" type="uint"/>
+        <add name="dstID" type="uint" arr1="uNumDst"/>
+        <add name="src_rule" type="AkMusicTransSrcRule"/>
+        <add name="dst_rule" type="AkMusicTransDstRule"/>
+        <add name="AllocTransObjectFlag" type="ubyte" />
+    </compound>
+
+    <compound name="MusicSwitch" inherit="HircObject">
+<!--        todo - partial and still crashy-->
+        <add name="MusicNodeParams" type="MusicNodeParams"/>
+        <add name="numRules" type="uint" />
+        <add name="rules" type="AkMusicTransitionRule" arr1="numRules"/>
+        <add name="bIsContinuePlayback" type="ubyte" />
+    </compound>
+
     <compound name="MusicTrack" inherit="HircObject">
         <add name="uFlags" type="ubyte"/>
         <add name="numSources" type="uint"/>
-        <add name="pSource" type="AkBankSourceData" arr1="numSources"/>
+        <add name="AkBankSourceData" type="AkBankSourceData" arr1="numSources"/>
         <add name="numPlaylistItem" type="uint"/>
         <add name="pPlaylist" type="AkTrackSrcInfo" arr1="numPlaylistItem"/>
         <add name="numSubTrack" type="uint"/>
@@ -521,7 +560,8 @@
         <add name="data" arg="length" type="SwitchContainer" cond="id == 6"/>
         <add name="data" arg="length" type="MusicSegment" cond="id == 10"/>
         <add name="data" arg="length" type="MusicTrack" cond="id == 11"/>
-        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 10) #AND# (id != 11)"/>
+        <add name="data" arg="length" type="MusicSwitch" cond="id == 12"/>
+        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 10) #AND# (id != 11) #AND# (id != 12)"/>
     </compound>
 
     <compound name="HIRCSection">

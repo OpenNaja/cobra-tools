@@ -33,6 +33,7 @@ class HircPointer(BaseStruct):
 		yield 'data', name_type_map['SwitchContainer'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['MusicSegment'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['MusicTrack'], (None, None), (False, None), (None, True)
+		yield 'data', name_type_map['MusicSwitch'], (None, None), (False, None), (None, True)
 		yield 'data', name_type_map['TypeOther'], (None, None), (False, None), (None, True)
 
 	@classmethod
@@ -54,7 +55,9 @@ class HircPointer(BaseStruct):
 			yield 'data', name_type_map['MusicSegment'], (instance.length, None), (False, None)
 		if instance.id == 11:
 			yield 'data', name_type_map['MusicTrack'], (instance.length, None), (False, None)
-		if (instance.id != 2) and ((instance.id != 3) and ((instance.id != 4) and ((instance.id != 5) and ((instance.id != 6) and ((instance.id != 10) and (instance.id != 11)))))):
+		if instance.id == 12:
+			yield 'data', name_type_map['MusicSwitch'], (instance.length, None), (False, None)
+		if (instance.id != 2) and ((instance.id != 3) and ((instance.id != 4) and ((instance.id != 5) and ((instance.id != 6) and ((instance.id != 10) and ((instance.id != 11) and (instance.id != 12))))))):
 			yield 'data', name_type_map['TypeOther'], (instance.length, None), (False, None)
 
 	@classmethod
