@@ -137,8 +137,6 @@
         <option value="71" name="PositioningTypeBlend" />
         <option value="72" name="ReflectionBusVolume" />
         <option value="73" name="PAN_UD" />
-        <option value="193" name="unk_a" />
-        <option value="224" name="unk_b" />
     </enum>
 
     <enum name="ActionScope" numbytes="1" storage="ubyte" default="0">
@@ -240,7 +238,9 @@
 
     <compound name="NodeInitialParams">
         <add name="cProps1" type="ubyte"/>
-        <add name="pProps1" type="AkPropValue" arr1="cProps1"/>
+<!--        <add name="pProps1" type="AkPropValue" arr1="cProps1"/>-->
+        <add name="pProps1" type="ubyte" arr1="cProps1"/>
+        <add name="pValues1" type="float" arr1="cProps1"/>
         <add name="cProps2" type="ubyte"/>
         <add name="pProps2" type="AkPropMinMax" arr1="cProps2"/>
     </compound>
@@ -458,6 +458,40 @@
         <add name="graph" type="AkRTPCGraphPoint" arr1="uNumPoints"/>
     </compound>
 
+
+    <compound name="AkMeterInfo">
+        <add name="fGridPeriod" type="double"/>
+        <add name="fGridOffset" type="double"/>
+        <add name="fTempo" type="float"/>
+        <add name="uTimeSigNumBeatsBar" type="ubyte"/>
+        <add name="uTimeSigBeatValue" type="ubyte"/>
+    </compound>
+
+    <compound name="AkMusicMarkerWwise">
+        <add name="id" type="uint"/>
+        <add name="fPosition" type="double"/>
+        <add name="pMarkerName" type="ZString"/>
+    </compound>
+
+    <compound name="MusicNodeParams" >
+        <add name="uFlags" type="ubyte"/>
+        <add name="NodeBaseParams" type="NodeBaseParams"/>
+        <add name="ulNumChilds" type="uint"/>
+        <add name="children" type="uint" arr1="ulNumChilds"/>
+        <add name="AkMeterInfo" type="AkMeterInfo"/>
+        <add name="bMeterInfoFlag" type="ubyte"/>
+        <add name="NumStingers" type="uint"/>
+<!--        todo-->
+        <add name="Stingers" type="uint" arr1="NumStingers"/>
+    </compound>
+
+    <compound name="MusicSegment" inherit="HircObject">
+        <add name="MusicNodeParams" type="MusicNodeParams"/>
+        <add name="fDuration" type="double" />
+        <add name="ulNumMarkers" type="uint"/>
+        <add name="markers" type="AkMusicMarkerWwise" arr1="ulNumMarkers"/>
+    </compound>
+
     <compound name="MusicTrack" inherit="HircObject">
         <add name="uFlags" type="ubyte"/>
         <add name="numSources" type="uint"/>
@@ -485,8 +519,9 @@
         <add name="data" arg="length" type="Event" cond="id == 4"/>
         <add name="data" arg="length" type="RanSeqContainer" cond="id == 5"/>
         <add name="data" arg="length" type="SwitchContainer" cond="id == 6"/>
+        <add name="data" arg="length" type="MusicSegment" cond="id == 10"/>
         <add name="data" arg="length" type="MusicTrack" cond="id == 11"/>
-        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 11)"/>
+        <add name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 10) #AND# (id != 11)"/>
     </compound>
 
     <compound name="HIRCSection">
