@@ -17,11 +17,10 @@ class MusicTrack(HircObject):
 		self.p_playlist = Array(self.context, 0, None, (0,), name_type_map['AkTrackSrcInfo'])
 		self.num_sub_track = name_type_map['Uint'](self.context, 0, None)
 		self.num_clip_automation_item = name_type_map['Uint'](self.context, 0, None)
-		self.p_items = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.p_items = Array(self.context, 0, None, (0,), name_type_map['AkClipAutomation'])
 		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
 		self.e_track_type = name_type_map['Ubyte'](self.context, 0, None)
 		self.i_look_ahead_time = name_type_map['Int'](self.context, 0, None)
-		self.padding = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -35,11 +34,10 @@ class MusicTrack(HircObject):
 		yield 'p_playlist', Array, (0, None, (None,), name_type_map['AkTrackSrcInfo']), (False, None), (None, None)
 		yield 'num_sub_track', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_clip_automation_item', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'p_items', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'p_items', Array, (0, None, (None,), name_type_map['AkClipAutomation']), (False, None), (None, None)
 		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None), (None, None)
 		yield 'e_track_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'i_look_ahead_time', name_type_map['Int'], (0, None), (False, None), (None, None)
-		yield 'padding', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -51,8 +49,7 @@ class MusicTrack(HircObject):
 		yield 'p_playlist', Array, (0, None, (instance.num_playlist_item,), name_type_map['AkTrackSrcInfo']), (False, None)
 		yield 'num_sub_track', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_clip_automation_item', name_type_map['Uint'], (0, None), (False, None)
-		yield 'p_items', Array, (0, None, (instance.num_clip_automation_item,), name_type_map['Uint']), (False, None)
+		yield 'p_items', Array, (0, None, (instance.num_clip_automation_item,), name_type_map['AkClipAutomation']), (False, None)
 		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None)
 		yield 'e_track_type', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'i_look_ahead_time', name_type_map['Int'], (0, None), (False, None)
-		yield 'padding', name_type_map['Ushort'], (0, None), (False, None)

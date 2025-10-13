@@ -451,6 +451,13 @@
         <add name="NodeBaseParams" type="NodeBaseParams"/>
     </compound>
 
+    <compound name="AkClipAutomation">
+        <add name="uClipIndex" type="uint"/>
+        <add name="eAutoType" type="uint"/>
+        <add name="uNumPoints" type="uint"/>
+        <add name="graph" type="AkRTPCGraphPoint" arr1="uNumPoints"/>
+    </compound>
+
     <compound name="MusicTrack" inherit="HircObject">
         <add name="uFlags" type="ubyte"/>
         <add name="numSources" type="uint"/>
@@ -459,12 +466,10 @@
         <add name="pPlaylist" type="AkTrackSrcInfo" arr1="numPlaylistItem"/>
         <add name="numSubTrack" type="uint"/>
         <add name="numClipAutomationItem" type="uint"/>
-        # todo item struct
-        <add name="pItems" type="uint" arr1="numClipAutomationItem"/>
+        <add name="pItems" type="AkClipAutomation" arr1="numClipAutomationItem"/>
         <add name="NodeBaseParams" type="NodeBaseParams"/>
         <add name="eTrackType" type="ubyte"/>
         <add name="iLookAheadTime" type="int"/>
-        <add name="padding" type="ushort"/>apparently
     </compound>
 
     <compound name="TypeOther" inherit="HircObject">

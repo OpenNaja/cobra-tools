@@ -85,6 +85,7 @@ type_module_name_map = {
 	'AkBankSourceData': 'generated.formats.bnk.compounds.AkBankSourceData',
 	'AkTrackSrcInfo': 'generated.formats.bnk.compounds.AkTrackSrcInfo',
 	'Sound': 'generated.formats.bnk.compounds.Sound',
+	'AkClipAutomation': 'generated.formats.bnk.compounds.AkClipAutomation',
 	'MusicTrack': 'generated.formats.bnk.compounds.MusicTrack',
 	'TypeOther': 'generated.formats.bnk.compounds.TypeOther',
 	'HircPointer': 'generated.formats.bnk.compounds.HircPointer',
