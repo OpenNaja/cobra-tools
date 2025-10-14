@@ -30,8 +30,8 @@
     </compound>
 
     <compound name="EventsList" inherit="MemStruct">
-        <add name="events" type="ArrayPointer" template="Event" arg="count"/>
-        <add name="count" type="uint64" />
+        <add name="events" type="ArrayPointer" template="Event" arg="num_events"/>
+        <add name="num_events" type="uint64" />
     </compound>
 
     <compound name="Event" inherit="MemStruct">

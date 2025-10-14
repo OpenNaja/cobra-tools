@@ -245,8 +245,42 @@
         <add name="pProps2" type="AkPropMinMax" arr1="cProps2"/>
     </compound>
 
+	<bitfield name="uBitsPositioning" storage="ubyte">
+		<member width="1" pos="0" name="bPositioningInfoOverrideParent" type="int"/>
+		<member width="1" pos="1" name="bHasListenerRelativeRouting" type="int"/>
+		<member width="2" pos="2" name="ePannerType" type="int"/>
+		<member width="2" pos="5" name="e3DPositionType" type="int"/>
+	</bitfield>
+
     <compound name="PositioningParams">
-        <add name="uBitsPositioning" type="ubyte"/>
+        <add name="uBitsPositioning" type="uBitsPositioning"/>
+        <add name="PositioningData" type="PositioningData" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+    </compound>
+
+    <compound name="Vec">
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
+    </compound>
+
+    <compound name="AkPathVertex" inherit="Vec">
+        <add name="Duration" type="int"/>
+    </compound>
+
+    <compound name="AkPathListItemOffset">
+        <add name="ulVerticesOffset" type="uint"/>
+        <add name="iNumVertices" type="uint"/>
+    </compound>
+
+    <compound name="PositioningData">
+        <add name="uBits3d" type="ubyte" />
+        <add name="ePathMode" type="ubyte"/>
+        <add name="TransitionTime" type="int"/>
+        <add name="ulNumVertices" type="uint"/>
+        <add name="vertices" type="AkPathVertex" arr1="ulNumVertices"/>
+        <add name="ulNumPlayListItem" type="uint"/>
+        <add name="pPlayListItems" type="AkPathListItemOffset" arr1="ulNumPlayListItem"/>
+        <add name="Ak3DAutomationParams" type="Vec" arr1="ulNumPlayListItem"/>
     </compound>
 
 	<bitfield name="AuxBitfield" storage="ubyte">

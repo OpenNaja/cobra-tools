@@ -591,8 +591,9 @@ def get_manis_values(gui, dir_walk, walk_ovls=True, official_only=True):
 
 def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 	names = {}
+	used_fmts = (".motiongraph", ".cinematic")
 	if dir_walk:
-		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, (".motiongraph",)):
+		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, used_fmts):
 			if official_only and not filter_accept_official(ovl_path):
 				continue
 			ovl_name = os.path.basename(ovl_path)
@@ -600,7 +601,7 @@ def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 			try:
 				for loader in ovl_data.loaders.values():
 					# print(loader.name)
-					if loader.ext == ".motiongraph":
+					if loader.ext in used_fmts:
 						for s in loader.get_audio_strings():
 							h = fnv1_32(s.lower().encode())
 							names[h] = s

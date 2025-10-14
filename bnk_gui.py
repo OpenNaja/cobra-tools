@@ -343,6 +343,7 @@ class MainWindow(widgets.MainWindow):
 	def show_node(self, hirc, qt_parent, sid_2_hirc, lut):
 		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
 		name = lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
+		self.shown.add(hirc.data.id)
 		hirc_item.setText(0, name)
 		hirc_item.setIcon(0, get_icon("dir"))
 		hirc_item.setText(1, hirc.id.name)
@@ -355,7 +356,10 @@ class MainWindow(widgets.MainWindow):
 			children = None
 		if children is not None:
 			hirc_item.setText(2, str(len(children)))
-			for child_id in children:
+			for child_id in set(children):
+				if child_id in self.shown:
+					logging.warning(f"Child {child_id} already shown, skipping to avoid recursion")
+					continue
 				child = sid_2_hirc.get(child_id)
 				if not child:
 					logging.warning(f"Child {child_id} not found")
@@ -398,6 +402,7 @@ class MainWindow(widgets.MainWindow):
 				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
 
 				self.events_tree.clear()
+				self.shown = set()
 				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 					if hirc.id == HircType.EVENT:
 						self.show_node(hirc, self.events_tree, sid_2_hirc, lut)
