@@ -16,12 +16,12 @@ class BnkFile(BnkFileContainer, IoFile):
 		super().__init__(OvlContext())
 		self.aux_b = AuxFile()
 		self.aux_b_name_bare = self.aux_b_path = self.aux_s_name_bare = self.aux_s_path = self.bnk_name_bare = self.bnk_dir = self.bnk_name = None
-		self.data_map = {}
+		self.ptr_map = {}
 
 	def load(self, filepath):
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
-		self.data_map = {}
+		self.ptr_map = {}
 		# alternatively, bnk_name from bnk header
 		self.bnk_dir, self.bnk_name = os.path.split(filepath)
 		self.bnk_name_bare = os.path.splitext(self.bnk_name)[0]
@@ -30,15 +30,16 @@ class BnkFile(BnkFileContainer, IoFile):
 			with open(self.aux_s_path, "rb") as f:
 				for stream_info in self.bnk_header.streams:
 					f.seek(stream_info.offset)
+					stream_info.data = f.read(stream_info.size)
 					id_hash = fmt_hash(stream_info.event_id)
-					self.data_map[id_hash] = f.read(stream_info.size), self.aux_s_name_bare
+					self.ptr_map[id_hash] = stream_info
 		# since the b aux can be originally internal as a buffer, or an external file, we just check if the file now exists
 		self.aux_b_name_bare, self.aux_b_path = self.get_aux_path("b")
 		if self.aux_b_name_bare:
 			self.aux_b.load(self.aux_b_path)
 			if self.aux_b.didx:
 				for pointer in self.aux_b.didx.data_pointers:
-					self.data_map[pointer.hash] = pointer.data, self.aux_b_name_bare
+					self.ptr_map[pointer.hash] = pointer
 
 	def get_aux_path(self, suffix):
 		# no way of knowing the ovl prefix here

@@ -14,17 +14,22 @@ from generated.formats.bnk.enums.HircType import HircType
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
 
+from PyQt5.QtWidgets import QApplication, QTreeWidgetItem
 from PyQt5 import QtWidgets, QtGui, QtCore
-
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject
 
 suffices = ("_Media", "_Events", "_DistMedia")
 
 class EventTree(QtWidgets.QTreeWidget):
 	files_dropped = QtCore.pyqtSignal(list)
+	files_dragged = QtCore.pyqtSignal(list)
 
 	def __init__(self, parent=None):
 		super().__init__(parent)
 		self.setAcceptDrops(True)
+		self.setDragEnabled(True)
+		self.setDropIndicatorShown(True)
+		self.setDefaultDropAction(Qt.DropAction.CopyAction)
 		self.ignore_drop_type = ""
 
 	def accept_ignore(self, e: QtGui.QDropEvent) -> None:
@@ -51,6 +56,59 @@ class EventTree(QtWidgets.QTreeWidget):
 			self.files_dropped.emit(file_paths)
 			event.accept()
 
+	def startDrag(self, _supportedActions: (Qt.DropActions | Qt.DropAction)) -> None:
+		"""Emits a signal with the file names of all files that are being dragged"""
+		# Disallow drops on self after drag has begun
+		self.setAcceptDrops(False)
+		# Drag only with LMB
+		if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+			self.files_dragged.emit(self.get_ids_for_items(self.get_selected_items()))
+		# Allow drops on self after drag has finished
+		self.setAcceptDrops(True)
+
+	def get_ids_for_items(self, items):
+		files = []
+		for item in items:
+			event_id, wem_id = self.get_id_for_item(item)
+			if event_id and wem_id:
+				files.append((event_id, wem_id))
+		return files
+
+	def get_id_for_item(self, item):
+		if item:
+			if "WEM" in item.text(1):
+				event_id = self.get_parents(item)[0]  #.removeprefix("0x")
+				wem_id = item.text(0)  #.removeprefix("0x")
+				return event_id, wem_id
+		return None, None
+
+	def get_selected_items(self) -> list[QTreeWidgetItem]:
+		# map the selected indices to the actual underlying data, which is in its original order
+		# return [self.table_model._data[x][0] for x in self.get_selected_line_indices()]
+		return [item for item in self.selectedItems()]
+
+	def get_parents(self, item):
+		names = [item.text(0), ]
+		while item.parent():
+			item = item.parent()
+			names.insert(0, item.text(0))
+		return names
+
+	def get_subtree_nodes(self, tree_widget_item):
+		"""Returns all QTreeWidgetItems in the subtree rooted at the given node."""
+		nodes = []
+		nodes.append(tree_widget_item)
+		for i in range(tree_widget_item.childCount()):
+			nodes.extend(self.get_subtree_nodes(tree_widget_item.child(i)))
+		return nodes
+
+	def get_all_items(self):
+		"""Returns all QTreeWidgetItems in the given QTreeWidget."""
+		all_items = []
+		for i in range(self.topLevelItemCount()):
+			top_item = self.topLevelItem(i)
+			all_items.extend(self.get_subtree_nodes(top_item))
+		return all_items
 
 class MainWindow(widgets.MainWindow):
 
@@ -85,7 +143,7 @@ class MainWindow(widgets.MainWindow):
 		self.events_tree.customContextMenuRequested.connect(self.context_menu)
 		self.events_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 		self.events_tree.files_dropped.connect(self.inject_wem)
-		# self.events_tree.itemDoubleClicked.connect(self.bnk_selected)
+		self.events_tree.files_dragged.connect(self.drag_files)
 
 		
 		self.game_choice = GameSelectorWidget(self)
@@ -118,22 +176,19 @@ class MainWindow(widgets.MainWindow):
 
 	def context_menu(self, pos):
 		item = self.events_tree.itemAt(pos)
-		if item:
-			if "WEM" in item.text(1):
-				menu = QtWidgets.QMenu("Test", self.events_tree)
-				extract = QtWidgets.QAction("Extract")
-				wem_hash = item.text(0)[2:]
+		event_id, wem_id = self.events_tree.get_id_for_item(item)
+		if event_id and wem_id:
+			def extract_callback(checked):
+				out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
+				self.extract_audio(out_dir, [(event_id, wem_id),])
 
-				def extract_cb(checked):
-					out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
-					logging.info(f"Extracting {wem_hash}")
-					self.extract_audio(out_dir, hashes=(wem_hash,))
-
-				extract.triggered.connect(extract_cb)
-				menu.addAction(extract)
-				# delete = QtWidgets.QAction(f"Delete {bone_name}")
-				# menu.addAction(delete)
-				menu.exec(self.events_tree.mapToGlobal(pos))
+			menu = QtWidgets.QMenu("Context", self.events_tree)
+			extract = QtWidgets.QAction(get_icon("extract"), "Extract")
+			extract.triggered.connect(extract_callback)
+			menu.addAction(extract)
+			# delete = QtWidgets.QAction(f"Delete {bone_name}")
+			# menu.addAction(delete)
+			menu.exec(self.events_tree.mapToGlobal(pos))
 	
 	def get_subfolders(self, dir_path):
 		for name in os.listdir(dir_path):
@@ -234,22 +289,22 @@ class MainWindow(widgets.MainWindow):
 				audio_dir = os.path.join(game_dir, cp_name, "Audio")
 				os.startfile(audio_dir)
 
-	def extract_audio(self, out_dir, hashes=()):
+	def extract_audio(self, out_dir, file_ids):
 		out_files = []
 
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
-		if not hashes:
-			hashes = self.bnk_media.data_map.keys()
-		for id_hash in hashes:
+
+		for event_id, wem_id in file_ids:
+			logging.info(f"Extracting {event_id} {wem_id}")
 			try:
-				data, aux_name = self.bnk_media.data_map[id_hash]
-				out_file = write_riff_file(data, out_dir_func(f"{aux_name}_{id_hash}"))
+				ptr = self.bnk_media.ptr_map[wem_id.removeprefix("0x")]
+				out_file = write_riff_file(ptr.data, out_dir_func(f"{self.bnk_name} {event_id} {wem_id}"))
 				if out_file:
 					out_files.append(out_file)
 			except:
-				logging.exception(f"Failed to extract audio for {id_hash}")
+				logging.exception(f"Failed to extract audio for {wem_id}")
 		return out_files
 
 	def inject_wem(self, wem_file_paths):
@@ -262,27 +317,28 @@ class MainWindow(widgets.MainWindow):
 					continue
 				logging.info(f"Trying to inject {wem_file_path}")
 				try:
-					aux_path_bare, wem_id = os.path.splitext(wem_file_path)[0].rsplit("_", 1)
+					bnk_name, event_id, wem_id = os.path.splitext(wem_file_path)[0].rsplit(" ", 2)
+					wem_id = wem_id.removeprefix("0x")
 					self.bnk_media.aux_b.inject_audio(wem_file_path, wem_id)
 					self.bnk_events.aux_b.inject_hirc(wem_file_path, wem_id)
 					self.set_dirty()
 				except BaseException:
 					logging.exception(f"Failed to inject {wem_file_path}")
 
-	def drag_files(self, file_names):
+	def drag_files(self, file_ids):
 		drag = QtGui.QDrag(self)
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			out_paths = self.extract_audio(temp_dir, file_names)
+			out_paths = self.extract_audio(temp_dir, file_ids)
 
 			data = QtCore.QMimeData()
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
-			logging.info(f"Tried to extract {len(file_names)} files")
+			logging.info(f"Tried to extract {len(file_ids)} files")
 		except:
 			self.handle_error("Extraction failed, see log!")
-		shutil.rmbnks_tree(temp_dir)
+		shutil.rmtree(temp_dir)
 
 	def show_node(self, hirc, qt_parent, sid_2_hirc, lut):
 		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
@@ -314,15 +370,15 @@ class MainWindow(widgets.MainWindow):
 
 	def show_sbi(self, hirc_item, sbi):
 		info = sbi.ak_media_information
-		wem_hash = fmt_hash(info.source_i_d)
+		wem_id = fmt_hash(info.source_i_d)
 		src_item = QtWidgets.QTreeWidgetItem(hirc_item)
-		src_item.setText(0, f"0x{wem_hash}")
+		src_item.setText(0, f"0x{wem_id}")
 		icon = get_icon("bnk")
 		src_item.setIcon(0, icon)
 		src_item.setText(1, f"WEM {sbi.stream_type.name}")
 		src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
 		# external sound from another bnk file
-		if wem_hash not in self.bnk_media.data_map:
+		if wem_id not in self.bnk_media.ptr_map:
 			src_item.setDisabled(True)
 
 	def open(self, dummy_filepath):
@@ -378,7 +434,8 @@ class MainWindow(widgets.MainWindow):
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
 			try:
-				out_files = self.extract_audio(out_dir)
+				items = self.events_tree.get_all_items()
+				out_files = self.extract_audio(out_dir, self.events_tree.get_ids_for_items(items))
 			except:
 				self.handle_error("Extracting failed, see log!")
 
