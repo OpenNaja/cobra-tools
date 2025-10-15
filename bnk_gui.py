@@ -175,19 +175,34 @@ class MainWindow(widgets.MainWindow):
 		self.fill_bnks()
 
 	def context_menu(self, pos):
-		item = self.events_tree.itemAt(pos)
-		event_id, wem_id = self.events_tree.get_id_for_item(item)
-		if event_id and wem_id:
+		# item = self.events_tree.itemAt(pos)
+		items = self.events_tree.get_selected_items()
+		items = [self.events_tree.get_id_for_item(item) for item in items]
+		items = [item for item in items if item != (None, None)]
+		if items:
 			def extract_callback(checked):
 				out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
-				self.extract_audio(out_dir, [(event_id, wem_id),])
+				self.extract_audio(out_dir, items)
+
+			def replace_callback(checked):
+				wem_file_paths = QtWidgets.QFileDialog.getOpenFileNames(
+					self, 'Replace selected with', self.cfg.get("dir_inject", "C://"), self.filter)[0]
+				if wem_file_paths:
+					wem_file_path = wem_file_paths[0]
+					for event_id, wem_id in items:
+						if self.is_wem(wem_file_path):
+							self.inject_wem_core(wem_file_path, wem_id)
 
 			menu = QtWidgets.QMenu("Context", self.events_tree)
+
 			extract = QtWidgets.QAction(get_icon("extract"), "Extract")
 			extract.triggered.connect(extract_callback)
 			menu.addAction(extract)
-			# delete = QtWidgets.QAction(f"Delete {bone_name}")
-			# menu.addAction(delete)
+
+			replace = QtWidgets.QAction(get_icon("inject"), f"Replace with...")
+			replace.triggered.connect(replace_callback)
+			menu.addAction(replace)
+
 			menu.exec(self.events_tree.mapToGlobal(pos))
 	
 	def get_subfolders(self, dir_path):
@@ -307,23 +322,30 @@ class MainWindow(widgets.MainWindow):
 				logging.exception(f"Failed to extract audio for {wem_id}")
 		return out_files
 
+	def is_wem(self, wem_file_path):
+		if not wem_file_path.lower().endswith(".wem"):
+			logging.warning(f"Wrong file format, ignoring {wem_file_path}")
+			return False
+		return True
+
 	def inject_wem(self, wem_file_paths):
 		if self.filepath_media:
 			assert os.path.isfile(self.filepath_media)
 			assert os.path.isfile(self.filepath_events)
 			for wem_file_path in wem_file_paths:
-				if not wem_file_path.lower().endswith(".wem"):
-					logging.warning(f"Wrong file format, ignoring {wem_file_path}")
-					continue
-				logging.info(f"Trying to inject {wem_file_path}")
-				try:
+				if self.is_wem(wem_file_path):
 					bnk_name, event_id, wem_id = os.path.splitext(wem_file_path)[0].rsplit(" ", 2)
 					wem_id = wem_id.removeprefix("0x")
-					self.bnk_media.aux_b.inject_audio(wem_file_path, wem_id)
-					self.bnk_events.aux_b.inject_hirc(wem_file_path, wem_id)
-					self.set_dirty()
-				except BaseException:
-					logging.exception(f"Failed to inject {wem_file_path}")
+					self.inject_wem_core(wem_file_path, wem_id)
+
+	def inject_wem_core(self, wem_file_path, wem_id):
+		try:
+			logging.info(f"Trying to inject {wem_file_path}")
+			self.bnk_media.aux_b.inject_audio(wem_file_path, wem_id)
+			self.bnk_events.aux_b.inject_hirc(wem_file_path, wem_id)
+			self.set_dirty()
+		except BaseException:
+			logging.exception(f"Failed to inject {wem_file_path}")
 
 	def drag_files(self, file_ids):
 		drag = QtGui.QDrag(self)
