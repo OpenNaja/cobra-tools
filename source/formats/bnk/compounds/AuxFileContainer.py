@@ -68,7 +68,7 @@ class AuxFileContainer(BaseStruct):
 				for pointer in instance.didx.data_pointers:
 					pointer.data = bytes(instance.data.wem_datas[pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
 					pointer.hash = fmt_hash(pointer.wem_id)
-					pointer.pad = b""
+					logging.debug(f"Pointer {pointer.hash} has {pointer.data_section_offset} bytes {pointer.wem_filesize}")
 		except:
 			raise
 
