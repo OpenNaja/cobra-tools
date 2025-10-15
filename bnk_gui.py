@@ -191,6 +191,7 @@ class MainWindow(widgets.MainWindow):
 					wem_file_path = wem_file_paths[0]
 					for event_id, wem_id in items:
 						if self.is_wem(wem_file_path):
+							wem_id = wem_id.removeprefix("0x")
 							self.inject_wem_core(wem_file_path, wem_id)
 
 			menu = QtWidgets.QMenu("Context", self.events_tree)

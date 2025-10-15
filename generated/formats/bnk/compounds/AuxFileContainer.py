@@ -74,24 +74,26 @@ class AuxFileContainer(BaseStruct):
 
 	def inject_audio(self, wem_path, wem_id):
 		"""Loads wem audio into the container"""
-		logging.info("Injecting audio")
+		logging.info(f"Injecting audio for {wem_id}")
 		for pointer in self.didx.data_pointers:
 			if pointer.hash == wem_id:
-				logging.info(f"found a match {pointer.hash} {len(pointer.data)} bytes, reading wem data")
+				logging.info(f"{pointer.hash} before injection - {len(pointer.data)} bytes, reading wem data")
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
 				pointer.wem_filesize = len(pointer.data)
+				logging.info(f"{pointer.hash} after injection - {len(pointer.data)} bytes")
 				break
 
 	def inject_hirc(self, wem_path, wem_id):
 		"""Loads wem size into the events container"""
-		logging.info("updating hirc data size")
+		logging.info(f"Updating hirc data size for {wem_id}")
 		if self.hirc:
 			for pointer in self.hirc.hirc_pointers:
 				if pointer.id == HircType.SOUND:
 					if pointer.hash == wem_id:
 						logging.info(f"found a match {pointer.hash}, updating wem data size")
-						pointer.data.ak_bank_source_data.size = os.path.getsize(wem_path)
+						bank = pointer.data.ak_bank_source_data
+						bank.size = bank.ak_media_information.u_in_memory_media_size = os.path.getsize(wem_path)
 						break
 
 	def __repr__(self):
@@ -118,9 +120,9 @@ class AuxFileContainer(BaseStruct):
 				for pointer in instance.didx.data_pointers:
 					# offset must be aligned to 16
 					f.write(get_padding(f.tell(), alignment=16))
-					# logging.info(f"before {pointer.data_section_offset}")
+					logging.info(f"before {pointer.data_section_offset}")
 					pointer.data_section_offset = f.tell()
-					# logging.info(f"after  {pointer.data_section_offset}")
+					logging.info(f"after  {pointer.data_section_offset}")
 					f.write(pointer.data)
 				data = f.getvalue()
 			stream.write(b"DATA")
