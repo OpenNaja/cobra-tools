@@ -380,9 +380,9 @@ class MainWindow(widgets.MainWindow):
 		if children is not None:
 			hirc_item.setText(2, str(len(children)))
 			for child_id in set(children):
-				if child_id in self.shown:
-					logging.warning(f"Child {child_id} already shown, skipping to avoid recursion")
-					continue
+				# if child_id in self.shown:
+				# 	logging.warning(f"Child {child_id} already shown, skipping to avoid recursion")
+				# 	continue
 				child = sid_2_hirc.get(child_id)
 				if not child:
 					logging.warning(f"Child {child_id} not found")
