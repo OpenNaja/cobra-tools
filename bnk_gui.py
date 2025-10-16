@@ -167,32 +167,38 @@ class MainWindow(widgets.MainWindow):
 			widgets.FILE_MENU: self.file_menu_items,
 			widgets.EDIT_MENU: [
 				MenuItem("Unpack", self.extract_all, shortcut="CTRL+U", icon="extract"),
-				MenuItem("Inject", self.inject_ask, shortcut="CTRL+I", icon="inject"),
+				MenuItem("Inject", self.inject_ask, shortcut="CTRL+I", icon="inject", tooltip="Replace sounds by wem files of the same name"),
+				MenuItem("Replace with", self.inject_ask, shortcut="CTRL+R", icon="inject", tooltip="Replace all selected sounds by a wem file"),
 			],
 			widgets.HELP_MENU: self.help_menu_items
 		})
 
 		self.fill_bnks()
 
+	def replace_ask_core(self, ids):
+		wem_file_paths = QtWidgets.QFileDialog.getOpenFileNames(
+			self, 'Replace selected with', self.cfg.get("dir_inject", "C://"), self.filter)[0]
+		if wem_file_paths:
+			wem_file_path = wem_file_paths[0]
+			for event_id, wem_id in ids:
+				if self.is_wem(wem_file_path):
+					wem_id = wem_id.removeprefix("0x")
+					self.inject_wem_core(wem_file_path, wem_id)
+
+	def replace_ask(self):
+		ids = self.get_selected_ids()
+		self.replace_ask_core(ids)
+
 	def context_menu(self, pos):
 		# item = self.events_tree.itemAt(pos)
-		items = self.events_tree.get_selected_items()
-		items = [self.events_tree.get_id_for_item(item) for item in items]
-		items = [item for item in items if item != (None, None)]
-		if items:
+		ids = self.get_selected_ids()
+		if ids:
 			def extract_callback(checked):
 				out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
-				self.extract_audio(out_dir, items)
+				self.extract_audio(out_dir, ids)
 
 			def replace_callback(checked):
-				wem_file_paths = QtWidgets.QFileDialog.getOpenFileNames(
-					self, 'Replace selected with', self.cfg.get("dir_inject", "C://"), self.filter)[0]
-				if wem_file_paths:
-					wem_file_path = wem_file_paths[0]
-					for event_id, wem_id in items:
-						if self.is_wem(wem_file_path):
-							wem_id = wem_id.removeprefix("0x")
-							self.inject_wem_core(wem_file_path, wem_id)
+				self.replace_ask_core(ids)
 
 			menu = QtWidgets.QMenu("Context", self.events_tree)
 
@@ -200,12 +206,18 @@ class MainWindow(widgets.MainWindow):
 			extract.triggered.connect(extract_callback)
 			menu.addAction(extract)
 
-			replace = QtWidgets.QAction(get_icon("inject"), f"Replace with...")
+			replace = QtWidgets.QAction(get_icon("inject"), f"Replace with")
 			replace.triggered.connect(replace_callback)
 			menu.addAction(replace)
 
 			menu.exec(self.events_tree.mapToGlobal(pos))
-	
+
+	def get_selected_ids(self):
+		items = self.events_tree.get_selected_items()
+		items = [self.events_tree.get_id_for_item(item) for item in items]
+		items = [item for item in items if item != (None, None)]
+		return items
+
 	def get_subfolders(self, dir_path):
 		for name in os.listdir(dir_path):
 			sub_dir_path = os.path.join(dir_path, name)
