@@ -468,7 +468,7 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Extracting failed, see log!")
 
 	def inject_ask(self):
-		if self.file_widget.is_open():
+		if self.filepath_media:
 			files = QtWidgets.QFileDialog.getOpenFileNames(
 				self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
 			self.inject_files(files)
@@ -478,7 +478,7 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				error_files = self.inject_wem(files)
+				self.inject_wem(files)
 				self.set_progress_message("Injection completed")
 			except:
 				self.handle_error("Injecting failed, see log!")
