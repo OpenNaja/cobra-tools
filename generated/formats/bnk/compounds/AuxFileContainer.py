@@ -106,16 +106,8 @@ class AuxFileContainer(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		"""Update representation, then write the container from the internal representation"""
-		for chunk_id, chunk in instance.chunks:
-			if chunk_id == b"DATA":
-				continue
-			# print(stream.tell(), chunk_id, chunk)
-			stream.write(chunk_id)
-			chunk.to_stream(chunk, stream, instance.context)
-		if instance.hirc:
-			# logging.info(f"End of HIRC at {stream.tell()}")
-			pass
 		if instance.didx:
+			# update didx pointers and build data bytes
 			with io.BytesIO() as f:
 				for pointer in instance.didx.data_pointers:
 					# offset must be aligned to 16
@@ -125,12 +117,22 @@ class AuxFileContainer(BaseStruct):
 					logging.info(f"after  {pointer.data_section_offset}")
 					f.write(pointer.data)
 				data = f.getvalue()
-			stream.write(b"DATA")
-			# ovl ignores the padding of the last wem
-			data_size = len(data)
-			instance.size_for_ovl = stream.tell() + data_size
-			Uint.to_stream(data_size, stream)
-			stream.write(data)
+
+		for chunk_id, chunk in instance.chunks:
+			if chunk_id == b"DATA":
+				stream.write(b"DATA")
+				# ovl ignores the padding of the last wem
+				data_size = len(data)
+				instance.size_for_ovl = stream.tell() + data_size
+				Uint.to_stream(data_size, stream)
+				stream.write(data)
+			else:
+				# print(stream.tell(), chunk_id, chunk)
+				stream.write(chunk_id)
+				chunk.to_stream(chunk, stream, instance.context)
+		if instance.hirc:
+			# logging.info(f"End of HIRC at {stream.tell()}")
+			pass
 		instance.size_for_ovl = stream.tell()
 		stream.write(get_padding(stream.tell(), alignment=16))
 
