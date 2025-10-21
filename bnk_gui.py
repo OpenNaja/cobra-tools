@@ -14,7 +14,7 @@ from generated.formats.bnk.enums.HircType import HircType
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
 
-from PyQt5.QtWidgets import QApplication, QTreeWidgetItem
+from PyQt5.QtWidgets import QApplication, QTreeWidgetItem, QPushButton
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject
 
@@ -136,6 +136,7 @@ class MainWindow(widgets.MainWindow):
 		self.bnks_tree.setHeaderHidden(True)
 		self.bnks_tree.itemDoubleClicked.connect(self.bnk_selected)
 
+
 		self.events_tree = EventTree(self)
 		self.events_tree.setColumnCount(3)
 		self.events_tree.setHeaderLabels(("Name", "File Type", "Size"))
@@ -145,15 +146,21 @@ class MainWindow(widgets.MainWindow):
 		self.events_tree.files_dropped.connect(self.inject_wem)
 		self.events_tree.files_dragged.connect(self.drag_files)
 
-		
+		self.btn_expand = QPushButton("Expand All", self)
+		self.btn_collapse = QPushButton("Collapse All", self)
+		self.btn_expand.pressed.connect(self.events_tree.expandAll)
+		self.btn_collapse.pressed.connect(self.events_tree.collapseAll)
+
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 
 		left_frame = widgets.pack_in_box(self.bnks_tree, self.game_choice)
+		tree_tools = widgets.pack_in_box(self.btn_expand, self.btn_collapse, layout=QtWidgets.QHBoxLayout)
+		right_frame = widgets.pack_in_box(tree_tools, self.events_tree, )
 
 		splitter = QtWidgets.QSplitter()
 		splitter.addWidget(left_frame)
-		splitter.addWidget(self.events_tree)
+		splitter.addWidget(right_frame)
 		splitter.setStretchFactor(0, 1)
 		splitter.setStretchFactor(1, 3)
 		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
