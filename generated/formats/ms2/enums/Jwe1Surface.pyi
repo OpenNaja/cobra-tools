@@ -1,0 +1,51 @@
+from generated.base_enum import BaseEnum
+
+
+class Jwe1Surface(BaseEnum):
+    LEGACY_DO_NOT_USE: Jwe1Surface
+    DEFAULT: Jwe1Surface
+    LANDSCAPE_DEFAULT: Jwe1Surface
+    LANDSCAPE_FRICTIONLESS: Jwe1Surface
+    LANDSCAPE_DIRT: Jwe1Surface
+    LANDSCAPE_GRASS: Jwe1Surface
+    LANDSCAPE_ICE: Jwe1Surface
+    LANDSCAPE_METAL: Jwe1Surface
+    LANDSCAPE_MUD: Jwe1Surface
+    LANDSCAPE_POND_BOTTOM: Jwe1Surface
+    LANDSCAPE_SAND: Jwe1Surface
+    LANDSCAPE_SNOW: Jwe1Surface
+    LANDSCAPE_STONE: Jwe1Surface
+    LANDSCAPE_WOOD: Jwe1Surface
+    LANDSCAPE_WOOD_HOLLOW: Jwe1Surface
+    LANDSCAPE_FOLIAGE: Jwe1Surface
+    WATER: Jwe1Surface
+    BUILDING_BRICK: Jwe1Surface
+    BUILDING_CONCRETE: Jwe1Surface
+    BUILDING_GLASS: Jwe1Surface
+    BUILDING_ICE: Jwe1Surface
+    BUILDING_METAL: Jwe1Surface
+    BUILDING_SNOW: Jwe1Surface
+    BUILDING_WOOD: Jwe1Surface
+    PROP_TREE: Jwe1Surface
+    PROP_LEAVES: Jwe1Surface
+    PROP_METAL: Jwe1Surface
+    PROP_WOODEN: Jwe1Surface
+    PROP_PLASTIC: Jwe1Surface
+    PROP_STONE: Jwe1Surface
+    PROP_LITTER: Jwe1Surface
+    DIRT_PATH: Jwe1Surface
+    CHARACTER_COLLIDABLE_LIMB: Jwe1Surface
+    CHARACTER_NON_COLLIDABLE_LIMB: Jwe1Surface
+    CHARACTER_FLYING: Jwe1Surface
+    NON_COLLIDABLE_LIMB: Jwe1Surface
+    SCENERY_DEFAULT: Jwe1Surface
+    SCENERY_TREE: Jwe1Surface
+    STRUCTURE_WALL: Jwe1Surface
+    STRUCTURE_FENCE: Jwe1Surface
+    STRUCTURE_PYLON: Jwe1Surface
+    STRUCTURE_PATH: Jwe1Surface
+    STRUCTURE_TRACK: Jwe1Surface
+    GYROSPHERE: Jwe1Surface
+    CAR_BODY: Jwe1Surface
+    DEBRIS: Jwe1Surface
+    DINOSAUR_LIMB: Jwe1Surface

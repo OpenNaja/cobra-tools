@@ -1,0 +1,49 @@
+from generated.base_enum import BaseEnum
+
+
+class ActionType(BaseEnum):
+    NONE: ActionType
+    SET_STATE: ActionType
+    BYPASS_F_X: ActionType
+    RESET_BYPASS_F_X: ActionType
+    SET_SWITCH: ActionType
+    USE_STATE: ActionType
+    UNUSE_STATE: ActionType
+    PLAY: ActionType
+    PLAY_AND_CONTINUE: ActionType
+    STOP: ActionType
+    PAUSE: ActionType
+    RESUME: ActionType
+    BREAK: ActionType
+    MUTE: ActionType
+    UNMUTE: ActionType
+    SET_VOLUME: ActionType
+    RESET_VOLUME: ActionType
+    SET_PITCH: ActionType
+    RESET_PITCH: ActionType
+    SET_L_P_F: ActionType
+    RESET_L_P_F: ActionType
+    SET_H_P_F: ActionType
+    RESET_H_P_F: ActionType
+    SET_BUS_VOLUME: ActionType
+    RESET_BUS_VOLUME: ActionType
+    PLAY_EVENT: ActionType
+    STOP_EVENT: ActionType
+    PAUSE_EVENT: ActionType
+    RESUME_EVENT: ActionType
+    DUCK: ActionType
+    TRIGGER: ActionType
+    SEEK: ActionType
+    RESET_PLAYLIST: ActionType
+    SET_GAME_PARAMETER: ActionType
+    RESET_GAME_PARAMETER: ActionType
+    RELEASE: ActionType
+    PLAY_EVENT_UNKNOWN_O: ActionType
+    SET_F_X: ActionType
+    RESET_SET_F_X: ActionType
+    NO_OP: ActionType
+    SET_BYPASS_F_X_SLOT: ActionType
+    RESET_BYPASS_F_X_SLOT: ActionType
+    SET_BYPASS_ALL_F_X: ActionType
+    RESET_BYPASS_ALL_F_X: ActionType
+    RESET_ALL_BYPASS_F_X: ActionType
