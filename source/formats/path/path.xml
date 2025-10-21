@@ -125,7 +125,7 @@
         <!-- PC, PZ Size 24, PC2 size 32 -->
         <field name="connector_model" type="Pointer" template="ZString"/>
         <field name="joint_model" type="Pointer" template="ZString"/>
-        <field name="new" type="Pointer" template="ZString" since="27"/>not sure if used
+        <field name="new" type="Pointer" template="ZString" since="27"/> <!-- not sure if used -->
         <field name="angle_limit" type="float" />
         <field name="direction" type="float" /> <!-- 1.0 = Up, -1.0 = Down -->
     </struct>
@@ -149,7 +149,7 @@
         <field name="num_joints" type="uint" />
         <field name="extent_min" type="float" />
         <field name="extent_max" type="float" />
-        <field name="some_index" type="uint" />increases with each pass of the extent range
+        <field name="some_index" type="uint" /> <!-- increases with each pass of the extent range -->
     </struct>
 
     <struct name="Pillar" inherit="MemStruct">
@@ -159,7 +159,7 @@
         <field name="fln_model" type="Pointer" template="ZString"/>
         <field name="unkFloats" type="float" arr1="2"/>
         <field name="unkInt2" type="uint64"/>
-        <field name="unkInt3" type="uint64"  since="24" until="24" />PZ
+        <field name="unkInt3" type="uint64"  since="24" until="24" /> <!-- PZ -->
     </struct>
 
     <struct name="Footer" inherit="MemStruct">

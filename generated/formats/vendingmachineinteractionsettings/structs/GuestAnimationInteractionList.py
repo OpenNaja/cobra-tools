@@ -9,6 +9,8 @@ class GuestAnimationInteractionList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# 2=AM 258=AF 1=TM 257=TF 0=CM 256=CF
 		self.type = name_type_map['Uint'](self.context, 0, None)
 		self.unk_0 = name_type_map['Uint'](self.context, 0, None)
 		self.interact_idle_count = name_type_map['Uint'](self.context, 0, None)

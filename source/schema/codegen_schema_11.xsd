@@ -287,7 +287,7 @@
         </xs:sequence>
         <xs:attributeGroup ref="structAttributes"/>
         <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
-<!--
+
         <xs:assert test="not(child::*[1]/following-sibling::text()[normalize-space()])">
             <xs:annotation>  
                 <xs:documentation>
@@ -296,7 +296,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:assert>
--->
+
     </xs:complexType>
 
     <!-- <compound> -->

@@ -14,23 +14,23 @@
         <field name="object_data_count" type="uint"  />
         <field name="element_data_count" type="uint64"  />
         <field name="lods" type="ArrayPointer" arg="lods_count" template="Lod"/>
-        <field name="lods_count" type="uint64"  />   -- change this to lods_count
+        <field name="lods_count" type="uint64" />
         <field name="heatmap_name" type="Pointer" template="ZString"/>
         <field name="g" type="uint64"  />
     </struct>
 
-    <struct name="TrackMesh_Offset" inherit="MemStruct"> -- Rename this to TrackMesh_Offset 
+    <struct name="TrackMesh_Offset" inherit="MemStruct">
         PC : 64 bytes
         PC2: 72 bytes
         <field name="offset_id" type="Pointer" template="ZString"/>
-        <field name="mdl2_name" type="Pointer" template="ZString"/>When used this is a mdl2, rename so the 2 doesn't get messed up
-        <field name="bone_name" type="Pointer" template="ZString"/>when used this is a bone of the model
+        <field name="mdl2_name" type="Pointer" template="ZString">When used this is a mdl2</field>
+        <field name="bone_name" type="Pointer" template="ZString">when used this is a bone of the model</field>
         <field name="relative_offset" type="Vector3" />
         <field name="spacing" type="float" />
         <field name="one" type="uint" />
-        <field name="min_pitch" type="float" />    -- Min pitch to display, before was a
-        <field name="min_yaw" type="float" />    -- Min yaw to display, before was b
-        <field name="flags" type="uint" /> -- Flags  (4 = inverted) (before was count)
+        <field name="min_pitch" type="float">Min pitch to display</field> <!--before was a-->
+        <field name="min_yaw" type="float"> Min yaw to display</field> <!--before was b-->
+        <field name="flags" type="uint">Flags (4 = inverted)</field> <!--before was count-->
         <field name="z4" type="uint" />
         <field name="z5" type="uint" />
         <field name="z6" type="uint64" vercond="is_PC2"/>
@@ -40,11 +40,11 @@
         PC : 48 bytes
         PC2: 64 bytes
         <field name="place_id" type="Pointer" template="ZString"/>
-        <field name="file" type="Pointer" template="ZString"/> -- can be a prefab, a model, an object, hitcheck, an audio.. 
-        <field name="type" type="uint" /> -- this is what defines what the string 'file' means
+        <field name="file" type="Pointer" template="ZString">Can be a prefab, a model, an object, hitcheck, an audio</field>
+        <field name="type" type="uint">This is what defines what the string 'file' means</field>
         <field name="b" type="uint" />
         <field name="c" type="uint" /> 
-        <field name="xtra1" type="float" default="1.0"/>    -- this is a float in PC2, but before was part of c
+        <field name="xtra1" type="float" default="1.0" /> <!--this is a float in PC2, before was part of c-->
         <field name="xtra2" type="uint64" vercond="is_PC2"/>
         <field name="attachment_start" type="Pointer" template="ZString"/>
         <field name="attachment_end" type="Pointer" template="ZString"/>

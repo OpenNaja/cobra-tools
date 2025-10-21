@@ -35,6 +35,8 @@ class BoneInfo(BaseStruct):
 		self.war_b = name_type_map['Ushort'](self.context, 0, None)
 		self.bind_matrix_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
+
+		# if inv_names_count = 1, also 1 for DLA
 		self.inv_data_count = name_type_map['Uint64'](self.context, 0, None)
 		self.bone_count = name_type_map['Uint64'](self.context, 0, None)
 		self.unknown_40 = name_type_map['Uint64'](self.context, 0, None)
@@ -55,6 +57,8 @@ class BoneInfo(BaseStruct):
 
 		# counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2
 		self.zeros_count = name_type_map['Uint64'](self.context, 0, None)
+
+		# max of ik_info's ik_count and ik_targets_count
 		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
 		self.joint_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zero_1 = name_type_map['Uint64'].from_value(0)

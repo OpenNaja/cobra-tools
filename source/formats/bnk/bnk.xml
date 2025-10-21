@@ -227,13 +227,13 @@
 
     <struct name="AkPropValue">
         <field name="pID" type="AkPropID"/>
-        <field name="value" type="float"/>apparently also uint, depends on pID
+        <field name="value" type="float"/> <!-- apparently also uint, depends on pID -->
     </struct>
 
     <struct name="AkPropMinMax">
         <field name="pID" type="AkPropID"/>
-        <field name="min" type="float"/>apparently also uint, depends on pID
-        <field name="max" type="float"/>apparently also uint, depends on pID
+        <field name="min" type="float"/> <!-- apparently also uint, depends on pID -->
+        <field name="max" type="float"/> <!-- apparently also uint, depends on pID -->
     </struct>
 
     <struct name="NodeInitialParams">
@@ -343,7 +343,7 @@
         <field name="RTPCID" type="uint"/>
         <field name="rtpcType" type="ubyte"/>
         <field name="rtpcAccum" type="ubyte"/>
-        <field name="ParamID" type="ubyte"/>todo varint
+        <field name="ParamID" type="ubyte"/>  <!-- todo varint -->
         <field name="rtpcCurveID" type="uint"/>
         <field name="eScaling" type="ubyte"/>
         <field name="ulSize" type="ushort"/>
@@ -380,7 +380,7 @@
         <field name="action_type" type="ActionType"/>
         <field name="children" type="uint" arr1="1"/>
         <field name="idExt_4" type="ubyte"/>
-        # instead of the stuff below?
+        <!-- # instead of the stuff below? -->
         <field name="NodeInitialParams" type="NodeInitialParams"/>
 <!--        <field name="num_params" type="ubyte"/>-->
 <!--        <field name="params" type="ubyte" arr1="num_params"/>-->

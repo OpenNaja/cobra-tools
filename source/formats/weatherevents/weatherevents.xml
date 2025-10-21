@@ -7,7 +7,7 @@
     <struct name="WeatherEventsRoot" inherit="MemStruct">
         <field name="resource_name" type="Pointer" template="ZStringObfuscated"/>
         <field name="default_event_name" type="Pointer" template="ZString"/>
-        # unconfirmed, but most likely
+        <!-- unconfirmed, but most likely -->
         <field name="transition_time" type="float" />
         <field name="unknown1" type="float" />
 

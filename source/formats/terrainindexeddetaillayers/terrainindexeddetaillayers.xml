@@ -13,7 +13,7 @@
 
     <struct name="TerrainDetailsLayerItem" inherit="MemStruct">
         <field name="layer_name"  type="Pointer" template="ZString"/>
-        # seems like layer to brushes list 
+        <!-- seems like layer to brushes list -->
         <field name="info_list"   type="ArrayPointer" template="brushitemStruct" arg="info_count"/>
         <field name="info_count"  type="uint64" />
 

@@ -17,7 +17,11 @@ class Activity(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# rarely used
 		self.num_sub_activities = name_type_map['Uint'].from_value(0)
+
+		# only seen in sub-activities
 		self.num_other_activities = name_type_map['Uint'].from_value(0)
 		self.index_a = name_type_map['Int'].from_value(-1)
 		self.index_b = name_type_map['Int'].from_value(-1)

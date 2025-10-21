@@ -39,6 +39,8 @@ class ZtMeshData(MeshData):
 
 		# if present, blocks of 24 bytes
 		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
+
+		# often -1, but not always
 		self.unk_index = name_type_map['Short'](self.context, 0, None)
 		self.one_0 = name_type_map['Ushort'](self.context, 0, None)
 

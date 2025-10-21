@@ -9,8 +9,6 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 	PC: 112 bytes
 	JWE1: 112 bytes
 	PZ, JWE2, WH: 80 bytes
-	
-	# There is an initial 'default' surface, these params are the same as in SurfacePhysicsInfo
 	"""
 
 	__name__ = 'PhysicsSurfaceXMLResRoot'

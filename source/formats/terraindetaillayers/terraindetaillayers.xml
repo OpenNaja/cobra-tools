@@ -15,7 +15,7 @@
         # 88 bytes
 
         <field name="layer_name"  type="Pointer" template="ZString"/>
-        # seems like brushes list or something
+        <!-- seems like brushes list or something -->
         <field name="info_list"  type="ArrayPointer" template="InfoStruct" arg="info_count"/>
         <field name="info_count" type="uint" />
 
@@ -27,7 +27,7 @@
         <field name="float6"   type="float" />
         <field name="unk_2"    type="uint" />
 
-        # LOD info
+        <!-- LOD info -->
         <field name="detail_list" type="ArrayPointer" template="DetailStruct" arg="detail_count"/>
         <field name="detail_count" type="uint" />
 
@@ -51,14 +51,14 @@
 
     </struct>
 
-    # brush list
+    <!-- brush list -->
     <struct name="InfoStruct" inherit="MemStruct">
         <field name="brush_list"  type="ArrayPointer" template="brushitemStruct" arg="brush_count"/>
         <field name="brush_count" type="uint" />
         <field name="brush_flags" type="uint" />
-        # confirm this is scale or alpha
+        <!-- confirm this is scale or alpha -->
         <field name="Scale"        type="float" />
-        # looks like padding
+        <!-- looks like padding -->
         <field name="unk_1"        type="float" />
     </struct>
 
@@ -67,7 +67,7 @@
         <field name="brush_type"  type="uint64"/>
     </struct>
 
-    # Level Of Detail for the layer
+    <!-- Level Of Detail for the layer -->
     <struct name="DetailStruct" inherit="MemStruct">
         <field name="index"    type="uint" />
         <field name="x"        type="float" />

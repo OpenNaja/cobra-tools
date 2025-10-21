@@ -24,12 +24,20 @@ class TrackElementData(MemStruct):
 		self.unk_5 = name_type_map['Uint'].from_value(1024)
 		self.unk_6 = name_type_map['Uint'].from_value(1)
 		self.unk_7 = name_type_map['Uint'].from_value(1)
+
+		# Used to offset the track on the Y when there is no spline (e.g. double line segments)
 		self.offset = name_type_map['Float'](self.context, 0, None)
 		self.unk_9 = name_type_map['Uint'].from_value(0)
+
+		# Will require a _l_spline and _r_spline spl files
 		self.spline_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.u_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.u_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# This is a ref to an existing trackmesh element
 		self.trackmesh_element_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# Used for TrackMeshIndex params, points to trackmesh elements by name. PZ does not support this param in the fdb.
 		self.trackmeshlist = name_type_map['ArrayPointer'](self.context, self.trackmeshlist_count, name_type_map['TrackMeshRef'])
 		self.optional_catwalk = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

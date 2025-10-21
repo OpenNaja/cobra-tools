@@ -24,7 +24,7 @@
         <field name="unk_0" type="float" default="0.9"/>
         <field name="unk_1" type="float" default="1.1"/>
         <field name="unk_2" type="float" default="0.25"/>
-        # go different here
+        <!-- # go different here -->
         <field name="extra_f_pz1" type="float" vercond="#PZ#"/>
         <field name="extra_f_pz2" type="float" vercond="#PZ#"/>
 
@@ -74,16 +74,16 @@
         PZ: 304 bytes, version 1
         PC2: 224 bytes, version 9
 
-        huge batch of arrays at the head of the file
+        <!-- huge batch of arrays at the head of the file -->
         <field name="array_0" type="ArrayPointer" template="float" arg="num_array_0" vercond="is_PC2"/>
         <field name="array_1" type="ArrayPointer" template="float" arg="num_array_1" vercond="is_PC2"/>
         <field name="array_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/>
         <field name="array_3" type="ArrayPointer" template="float" arg="num_array_3" vercond="is_PC2"/>
         <field name="array_4" type="ArrayPointer" template="float" arg="num_array_4" vercond="is_PC2"/>
 
-        todo pz has different data types for the arrays
+        <!-- todo pz has different data types for the arrays -->
         <field name="array_0" type="ArrayPointer" template="UIntPair" arg="num_array_0" vercond="!is_PC2"/>
-        <field name="array_1" type="ArrayPointer" template="UIntPair" arg="num_array_1" vercond="!is_PC2"/> maybe salary?
+        <field name="array_1" type="ArrayPointer" template="UIntPair" arg="num_array_1" vercond="!is_PC2"/> <!-- maybe salary? -->
 
         <field name="BetweenArrays" type="JanitorBetweenArrays" vercond="#PZ# #AND# !is_PC2" />
 
@@ -100,14 +100,14 @@
         <field name="array_10" type="ArrayPointer" template="float" arg="num_array_10" vercond="!is_PC2"/>
         <field name="array_11" type="ArrayPointer" template="float" arg="num_array_11" vercond="!is_PC2"/>
         <field name="array_12" type="ArrayPointer" template="float" arg="num_array_12" vercond="!is_PC2"/>
-        <field name="array_13" type="ArrayPointer" template="float" arg="num_array_13"  vercond="#PC#"/> always 4.0?
-        <field name="array_14" type="ArrayPointer" template="float" arg="num_array_14"  vercond="#PC#"/> always 0.5?
+        <field name="array_13" type="ArrayPointer" template="float" arg="num_array_13"  vercond="#PC#"/> <!-- always 4.0? -->
+        <field name="array_14" type="ArrayPointer" template="float" arg="num_array_14"  vercond="#PC#"/> <!-- always 0.5? -->
         
         <field name="JanitorPreCount" type="JanitorPreCount" vercond="!is_PC2" />
 
-        PC has 15 counts
-        PZ has 13 counts
-        PC2 has 8 counts
+        <!-- PC has 15 counts -->
+        <!-- PZ has 13 counts -->
+        <!-- PC2 has 8 counts -->
         <field name="num_array_0" type="ubyte" />
         <field name="num_array_1" type="ubyte" />
         <field name="num_array_2" type="ubyte" />
@@ -128,7 +128,7 @@
         <field name="padding" type="ubyte" arr1="7" vercond="#PZ# #AND# !is_PC2"/>
         <field name="padding" type="ubyte" arr1="5" vercond="#PC#"/>
 
-        <field name="array_pc_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/> unsure about count
+        <field name="array_pc_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/> <!-- unsure about count -->
 
         <field name="JanitorEnd" type="JanitorEnd" />
     </struct>

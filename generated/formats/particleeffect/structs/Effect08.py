@@ -16,6 +16,8 @@ class Effect08(Effect):
 		super().__init__(context, arg, template, set_default=False)
 		self.floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.minus_1 = name_type_map['Int'](self.context, 0, None)
+
+		# radians; x,y often 0.0
 		self.angle = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.floats_2 = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		if set_default:

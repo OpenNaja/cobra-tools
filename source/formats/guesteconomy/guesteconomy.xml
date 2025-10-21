@@ -37,40 +37,40 @@
         #    TransportRatingDisabled = 0
         #},
         # I f I f I 27f
-        <field name="TargetProfit" type="uint" /> 500000
-        <field name="u00" type="float" />  0.0,
-        <field name="TargetDinosaurPrestige" type="uint" /> 5000,
-        <field name="DinosaurPrestigePower" type="float" /> 0.8500000238418579, maybe
-        <field name="u01" type="uint" /> 10000,
+        <field name="TargetProfit" type="uint">500000</field>
+        <field name="u00" type="float">0.0</field>
+        <field name="TargetDinosaurPrestige" type="uint">5000</field>
+        <field name="DinosaurPrestigePower" type="float">0.8500000238418579, maybe</field>
+        <field name="u01" type="uint">10000</field>
 
-        <field name="u02" type="float" /> 0.0,
-        <field name="u03" type="float" /> 0.0,
-        <field name="u04" type="float" /> 0.0,
+        <field name="u02" type="float">0.0</field>
+        <field name="u03" type="float">0.0</field>
+        <field name="u04" type="float">0.0</field>
 
-        <field name="VisitorArrivalRate" type="float" /> 750.0,
-        <field name="VisitorDepartureRate" type="float" /> 1000.0,
+        <field name="VisitorArrivalRate" type="float">750.0</field>
+        <field name="VisitorDepartureRate" type="float">1000.0</field>
 
-        <field name="u05" type="float" /> 0.0,
-        <field name="u06" type="float" /> 0.0,
-        <field name="u07" type="float" /> 0.0,
-        <field name="u08" type="float" /> 0.0,
-        <field name="u09" type="float" /> 0.0,
-        <field name="u10" type="float" /> 0.0,
-        <field name="u11" type="float" /> 0.0,
-        <field name="TicketPriceVisitorProportionPower" type="float" /> 2.0,
-        <field name="TicketPriceFullVisitorProportion" type="float" /> 1.5,
+        <field name="u05" type="float">0.0</field>
+        <field name="u06" type="float">0.0</field>
+        <field name="u07" type="float">0.0</field>
+        <field name="u08" type="float">0.0</field>
+        <field name="u09" type="float">0.0</field>
+        <field name="u10" type="float">0.0</field>
+        <field name="u11" type="float">0.0</field>
+        <field name="TicketPriceVisitorProportionPower" type="float">2.0</field>
+        <field name="TicketPriceFullVisitorProportion" type="float">1.5</field>
 
-        <field name="TicketPriceMinimumPriceFraction" type="float" /> 0.4000000059604645,
-        <field name="VisitorDeathsDecayRate" type="float" /> 1.0,
-        <field name="VisitorDeathsLimit" type="float" /> 8.0,
-        <field name="DangerExposureSafeDecayRate" type="float" /> 4.0,
-        <field name="DangerExposureUnnecessaryShelterPunishment" type="float" /> 2.0,
-        <field name="DangerExposureStormExposurePunishment" type="float" /> 2.0,
-        <field name="DangerExposureDinosaurExposurePunishment" type="float" /> 8.0,
-        <field name="DangerExposureDinosaurDangerRadius" type="float" /> 200.0,
-        <field name="DangerExposureLimit" type="float" /> 8.0,
+        <field name="TicketPriceMinimumPriceFraction" type="float">0.4000000059604645</field>
+        <field name="VisitorDeathsDecayRate" type="float">1.0</field>
+        <field name="VisitorDeathsLimit" type="float">8.0</field>
+        <field name="DangerExposureSafeDecayRate" type="float">4.0</field>
+        <field name="DangerExposureUnnecessaryShelterPunishment" type="float">2.0</field>
+        <field name="DangerExposureStormExposurePunishment" type="float">2.0</field>
+        <field name="DangerExposureDinosaurExposurePunishment" type="float">8.0</field>
+        <field name="DangerExposureDinosaurDangerRadius" type="float">200.0</field>
+        <field name="DangerExposureLimit" type="float">8.0</field>
 
-        <field name="TransportRatingDisabled" type="uint" /> 0
+        <field name="TransportRatingDisabled" type="uint">0</field>
         <field name="u12" type="uint" />
         <field name="u13" type="uint" />
         <field name="u14" type="uint" />

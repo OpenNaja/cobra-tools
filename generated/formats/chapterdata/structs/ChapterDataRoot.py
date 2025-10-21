@@ -9,10 +9,20 @@ class ChapterDataRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# for factions, 0 for general help, 1 means will have extra faction tabs
 		self.chapter_data_type = name_type_map['Ubyte'](self.context, 0, None)
+
+		# 1 for helppopups.chapterdata, that one is not showing up in the UI
 		self.chapter_data_hidden = name_type_map['Ubyte'](self.context, 0, None)
+
+		# 0 to 4 for factions, 5 on general help :?, cloud just be order instead
 		self.chapter_data_id = name_type_map['Ubyte'](self.context, 0, None)
+
+		# 0 found on all
 		self.chapter_data_zero = name_type_map['Ubyte'](self.context, 0, None)
+
+		# 0 found on all
 		self.chapter_data_unused_1 = name_type_map['Uint'](self.context, 0, None)
 		self.chapter_data_list_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.chapter_data_list_2 = name_type_map['Uint64'](self.context, 0, None)
@@ -23,6 +33,8 @@ class ChapterDataRoot(MemStruct):
 		self.chapter_data_count_3 = name_type_map['Uint'](self.context, 0, None)
 		self.chapter_data_count_4 = name_type_map['Uint'](self.context, 0, None)
 		self.chapter_data_count = name_type_map['Uint64'](self.context, 0, None)
+
+		# 0 found on all
 		self.chapter_data_unused_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.chapter_data_list = name_type_map['ArrayPointer'](self.context, self.chapter_data_count, name_type_map['ChapterData'])
 		if set_default:

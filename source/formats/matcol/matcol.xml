@@ -42,7 +42,7 @@
     </struct>
 
 	<struct name="RootFrag" inherit="MemStruct">
-        <field name="mat_type" type="uint64"/>(3=variant, 2=layered)
+        <field name="mat_type" type="uint64">(3=variant, 2=layered)</field>
         <field name="textures" type="ArrayPointer" template="Texture" arg="tex_count"/>
         <field name="tex_count" type="uint64"/>
         <field name="materials" type="ArrayPointer" template="Layer" arg="mat_count"/>

@@ -20,7 +20,11 @@ class IKEntry(BaseStruct):
 		# no clue what space this is in, defines the orientation for the yaw and pitch ranges
 		# probably relative to the bone
 		self.matrix = name_type_map['Matrix33'](self.context, 0, None)
+
+		# degrees
 		self.yaw = name_type_map['RotationRange'](self.context, 0, None)
+
+		# degrees
 		self.pitch = name_type_map['RotationRange'](self.context, 0, None)
 		self.unk_1 = name_type_map['Uint'].from_value(1)
 		if set_default:

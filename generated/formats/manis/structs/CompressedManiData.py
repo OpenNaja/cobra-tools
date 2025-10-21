@@ -30,7 +30,11 @@ class CompressedManiData(BaseStruct):
 
 		# usually 420 or 52905
 		self.quantisation_level = name_type_map['Ushort'](self.context, 0, None)
+
+		# DLA
 		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+
+		# DLA
 		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
 		self.ref_2 = name_type_map['Empty'](self.context, 0, None)
 

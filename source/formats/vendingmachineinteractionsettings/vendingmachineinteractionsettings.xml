@@ -10,27 +10,27 @@
         <field name="AnimationInteractionCount" type="uint" />
         <field name="float1" type="float" default="9.0"/>
         <field name="float2" type="float" default="12.0"/>
-        <field name="unk_1" type="uint" /> probably padding
+        <field name="unk_1" type="uint" /> <!-- probably padding -->
 
         <field name="AnimationIdle" type="Pointer" template="ZStringList" arg="AnimationIdleCount"/>
         <field name="AnimationIdleCount" type="uint" />
-        <field name="unk_2" type="uint" /> probably padding
+        <field name="unk_2" type="uint" /> <!-- probably padding -->
 
         <field name="AnimationWin"  type="Pointer" template="ZStringList" arg="AnimationWinCount"/>
         <field name="AnimationWinCount" type="uint" />
-        <field name="unk_3" type="uint" /> probably padding
+        <field name="unk_3" type="uint" /> <!-- probably padding -->
 
         <field name="AnimationFail"  type="Pointer" template="ZStringList" arg="AnimationFailCount"/>
         <field name="AnimationFailCount" type="uint" />
         <field name="float3" type="float" default="12.0"/>
 
-        padding
+        <!-- padding -->
         <field name="pad_0" type="uint"/>
         <field name="pad_1" type="uint"/>
     </struct>
 
     <struct name="GuestAnimationInteractionList" inherit="MemStruct">
-        <field name="type" type="uint"/> 2=AM 258=AF 1=TM 257=TF 0=CM 256=CF
+        <field name="type" type="uint">2=AM 258=AF 1=TM 257=TF 0=CM 256=CF</field>
         <field name="Unk_0" type="uint"/>
         <field name="InteractIn" type="Pointer" template="ZString"/>
         <field name="InteractLoop" type="Pointer" template="ZString"/>

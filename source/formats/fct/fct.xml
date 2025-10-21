@@ -21,7 +21,7 @@
         <field name="z0" type="short" />
         <field name="z1" type="int" />
         <field name="z2" type="uint64" />
-        <field name="offset" type="uint64" />usually 1088 into buffer data
+        <field name="offset" type="uint64" /> <!-- usually 1088 into buffer data -->
         <field name="fonts" type="Font" arr1="4"/>
     </struct>
 

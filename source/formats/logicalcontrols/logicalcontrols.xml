@@ -10,8 +10,8 @@
     <struct name="LogicalControls" inherit="MemStruct">
         <field name="buttons" type="ArrayPointer" template="Button" arg="button_count"/>
 
-        # axes, axis_buttons and d are causing crashes in PC if the pointer to the array exists, but I can't
-        # figure a way to not create the pointer to an empty array.
+        <!-- axes, axis_buttons and d are causing crashes in PC if the pointer to the array exists, but I can't -->
+        <!-- figure a way to not create the pointer to an empty array. -->
 
         <field name="axes" type="ArrayPointer" template="AxisValue" arg="axis_count"  optional="true"/>
         <field name="axis_buttons" type="ArrayPointer" template="AxisButton" arg="count3" optional="true"/>

@@ -25,7 +25,7 @@
         <field name="banis" type="Pointer" >points to the banis file used</field>
         <field name="index" type="uint" since="7">?</field>
         <field name="offset" type="uint" since="7">index * 16</field>
-        <field name="read start frame" type="uint">The frame in the banis where this bani starts reading</field>PC2: num_frames * 8 + previous offset
+        <field name="read start frame" type="uint">The frame in the banis where this bani starts reading</field> <!-- PC2: num_frames * 8 + previous offset -->
         <field name="num frames" type="uint">Number of frames in this bani file</field>
         <field name="animation length" type="float">length of the animation, can easily get keyframe spacing now</field>
         <field name="LoopFlag" type="uint">if 1381323599 then looped</field>
@@ -36,7 +36,7 @@
         <field name="a" type="ushort"/>
         <field name="b" type="ushort"/>
         <field name="unk" type="float"/>
-        <field name="increment" type="ushort"/>in guests by 15, in pigeon by 1, starts at bani_count?
+        <field name="increment" type="ushort"/> <!-- in guests by 15, in pigeon by 1, starts at bani_count? -->
         <field name="zero" type="ubyte" default="0"/>
         <field name="num_bones" type="ubyte"/>
         <field name="index_reversed" type="uint"/>
@@ -69,15 +69,15 @@
         older games: 40 bytes
         PC2: new structure, 4 pointers to keyframe data at start
         <field name="bani_data" type="ArrayPointer" arg="bani_count" template="BaniData" since="7"/>
-        padded with 00 bytes
+        <!-- padded with 00 bytes -->
         <field name="bones_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
-        padded with FF bytes, todo however the counts or padding appear different on af.banisetfc27d51a
+        <!-- padded with FF bytes, todo however the counts or padding appear different on af.banisetfc27d51a -->
         <field name="bones2_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
         <field name="keys" type="Pointer" template="Keys" arg1="num frames" arg2="num bones" since="7"/>
         <field name="zeros" type="uint" arr1="3" since="7"/>
         <field name="count_a" type="uint" since="7"/>
-        <field name="count_b_0" type="uint" since="7"/>loc?
-        <field name="count_b_1" type="uint" since="7"/>rot?
+        <field name="count_b_0" type="uint" since="7">loc?</field>
+        <field name="count_b_1" type="uint" since="7">rot?</field>
         <field name="keys_size" type="uint" since="7"/>
 
         <field name="zeros" type="uint64" arr1="2" until="5"/>
@@ -106,7 +106,7 @@
         <field name="num_anims" type="uint"/>
         <field name="anims" type="BaniInfo" arr1="num_anims"/>
         <field name="data" type="BanisRoot"/>
-        keyframe data follows
+        <!-- keyframe data follows -->
     </struct>
 
 </fileformat>

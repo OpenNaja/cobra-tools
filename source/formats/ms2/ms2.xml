@@ -24,7 +24,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	set latest occurence of a version number in a game first so that that is set by the setters
+	<!-- set latest occurence of a version number in a game first so that that is set by the setters -->
 	<version id="DLA" version="7" >Disneyland Adventures</version>
 	<version id="ZTUAC" version="13" >Zoo Tycoon</version>
 	<version id="PC" version="32" >Planet Coaster</version>
@@ -203,7 +203,7 @@
 
 	<bitfield name="WeightsFlagPC2" storage="ushort">
 		<member width="2" pos="0" name="mesh_format" type="MeshFormat"/>
-		<member width="1" pos="3" name="material_effects" type="bool"/>if off: metal turns white, alpha is not used
+		<member width="1" pos="3" name="material_effects" type="bool">if off: metal turns white, alpha is not used</member>
 		<member width="1" pos="4" name="has_weights" type="bool"/>
 		<member width="8" pos="5" name="bone_index" type="int"/>
 	</bitfield>
@@ -236,8 +236,8 @@
 	<bitfield name="ModelFlagDLA" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="1" name="vertex_offset" type="bool">seen in DLA - if false, vertex_offset = -1</member>
-		todo - check if this is stripify, meaning of stripify is different here - currently hacked in MeshData.py triangulate
-		pos 2 would also qualify 36 0b100100, 38 0b100110
+		<!-- todo - check if this is stripify, meaning of stripify is different here - currently hacked in MeshData.py triangulate -->
+		<!-- pos 2 would also qualify 36 0b100100, 38 0b100110 -->
 		<member width="1" pos="5" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
 <!--		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
 	</bitfield>
@@ -278,8 +278,8 @@
 
 	<struct name="AxisAngle" size="16">
 		<field name="a" type="float" default="1.0"/>
-		when a = 1.0, x,y,z = 0
-		otherwise x,y,z is a normalized vector
+		<!-- when a = 1.0, x,y,z = 0 -->
+		<!-- otherwise x,y,z is a normalized vector -->
 		<field name="x" type="float" default="0.0"/>
 		<field name="y" type="float" default="0.0"/>
 		<field name="z" type="float" default="0.0"/>
@@ -291,11 +291,11 @@
 
 	<struct name="Bone">
 		32 bytes
-		rot first
+		<!-- rot first -->
 		<field name="loc" type="Vector3" until="47" />
 		<field name="scale" type="float" until="47" />
 		<field name="rot" type="Vector4" until="47" />
-		loc first
+		<!-- loc first -->
 		<field name="rot" type="Vector4" since="48" />
 		<field name="loc" type="Vector3" since="48" />
 		<field name="scale" type="float" since="48" />
@@ -310,10 +310,10 @@
 		<field name="name count" type="ushort" >count of names in ms2 buffer0</field>
 		<field name="static_buffer_index" type="short" >-1 if there is no vertex buffer at all; else index of static buffers in total buffers</field>
 		<field name="zeros" type="uint" arr1="3"/>
-		the following two ptrs are not used in PC
+		<!-- the following two ptrs are not used in PC -->
 		<field name="buffer_infos" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</field>
 		<field name="model_infos" type="ArrayPointer" template="ModelInfo" arg="mdl2 count">one for each mdl2</field>
-		already used in DLA
+		<!-- already used in DLA -->
 		<field name="buffer_pointers" type="ArrayPointer" template="BufferPresence" arg="vertex_buffer_count">links buffers to ms2 dependencies if they are streamed</field>
 	</struct>
 
@@ -342,7 +342,7 @@
 		<field name="stream_index" type="ushort" since="32" >matches the buffer index used by this LOD's meshes</field>
 		<field name="bone_index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</field>
 		<field name="first_object_index" type="ushort" >first object for this lod in objects list</field>
-		# apparent repeats, purpose unknown
+		<!-- # apparent repeats, purpose unknown -->
 		<field name="first_object_index_1" type="ushort" until="13"/>
 		<field name="first_object_index_2" type="ushort" until="13"/>
 		<field name="last object index" type="ushort" >not included in interval (python style indexing)</field>
@@ -367,7 +367,7 @@
 		JWE2 after Biosyn update - 48 bytes incl. inheritance
 		<field name="chunks_offset" type="uint" >start index into list of verts / tris chunks</field>
 		<field name="chunks_count" type="uint" >count of verts / tris chunks</field>
-		<field name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
+		<field name="tris_count" type="uint" >num triangles in mesh, *3 for byte size</field>
 		<field name="vertex_count" type="uint" >num verts in mesh</field>
 		<field name="zero" type="uint64" default="0"/>
 		<field name="poweroftwo" type="uint">power of 2 increasing with lod index</field>
@@ -408,7 +408,7 @@
 		<field name="zero b" type="uint" default="0"/>
 		<field name="unk_float_0" type="float" >?</field>
 		<field name="flag" type="ModelFlag">bitfield</field>
-		<field name="zero c" type="uint" default="0"/>this may be padding that might not be on the end of an array?
+		<field name="zero c" type="uint" default="0"/> <!-- this may be padding that might not be on the end of an array? -->
 	</struct>
 
 	<struct name="ZtMeshData" inherit="MeshData">
@@ -421,7 +421,7 @@
 		<field name="tri offset" type="uint"/>
 		<field name="uv offset" type="uint" >variable dtype, can include vertices too</field>
 		<field name="vertex offset" type="uint">if present, blocks of 24 bytes</field>
-		<field name="unk_index" type="short"/>often -1, but not always
+		<field name="unk_index" type="short">often -1, but not always</field>
 		<field name="one 0" type="ushort"/>
 		<field name="one 1" type="ushort" >?</field>
 		<field name="poweroftwo" type="ushort"/>
@@ -464,8 +464,8 @@
 		<field name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</field>
 		<field name="pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</field>
 		<field name="pre bones" type="DLAPreBones" vercond="#DLA#" cond="#ARG# \ last_count">?</field>
-		<field name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</field>
-		alignment here is handled by py code, seems to depend on whether a bone info follows
+		<field name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32" /> <!-- see if it is a flag for ztuac too, so might be totally wrong here</field> -->
+		<!-- alignment here is handled by py code, seems to depend on whether a bone info follows -->
 	</struct>
 
 	<struct name="ZtTriBlockInfo" >
@@ -510,7 +510,7 @@
 		PZ1.6+ and JWE2: 56 bytes
 		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
 
-		JWE and PC, 16 bytes of 00 padding
+		<!-- JWE and PC, 16 bytes of 00 padding -->
 		<field name="u0" type="uint64" since="32" until="47" />
 		<field name="u1" type="uint64" since="32" until="47" />
 
@@ -521,18 +521,18 @@
 
 		<field name="verts_size" type="uint64"/>
 		<field name="verts_ptr" type="uint64"/>
-		PC ends here
-		PZ+, another 8 empty bytes
+		<!-- PC ends here -->
+		<!-- PZ+, another 8 empty bytes -->
 		<field name="u3" type="uint64" since="48" until="52"/>
-		on all games except PC
+		<!-- on all games except PC -->
 
-		at offset 56 in JWE2
+		<!-- at offset 56 in JWE2 -->
 		<field name="tris_size" type="uint64" vercond="!#PC#"/>
 		<field name="tris_ptr" type="uint64" vercond="!#PC#"/>
-		PZ+, another 16 empty bytes
+		<!-- PZ+, another 16 empty bytes -->
 		<field name="u5" type="uint64" since="48" until="52"/>
 		<field name="u6" type="uint64" since="48" until="52"/>
-		alternative end, ZTUAC style
+		<!-- alternative end, ZTUAC style -->
 		<field name="u5" type="uint64" until="13" />
 		<field name="uvs_size" type="uint64" until="13" >from start of tris buffer</field>
 		<field name="u6" type="uint64" until="13" />
@@ -603,27 +603,27 @@
 <!--		corresponds to PC buffer 1-->
 		<field name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
 		<field name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
-		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
+		<!-- models and bone infos follow, either separate (new) or interleaved for each modelinfo (old) -->
 		<field name="models_reader" type="ModelReader" arg="#SELF#" >handles interleaved (old) or separate (new) styles for models and bone infos</field>
-		many ZTUAC models have a big undecoded array of uints here
-		the vertex and face data buffers follow
+		<!-- many ZTUAC models have a big undecoded array of uints here -->
+		<!-- the vertex and face data buffers follow -->
 	</struct>
 
 	<struct name="TriChunk" >
 		JWE2 Biosyn, PC2: 64 bytes
 		<field name="bounds" type="hfloat" arr1="3" arr2="2" since="54">-x, +x, -y, +y, -z, +z</field>
 		<field name="bounds min" type="Vector3" until="53">the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0</field>
-		<field name="material_index" type="ushort"/> 0, 1, 2
+		<field name="material_index" type="ushort"> 0, 1, 2</field>
 		<field name="tris_count" type="ushort"/>
 		<field name="bounds max" type="Vector3" until="53">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</field>
-		<field name="tris_index" type="uint" since="54" />index into tris buffer of this mesh, starts at 0 for mesh
-		<field name="value_min" type="uint" since="54"/>minimal vertex value used in tri indices
-		<field name="tris_offset" type="uint" />bytes into whole tris buffer, as tris use ubyte
+		<field name="tris_index" type="uint" since="54">index into tris buffer of this mesh, starts at 0 for mesh</field>
+		<field name="value_min" type="uint" since="54">minimal vertex value used in tri indices</field>
+		<field name="tris_offset" type="uint">bytes into whole tris buffer, as tris use ubyte</field>
 		<field name="zero" type="uint" default="0" since="54"/>
 		<field name="loc" type="Vector3">can be 0,0,0, no obvious range, not always within range of bounds</field>
 		<field name="rot" type="AxisAngle">can be 1, 0, 0, 0; w always in range -1, +1</field>
-		<field name="shell_index" type="ushort"/> 0, 1, 2 - increments per shell layer
-		<field name="shell_count" type="ushort"/> 0 or 3 in theri
+		<field name="shell_index" type="ushort"> 0, 1, 2 - increments per shell layer</field>
+		<field name="shell_count" type="ushort"> 0 or 3 in theri</field>
 	</struct>
 	
 	<struct name="VertChunk" >
@@ -635,7 +635,7 @@
 		<field name="weights_flag" type="WeightsFlag" until="51">determines if weights are used by this chunk</field>
 		<field name="weights_flag" type="WeightsFlagMalta" since="52" until="53">determines if weights are used by this chunk</field>
 		<field name="weights_flag" type="WeightsFlagPC2" since="54">determines if weights are used by this chunk</field>
-		<field name="zero" type="ubyte"/>always
+		<field name="zero" type="ubyte"/> <!-- always -->
 	</struct>
 
 	<struct name="MinusPadding">
@@ -685,8 +685,8 @@
 		<field name="unk0" type="ushort" default="0"/>
 		<field name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the yaw and pitch ranges
 		probably relative to the bone</field>
-		<field name="yaw" type="RotationRange"/>degrees
-		<field name="pitch" type="RotationRange"/>degrees
+		<field name="yaw" type="RotationRange">degrees</field>
+		<field name="pitch" type="RotationRange">degrees</field>
 		<field name="unk1" type="uint" default="1"/>
 	</struct>
 
@@ -750,8 +750,8 @@
 		used in JWE dinos
 		no longer used in PZ, JWE2
 		<field name="direction" type="Vector3" >normalized direction of Z axis in blender</field>
-		these are LE - GE 0, unlike the limits in RagdollConstraint
-		JWE1 nasuto has these, but inverted (due to mirroring?) on X (blender assumes Z for hinge)
+		<!-- these are LE - GE 0, unlike the limits in RagdollConstraint -->
+		<!-- JWE1 nasuto has these, but inverted (due to mirroring?) on X (blender assumes Z for hinge) -->
 		<field name="limits" type="RotationRange" >radians</field>
 	</struct>
 
@@ -760,15 +760,15 @@
 		vec_a and rot row 0 seem to be identical (tested on JWE1, JWE2, PZ)
 		sometimes correspond to the negated child joint rot row0
 		<field name="vec_a" type="Vector3" >normed, matches first row of rot</field>
-		row 2 can match child joint rot row 1
+		<!-- row 2 can match child joint rot row 1 -->
 		<field name="rot" type="Matrix33" >all 3 rows are orthogonal to one another</field>
 		<field name="vec_b" type="Vector3" >normed, and orthogonal to vec_a</field>
-		tolerance around the rotation axes
+		<!-- tolerance around the rotation axes -->
 		<field name="x" type="RotationRange" >radians</field>
 		<field name="y" type="RotationRange" >radians</field>
 		<field name="z" type="RotationRange" >radians</field>
-		apparently a rotation margin under which simulation is allowed to stop
-		unlike x, y, z above, this is directional, with min negative
+		<!-- apparently a rotation margin under which simulation is allowed to stop -->
+		<!-- unlike x, y, z above, this is directional, with min negative -->
 		<field name="plasticity" type="RotationRange" >radians</field>
 	</struct>
 
@@ -859,12 +859,12 @@
 		<field name="dtype" type="CollisionType"/>
 		<field name="align" type="uint" since="48" default="0"/>
 		<field name="ClassificationName" type="PcCollision" until="32"/>
-		todo one of these may be an index into the classification group
+		<!-- todo one of these may be an index into the classification group -->
 		<field name="SurfaceName" type="PcSurface" until="32"/>
 		<field name="SurfaceName2" type="PcSurface" until="32"/>
 		<field name="ClassificationName" type="JWE1Collision" since="47" until="47"/>
 		<field name="SurfaceName" type="JWE1Surface" since="47" until="47"/>
-		<field name="ClassificationName" type="OffsetString" arg="context \ joint_names" since="48"/>from physicsskeleton.specdef
+		<field name="ClassificationName" type="OffsetString" arg="context \ joint_names" since="48">from physicsskeleton.specdef</field>
 		<field name="SurfaceName" type="OffsetString" arg="context \ joint_names" since="48"/>
 		<field name="zero_extra_pc" type="uint" until="32">?</field>
 		<field name="name" type="OffsetString" arg="context \ joint_names"/>
@@ -887,7 +887,7 @@
 		<field name="ff_2" type="int" default="-1" until="32"/>
 		<field name="ff_3" type="int" default="536870911" until="32"/>
 		<field name="ff_4" type="int" default="-5570646" until="32"/>
-		the following defaults are all the same in PZ and JWE2 as of 2022-10-14
+		<!-- the following defaults are all the same in PZ and JWE2 as of 2022-10-14 -->
 		<field name="zero_0" type="int" default="0" since="47"/>
 		<field name="zero_1" type="int" default="0" since="47"/>
 		<field name="minus_1" type="int" default="-1" since="47"/>
@@ -895,9 +895,9 @@
 		<field name="hitcheck count" type="uint"/>
 		<field name="zero_2_a" type="int" until="32"/>
 		<field name="zero_2" type="uint64" default="0"/>
-		deferred to coherent arrays up to PC
+		<!-- deferred to coherent arrays up to PC -->
 		<field name="hitcheck_pointers" type="uint64" arr1="hitcheck count" until="32" abstract="True"/>
-		<field name="hitcheck_pointers" type="uint64" arr1="hitcheck count" since="47"/>8 bytes of zeros per hitcheck
+		<field name="hitcheck_pointers" type="uint64" arr1="hitcheck count" since="47"/> <!-- 8 bytes of zeros per hitcheck -->
 		<field name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#" until="32" abstract="True"/>
 		<field name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#" since="47"/>
 	</struct>
@@ -944,15 +944,15 @@
 		<field name="joint_infos" type="JointInfo" arr1="joint_count" until="32">without hitchecks, which are added later</field>
 		<field name="pc floats" type="float" arr1="pc count" arr2="10" until="32">sometimes an array of floats</field>
 
-<!--		<field name="names_ref_pc" type="Empty"/>-->
+		<!--<field name="names_ref_pc" type="Empty"/>-->
 		<field name="joint_to_bone" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</field>
 		<field name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</field>
 		<field name="joint_names" type="ZStringBuffer" arg="namespace length"/>
 		<field name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>
-		# causes no harm but not 100% enough
+		<!-- causes no harm but not 100% enough -->
 		<field name="hitcheck_pointer_reader" type="HitcheckPointerReader" arg="#SELF#" until="32">8 bytes per hc</field>
-		# nope
-<!--		<field name="hitcheck_pointer_padding" type="PadAlign" template="names_ref" arg="16" until="32"/>-->
+		<!-- nope -->
+		<!--<field name="hitcheck_pointer_padding" type="PadAlign" template="names_ref" arg="16" until="32"/>-->
 
 		<field name="after_names" type="SmartPadding" until="32" arg="8">
 			this seems to be always multiples of 8 bytes
@@ -976,7 +976,7 @@
 		<field name="war_b" type="ushort" since="53">?</field>
 		<field name="bind matrix count" type="uint64"/>
 		<field name="zeros" type="uint64" arr1="2"/>
-		<field name="inv_data_count" type="uint64" /> if inv_names_count = 1, also 1 for DLA
+		<field name="inv_data_count" type="uint64">if inv_names_count = 1, also 1 for DLA</field>
 		<field name="bone count" type="uint64"/>
 		<field name="unknown40" type="uint64"/>
 		<field name="parents count" type="uint64"/>
@@ -986,21 +986,21 @@
 		<field name="one" type="uint64" default="1" >always 1</field>
 		<field name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</field>
 		<field name="zeros count" type="uint64" >counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2</field>
-		<field name="ik_count" type="uint64"/>max of ik_info's ik_count and ik_targets_count
+		<field name="ik_count" type="uint64">max of ik_info's ik_count and ik_targets_count</field>
 		<field name="joint count" type="uint64"/>
 		<field name="zero 1" type="uint64" default="0"/>
 		<field name="zero 2" type="uint64" default="0" until="13"/>
 		<field name="zero 3" type="uint64" default="0" vercond="#JWE#"/>
 
 		<field name="names ref" type="Empty"/>
-		index into ms2 string table for bones used here
+		<!-- index into ms2 string table for bones used here -->
 		<field name="name indices" type="ushort" arr1="name count" until="32"/>
 		<field name="name indices" type="uint" arr1="name count" since="47"/>
 		<field name="inventory name indices" type="ushort" arr1="inv_names_count" until="32"/>
 		<field name="name padding" type="PadAlign" template="names ref" arg="16" >align to 16 bytes</field>
-		# hook size 8256
+		<!-- hook size 8256 -->
 		<field name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</field>
-		# hook start at 13153
+		<!-- hook start at 13153 -->
 		<field name="bones" type="Bone" arr1="bone count"/>
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
@@ -1008,7 +1008,7 @@
 		<field name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</field>
 		<field name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</field>
 
-		# experimental stuff for DLA cpt. hook model
+		<!-- experimental stuff for DLA cpt. hook model -->
 		<field name="inventory_datas" type="byte" arr1="inv_data_count" arr2="6" vercond="#DLA#">zeros</field>
 
 		<field name="weirdness" type="short" arr1="8" vercond="#DLA#">-1s and 0s</field>
@@ -1030,7 +1030,7 @@
 		<field name="triangles addr" type="Empty"/>
 		<field name="triangles" type="ushort" arr1="#ARG#\tri count" arr2="3">triangle indices into vertex list</field>
 
-		<field name="const" type="uint" until="47">?; PC: 32</field>model version?? coincidence?
+		<field name="const" type="uint" until="47">?; PC: 32</field> <!-- model version?? coincidence? -->
 		<field name="triangle flags" type="uint" arr1="optimizer\tri flags count" cond="const" vercond="!#PC#" until="47">in JWE redwood: always 37</field>
 		<field name="triangle_flags_pc" type="short" arr1="#ARG#\tri count" arr2="2" cond="#ARG#\tris_switch" vercond="#PC#">?</field>
 

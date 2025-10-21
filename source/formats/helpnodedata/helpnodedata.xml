@@ -6,15 +6,15 @@
 
     <struct name="HelpNodeDataHeader" inherit="MemStruct">
         <field name="ParentNode" type="Pointer" template="ZString"/>
-        <field name="ParentType" type="uint64"/> # nah, not really, but I know it is a value that can be repeated: xc8 x41
+        <field name="ParentType" type="uint64"/> <!-- nah, not really, but I know it is a value that can be repeated: xc8 x41 -->
         <field name="NodeCount" type="uint64"/>
         <field name="Nodes" type="ArrayPointer" template="HelpNode" arg="NodeCount"/>
-        <field name="ptr_0" type="Pointer"/> # found empty 
-        <field name="ptr_1" type="Pointer"/> # found empty
+        <field name="ptr_0" type="Pointer"/> <!-- found empty  -->
+        <field name="ptr_1" type="Pointer"/> <!-- found empty -->
     </struct>
 
     <struct name="HelpNode" inherit="MemStruct">
-        <field name="NodeType" type="uint64"/> # found 01 for image or 05 for text/description
+        <field name="NodeType" type="uint64"> found 01 for image or 05 for text/description</field>
         <field name="NodeHelpUserInterfaceIconData" type="Pointer" template="ZString"/>
         <field name="NodeTitleTextSymbol" type="Pointer" template="ZString"/>
         <field name="NodeDescriptionTextSymbol" type="Pointer" template="ZString"/>

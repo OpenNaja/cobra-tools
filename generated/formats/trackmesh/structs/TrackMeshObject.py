@@ -14,6 +14,8 @@ class TrackMeshObject(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# This is what defines what the string 'file' means
 		self.type = name_type_map['Uint'](self.context, 0, None)
 		self.b = name_type_map['Uint'](self.context, 0, None)
 		self.c = name_type_map['Uint'](self.context, 0, None)
@@ -21,6 +23,8 @@ class TrackMeshObject(MemStruct):
 		self.xtra_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.e = name_type_map['Uint64'](self.context, 0, None)
 		self.place_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# Can be a prefab, a model, an object, hitcheck, an audio
 		self.file = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.attachment_start = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.attachment_end = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

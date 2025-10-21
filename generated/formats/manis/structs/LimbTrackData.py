@@ -12,6 +12,8 @@ class LimbTrackData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.ref = name_type_map['Empty'](self.context, 0, None)
 		self.padding_0 = name_type_map['SmartPadding'](self.context, 0, None)
+
+		# 2 for bipeds, 4 for quadrupeds
 		self.limb_count = name_type_map['Ushort'](self.context, 0, None)
 		self.flag = name_type_map['Ushort'](self.context, 0, None)
 		self.zero_1 = name_type_map['Uint'](self.context, 0, None)

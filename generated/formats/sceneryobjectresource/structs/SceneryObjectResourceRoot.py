@@ -22,6 +22,8 @@ class SceneryObjectResourceRoot(MemStruct):
 		self.variant_names_count = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_4 = name_type_map['Uint64'](self.context, 0, None)
 		self.faction_tags = name_type_map['Pointer'](self.context, self.faction_tags_count, name_type_map['ZStringList'])
+
+		# main biome
 		self.resource_types_tags = name_type_map['Pointer'](self.context, self.resource_types_tags_count, name_type_map['ZStringList'])
 		self.asset_pack_tags = name_type_map['Pointer'](self.context, self.asset_pack_tags_count, name_type_map['ZStringList'])
 		self.primary_group_tags = name_type_map['Pointer'](self.context, self.primary_group_tags_count, name_type_map['ZStringList'])

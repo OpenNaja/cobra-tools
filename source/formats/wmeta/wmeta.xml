@@ -59,7 +59,7 @@
         <field name="zero" type="uint" />
         <field name="block_name" type="Pointer" template="ZString" until="18"/>
         <field name="zero2" type="ushort" until="18" />
-        <field name="size" type="ushort" until="18" /> maybe
+        <field name="size" type="ushort" until="18" /> <!-- maybe -->
         <field name="flag 0" type="uint" />
         <field name="flag 1" type="uint" />
         <field name="flag 2" type="uint" />
@@ -67,7 +67,7 @@
         <field name="flag 3" type="uint" until="18" />
 
         <field name="hash b" type="uint" />
-        <field name="hash c" type="uint" />fnv1 of lowercase event name
+        <field name="hash c" type="uint" /> <!-- fnv1 of lowercase event name -->
         <field name="zero 4" type="uint" />
 
         <field name="u2" type="uint" since="19"/>

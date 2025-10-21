@@ -5,12 +5,12 @@
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <struct name="ChapterDataRoot" inherit="MemStruct">
-        <field name="ChapterData_type" type="ubyte" /> # 1 for factions, 0 for general help, 1 means will have extra faction tabs
-        <field name="ChapterData_hidden" type="ubyte" />   # 1 for helppopups.chapterdata, that one is not showing up in the UI
-        <field name="ChapterData_id" type="ubyte" />   # 0 to 4 for factions, 5 on general help :?, cloud just be order instead
-        <field name="ChapterData_zero" type="ubyte" />   # 0 found on all
+        <field name="ChapterData_type" type="ubyte">for factions, 0 for general help, 1 means will have extra faction tabs</field>
+        <field name="ChapterData_hidden" type="ubyte">1 for helppopups.chapterdata, that one is not showing up in the UI</field>
+        <field name="ChapterData_id" type="ubyte">0 to 4 for factions, 5 on general help :?, cloud just be order instead</field>
+        <field name="ChapterData_zero" type="ubyte">0 found on all</field>
 
-        <field name="ChapterData_unused1" type="uint" />   # 0 found on all
+        <field name="ChapterData_unused1" type="uint">0 found on all</field>
 
         <field name="ChapterData_list1" type="uint64" />   
         <field name="ChapterData_list2" type="uint64" />   
@@ -24,13 +24,13 @@
 
         <field name="ChapterData_list"  type="ArrayPointer" template="ChapterData" arg="ChapterData_count"/>
         <field name="ChapterData_count" type="uint64" />
-        <field name="ChapterData_unused2" type="uint64" />   # 0 found on all
+        <field name="ChapterData_unused2" type="uint64">0 found on all</field>
 
     </struct>
 
     <struct name="ChapterData" inherit="MemStruct">
         <field name="ChapterData_Name" type="Pointer" template="ZString"/>
-        <field name="ChapterData_flags" type="uint64"/>  # one bit is hidden, 
+        <field name="ChapterData_flags" type="uint64">one bit is hidden</field>
         <field name="ChapterDataInfo_list"  type="ArrayPointer" template="ChapterDataInfo" arg="ChapterDataInfo_count"/>
         <field name="ChapterDataInfo_count" type="uint64" />
     </struct>

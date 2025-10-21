@@ -8,7 +8,7 @@
         16 bytes
         <field name="arr" type="ArrayPointer" template="#TEMPLATE#" arg="count"/>
         <field name="count" type="ushort" />
-        <field name="flag" type="ushort" />255 if used, count can be positive regardless
+        <field name="flag" type="ushort" /> <!-- 255 if used, count can be positive regardless -->
         <field name="unk" type="uint" />
     </struct>
 
@@ -28,17 +28,17 @@
         JWE1: 112 bytes
         PZ, JWE2, WH: 80 bytes
 
-        # There is an initial 'default' surface, these params are the same as in SurfacePhysicsInfo
-        <field name="default_surface" type="Surface" />24 @0
+        <!-- # There is an initial 'default' surface, these params are the same as in SurfacePhysicsInfo -->
+        <field name="default_surface" type="Surface" /> <!-- 24 @0 -->
 
-        <field name="unk64_1"  type="uint64" />8 @ 24
-        <field name="name1" type="Pointer" template="ZString"/>8 @ 32
-        <field name="name2" type="Pointer" template="ZString"/>8 @ 40
-        <field name="nil_ptr" type="Pointer" template="EmptyStruct"/>8 @ 48 nil pointer for JWE1, PZ, JWE2
+        <field name="unk64_1"  type="uint64" /> <!-- 8 @ 24 -->
+        <field name="name1" type="Pointer" template="ZString"/> <!-- 8 @ 32 -->
+        <field name="name2" type="Pointer" template="ZString"/> <!-- 8 @ 40 -->
+        <field name="nil_ptr" type="Pointer" template="EmptyStruct"/> <!-- 8 @ 48 nil pointer for JWE1, PZ, JWE2 -->
 
         <field name="OnlyNamesJWE1" type="ArrWrapper" template="OnlyName" vercond="#JWE#" />
-        surfaces is a special case in PC, count is set yet the ptr goes to end of pool
-        <field name="surfaces" type="ArrWrapper" template="SurfacePhysicsInfo" />16 @ 56
+        <!-- surfaces is a special case in PC, count is set yet the ptr goes to end of pool -->
+        <field name="surfaces" type="ArrWrapper" template="SurfacePhysicsInfo" /> <!-- 16 @ 56 -->
         <field name="arr2" type="ArrWrapper" template="Struct2" vercond="#PC#"/>
         <field name="OnlyNames" type="ArrWrapper" template="OnlyName" vercond="#PC# #OR# #JWE#" />
 
@@ -52,7 +52,7 @@
         <field name="name1" type="Pointer" template="ZString"/>
         <field name="arr" type="ArrayPointer" template="Struct2Sub" arg="count" />
         <field name="count"   type="ushort" />
-        <field name="short2"   type="ushort" />255
+        <field name="short2"   type="ushort" /> <!-- 255 -->
         <field name="unk32_2"  type="uint" />
     </struct>
 
@@ -85,14 +85,14 @@
 
         <field name="unk64_1"  type="uint64" />
 
-        # todo: name1 observed as string sometimes,
-        # todo: name2 observed empty all the times
+        <!-- todo: name1 observed as string sometimes -->
+        <!-- todo: name2 observed empty all the times -->
         <field name="name1" type="Pointer" template="ZString"/>
-        <field name="name2" type="Pointer" template="ZString"/>not sure if it's a ptr at all
+        <field name="name2" type="Pointer" template="ZString"/> <!-- not sure if it's a ptr at all -->
         <field name="nil" type="Pointer" template="EmptyStruct"/>
     </struct>
 
-    # Observed in JWE2 and PZ the pointers to this struct are completely empty
+    <!-- Observed in JWE2 and PZ the pointers to this struct are completely empty -->
     <struct name="EmptyStruct" inherit="MemStruct">
     </struct>
 

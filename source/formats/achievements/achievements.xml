@@ -21,7 +21,7 @@
 
     <struct name="ConditionRef" inherit="MemStruct">
         <field name="mode" type="uint64" />
-        <field name="condition_var" type="Pointer" template="ConditionVar"/>reference to entries from condition_vars array
+        <field name="condition_var" type="Pointer" template="ConditionVar"/> <!-- reference to entries from condition_vars array -->
     </struct>
 
     <struct name="ConditionRef2" inherit="MemStruct">
@@ -63,7 +63,7 @@
       00 00 00 00 00 00 00 00 40 50 4F 49 4E 54 45 52  ........@POINTER
       00 00 40 40 00 00 00 00 00 00 00 00 00 00 00 00  ..@@............
         <field name="a" type="uint64" />
-        <field name="reference" type="Pointer" /> into Conditions array
+        <field name="reference" type="Pointer" /> <!-- into Conditions array -->
         <field name="b" type="uint64" />
         <field name="c" type="uint64" />
     </struct>
@@ -75,7 +75,7 @@
         <field name="Condition_index_str" type="Pointer" template="ZString" since="5"/>
         <field name="Count" type="uint64" since="5"/>
         <field name="zero" type="Pointer" template="ConditionPc2" since="5"/>
-        <field name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count" until="3"/>points to array of pointers
+        <field name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count" until="3"/> <!-- points to array of pointers -->
         <field name="Conditions2_count" type="uint64" until="3"/>
         <field name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count" until="3"/>
         <field name="Conditions_count" type="uint64"  until="3"/>

@@ -9,8 +9,6 @@ class JanitorSettingsRoot(MemStruct):
 	PC: 272 bytes, version 1
 	PZ: 304 bytes, version 1
 	PC2: 224 bytes, version 9
-	
-	huge batch of arrays at the head of the file
 	"""
 
 	__name__ = 'JanitorSettingsRoot'

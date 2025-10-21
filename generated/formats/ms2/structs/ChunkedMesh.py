@@ -29,6 +29,8 @@ class ChunkedMesh(MeshData):
 
 		# count of verts / tris chunks
 		self.chunks_count = name_type_map['Uint'](self.context, 0, None)
+
+		# num triangles in mesh, *3 for byte size
 		self.tris_count = name_type_map['Uint'](self.context, 0, None)
 
 		# num verts in mesh

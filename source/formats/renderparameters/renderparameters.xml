@@ -34,7 +34,7 @@
         <field name="data" type="ubyte" arr1="4" cond="#ARG# #EQ# 7" />
         <field name="data" type="float" arr1="4" cond="#ARG# #EQ# 8" />
         <field name="data" type="ZStrPtr" arr1="1" cond="#ARG# #EQ# 9" />
-        todo - padding!
+        <!-- todo - padding! -->
     </struct>
 
     <struct name="RenderParametersRoot" inherit="MemStruct">
@@ -84,7 +84,7 @@
     <struct name="KeyPoint" inherit="MemStruct">
         <field name="time" type="float" />
         <field name="value" type="ParamData" arg="arg"/>
-        # often 0 or very close
+        <!-- often 0 or very close -->
         <field name="tangent before" type="float" />
         <field name="tangent after" type="float" />
     </struct>

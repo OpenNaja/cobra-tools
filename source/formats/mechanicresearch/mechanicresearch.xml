@@ -11,9 +11,9 @@
 
     <struct name="Research" inherit="MemStruct">
         <field name="item_name" type="Pointer" template="ZString"/>
-        <field name="is_completed" type="uint" /> set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)
-        <field name="is_entry_level" type="uint" /> first research enabled level (0 if research is complete)
-        <field name="is_enabled" type="uint64" /> at least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)
+        <field name="is_completed" type="uint">Set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)</field>
+        <field name="is_entry_level" type="uint">First research enabled level (0 if research is complete)</field>
+        <field name="is_enabled" type="uint64">At least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)</field>
         <field name="next_research" type="Pointer" template="NextResearch" arg="next_research_count" />
         <field name="next_research_count" type="uint64" />
         <field name="unk3" type="uint64" />
@@ -22,7 +22,7 @@
 
     <struct name="NextResearch" inherit="MemStruct">
         <field name="item_name" type="Pointer" template="ZString" arr1="#ARG#" />
-        <field name="unk1" type="uint64" /> Walked all over the files and this was always 0
+        <field name="unk1" type="uint64" /> <!-- Walked all over the files and this was always 0 -->
     </struct>
 
 </fileformat>

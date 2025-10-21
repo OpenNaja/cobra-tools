@@ -9,6 +9,8 @@ class RootFrag(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# (3=variant, 2=layered)
 		self.mat_type = name_type_map['Uint64'](self.context, 0, None)
 		self.tex_count = name_type_map['Uint64'](self.context, 0, None)
 		self.mat_count = name_type_map['Uint64'](self.context, 0, None)

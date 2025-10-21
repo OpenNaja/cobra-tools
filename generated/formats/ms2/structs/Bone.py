@@ -6,7 +6,6 @@ class Bone(BaseStruct):
 
 	"""
 	32 bytes
-	rot first
 	"""
 
 	__name__ = 'Bone'

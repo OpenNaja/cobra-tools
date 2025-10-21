@@ -15,7 +15,7 @@
         <field name="AssetPack_UI_Name" type="Pointer" template="ZString" />
         <field name="AssetPack_UI_Description" type="Pointer" template="ZString" />
         <field name="AssetPack_AssetPackage" type="Pointer" template="ZString" />
-        <field name="AssetPackList_Flags1" type="uint64" />  # Most likely DLC Flags
+        <field name="AssetPackList_Flags1" type="uint64">Most likely DLC Flags</field>
         <field name="AssetPackList_Flags2" type="uint64" />
     </struct>
 

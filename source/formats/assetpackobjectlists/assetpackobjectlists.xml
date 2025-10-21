@@ -13,7 +13,7 @@
         <field name="AssetPackObjectList_Name" type="Pointer" template="ZString" />
         <field name="SceneryObjectResource_Items"   type="ArrayPointer" template="SceneryObjectResource_ref" arg="SceneryObjectResource_Count"/>
         <field name="SceneryObjectResource_Count" type="uint64" />
-        <field name="Unit_Items"   type="ArrayPointer" template="Unit_ref" arg="Unit_Count"/> # is this .miniaturedata ?
+        <field name="Unit_Items"   type="ArrayPointer" template="Unit_ref" arg="Unit_Count"/> <!-- is this .miniaturedata ? -->
         <field name="Unit_Count" type="uint64" />
     </struct>
 

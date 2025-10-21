@@ -22,7 +22,7 @@
         <field name="argIndex" type="ubyte" >one-based index</field>
         <field name="u1" type="ubyte" default="0" optional="True" />
         <field name="u2" type="uint" default="0" optional="True" />
-        <field name="arg_name" type="Pointer" template="ZString"/>?
+        <field name="arg_name" type="Pointer" template="ZString"/> <!-- ? -->
         <field name="u4" type="uint64" default="0" optional="True" />
     </struct>
 

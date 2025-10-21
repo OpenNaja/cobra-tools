@@ -9,7 +9,7 @@
         <field name="faction_tags"  type="Pointer" template="ZStringList" arg="faction_tags_count"/>
         <field name="faction_tags_count" type="uint64" />
         <!-- building, buildingblocks, gameplay structue, nature... -->
-        <field name="resource_types_tags"  type="Pointer" template="ZStringList" arg="resource_types_tags_count"/> # main biome
+        <field name="resource_types_tags"  type="Pointer" template="ZStringList" arg="resource_types_tags_count">main biome</field>
         <field name="resource_types_tags_count" type="uint64" />
         <field name="asset_pack_tags"  type="Pointer" template="ZStringList" arg="asset_pack_tags_count"/>
         <field name="asset_pack_tags_count" type="uint64" />

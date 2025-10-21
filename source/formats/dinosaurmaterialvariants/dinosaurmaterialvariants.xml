@@ -15,8 +15,8 @@
     </struct>
 
     <struct name="DinoVariantsHeader" inherit="CommonHeader" >
-        <field name="has_sets" type="uint64"/>seen either 0 or 1, could possibly be more, would need refactor in that case
-		# 0 for rex 93 - has no materialpatterns, so that's probably why it's different
+        <field name="has_sets" type="uint64"/> <!-- seen either 0 or 1, could possibly be more, would need refactor in that case -->
+		<!-- # 0 for rex 93 - has no materialpatterns, so that's probably why it's different -->
         <field name="set_name" type="Pointer" template="ZString"/>
         <field name="variants" type="ArrayPointer" template="Variant" arg="variant_count"/>
         <field name="variant_count" type="uint64"/>

@@ -27,8 +27,6 @@ class Model(BaseStruct):
 
 		# ?
 		self.pre_bones = name_type_map['DLAPreBones'](self.context, 0, None)
-
-		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array(self.context, 0, None, (0,), name_type_map['FloatsY'])
 		if set_default:
 			self.set_defaults()

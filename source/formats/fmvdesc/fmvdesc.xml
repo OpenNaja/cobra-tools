@@ -8,9 +8,9 @@
         <field name="asset_path" type="Pointer" template="ZString" />
         <field name="_zero01"    type="uint64" />
         <field name="_zero02"    type="uint64" />
-        # found 65 all the time
+        <!-- found 65 all the time -->
         <field name="unk_65"    type="uint" />
-        # found 1.0 in speed all the time, so just a guess
+        <!-- found 1.0 in speed all the time, so just a guess -->
         <field name="speed"      type="float" />
         <field name="_zero03"    type="uint64" />
         <field name="_zero04"    type="uint64" />

@@ -11,6 +11,8 @@ class NextRow1(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.unk = name_type_map['Uint64'](self.context, 0, None)
 		self.maybe_hash = name_type_map['Uint'](self.context, 0, None)
+
+		# seems to count emitters / particle systems, influences counts for most effects
 		self.count = name_type_map['Ushort'](self.context, 0, None)
 		self.count_repeat = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:

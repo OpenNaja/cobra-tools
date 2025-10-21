@@ -14,6 +14,8 @@ class Locomotion2ActivityData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.animation_count = name_type_map['Uint64'](self.context, 0, None)
+
+		# Locomotion2Flags
 		self.flags = name_type_map['Uint'](self.context, 0, None)
 		self.stopping_distance = name_type_map['Float'].from_value(0.0)
 		self.strafe_turn_blend = name_type_map['Float'].from_value(0.2)

@@ -7,12 +7,12 @@
     <struct name="MergedetailsRoot" inherit="MemStruct">
         48 bytes
         <field name="merge_names" type="Pointer" template="ZStringList" arg="count_0"/>
-        <field name="unk_names" type="Pointer" template="ZStringList" arg="count_1"/> used in PC2 trackedridesmergerules
+        <field name="unk_names" type="Pointer" template="ZStringList" arg="count_1"/> <!-- used in PC2 trackedridesmergerules -->
         <field name="zero1" type="uint64" />
         <field name="queries" type="Pointer" template="ZStringList" arg="count_3"/>
         <field name="field_name" type="Pointer" template="ZString"/>
-        there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell
-        which one of the pointer in the struct is affected by it.
+        <!-- there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell -->
+        <!-- which one of the pointer in the struct is affected by it. -->
         <field name="count_0" type="ushort" />
         <field name="count_1" type="ushort" />
         <field name="count_2" type="ushort" />

@@ -5,9 +5,9 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <struct name="MotiongraphHeader" inherit="MemStruct">
-        # if self.ovl.context.version > 47:
-        <field name="root_frag" type="Pointer" template="MotiongraphRootFrag"/>not (always?) used in PC2
-        points to all data of size 40 used in MRF_Reference1 if lua is MotionGraph.StateOutput
+        <!-- # if self.ovl.context.version > 47: -->
+        <field name="root_frag" type="Pointer" template="MotiongraphRootFrag"/> <!-- not (always?) used in PC2 -->
+        <!-- points to all data of size 40 used in MRF_Reference1 if lua is MotionGraph.StateOutput -->
         <field name="state output entries" type="Pointer" template="StateArray"/>
         <field name="MGTwo" type="Pointer" template="MGTwo"/>
         <field name="MRFMember1" type="Pointer" template="MRFMember1"/>
@@ -63,8 +63,8 @@
         48 bytes
         <field name="data_type" type="Pointer" template="ZString"/>
         <field name="data" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</field>
-        <field name="num_sub_activities" type="uint" default="0" optional="True"/>rarely used
-        <field name="num_other_activities" type="uint" default="0" optional="True"/>only seen in sub-activities
+        <field name="num_sub_activities" type="uint" default="0" optional="True">rarely used</field>
+        <field name="num_other_activities" type="uint" default="0" optional="True">only seen in sub-activities</field>
         <field name="sub_activities" type="ArrayPointer" template="ActivityReference" arg="num_sub_activities"/>
         <field name="index_a" type="int" default="-1" optional="True" cond="!num_other_activities"/>
         <field name="index_b" type="int" default="-1" optional="True" cond="!num_other_activities"/>
@@ -89,16 +89,16 @@
         <field name="LuaMethod" type="Pointer" template="ZString"/>
 
         <field name="count_0" type="uint64"/>
-        <field name="ptr_0" type="Pointer" />?
+        <field name="ptr_0" type="Pointer" /> <!-- ? -->
 
-        variable size, maybe related to counts
-        apparently, differing data - may be related to LuaMethod or one of the counts as dtype instead
+        <!-- variable size, maybe related to counts -->
+        <!-- apparently, differing data - may be related to LuaMethod or one of the counts as dtype instead -->
         <field name="MotiongraphVars" type="Pointer" template="MotiongraphVars" arg="dtype"/>
 
-        16 bytes for arg = 7
-        40 bytes for arg = 8
-        7 = state or scope
-        8 = output
+        <!-- 16 bytes for arg = 7 -->
+        <!-- 40 bytes for arg = 8 -->
+        <!-- 7 = state or scope -->
+        <!-- 8 = output -->
         <field name="dtype" type="uint64"/>
 
         <field name="num_children" type="uint64"/>
@@ -157,7 +157,7 @@
     <struct name="TransStruct" inherit="MemStruct">
         24 bytes
         <field name="another MRF_Reference2" type="Pointer" />
-        links to other states
+        <!-- links to other states -->
         <field name="states" type="StateArray" />
     </struct>
 
@@ -182,7 +182,7 @@
         <field name="num_activities" type="uint"/>
         <field name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <field name="array 2 count" type="uint64"/>
-        this one links to other states, infinite recursion danger
+        <!-- this one links to other states, infinite recursion danger -->
         <field name="array 2" type="ArrayPointer" template="TransStruct" arg="array 2 count"/>
         <field name="id" type="Pointer" template="ZString"/>
     </struct>
@@ -206,7 +206,7 @@
         16 bytes
         <field name="float" type="float"/>
         <field name="OptionalVarAndCurve count" type="uint" />
-        # todo - check presence and layout
+        <!-- todo - check presence and layout -->
         <field name="OptionalVarAndCurve" type="uint64" />
     </struct>
 
@@ -226,7 +226,7 @@
         <field name="SubCurveType" type="SubCurveType"/>
         <field name="SubsequentCurveParam" type="short"/>
         <field name="SubsequentCurveParamB" type="short"/>
-<!--        <field name="Comment" type="Pointer" template="ZString"/>-->
+        <!--<field name="Comment" type="Pointer" template="ZString"/>-->
     </struct>
 
     <struct name="CurveData" inherit="MemStruct">
@@ -243,7 +243,7 @@
         <field name="BoneID" type="Pointer" template="ZString"/>
         <field name="Location" type="Pointer" template="ZString"/>
         <field name="Curve" type="CurveData" />
-<!--        <field name="Comment" type="Pointer" template="ZString"/>-->
+        <!--<field name="Comment" type="Pointer" template="ZString"/>-->
     </struct>
 
     <struct name="DataStreamResourceDataList" inherit="MemStruct">
@@ -409,7 +409,7 @@
         <field name="flag" type="RagdollPhysicsActivityFlags" />
         <field name="_flag_pad" type="uint" />
         <field name="RootBoneName" type="Pointer" template="ZString"/>
-        <field name="CollisionExcludeMask" type="uint64" />8 bit mask + padding
+        <field name="CollisionExcludeMask" type="uint64" /> <!-- 8 bit mask + padding -->
         <field name="CollisionExclude0" type="Pointer" template="ZString"/>
         <field name="CollisionExclude1" type="Pointer" template="ZString"/>
         <field name="CollisionExclude2" type="Pointer" template="ZString"/>
@@ -423,7 +423,7 @@
         <field name="MotorWeightVariable" type="Pointer" template="ZString"/>
         <field name="PoseMatchLinThreshold" type="float"/>
         <field name="PoseMatchAngThreshold" type="float"/>
-        <field name="BoneChainPriority" type="uint64" />32 bit + padding
+        <field name="BoneChainPriority" type="uint64" /> <!-- 32 bit + padding -->
         <field name="DataStreamName" type="Pointer" template="ZString"/>
         <field name="DataStreamType" type="Pointer" template="ZString"/>
     </struct>
@@ -445,7 +445,7 @@
         ? bytes
         <field name="animation_count" type="uint64"/>
         <field name="animations" type="ArrayPointer" template="Locomotion2AnimationInfo" arg="animation_count"/>
-        <field name="flags" type="uint" />Locomotion2Flags
+        <field name="flags" type="uint">Locomotion2Flags</field>
         <field name="StoppingDistance" type="float" default="0.0"/>
         <field name="StrafeTurnBlend" type="float" default="0.2"/>
         <field name="TurnBlendLimit" type="float" default="1.0"/>
@@ -480,15 +480,15 @@
         <field name="animations" type="ArrayPointer" template="VariableBlendedAnimationData" arg="animation_count"/>
         <field name="animation_count" type="uint64"/>
         <field name="Variable" type="Pointer" template="ZString"/>
-        <field name="VariableBlendedAnimationFlags" type="uint"/>Flags
+        <field name="VariableBlendedAnimationFlags" type="uint"/> <!-- Flags -->
     </struct>
 
     <struct name="Locomotion2AnimationInfo" inherit="MemStruct">
         16 bytes
         <field name="anim_name" type="Pointer" template="ZString"/>
         <field name="PhaseEntryWindow" type="float" default="1.5"/>
-        <field name="Priority" type="ushort" />Priorities
-        <field name="AnimType" type="ubyte" />Locomotion2AnimType
+        <field name="Priority" type="ushort">Priorities</field>
+        <field name="AnimType" type="ubyte">Locomotion2AnimType</field>
         <field name="_pad" type="ubyte" />
     </struct>
 
@@ -532,7 +532,7 @@
 
     <struct name="TriggeredActivityActivityData" inherit="MemStruct">
         <field name="Trigger" type="Pointer" template="ZString"/>
-        <field name="activity" type="Pointer" template="Activity" />doesn't show up in xml somehow
+        <field name="activity" type="Pointer" template="Activity" />  <!-- doesn't show up in xml somehow -->
         <field name="BlendInTime" type="float"/>
         <field name="BlendOutTime" type="float"/>
         <field name="m_autoStart" type="ubyte" default="0"/>
@@ -560,7 +560,7 @@
     <struct name="SelectActivityActivityData" inherit="MemStruct">
         32 bytes
         <field name="EnumVariable" type="Pointer" template="ZString"/>
-        # points to activities in the main activities array
+        <!-- points to activities in the main activities array -->
         <field name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <field name="num_activities" type="uint"/>
         <field name="BlendTime" type="float"/>
@@ -569,7 +569,7 @@
 
     <struct name="GroupedActivityActivityData" inherit="MemStruct">
         ? bytes
-        # points to activities in the main activities array
+        <!-- points to activities in the main activities array -->
         <field name="Activities" type="ArrayPointer" template="ActivityReference" arg="num_activities"/>
         <field name="num_activities" type="uint64"/>
     </struct>
@@ -602,7 +602,7 @@
 
     <struct name="Something" inherit="MemStruct">
         16 bytes
-        <field name="ptr" type="Pointer" />usually empty
+        <field name="ptr" type="Pointer" /> <!-- usually empty -->
         <field name="unk" type="uint64"/>
     </struct>
 

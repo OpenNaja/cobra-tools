@@ -4,10 +4,6 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
 class MotiongraphHeader(MemStruct):
 
-	"""
-	# if self.ovl.context.version > 47:
-	"""
-
 	__name__ = 'MotiongraphHeader'
 
 

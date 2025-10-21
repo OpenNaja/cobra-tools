@@ -15,7 +15,11 @@ class TrackElementRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.track_data_count = name_type_map['Uint64'](self.context, 0, None)
 		self.track_data = name_type_map['ArrayPointer'](self.context, self.track_data_count, name_type_map['TrackElementData'])
+
+		# Used as visual prefab
 		self.visual_prefab_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# Used as support prefab
 		self.support_prefab_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

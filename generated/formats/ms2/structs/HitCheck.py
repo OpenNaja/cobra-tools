@@ -20,6 +20,8 @@ class HitCheck(BaseStruct):
 		self.surface_name_2 = name_type_map['PcSurface'](self.context, 0, None)
 		self.classification_name = name_type_map['Jwe1Collision'](self.context, 0, None)
 		self.surface_name = name_type_map['Jwe1Surface'](self.context, 0, None)
+
+		# from physicsskeleton.specdef
 		self.classification_name = name_type_map['OffsetString'](self.context, self.context.joint_names, None)
 		self.surface_name = name_type_map['OffsetString'](self.context, self.context.joint_names, None)
 

@@ -20,13 +20,21 @@ class TriChunk(BaseStruct):
 
 		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
 		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
+
+		# 0, 1, 2
 		self.material_index = name_type_map['Ushort'](self.context, 0, None)
 		self.tris_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
+
+		# index into tris buffer of this mesh, starts at 0 for mesh
 		self.tris_index = name_type_map['Uint'](self.context, 0, None)
+
+		# minimal vertex value used in tri indices
 		self.value_min = name_type_map['Uint'](self.context, 0, None)
+
+		# bytes into whole tris buffer, as tris use ubyte
 		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
 		self.zero = name_type_map['Uint'].from_value(0)
 
@@ -35,7 +43,11 @@ class TriChunk(BaseStruct):
 
 		# can be 1, 0, 0, 0; w always in range -1, +1
 		self.rot = name_type_map['AxisAngle'](self.context, 0, None)
+
+		# 0, 1, 2 - increments per shell layer
 		self.shell_index = name_type_map['Ushort'](self.context, 0, None)
+
+		# 0 or 3 in theri
 		self.shell_count = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

@@ -37,15 +37,15 @@
     <struct name="Key" inherit="MemStruct">
         JWE2: 16 bytes
         <field name="pos" type="ShortVector3" />
-        <field name="handle_left" type="ByteVector3" />relative to pos
-        <field name="handle_right" type="ByteVector3" />relative to pos
-        <field name="handle_scale" type="float" />multiply this with byte vector to get handles
+        <field name="handle_left" type="ByteVector3" /> <!-- relative to pos -->
+        <field name="handle_right" type="ByteVector3" /> <!-- relative to pos -->
+        <field name="handle_scale" type="float" /> <!-- multiply this with byte vector to get handles -->
     </struct>
 
     <struct name="SplData" inherit="MemStruct">
         JWE2: 16 + n*16 bytes
-        <field name="offset" type="Vector3" />sometimes blank
-        <field name="scale" type="float" />multiply this with short vector to get coord
+        <field name="offset" type="Vector3" /> <!-- sometimes blank -->
+        <field name="scale" type="float" /> <!-- multiply this with short vector to get coord -->
         <field name="keys" type="Key" arr1="#ARG#" />
     </struct>
 

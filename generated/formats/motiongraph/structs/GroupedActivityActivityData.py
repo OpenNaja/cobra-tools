@@ -6,7 +6,6 @@ class GroupedActivityActivityData(MemStruct):
 
 	"""
 	? bytes
-	# points to activities in the main activities array
 	"""
 
 	__name__ = 'GroupedActivityActivityData'

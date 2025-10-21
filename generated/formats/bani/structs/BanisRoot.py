@@ -17,7 +17,11 @@ class BanisRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.count_a = name_type_map['Uint'](self.context, 0, None)
+
+		# loc?
 		self.count_b_0 = name_type_map['Uint'](self.context, 0, None)
+
+		# rot?
 		self.count_b_1 = name_type_map['Uint'](self.context, 0, None)
 		self.keys_size = name_type_map['Uint'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])

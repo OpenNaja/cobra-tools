@@ -27,7 +27,7 @@
 
         <field name="floats" type="float" arr1="5" vercond="#PC#"/>
         <field name="floats" type="float" arr1="4" vercond="#PZ# #AND# !is_PC2"/>
-        <field name="floats" type="float" arr1="5" vercond="is_PC2"/>PC2 still 5
+        <field name="floats" type="float" arr1="5" vercond="is_PC2"/> <!-- PC2 still 5 -->
 
         <field name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
 

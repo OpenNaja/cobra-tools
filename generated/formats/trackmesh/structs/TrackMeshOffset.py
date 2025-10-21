@@ -5,7 +5,6 @@ from generated.formats.trackmesh.imports import name_type_map
 class TrackMeshOffset(MemStruct):
 
 	"""
-	-- Rename this to TrackMesh_Offset
 	PC : 64 bytes
 	PC2: 72 bytes
 	"""
@@ -18,14 +17,24 @@ class TrackMeshOffset(MemStruct):
 		self.relative_offset = name_type_map['Vector3'](self.context, 0, None)
 		self.spacing = name_type_map['Float'](self.context, 0, None)
 		self.one = name_type_map['Uint'](self.context, 0, None)
+
+		# Min pitch to display
 		self.min_pitch = name_type_map['Float'](self.context, 0, None)
+
+		# Min yaw to display
 		self.min_yaw = name_type_map['Float'](self.context, 0, None)
+
+		# Flags (4 = inverted)
 		self.flags = name_type_map['Uint'](self.context, 0, None)
 		self.z_4 = name_type_map['Uint'](self.context, 0, None)
 		self.z_5 = name_type_map['Uint'](self.context, 0, None)
 		self.z_6 = name_type_map['Uint64'](self.context, 0, None)
 		self.offset_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# When used this is a mdl2
 		self.mdl_2_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+
+		# when used this is a bone of the model
 		self.bone_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

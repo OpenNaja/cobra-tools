@@ -42,15 +42,15 @@
         <field name="textures_count" type="uint64" since="17"/>
         <field name="attributes_count" type="uint" until="15"/>
         <field name="attributes_count" type="uint64" since="17"/>
-        followed by 32 bytes for 4 pointers, which are not always all used
+        <!-- followed by 32 bytes for 4 pointers, which are not always all used -->
         <field name="textures" type="ArrayPointer" template="TextureInfo" arg="textures_count"/>
         <field name="attributes" type="ArrayPointer" template="AttribInfo" arg="attributes_count"/>
         <field name="name_foreach_textures" type="ForEachPointer" template="TextureData" arg="textures"/>
         <field name="value_foreach_attributes" type="ForEachPointer" template="AttribData" arg="attributes"/>
-        and finally 16 bytes, apparently unused
+        <!-- and finally 16 bytes, apparently unused -->
         <field name="unk_0" type="uint64" default="0" optional="True"/>
         <field name="unk_1" type="uint64" default="0" optional="True"/>
-        JWE2 has 16 more unused bytes
+        <!-- JWE2 has 16 more unused bytes -->
         <field name="unk_2" type="uint64" default="0" optional="True" vercond="(#JWE2#) #OR# (mime_version #EQ# 7)"/>
         <field name="unk_3" type="uint64" default="0" optional="True" vercond="(#JWE2#) #OR# (mime_version #EQ# 7)"/>
     </struct>
@@ -72,7 +72,7 @@
         <field name="value" type="TexIndex" arr1="1" cond="dtype == 8" />
 		<field name="value" type="ByteColor" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</field>
 		<field name="value" type="ByteColor" arr1="1" cond="dtype == 7" until="17">Stores rgba color</field>
-        used in JWE swatches, purpose unknown; dropped in PC2
+        <!-- used in JWE swatches, purpose unknown; dropped in PC2 -->
         <field name="some_index_0" type="uint" since="18" vercond="mime_version != 7" default="0" optional="True" />
         <field name="some_index_1" type="uint" since="18" vercond="mime_version != 7" default="0" optional="True" />
     </struct>

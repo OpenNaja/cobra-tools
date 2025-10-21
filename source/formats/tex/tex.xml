@@ -187,7 +187,7 @@
 		<field vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="17" until="18" template="TexBufferPc" arg="stream_count"/>
 		<field vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="19" template="TexBuffer" arg="stream_count"/>
 		<field vercond="!is_PC2" name="size_info" type="Pointer" since="19" template="SizeInfo"/>
-		compression types do not index directly into the official DDS enum
+		<!-- compression types do not index directly into the official DDS enum -->
 		<field vercond="!is_PC2" name="compression type" type="DdsType_Coaster" until="18"/>
 		<field vercond="!is_PC2" name="compression type" type="DdsType" since="19"/>
 		<field vercond="!is_PC2" name="one 0" type="ubyte">0 or 1</field>
@@ -199,7 +199,7 @@
 		<field vercond="!is_PC2" name="pad" type="uint" default="0" optional="True">0; 1 for PC</field>
 		<field vercond="!is_PC2" name="pad dla" type="uint64" until="15" default="0" optional="True"/>
 
-		PC2 mime_version = 10 still, but completely different layout
+		<!-- PC2 mime_version = 10 still, but completely different layout -->
 		<field vercond="is_PC2" name="zero 0" type="uint" default="0" optional="True"/>
 		<field vercond="is_PC2" name="compression type" type="DdsType" />
 		<field vercond="is_PC2" name="compression pad" type="ubyte" arr1="3" />
@@ -215,7 +215,7 @@
 
     <struct name="Pc2TexMip" inherit="MemStruct">
 		<field name="offset" type="uint"/>
-		<field name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
+		<field name="size" type="uint"/> <!-- this is for a single array tile, multiply with num_tiles for complete mip -->
 		<field name="num_weaves_x" type="ushort"/>
 		<field name="num_weaves_y" type="ushort"/>
 		<field name="do_weave" type="short"/>
@@ -230,14 +230,14 @@
 		<field name="height" type="uint" >y size in pixels</field>
 		<field name="depth" type="uint" default="1" optional="True" >may be depth</field>
 		<field name="num_tiles" type="uint" default="1" optional="True"/>
-		# not related to shuffling texel block bit widths
-		<field name="flag" type="ubyte" default="0"/>seen at least 0, 32, 96
+		<!-- not related to shuffling texel block bit widths -->
+		<field name="flag" type="ubyte" default="0"/> <!-- seen at least 0, 32, 96 -->
 		<field name="num mips" type="ubyte" />
 		<field name="num mips low" type="ubyte" default="7" />
 		<field name="num mips high" type="ubyte" default="9" />
-		<field name="weave_width" type="uint" default="256"/>can be 256, 512
+		<field name="weave_width" type="uint" default="256"/> <!-- can be 256, 512 -->
 		<field name="weave_height" type="uint" default="256"/>
-		<field name="can_weave" type="uint" default="1"/>seen 0 when weave_width = 0, 1 if otherwise
+		<field name="can_weave" type="uint" default="1"/> <!-- seen 0 when weave_width = 0, 1 if otherwise -->
 		<field name="buffer_size" type="uint64"/>
 		<field name="main" type="Pc2TexMip" arr1="2"/>
 		<field name="mip_maps" type="Pc2TexMip" arr1="14"/>

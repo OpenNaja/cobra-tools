@@ -8,20 +8,26 @@
         PC: 32 bytes
         <field name="track_data" type="ArrayPointer" arg="track_data_count" template="TrackElementData"/>
         <field name="track_data_count" type="uint64" />
-		<field name="visual_prefab_name" type="pointer" template="ZString" /> Used as visual prefab
-		<field name="support_prefab_name" type="pointer" template="ZString" /> Used as support prefab
+		<field name="visual_prefab_name" type="pointer" template="ZString">Used as visual prefab</field>
+		<field name="support_prefab_name" type="pointer" template="ZString">Used as support prefab</field>
     </struct>
 
     <struct name="TrackElementData" inherit="MemStruct">
         PC: was 80, now it is 72
         PZ: 48
         PC2: 88
-        <field name="spline_name" type="Pointer" template="ZString"/> Will require a _l_spline and _r_spline spl files
+        <field name="spline_name" type="Pointer" template="ZString">
+            Will require a _l_spline and _r_spline spl files
+        </field>
         <field name="u1" type="Pointer" template="ZString" since="12" />
         <field name="u2" type="Pointer" template="ZString" since="12" />
-        <field name="trackmesh_element_name" type="Pointer" template="ZString"/> This is a ref to an existing trackmesh element
+        <field name="trackmesh_element_name" type="Pointer" template="ZString">
+            This is a ref to an existing trackmesh element
+        </field>
         <!-- <field name="catwalk" type="Pointer" template="TrackElementSub" until="18"/> -->
-        <field name="trackmeshlist" type="ArrayPointer" arg="trackmeshlist_count" template="TrackMesh_ref" /> Used for TrackMeshIndex params, points to trackmesh elements by name. PZ does not support this param in the fdb.
+        <field name="trackmeshlist" type="ArrayPointer" arg="trackmeshlist_count" template="TrackMesh_ref">
+            Used for TrackMeshIndex params, points to trackmesh elements by name. PZ does not support this param in the fdb.
+        </field>
         <field name="trackmeshlist_count" type="uint" />
         <field name="unk_count" type="uint" />
         <field name="OptionalCatwalk" type="Pointer" template="ZString"/>
@@ -32,7 +38,7 @@
         <field name="unk 5" type="uint"   default="1024"/>
         <field name="unk 6" type="uint"   default="1" />
         <field name="unk 7" type="uint"   default="1" />
-        <field name="offset" type="float" /> Used to offset the track on the Y when there is no spline (e.g. double line segments)
+        <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
         <field name="unk 9" type="uint" default="0" />
 
     </struct>
@@ -41,7 +47,7 @@
         <field name="trackmesh_element_name" type="Pointer" template="ZString" />
     </struct>
 
-    -- This is not used, but I'm leaving it as reminder that before the buffer had an empty string at the end.
+    <!-- This is not used, but I'm leaving it as reminder that before the buffer had an empty string at the end. -->
     <struct name="TrackElementSub" inherit="MemStruct">
         PC: 32
         <field name="CatwalkRight_LSM" type="Pointer" template="ZString"/>

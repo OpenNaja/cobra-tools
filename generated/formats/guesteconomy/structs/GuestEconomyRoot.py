@@ -44,34 +44,92 @@ class GuestEconomyRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# 500000
 		self.target_profit = name_type_map['Uint'](self.context, 0, None)
+
+		# 0.0
 		self.u_00 = name_type_map['Float'](self.context, 0, None)
+
+		# 5000
 		self.target_dinosaur_prestige = name_type_map['Uint'](self.context, 0, None)
+
+		# 0.8500000238418579, maybe
 		self.dinosaur_prestige_power = name_type_map['Float'](self.context, 0, None)
+
+		# 10000
 		self.u_01 = name_type_map['Uint'](self.context, 0, None)
+
+		# 0.0
 		self.u_02 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_03 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_04 = name_type_map['Float'](self.context, 0, None)
+
+		# 750.0
 		self.visitor_arrival_rate = name_type_map['Float'](self.context, 0, None)
+
+		# 1000.0
 		self.visitor_departure_rate = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_05 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_06 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_07 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_08 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_09 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_10 = name_type_map['Float'](self.context, 0, None)
+
+		# 0.0
 		self.u_11 = name_type_map['Float'](self.context, 0, None)
+
+		# 2.0
 		self.ticket_price_visitor_proportion_power = name_type_map['Float'](self.context, 0, None)
+
+		# 1.5
 		self.ticket_price_full_visitor_proportion = name_type_map['Float'](self.context, 0, None)
+
+		# 0.4000000059604645
 		self.ticket_price_minimum_price_fraction = name_type_map['Float'](self.context, 0, None)
+
+		# 1.0
 		self.visitor_deaths_decay_rate = name_type_map['Float'](self.context, 0, None)
+
+		# 8.0
 		self.visitor_deaths_limit = name_type_map['Float'](self.context, 0, None)
+
+		# 4.0
 		self.danger_exposure_safe_decay_rate = name_type_map['Float'](self.context, 0, None)
+
+		# 2.0
 		self.danger_exposure_unnecessary_shelter_punishment = name_type_map['Float'](self.context, 0, None)
+
+		# 2.0
 		self.danger_exposure_storm_exposure_punishment = name_type_map['Float'](self.context, 0, None)
+
+		# 8.0
 		self.danger_exposure_dinosaur_exposure_punishment = name_type_map['Float'](self.context, 0, None)
+
+		# 200.0
 		self.danger_exposure_dinosaur_danger_radius = name_type_map['Float'](self.context, 0, None)
+
+		# 8.0
 		self.danger_exposure_limit = name_type_map['Float'](self.context, 0, None)
+
+		# 0
 		self.transport_rating_disabled = name_type_map['Uint'](self.context, 0, None)
 		self.u_12 = name_type_map['Uint'](self.context, 0, None)
 		self.u_13 = name_type_map['Uint'](self.context, 0, None)

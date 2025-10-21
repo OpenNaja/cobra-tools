@@ -13,7 +13,7 @@
         <field name="hash" type="uint" />
         <field name="zero0" type="uint" />
         <field name="source_path" type="Pointer" template="ZString" since="18"/>
-        usually points to 00 of source_path
+        <!-- usually points to 00 of source_path -->
         <field name="likely_alignment" type="Pointer" template="ZString" since="18" />
         <field name="zero1" type="uint64" />
         <field name="zero2" type="uint64" />

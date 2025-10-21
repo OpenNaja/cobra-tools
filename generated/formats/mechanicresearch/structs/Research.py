@@ -9,8 +9,14 @@ class Research(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+
+		# Set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)
 		self.is_completed = name_type_map['Uint'](self.context, 0, None)
+
+		# First research enabled level (0 if research is complete)
 		self.is_entry_level = name_type_map['Uint'](self.context, 0, None)
+
+		# At least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)
 		self.is_enabled = name_type_map['Uint64'](self.context, 0, None)
 		self.next_research_count = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_3 = name_type_map['Uint64'](self.context, 0, None)
