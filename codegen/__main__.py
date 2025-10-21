@@ -250,6 +250,8 @@ def discovery_pass(formats_dir: str, cfg: 'Config', xsd_schema: 'XMLSchema11', f
 
             all_roots[format_name] = root
             for child in root:
+                if not isinstance(child.tag, str):
+                    continue
                 dummy_parser.apply_conventions(child)
                 # Check for an explicit module dependency
                 if child.tag == "module" and "depends" in child.attrib:

@@ -224,7 +224,7 @@ class XmlParser:
     def read_token(self, token: 'Element') -> None:
         """Reads an xml <token> block and stores it in the tokens list"""
         self.tokens.append(([(sub_token.attrib["token"], sub_token.attrib["string"])
-                            for sub_token in token],
+                            for sub_token in token if isinstance(sub_token.tag, str)],
                             token.attrib["attrs"].split(" ")))
 
     def read_verattr(self, verattr: 'Element') -> None:
