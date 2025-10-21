@@ -76,7 +76,7 @@ def test_tag_dict_population(xml_test1):
 	assert xml_test1.tag_dict.get("exampleflags") == "bitfield"
 	assert xml_test1.tag_dict.get("examplebitstruct") == "bitstruct"
 	assert xml_test1.tag_dict.get("structwithbasictypes") == "struct"
-	assert xml_test1.tag_dict.get("structwithconditionalfields") == "compound"
+	assert xml_test1.tag_dict.get("structwithconditionalfields") == "struct"
 
 
 def test_xinclude_processing(xml_test1):
