@@ -1,7 +1,7 @@
 from generated.formats.compoundbrush.structs.SomeStruct4Sub2 import SomeStruct4Sub2
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class SomeStruct4Sub1(MemStruct):

@@ -10,7 +10,7 @@ from generated.formats.ms2.enums.PcCollision import PcCollision
 from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 from generated.formats.ms2.versions import is_ztuac, is_dla
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
+from generated.formats.ms2.structs.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils.blender_util import bone_name_for_ovl, get_joint_name
 from plugin.utils.transforms import Corrector, CorrectorRagdoll

@@ -16,7 +16,7 @@ from ovl_util.logs import logging_setup
 from generated.io import IoFile
 from generated.formats.manis.versions import get_game, set_game
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
-from generated.formats.manis.compounds.InfoHeader import InfoHeader
+from generated.formats.manis.structs.InfoHeader import InfoHeader
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 
 try:

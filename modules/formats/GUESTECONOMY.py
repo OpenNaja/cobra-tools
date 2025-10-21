@@ -1,4 +1,4 @@
-from generated.formats.guesteconomy.compounds.GuestEconomyRoot import GuestEconomyRoot
+from generated.formats.guesteconomy.structs.GuestEconomyRoot import GuestEconomyRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

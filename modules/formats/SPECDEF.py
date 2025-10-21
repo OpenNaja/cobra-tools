@@ -1,4 +1,4 @@
-from generated.formats.specdef.compounds.SpecdefRoot import SpecdefRoot
+from generated.formats.specdef.structs.SpecdefRoot import SpecdefRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

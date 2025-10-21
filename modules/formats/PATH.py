@@ -1,12 +1,12 @@
-from generated.formats.path.compounds.PathExtrusion import PathExtrusion
-from generated.formats.path.compounds.PathMaterial import PathMaterial
-from generated.formats.path.compounds.PathResource import PathResource
-from generated.formats.path.compounds.PathSupport import PathSupport
-from generated.formats.path.compounds.PathType import PathType
-from generated.formats.path.compounds.SupportSetRoot import SupportSetRoot
-from generated.formats.path.compounds.LatticeSupportSetRoot import LatticeSupportSetRoot
-from generated.formats.path.compounds.WoodenSupportSetRoot import WoodenSupportSetRoot
-from generated.formats.path.compounds.PathJoinPartResourceRoot import PathJoinPartResourceRoot
+from generated.formats.path.structs.PathExtrusion import PathExtrusion
+from generated.formats.path.structs.PathMaterial import PathMaterial
+from generated.formats.path.structs.PathResource import PathResource
+from generated.formats.path.structs.PathSupport import PathSupport
+from generated.formats.path.structs.PathType import PathType
+from generated.formats.path.structs.SupportSetRoot import SupportSetRoot
+from generated.formats.path.structs.LatticeSupportSetRoot import LatticeSupportSetRoot
+from generated.formats.path.structs.WoodenSupportSetRoot import WoodenSupportSetRoot
+from generated.formats.path.structs.PathJoinPartResourceRoot import PathJoinPartResourceRoot
 from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
 
 

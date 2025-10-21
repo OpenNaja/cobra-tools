@@ -1,4 +1,4 @@
-from generated.formats.ppuipkg.compounds.PPUIPKGRoot import PPUIPKGRoot
+from generated.formats.ppuipkg.structs.PPUIPKGRoot import PPUIPKGRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

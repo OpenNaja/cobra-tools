@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 
-from generated.formats.manis.compounds.ManisRoot import ManisRoot
+from generated.formats.manis.structs.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
 from generated.formats.ovl import is_dla
 from modules.formats.BaseFormat import BaseFile, MemStructLoader

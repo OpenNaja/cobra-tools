@@ -1,4 +1,4 @@
-from generated.formats.techtree.compounds.TechTreeRoot import TechTreeRoot
+from generated.formats.techtree.structs.TechTreeRoot import TechTreeRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 class TechTreeLoader(MemStructLoader):

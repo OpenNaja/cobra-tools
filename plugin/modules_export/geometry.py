@@ -4,8 +4,8 @@ import struct
 import mathutils
 import numpy as np
 
-from generated.formats.ms2.compounds.MeshDataWrap import MeshDataWrap
-from generated.formats.ms2.compounds.packing_utils import USHORT_MAX, remap, UINT_MAX
+from generated.formats.ms2.structs.MeshDataWrap import MeshDataWrap
+from generated.formats.ms2.structs.packing_utils import USHORT_MAX, remap, UINT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.object import get_property
 from plugin.modules_export.armature import handle_transforms

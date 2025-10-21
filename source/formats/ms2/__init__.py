@@ -6,15 +6,15 @@ from copy import copy
 
 import numpy as np
 
-from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
+from generated.formats.ms2.structs.packing_utils import PACKEDVEC_MAX
 
 # raise warnings to traceable errors
 # np.seterr(all='raise')
 np.seterr(all='warn')
 np.set_printoptions(precision=3, suppress=True)
 
-from generated.formats.base.compounds.PadAlign import get_padding
-from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
+from generated.formats.base.structs.PadAlign import get_padding
+from generated.formats.ms2.structs.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.io import IoFile
 from modules.formats.shared import djb2

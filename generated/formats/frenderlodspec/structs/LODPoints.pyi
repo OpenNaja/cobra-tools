@@ -1,5 +1,5 @@
 from generated.array import Array
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
 
 class LODPoints(MemStruct):

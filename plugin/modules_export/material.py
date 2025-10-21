@@ -1,7 +1,7 @@
 import logging
 
 from generated.formats.ms2 import is_pz
-from generated.formats.ms2.compounds.MaterialName import MaterialName
+from generated.formats.ms2.structs.MaterialName import MaterialName
 from plugin.utils.blender_util import strip_duplicate_suffix
 from plugin.utils.object import get_property
 from plugin.utils.shell import is_fin_mat, is_shell_mat

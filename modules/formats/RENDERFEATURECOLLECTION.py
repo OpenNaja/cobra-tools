@@ -1,4 +1,4 @@
-from generated.formats.renderfeaturecollection.compounds.RenderFeatureCollectionRoot import RenderFeatureCollectionRoot
+from generated.formats.renderfeaturecollection.structs.RenderFeatureCollectionRoot import RenderFeatureCollectionRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

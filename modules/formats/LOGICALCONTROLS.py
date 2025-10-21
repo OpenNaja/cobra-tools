@@ -1,4 +1,4 @@
-from generated.formats.logicalcontrols.compounds.LogicalControls import LogicalControls
+from generated.formats.logicalcontrols.structs.LogicalControls import LogicalControls
 from modules.formats.BaseFormat import MemStructLoader
 
 

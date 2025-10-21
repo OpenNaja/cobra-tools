@@ -3,7 +3,7 @@ import io
 import logging
 import math
 
-from generated.formats.base.compounds.PadAlign import get_padding_size
+from generated.formats.base.structs.PadAlign import get_padding_size
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.FourCC import FourCC
 from generated.formats.dds.structs.Dxt10Header import Dxt10Header

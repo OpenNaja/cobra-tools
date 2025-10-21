@@ -1,4 +1,4 @@
-from generated.formats.datastreams.compounds.DataStreamsRoot import DataStreamsRoot
+from generated.formats.datastreams.structs.DataStreamsRoot import DataStreamsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

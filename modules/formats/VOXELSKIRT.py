@@ -10,9 +10,9 @@ from generated.formats.base.basic import Ubyte, Float, ZString
 from generated.formats.ovl import is_pc
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_padding
-from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
-from generated.formats.voxelskirt.compounds.VoxelTerrainMaterialLayerSpecRoot import VoxelTerrainMaterialLayerSpecRoot
-from generated.formats.voxelskirt.compounds.VoxelTerrainMaterialAssetPackagesRoot import VoxelTerrainMaterialAssetPackagesRoot
+from generated.formats.voxelskirt.structs.VoxelskirtRoot import VoxelskirtRoot
+from generated.formats.voxelskirt.structs.VoxelTerrainMaterialLayerSpecRoot import VoxelTerrainMaterialLayerSpecRoot
+from generated.formats.voxelskirt.structs.VoxelTerrainMaterialAssetPackagesRoot import VoxelTerrainMaterialAssetPackagesRoot
 
 
 logging.getLogger('PIL').setLevel(logging.WARNING)

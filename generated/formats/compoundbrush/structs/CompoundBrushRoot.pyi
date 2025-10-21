@@ -3,10 +3,10 @@ from generated.formats.compoundbrush.structs.SomeStruct3 import SomeStruct3
 from generated.formats.compoundbrush.structs.SomeStruct4 import SomeStruct4
 from generated.formats.compoundbrush.structs.SomeStruct4Sub2 import SomeStruct4Sub2
 from generated.formats.compoundbrush.structs.SomeStruct8 import SomeStruct8
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.ovl_base.compounds.ZStringList import ZStringList
+from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.Pointer import Pointer
+from generated.formats.ovl_base.structs.ZStringList import ZStringList
 
 
 class CompoundBrushRoot(MemStruct):

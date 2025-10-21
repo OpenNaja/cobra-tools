@@ -2,8 +2,8 @@ import os
 
 from generated.array import Array
 from generated.formats.base.basic import Ushort
-from generated.formats.base.compounds.Vector3 import Vector3
-from generated.formats.lut.compounds.LutHeader import LutHeader
+from generated.formats.base.structs.Vector3 import Vector3
+from generated.formats.lut.structs.LutHeader import LutHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

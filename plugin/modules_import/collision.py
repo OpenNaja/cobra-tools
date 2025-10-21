@@ -5,7 +5,7 @@ import mathutils
 import numpy as np
 
 import plugin.utils.transforms
-from generated.formats.ms2.compounds.packing_utils import unpack_swizzle, unpack_swizzle_collision
+from generated.formats.ms2.structs.packing_utils import unpack_swizzle, unpack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from plugin.utils import blender_util
 from plugin.utils.object import mesh_from_data, create_ob

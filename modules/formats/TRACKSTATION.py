@@ -1,4 +1,4 @@
-from generated.formats.trackstation.compounds.TrackStationRoot import TrackStationRoot
+from generated.formats.trackstation.structs.TrackStationRoot import TrackStationRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

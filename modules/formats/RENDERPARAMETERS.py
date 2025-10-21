@@ -1,4 +1,4 @@
-from generated.formats.renderparameters.compounds.RenderParametersRoot import RenderParametersRoot
+from generated.formats.renderparameters.structs.RenderParametersRoot import RenderParametersRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.vendingmachineinteractionsettings.compounds.VendingMachineInteractionSettingsRoot import VendingMachineInteractionSettingsRoot
+from generated.formats.vendingmachineinteractionsettings.structs.VendingMachineInteractionSettingsRoot import VendingMachineInteractionSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

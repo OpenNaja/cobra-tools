@@ -1,4 +1,4 @@
-from generated.formats.terrainindexeddetaillayers.compounds.TerrainIndexedDetailLayersRoot import TerrainIndexedDetailLayersRoot
+from generated.formats.terrainindexeddetaillayers.structs.TerrainIndexedDetailLayersRoot import TerrainIndexedDetailLayersRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 class TerrainIndexedDetailLayersLoader(MemStructLoader):

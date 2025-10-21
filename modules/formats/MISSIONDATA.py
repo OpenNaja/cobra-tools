@@ -1,4 +1,4 @@
-from generated.formats.missiondata.compounds.MissionDataRoot import MissionDataRoot
+from generated.formats.missiondata.structs.MissionDataRoot import MissionDataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,5 +1,5 @@
 import struct
-from generated.formats.base.compounds.PadAlign import get_padding
+from generated.formats.base.structs.PadAlign import get_padding
 from modules.formats.BaseFormat import BaseFile
 
 UTF8 = "utf-8"

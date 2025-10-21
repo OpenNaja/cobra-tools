@@ -1,4 +1,4 @@
-from generated.formats.accountcustomisation.compounds.AccountCustomisationRoot import AccountCustomisationRoot
+from generated.formats.accountcustomisation.structs.AccountCustomisationRoot import AccountCustomisationRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -3,8 +3,8 @@ import os
 import bpy
 import mathutils
 
-from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
-from generated.formats.spl.compounds.SplRoot import SplRoot
+from generated.formats.ms2.structs.packing_utils import unpack_swizzle
+from generated.formats.spl.structs.SplRoot import SplRoot
 
 
 def unpack(v, s):

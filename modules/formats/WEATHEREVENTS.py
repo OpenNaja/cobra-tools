@@ -1,4 +1,4 @@
-from generated.formats.weatherevents.compounds.WeatherEventsRoot import WeatherEventsRoot
+from generated.formats.weatherevents.structs.WeatherEventsRoot import WeatherEventsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 class WeatherEventssLoader(MemStructLoader):

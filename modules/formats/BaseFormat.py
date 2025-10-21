@@ -9,9 +9,9 @@ from io import BytesIO
 import shutil
 
 from generated.formats.ovl import UNK_HASH, is_jwe2
-from generated.formats.ovl.compounds.BufferEntry import BufferEntry
-from generated.formats.ovl.compounds.MemPool import MemPool
-from generated.formats.ovl.compounds.DataEntry import DataEntry
+from generated.formats.ovl.structs.BufferEntry import BufferEntry
+from generated.formats.ovl.structs.MemPool import MemPool
+from generated.formats.ovl.structs.DataEntry import DataEntry
 from modules.formats.shared import djb2
 from ovl_util.shared import hex_dump
 

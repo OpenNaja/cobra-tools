@@ -1,7 +1,7 @@
 from generated.formats.habitatboundary.structs.HbOffsets import HbOffsets
 from generated.formats.habitatboundary.structs.HbUiOptions import HbUiOptions
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class HabitatBoundaryDataRoot(MemStruct):

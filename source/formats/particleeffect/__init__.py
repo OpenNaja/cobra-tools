@@ -3,7 +3,7 @@ import os
 import logging
 
 from generated.formats.ovl_base import OvlContext
-from generated.formats.particleeffect.compounds.ParticleEffectRoot import ParticleEffectRoot
+from generated.formats.particleeffect.structs.ParticleEffectRoot import ParticleEffectRoot
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -1,4 +1,4 @@
-from generated.formats.island.compounds.IslandRoot import IslandRoot
+from generated.formats.island.structs.IslandRoot import IslandRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

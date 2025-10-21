@@ -1,4 +1,4 @@
-from generated.formats.dlcentitlements.compounds.DLCEntitlementsRoot import DLCEntitlementsRoot
+from generated.formats.dlcentitlements.structs.DLCEntitlementsRoot import DLCEntitlementsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

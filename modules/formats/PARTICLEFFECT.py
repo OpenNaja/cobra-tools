@@ -1,6 +1,6 @@
 from generated.array import Array
-from generated.formats.particleeffect.compounds.Effect import Effect
-from generated.formats.particleeffect.compounds.ParticleEffectRoot import ParticleEffectRoot
+from generated.formats.particleeffect.structs.Effect import Effect
+from generated.formats.particleeffect.structs.ParticleEffectRoot import ParticleEffectRoot
 from modules.formats.BaseFormat import MimeVersionedLoader
 
 

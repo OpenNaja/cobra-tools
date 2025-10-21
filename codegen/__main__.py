@@ -14,7 +14,7 @@ from . import (Config, ExitCode, FormatDependencies, NamespacedTypes, LogMessage
                XmlValidationError, LXML_INSTALLED, XMLSCHEMA_INSTALLED, ET, xmlschema)
 from .XmlParser import XmlParser
 from .codegen_worker import process_single_format
-from .path_utils import to_import_path, pluralize_name
+from .path_utils import to_import_path
 
 
 if TYPE_CHECKING:
@@ -259,16 +259,11 @@ def discovery_pass(formats_dir: str, cfg: 'Config', xsd_schema: 'XMLSchema11', f
                 class_name = child.attrib.get("name")
                 if not class_name:
                     continue
-                
-                if child.tag == "module":
-                    path = os.path.join(base_segments, class_name)
-                elif child.tag == "basic":
-                    # Basics are typically shared, place them under their format's 'basic' folder
-                    path = os.path.join(base_segments, "basic")
-                else:
-                    module_name = child.attrib.get("module")
-                    current_base = namespaced_types[format_name].get(module_name, base_segments)
-                    path = os.path.join(current_base, pluralize_name(child.tag), class_name)
+
+                module_name = child.attrib.get("module")
+                current_base = namespaced_types[format_name].get(module_name, base_segments)
+                # Join the base path with the generated segments
+                path = os.path.join(current_base, *dummy_parser.get_class_path_segments(child))
                 
                 namespaced_types[format_name][class_name] = path
                 

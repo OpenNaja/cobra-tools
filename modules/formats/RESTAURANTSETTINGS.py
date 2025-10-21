@@ -1,4 +1,4 @@
-from generated.formats.restaurantsettings.compounds.RestaurantSettingsRoot import RestaurantSettingsRoot
+from generated.formats.restaurantsettings.structs.RestaurantSettingsRoot import RestaurantSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

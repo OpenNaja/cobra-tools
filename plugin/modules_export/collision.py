@@ -3,8 +3,8 @@ import logging
 import mathutils
 import numpy as np
 
-from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle, pack_swizzle_collision
+from generated.formats.ms2.structs.MeshCollisionData import MeshCollisionData
+from generated.formats.ms2.structs.packing_utils import pack_swizzle, pack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from plugin.utils.blender_util import evaluate_mesh, ensure_tri_modifier, get_joint_name
 

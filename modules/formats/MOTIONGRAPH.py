@@ -1,7 +1,7 @@
 from inspect import isclass
 
-from generated.formats.motiongraph.compounds.DataStreamResourceData import DataStreamResourceData
-from generated.formats.motiongraph.compounds.MotiongraphHeader import MotiongraphHeader
+from generated.formats.motiongraph.structs.DataStreamResourceData import DataStreamResourceData
+from generated.formats.motiongraph.structs.MotiongraphHeader import MotiongraphHeader
 import generated.formats.ovl.versions as ovl_versions
 from modules.formats.BaseFormat import MemStructLoader
 

@@ -1,9 +1,9 @@
 import bpy
 
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle
-from generated.formats.spl.compounds.SplRoot import SplRoot
-from generated.formats.spl.compounds.SplData import SplData
-from generated.formats.spl.compounds.Key import Key
+from generated.formats.ms2.structs.packing_utils import pack_swizzle
+from generated.formats.spl.structs.SplRoot import SplRoot
+from generated.formats.spl.structs.SplData import SplData
+from generated.formats.spl.structs.Key import Key
 
 
 def pack(c_v, b_v, s):

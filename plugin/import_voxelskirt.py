@@ -4,9 +4,9 @@ import os
 import time
 import bpy
 
-from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
+from generated.formats.ms2.structs.packing_utils import unpack_swizzle
 from generated.formats.ovl_base import OvlContext
-from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
+from generated.formats.voxelskirt.structs.VoxelskirtRoot import VoxelskirtRoot
 from plugin.utils.node_util import load_img
 from plugin.utils.object import mesh_from_data, create_ob, create_collection
 

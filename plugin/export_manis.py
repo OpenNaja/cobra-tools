@@ -8,9 +8,9 @@ import numpy as np
 
 from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis import ManisFile, POS, ORI, SCL, FLO, EUL, root_name, srb_name
-from generated.formats.manis.compounds.ManiBlock import ManiBlock
+from generated.formats.manis.structs.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
-from generated.formats.wsm.compounds.WsmHeader import WsmHeader
+from generated.formats.wsm.structs.WsmHeader import WsmHeader
 from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_local_bone, \
 	get_actions, fill_in_rest_data, sample_fcu
 from plugin.utils.anim import c_map

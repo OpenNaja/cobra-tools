@@ -1,4 +1,4 @@
-from generated.formats.cinematic.compounds.CinematicRoot import CinematicRoot
+from generated.formats.cinematic.structs.CinematicRoot import CinematicRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,5 +1,5 @@
 from generated.formats.habitatboundary.structs.HbPhysicsOffsets import HbPhysicsOffsets
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
 
 class HbOffsets(MemStruct):

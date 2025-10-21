@@ -1,4 +1,4 @@
-from generated.formats.campaigndata.compounds.CampaignDataRoot import CampaignDataRoot
+from generated.formats.campaigndata.structs.CampaignDataRoot import CampaignDataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.particleatlas.compounds.ParticleAtlasRoot import ParticleAtlasRoot
+from generated.formats.particleatlas.structs.ParticleAtlasRoot import ParticleAtlasRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 class ParticleAtlasLoader(MemStructLoader):

@@ -3,8 +3,8 @@ import os
 import struct
 
 from generated.formats.bani import BanisInfoHeader
-from generated.formats.bani.compounds.BanisRoot import BanisRoot
-from generated.formats.bani.compounds.BaniRoot import BaniRoot
+from generated.formats.bani.structs.BanisRoot import BanisRoot
+from generated.formats.bani.structs.BaniRoot import BaniRoot
 from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
 from modules.helpers import as_bytes
 

@@ -1,4 +1,4 @@
-from generated.formats.curve.compounds.CurveRoot import CurveRoot
+from generated.formats.curve.structs.CurveRoot import CurveRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

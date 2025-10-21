@@ -1,4 +1,4 @@
-from generated.formats.guestonrideanimsettings.compounds.GuestOnRideAnimSettingsRoot import GuestOnRideAnimSettingsRoot
+from generated.formats.guestonrideanimsettings.structs.GuestOnRideAnimSettingsRoot import GuestOnRideAnimSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

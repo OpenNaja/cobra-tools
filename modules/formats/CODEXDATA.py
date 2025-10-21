@@ -1,4 +1,4 @@
-from generated.formats.codexdata.compounds.CodexDataRoot import CodexDataRoot
+from generated.formats.codexdata.structs.CodexDataRoot import CodexDataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

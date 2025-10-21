@@ -1,4 +1,4 @@
-from generated.formats.buildingbiomelayer.compounds.BuildingBiomeLayerRoot import BuildingBiomeLayerRoot
+from generated.formats.buildingbiomelayer.structs.BuildingBiomeLayerRoot import BuildingBiomeLayerRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

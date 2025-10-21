@@ -1,4 +1,4 @@
-from generated.formats.casinolod.compounds.CasinoLodRoot import CasinoLodRoot
+from generated.formats.casinolod.structs.CasinoLodRoot import CasinoLodRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

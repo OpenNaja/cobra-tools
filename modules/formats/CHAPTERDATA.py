@@ -1,4 +1,4 @@
-from generated.formats.chapterdata.compounds.ChapterDataRoot import ChapterDataRoot
+from generated.formats.chapterdata.structs.ChapterDataRoot import ChapterDataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

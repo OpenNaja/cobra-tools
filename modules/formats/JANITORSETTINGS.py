@@ -1,4 +1,4 @@
-from generated.formats.janitorsettings.compounds.JanitorSettingsRoot import JanitorSettingsRoot
+from generated.formats.janitorsettings.structs.JanitorSettingsRoot import JanitorSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

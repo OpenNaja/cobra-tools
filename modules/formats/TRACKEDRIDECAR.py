@@ -1,4 +1,4 @@
-from generated.formats.trackedridecar.compounds.TrackedRideCarRoot import TrackedRideCarRoot
+from generated.formats.trackedridecar.structs.TrackedRideCarRoot import TrackedRideCarRoot
 from modules.formats.BaseFormat import MimeVersionedLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.wmeta.compounds.WmetasbRoot import WmetasbRoot
+from generated.formats.wmeta.structs.WmetasbRoot import WmetasbRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -3,7 +3,7 @@ import logging
 import bpy
 import numpy as np
 
-from generated.formats.ms2.compounds.packing_utils import has_nan
+from generated.formats.ms2.structs.packing_utils import has_nan
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.blender_util import set_auto_smooth_safe
 from plugin.utils.shell import num_fur_as_weights

@@ -1,4 +1,4 @@
-from generated.formats.trackmesh.compounds.TrackMeshRoot import TrackMeshRoot
+from generated.formats.trackmesh.structs.TrackMeshRoot import TrackMeshRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

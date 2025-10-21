@@ -1,4 +1,4 @@
-from generated.formats.achievements.compounds.AchievementsRoot import AchievementsRoot
+from generated.formats.achievements.structs.AchievementsRoot import AchievementsRoot
 from modules.formats.BaseFormat import MimeVersionedLoader
 
 

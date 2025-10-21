@@ -1,4 +1,4 @@
-from generated.formats.assetpkg.compounds.AssetpkgRoot import AssetpkgRoot
+from generated.formats.assetpkg.structs.AssetpkgRoot import AssetpkgRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

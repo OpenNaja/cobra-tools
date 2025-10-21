@@ -13,10 +13,10 @@ from io import BytesIO
 import numpy as np
 
 from constants import ConstantsProvider
-from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compounds.BufferGroup import BufferGroup
-from generated.formats.ovl.compounds.Header import Header
-from generated.formats.ovl.compounds.OvsHeader import OvsHeader
+from generated.formats.ovl.structs.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.structs.BufferGroup import BufferGroup
+from generated.formats.ovl.structs.Header import Header
+from generated.formats.ovl.structs.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict

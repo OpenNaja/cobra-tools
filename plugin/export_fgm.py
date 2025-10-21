@@ -9,18 +9,18 @@ import os
 from plugin.utils import texture_settings
 from constants import ConstantsProvider
 from generated.array import Array
-from generated.formats.fgm.compounds.AttribData import AttribData
-from generated.formats.fgm.compounds.AttribInfo import AttribInfo
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.fgm.compounds.TexIndex import TexIndex
-from generated.formats.fgm.compounds.TextureData import TextureData
-from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+from generated.formats.fgm.structs.AttribData import AttribData
+from generated.formats.fgm.structs.AttribInfo import AttribInfo
+from generated.formats.fgm.structs.FgmHeader import FgmHeader
+from generated.formats.fgm.structs.TexIndex import TexIndex
+from generated.formats.fgm.structs.TextureData import TextureData
+from generated.formats.fgm.structs.TextureInfo import TextureInfo
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ms2 import Ms2Version, get_game, Ms2Context
 from generated.formats.ovl import set_game, games
 from generated.formats.ovl_base import OvlContext
-from generated.formats.tex.compounds.SizeInfo import SizeInfo
-from generated.formats.tex.compounds.TexHeader import TexHeader
+from generated.formats.tex.structs.SizeInfo import SizeInfo
+from generated.formats.tex.structs.TexHeader import TexHeader
 from plugin.utils.texture_settings import tex_slots
 
 

@@ -9,7 +9,7 @@ import numpy as np
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import is_ztuac, is_dla
-from generated.formats.wsm.compounds.WsmHeader import WsmHeader
+from generated.formats.wsm.structs.WsmHeader import WsmHeader
 from plugin.modules_export.animation import get_local_bone
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation

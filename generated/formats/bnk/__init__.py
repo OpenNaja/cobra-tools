@@ -1,6 +1,6 @@
 from generated.formats.bnk.imports import name_type_map
-from generated.formats.bnk.compounds.AuxFileContainer import AuxFileContainer
-from generated.formats.bnk.compounds.BnkFileContainer import BnkFileContainer
+from generated.formats.bnk.structs.AuxFileContainer import AuxFileContainer
+from generated.formats.bnk.structs.BnkFileContainer import BnkFileContainer
 from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 

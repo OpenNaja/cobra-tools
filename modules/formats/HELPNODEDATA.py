@@ -1,4 +1,4 @@
-from generated.formats.helpnodedata.compounds.HelpNodeDataHeader import HelpNodeDataHeader
+from generated.formats.helpnodedata.structs.HelpNodeDataHeader import HelpNodeDataHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

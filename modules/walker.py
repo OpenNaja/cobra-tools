@@ -10,8 +10,8 @@ from modules.formats.shared import walk_type, fnv1_32
 from ovl_util.logs import ANSI
 from constants.converter import write_mimes_dict, write_hashes_dict, write_audio_dict
 from generated.array import Array
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.manis.compounds.ManiInfo import ManiInfo
+from generated.formats.fgm.structs.FgmHeader import FgmHeader
+from generated.formats.manis.structs.ManiInfo import ManiInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
 
 from generated.formats.ms2 import Ms2File, is_pc

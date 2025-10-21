@@ -9,8 +9,8 @@ from gui.widgets.event_filters import MouseWheelGuard
 
 if TYPE_CHECKING:
 	from gui.widgets.file_input import FileWidget
-	from generated.formats.ovl_base.compounds import ByteColor
-	from generated.formats.matcol.compounds import FloatAttrib
+	from generated.formats.ovl_base.structs.ByteColor import ByteColor
+	from generated.formats.matcol.structs.FloatAttrib import FloatAttrib
 
 from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg  # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QMimeData, QUrl,

@@ -1,4 +1,4 @@
-from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
+from generated.formats.matcol.structs.MatcolRoot import MatcolRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

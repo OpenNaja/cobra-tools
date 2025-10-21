@@ -6,7 +6,7 @@ import bpy
 import numpy as np
 
 from constants import ConstantsProvider
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.structs.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl import get_game
 from modules.formats.FGM import FgmContext

@@ -1,6 +1,6 @@
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.compounds.FixedString import FixedString
+from generated.formats.base.structs.FixedString import FixedString
 from generated.formats.dds.bitstructs.Caps1 import Caps1
 from generated.formats.dds.bitstructs.Caps2 import Caps2
 from generated.formats.dds.bitstructs.HeaderFlags import HeaderFlags

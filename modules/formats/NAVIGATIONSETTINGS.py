@@ -1,4 +1,4 @@
-from generated.formats.navigationsettings.compounds.NavigationSettingsRoot import NavigationSettingsRoot
+from generated.formats.navigationsettings.structs.NavigationSettingsRoot import NavigationSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

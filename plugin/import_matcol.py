@@ -8,9 +8,9 @@ from plugin.modules_import.material import get_group_node
 from plugin.utils.node_arrange import nodes_iterate, get_input_nodes
 from plugin.utils.node_util import load_tex_node, get_tree
 
-from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
-from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.dinosaurmaterialvariants.structs.DinoLayersHeader import DinoLayersHeader
+from generated.formats.matcol.structs.MatcolRoot import MatcolRoot
+from generated.formats.fgm.structs.FgmHeader import FgmHeader
 
 
 channels = ("R", "G", "B", "A")

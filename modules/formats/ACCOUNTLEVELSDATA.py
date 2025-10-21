@@ -1,4 +1,4 @@
-from generated.formats.accountlevelsdata.compounds.AccountLevelsDataRoot import AccountLevelsDataRoot
+from generated.formats.accountlevelsdata.structs.AccountLevelsDataRoot import AccountLevelsDataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

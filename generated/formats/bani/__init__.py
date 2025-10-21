@@ -1,5 +1,5 @@
 from generated.formats.bani.imports import name_type_map
-from generated.formats.bani.compounds.BanisInfoHeader import BanisInfoHeader
+from generated.formats.bani.structs.BanisInfoHeader import BanisInfoHeader
 from generated.io import IoFile
 import os
 

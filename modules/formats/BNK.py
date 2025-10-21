@@ -4,7 +4,7 @@ import shutil
 from io import BytesIO
 
 from generated.formats.bnk import BnkFile
-from generated.formats.bnk.compounds.BnkBufferData import BnkBufferData
+from generated.formats.bnk.structs.BnkBufferData import BnkBufferData
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 

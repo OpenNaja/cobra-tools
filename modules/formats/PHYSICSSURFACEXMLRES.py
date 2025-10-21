@@ -1,4 +1,4 @@
-from generated.formats.physicssurfacesxmlres.compounds.PhysicsSurfaceXMLResRoot import PhysicsSurfaceXMLResRoot
+from generated.formats.physicssurfacesxmlres.structs.PhysicsSurfaceXMLResRoot import PhysicsSurfaceXMLResRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

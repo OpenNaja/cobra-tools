@@ -1,4 +1,4 @@
-from generated.formats.trackelement.compounds.TrackElementRoot import TrackElementRoot
+from generated.formats.trackelement.structs.TrackElementRoot import TrackElementRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

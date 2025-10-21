@@ -4,7 +4,7 @@ import os
 from ovl_util.logs import logging_setup
 from generated.formats.manis import ManisFile
 from generated.formats.ms2 import Ms2File
-from generated.formats.wsm.compounds.WsmHeader import WsmHeader
+from generated.formats.wsm.structs.WsmHeader import WsmHeader
 
 
 def resize(folder, fac=1.0):

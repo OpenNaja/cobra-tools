@@ -4,13 +4,13 @@ import struct
 import logging
 
 from generated.formats.ms2 import Ms2File, Ms2Context
-from generated.formats.ms2.compounds.Buffer0 import Buffer0
-from generated.formats.ms2.compounds.ModelstreamHeader import ModelstreamHeader
-from generated.formats.ms2.compounds.Ms2Root import Ms2Root
+from generated.formats.ms2.structs.Buffer0 import Buffer0
+from generated.formats.ms2.structs.ModelstreamHeader import ModelstreamHeader
+from generated.formats.ms2.structs.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
 
-from generated.formats.base.compounds.PadAlign import get_padding
+from generated.formats.base.structs.PadAlign import get_padding
 from modules.formats.BaseFormat import BaseFile, MemStructLoader, MimeVersionedLoader
 from modules.helpers import as_bytes
 

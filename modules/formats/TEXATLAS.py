@@ -1,4 +1,4 @@
-from generated.formats.texatlas.compounds.TexAtlasRoot import TexAtlasRoot
+from generated.formats.texatlas.structs.TexAtlasRoot import TexAtlasRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 class TexAtlasRootLoader(MemStructLoader):

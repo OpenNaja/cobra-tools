@@ -1,5 +1,5 @@
-from generated.formats.animalresearch.compounds.ResearchRoot import ResearchRoot
-from generated.formats.animalresearch.compounds.ResearchStartRoot import ResearchStartRoot
+from generated.formats.animalresearch.structs.ResearchRoot import ResearchRoot
+from generated.formats.animalresearch.structs.ResearchStartRoot import ResearchStartRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

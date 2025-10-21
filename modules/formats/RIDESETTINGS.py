@@ -1,4 +1,4 @@
-from generated.formats.ridesettings.compounds.RideSettingsRoot import RideSettingsRoot
+from generated.formats.ridesettings.structs.RideSettingsRoot import RideSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.mergedetails.compounds.MergedetailsRoot import MergedetailsRoot
+from generated.formats.mergedetails.structs.MergedetailsRoot import MergedetailsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.posedriverdef.compounds.PoseDriverDefRoot import PoseDriverDefRoot
+from generated.formats.posedriverdef.structs.PoseDriverDefRoot import PoseDriverDefRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

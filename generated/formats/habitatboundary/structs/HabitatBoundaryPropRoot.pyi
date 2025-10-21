@@ -1,8 +1,8 @@
 from generated.formats.habitatboundary.structs.HbDoorCutout import HbDoorCutout
 from generated.formats.habitatboundary.structs.HbPostPos import HbPostPos
 from generated.formats.habitatboundary.structs.HbPropPhysics import HbPropPhysics
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class HabitatBoundaryPropRoot(MemStruct):

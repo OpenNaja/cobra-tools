@@ -1,4 +1,4 @@
-from generated.formats.decalsettings.compounds.DecalSettingsRoot import DecalSettingsRoot
+from generated.formats.decalsettings.structs.DecalSettingsRoot import DecalSettingsRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,6 +1,6 @@
-from generated.formats.world.compounds.WorldHeader import WorldHeader
-from generated.formats.world.compounds.WorldArtSettingsHeader import WorldArtSettingsHeader
-from generated.formats.world.compounds.WorldSharedSettingsHeader import WorldSharedSettingsHeader 
+from generated.formats.world.structs.WorldHeader import WorldHeader
+from generated.formats.world.structs.WorldArtSettingsHeader import WorldArtSettingsHeader
+from generated.formats.world.structs.WorldSharedSettingsHeader import WorldSharedSettingsHeader 
 from modules.formats.BaseFormat import MemStructLoader
 
 

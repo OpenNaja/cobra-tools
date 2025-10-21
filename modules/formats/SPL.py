@@ -1,4 +1,4 @@
-from generated.formats.spl.compounds.SplRoot import SplRoot
+from generated.formats.spl.structs.SplRoot import SplRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

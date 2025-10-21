@@ -39,7 +39,7 @@ SUCCESS_CASE = CodegenTestCase(
 		"formats/test1/enums/ExampleEnum.py",
 		"formats/test1/structs/StructWithBasicTypes.py",
 		"formats/test1/bitflags/ExampleBitflags.py",  # Test "bitflags" pluralization
-		"formats/test1/compounds/StructWithConditionalFields.py",
+		"formats/test1/structs/StructWithConditionalFields.py",
 		"formats/test1/imports.py",
 		"formats/test1/versions.py",
 	]

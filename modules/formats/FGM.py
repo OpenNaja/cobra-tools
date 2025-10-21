@@ -1,5 +1,5 @@
 from generated.formats.base.basic import ZString
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.structs.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from io import BytesIO
 

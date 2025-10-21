@@ -8,11 +8,11 @@ import shutil
 import bpy
 import mathutils
 
-from generated.formats.ms2.compounds.LodInfo import LodInfo
-from generated.formats.ms2.compounds.Object import Object
-from generated.formats.ms2.compounds.Model import Model
-from generated.formats.ms2.compounds.ModelInfo import ModelInfo
-from generated.formats.ms2.compounds.BoneInfo import BoneInfo
+from generated.formats.ms2.structs.LodInfo import LodInfo
+from generated.formats.ms2.structs.Object import Object
+from generated.formats.ms2.structs.Model import Model
+from generated.formats.ms2.structs.ModelInfo import ModelInfo
+from generated.formats.ms2.structs.BoneInfo import BoneInfo
 from generated.formats.ms2 import Ms2File, set_game
 from plugin.modules_export.armature import export_bones_custom, get_armatures_collections
 from plugin.modules_export.collision import export_bounds

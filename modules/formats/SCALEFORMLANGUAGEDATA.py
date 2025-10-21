@@ -1,4 +1,4 @@
-from generated.formats.scaleformlanguagedata.compounds.ScaleformlanguagedataRoot import ScaleformlanguagedataRoot
+from generated.formats.scaleformlanguagedata.structs.ScaleformlanguagedataRoot import ScaleformlanguagedataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

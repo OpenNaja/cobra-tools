@@ -1,4 +1,4 @@
-from generated.formats.spatialuitheme.compounds.SpatialUIThemeRoot import SpatialUIThemeRoot
+from generated.formats.spatialuitheme.structs.SpatialUIThemeRoot import SpatialUIThemeRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

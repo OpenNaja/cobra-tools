@@ -1,5 +1,5 @@
 from generated.formats.compoundbrush.imports import name_type_map
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
 
 class SomeStruct4Sub1(MemStruct):

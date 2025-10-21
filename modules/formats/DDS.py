@@ -5,10 +5,10 @@ import os
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
-from generated.formats.tex.compounds.Pc2TexBuffer import Pc2TexBuffer
-from generated.formats.tex.compounds.TexHeader import TexHeader
-from generated.formats.tex.compounds.TexelHeader import TexelHeader
-from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
+from generated.formats.tex.structs.Pc2TexBuffer import Pc2TexBuffer
+from generated.formats.tex.structs.TexHeader import TexHeader
+from generated.formats.tex.structs.TexelHeader import TexelHeader
+from generated.formats.tex.structs.TexturestreamHeader import TexturestreamHeader
 from generated.formats.tex.enums.DdsType import DdsType
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.formats.shared import fnv64, encode_int64_base32

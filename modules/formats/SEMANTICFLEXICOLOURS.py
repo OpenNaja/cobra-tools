@@ -1,6 +1,6 @@
-from generated.formats.semanticflexicolours.compounds.SemanticFlexiColourOverridesRoot import \
+from generated.formats.semanticflexicolours.structs.SemanticFlexiColourOverridesRoot import \
     SemanticFlexiColourOverridesRoot
-from generated.formats.semanticflexicolours.compounds.SemanticFlexiColoursRoot import SemanticFlexiColoursRoot
+from generated.formats.semanticflexicolours.structs.SemanticFlexiColoursRoot import SemanticFlexiColoursRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

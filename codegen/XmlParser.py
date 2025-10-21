@@ -108,23 +108,15 @@ class XmlParser:
 
             # only check stuff that has a name - ignore version tags
             if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
+                class_name = child.attrib["name"]
                 base_segments = self.base_segments
-                if child.tag == "module":
-                    # for modules, set the path to base/module_name
-                    class_name = child.attrib["name"]
-                    class_segments = [class_name]
-                elif child.tag == "basic":
-                    class_name = child.attrib["name"]
-                    class_segments = ["basic"]
-                else:
-                    # for classes, set the path to module_path/tag/class_name or
-                    # base/tag/class_name if it's not part of a module
-                    class_name = child.attrib["name"]
-                    if child.attrib.get("module"):
-                        base_segments = self.path_dict[child.attrib["module"]]
-                    class_segments = [pluralize_name(child.tag), class_name, ]
+
+                # Determine the base path (respecting the 'module' attribute)
+                if child.tag not in ("module", "basic") and child.attrib.get("module"):
+                    base_segments = self.path_dict[child.attrib["module"]]
+
                 # store the final relative module path for this class
-                self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
+                self.path_dict[class_name] = os.path.join(base_segments, *self.get_class_path_segments(child))
                 self.tag_dict[class_name.lower()] = child.tag
             
             # Pre-scan to find types used with templates and generic definitions
@@ -408,3 +400,16 @@ class XmlParser:
                 default_string = default_string.capitalize()
                 return default_string
         return None
+
+    def get_class_path_segments(self, child: 'Element') -> list[str]:
+        """
+        Determines the folder and file segments for a class-like XML element.
+        """
+        class_name = child.attrib["name"]
+        if child.tag == "module":
+            return [class_name]
+        if child.tag == "basic":
+            return ["basic"]
+        # Force any struct_type to structs folder
+        folder_name = "structs" if child.tag in self.struct_types else pluralize_name(child.tag)
+        return [folder_name, class_name]

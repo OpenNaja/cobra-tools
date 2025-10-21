@@ -4,7 +4,7 @@ import time
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.config import read_str_dict, read_list
 
-from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
+from generated.formats.matcol.structs.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext
 
 from PyQt5 import QtWidgets

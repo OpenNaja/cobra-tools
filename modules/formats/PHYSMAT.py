@@ -1,4 +1,4 @@
-from generated.formats.physmat.compounds.PhysmatRoot import PhysmatRoot
+from generated.formats.physmat.structs.PhysmatRoot import PhysmatRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,7 +1,7 @@
 from generated.formats.frenderlodspec.structs.LODPoints import LODPoints
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class LODGroup(MemStruct):
