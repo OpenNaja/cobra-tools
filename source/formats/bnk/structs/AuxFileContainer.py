@@ -57,7 +57,7 @@ class AuxFileContainer(BaseStruct):
 				# see where this chunk should have ended
 				desired_end = after_size_pos + instance.chunks[-1][1].length
 				if stream.tell() != desired_end:
-					logging.info(f"Ended up at bad offset, seeking to desired {desired_end}")
+					logging.info(f"Chunk {chunk_id} ended up at bad offset {stream.tell()}, seeking to desired {desired_end}")
 					stream.seek(desired_end)
 			# id the pointers
 			if instance.hirc:

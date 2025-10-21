@@ -6,13 +6,13 @@
 
     <struct name="BKHDSection">
         <field name="length" type="uint" >length of following data</field>
-        <field name="version" type="uint" ></field>
-        <field name="IdA" type="uint" ></field>
-        <field name="IdB" type="uint" ></field>
-        <field name="constantA" type="uint" ></field>
-        <field name="constantB" type="uint" ></field>
-        <field name="unk" type="uint" ></field>
-        <field name="zeroes" type="ubyte" cond="length #GTE# 24" arr1="length - 24">sometimes present</field>
+        <field name="version" type="uint"/>
+        <field name="dwSoundBankID" type="uint"/>
+        <field name="dwLanguageID" type="uint"/>
+        <field name="uAlignment" type="ushort"/>
+        <field name="bDeviceAllocated" type="ushort"/>
+        <field name="dwProjectID" type="uint"/>
+        <field name="padding" type="ubyte" cond="length #GTE# 20" arr1="length - 20">sometimes present</field>
     </struct>
 
     <struct name="DataPointer">
