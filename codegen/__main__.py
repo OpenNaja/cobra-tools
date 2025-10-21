@@ -87,11 +87,11 @@ def apply_autopep8(target_dir: str) -> None:
 def validate_xml_file(xml_path: str, xsd_schema: 'XMLSchema11', doc_tree: 'ElementTree') -> None:
     """Uses xmlschema to validate the XML file against an XSD schema."""
     if not XMLSCHEMA_INSTALLED:
-        logging.warning("xmlschema library is not installed, skipping XSD validation")
+        logging.warning("xmlschema library is not installed, skipping XSD validation", extra={'msg_id': LogMessageID.XMLSCHEMA_NOT_INSTALLED})
         return
 
     if not xsd_schema:
-        logging.warning(f"Schema file not found, skipping validation")
+        logging.warning(f"Schema file not found, skipping validation", extra={'msg_id': LogMessageID.SCHEMA_NOT_FOUND})
         return
         
     try:
@@ -154,35 +154,46 @@ def validate_xml_file(xml_path: str, xsd_schema: 'XMLSchema11', doc_tree: 'Eleme
                 if not xsd_component or not isinstance(xsd_component, xmlschema.XsdElement):
                     continue
 
-                component_to_check = xsd_component.ref if xsd_component.ref else xsd_component
-                if component_to_check and component_to_check.annotation:
-                    doc_texts = [doc.text for doc in component_to_check.annotation.documentation if doc.text and doc.text.strip()]
-                    if doc_texts:
-                        message = ' '.join(doc_texts).strip().replace('\n', ' ').strip()
-                        # Default frequency is 'per-instance'
-                        frequency = 'per-instance'
-                        # Check for our custom appinfo metadata
-                        if component_to_check.annotation.appinfo:
-                            # .appinfo is a list of the <xs:appinfo> elements
-                            for appinfo_element in component_to_check.annotation.appinfo:
-                                # We need to look at the CHILDREN of the <xs:appinfo> element
-                                for info_child in appinfo_element:
-                                    if info_child.tag == 'info':
-                                        # Found our custom <info> tag, now get its attribute
-                                        frequency = info_child.get('frequency', 'per-instance')
-                                        break  # Stop after finding the first <info> tag
-                                else:
-                                    continue # Continue if inner loop didn't break
-                                break # Stop after processing first <xs:appinfo> with an <info> tag
-                        
-                        # Decide whether to print the message
-                        if frequency == 'once-per-file':
-                            if message not in printed_once_per_file_messages:
-                                logging.info(f"  {os.path.basename(xml_path)}: {message}")
-                                printed_once_per_file_messages.add(message)
-                        else: # Default 'per-instance' behavior
-                            line = element.sourceline
-                            logging.info(f"  <{element.tag.split('}')[-1]}> at Line {line}: {message}")
+                definition_component = xsd_component.ref if xsd_component.ref else xsd_component
+                components_to_check = []
+                if definition_component:
+                    # Check the element definition itself
+                    components_to_check.append(definition_component)
+                    # Also check the type the element uses
+                    if (definition_component.type
+                        and hasattr(definition_component.type, 'annotation')
+                        and definition_component.type.annotation is not None):
+                        components_to_check.append(definition_component.type)
+
+                for component in components_to_check:
+                    if component and component.annotation:
+                        doc_texts = [doc.text for doc in component.annotation.documentation if doc.text and doc.text.strip()]
+                        if doc_texts:
+                            message = ' '.join(doc_texts).strip().replace('\n', ' ').strip()
+                            # Default frequency is 'per-instance'
+                            frequency = 'per-instance'
+                            # Check for our custom appinfo metadata
+                            if component.annotation.appinfo:
+                                # .appinfo is a list of the <xs:appinfo> elements
+                                for appinfo_element in component.annotation.appinfo:
+                                    # We need to look at the CHILDREN of the <xs:appinfo> element
+                                    for info_child in appinfo_element:
+                                        if info_child.tag == 'info':
+                                            # Found our custom <info> tag, now get its attribute
+                                            frequency = info_child.get('frequency', 'per-instance')
+                                            break  # Stop after finding the first <info> tag
+                                    else:
+                                        continue # Continue if inner loop didn't break
+                                    break # Stop after processing first <xs:appinfo> with an <info> tag
+                            
+                            # Decide whether to print the message
+                            if frequency == 'once-per-file':
+                                if message not in printed_once_per_file_messages:
+                                    logging.info(f"  {os.path.basename(xml_path)}: {message}")
+                                    printed_once_per_file_messages.add(message)
+                            else: # Default 'per-instance' behavior
+                                line = element.sourceline
+                                logging.info(f"  <{element.tag.split('}')[-1]}> at Line {line}: {message}")
 
         # If the list is empty, validation was successful.
         logging.info(f"Successfully validated {os.path.basename(xml_path)} with xmlschema")
@@ -317,7 +328,9 @@ def generate_classes(cfg: 'Config', formats: list[str] | None = None) -> ExitCod
                 logging.error(f"Failed to load or parse XSD schema: {e}", extra={'msg_id': LogMessageID.SCHEMA_LOAD_FAIL})
                 return ExitCode.INVALID_SCHEMA # Abort if the schema itself is invalid
         else:
-            logging.warning(f"Schema file not found at {schema_path}, skipping validation.", extra={'msg_id': LogMessageID.SCHEMA_NOT_FOUND})
+            logging.warning(f"Schema file not found at {schema_path}, skipping XSD validation.", extra={'msg_id': LogMessageID.SCHEMA_NOT_FOUND})
+    else:
+        logging.warning("xmlschema library is not installed, skipping XSD validation", extra={'msg_id': LogMessageID.XMLSCHEMA_NOT_INSTALLED})
 
     # Run the discovery pass
     (namespaced_types,
