@@ -1,11 +1,9 @@
 import os
 
 
-def to_import_path(folder: str) -> str:
-    # convert a folder path like "cobra_core/generated" to an import path like "cobra_core.generated"
-    # the folder can be a absolute path which should be normalized to a relative path based on CWD
-    cwd = os.getcwd()
-    return os.path.relpath(folder, cwd).replace(os.path.sep, '.')
+def to_import_path(folder: str, _cwd: str = os.getcwd()) -> str:
+    # NOTE: Old relpath broke cross-disk, breaking CI
+    return os.path.basename(folder).replace(os.path.sep, '.')
 
 
 def module_path_to_import_path(module_path: str, folder: str) -> str:
