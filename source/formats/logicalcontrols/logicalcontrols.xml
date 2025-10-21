@@ -4,8 +4,8 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    # .logicalcontrols need to be in Init.ovl for loading on time.
-    arrays also seem to be nullptr terminated
+    <!-- # .logicalcontrols need to be in Init.ovl for loading on time. -->
+    <!-- arrays also seem to be nullptr terminated -->
 
     <struct name="LogicalControls" inherit="MemStruct">
         <field name="buttons" type="ArrayPointer" template="Button" arg="button_count"/>

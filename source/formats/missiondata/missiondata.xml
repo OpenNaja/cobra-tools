@@ -65,7 +65,7 @@
         <field name="MissionLevelDifficulty_list"  type="Pointer" template="MissionLevelDifficulty"/>
     </struct>
 
-    # TODO ASSIGN VALID NAMES
+    <!-- TODO ASSIGN VALID NAMES -->
     <struct name="MissionLevelDifficulty" inherit="MemStruct">
         <field name="MissionLevelDifficulty1" type="Pointer" template="ZString" />
         <field name="MissionLevelDifficulty2" type="Pointer" template="ZString" />

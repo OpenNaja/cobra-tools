@@ -4,6 +4,10 @@ from generated.formats.renderfeaturecollection.imports import name_type_map
 
 class RenderFeatureItem(MemStruct):
 
+	"""
+	24 bytes
+	"""
+
 	__name__ = 'RenderFeatureItem'
 
 

@@ -4,7 +4,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    # enough to process all the bytes, just no idea yet what is each section.
+    <!-- enough to process all the bytes, just no idea yet what is each section. -->
  
     <struct name="FRenderContextSetRoot" inherit="MemStruct">
         <field name="ptr1_list"   type="ArrayPointer" template="ContextSet1Item" arg="ptr1_count"/>

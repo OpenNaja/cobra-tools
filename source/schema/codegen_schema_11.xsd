@@ -19,7 +19,7 @@
                 <info type="deprecation" frequency="once-per-file" />
             </xs:appinfo>
         </xs:annotation>
-        <xs:complexType mixed="true">  <!-- TODO: Remove mixed="true" and force comments instead -->
+        <xs:complexType>
             <xs:sequence>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:element ref="token"/>
@@ -36,13 +36,12 @@
                 </xs:choice>
             </xs:sequence>
             <xs:attribute name="version" type="xs:string" use="optional"/>
-            <!-- Allow attributes from the standard XML namespace, like xml:base -->
             <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="fileformat">
-        <xs:complexType mixed="true">  <!-- TODO: Remove mixed="true" and force comments instead -->
+        <xs:complexType>
             <xs:sequence>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:element ref="token"/>
@@ -59,7 +58,6 @@
                 </xs:choice>
             </xs:sequence>
             <xs:attribute name="version" type="xs:string" use="optional"/>
-            <!-- Allow attributes from the standard XML namespace, like xml:base -->
             <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
         </xs:complexType>
     </xs:element>
@@ -74,9 +72,8 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- Corrected Token definition -->
+    <!-- <token> -->
     <xs:element name="token">
-        <!-- Set mixed="true" to allow character content (like comments) alongside child elements -->
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="verexpr" type="tokenChildType"/>
@@ -89,6 +86,7 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- <verattr> -->
     <xs:element name="verattr">
         <xs:complexType>
             <xs:attribute name="name" type="xs:string" use="required"/>
@@ -99,6 +97,7 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- <version> -->
     <xs:element name="version">
         <xs:complexType>
             <xs:simpleContent>
@@ -115,7 +114,7 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Basic type definition -->
+    <!-- <basic> -->
     <xs:element name="basic">
         <xs:complexType mixed="true">
             <xs:attribute name="name" type="xs:string" use="required"/>

@@ -4,7 +4,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    # todo - levels, next_levels and children actually seem to be terminated by nullptrs not counted with the counts
+    <!-- todo - levels, next_levels and children actually seem to be terminated by nullptrs not counted with the counts -->
 
     <struct name="ResearchRoot" inherit="MemStruct">
         <field name="levels" type="ArrayPointer" template="ResearchLevel" arg="levels_count"/>

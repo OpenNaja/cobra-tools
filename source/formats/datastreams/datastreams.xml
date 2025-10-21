@@ -20,7 +20,7 @@
         <field name="data"  type="ArrayPointer" template="CurveDataPoint" arg="count"/>
     </struct>
 
-    below is copied directly from motiongraph!
+    <!-- below is copied directly from motiongraph! -->
 
     <enum name="SubCurveType" numbytes="2" storage="ushort" default="0">
 		<option value="0" name="Constant" />
