@@ -13,7 +13,7 @@
     <xs:element name="niftoolsxml">
         <xs:annotation>
             <xs:documentation>
-                DEPRECATED: The niftoolsxml element is deprecated. Please use `fileformat` instead.
+                DEPRECATED: The `niftoolsxml` element is deprecated. Please use `fileformat` instead.
             </xs:documentation>
             <xs:appinfo>
                 <info type="deprecation" frequency="once-per-file" />
@@ -40,6 +40,7 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- <fileformat> -->
     <xs:element name="fileformat">
         <xs:complexType>
             <xs:sequence>
@@ -167,7 +168,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- Define a type for the inner <member> element -->
+    <!-- Define a type for the inner <option> element -->
     <xs:complexType name="bitflagsMemberType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -188,7 +189,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- Define the main shared type for bitfield-like elements -->
+    <!-- Define the main type for bitfield elements -->
     <xs:complexType name="bitfieldType" mixed="true">
         <xs:sequence>
             <xs:element name="member" type="bitfieldMemberType" maxOccurs="unbounded" minOccurs="1"/>
@@ -196,6 +197,7 @@
         <xs:attributeGroup ref="commonEnumAttributes"/>
     </xs:complexType>
 
+    <!-- Define the main type for bitflags elements -->
     <xs:complexType name="bitflagsType" mixed="true">
         <xs:sequence>
             <xs:element name="option" type="bitflagsMemberType" maxOccurs="unbounded" minOccurs="1"/>
@@ -203,7 +205,7 @@
         <xs:attributeGroup ref="commonEnumAttributes"/>
     </xs:complexType>
 
-    <!-- Define the main shared type for bitstruct-like elements -->
+    <!-- Define the main type for bitstruct elements -->
     <xs:complexType name="bitstructType" mixed="true">
         <xs:sequence>
             <xs:element name="bits" type="bitstructBitsType" maxOccurs="unbounded" minOccurs="1"/>
@@ -229,8 +231,8 @@
         <xs:attribute name="numbytes" type="xs:positiveInteger" use="optional"/>
         <xs:attribute name="abstract" type="xs:boolean" use="optional"/>
     </xs:attributeGroup>
-    
-    <xs:complexType name="fieldType" mixed="true">
+
+    <xs:complexType name="fieldType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" type="xs:string" use="required"/>
@@ -257,8 +259,8 @@
                                 not(@arr3 and @depth)">
                     <xs:annotation>
                         <xs:documentation>
-                        Validation Error: Attribute pairs are mutually exclusive. 
-                        You cannot use 'arr1' with 'length', 'arr2' with 'width', or 'arr3' with 'depth' on the same element.
+                            Validation Error: Attribute pairs are mutually exclusive. 
+                            You cannot use 'arr1' with 'length', 'arr2' with 'width', or 'arr3' with 'depth' on the same element.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:assert>
@@ -275,7 +277,7 @@
 
     <xs:group name="fieldElements">
         <xs:choice>
-            <xs:element name="add" type="fieldType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="add" type="fieldType" minOccurs="0" maxOccurs="0"/> <!-- Enforce field -->
             <xs:element name="field" type="fieldType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:group>
@@ -302,7 +304,7 @@
     <xs:element name="compound" type="structType">
         <xs:annotation>
             <xs:documentation>
-                DEPRECATED: The compound element is deprecated. Please use the struct element instead.
+                DEPRECATED: The `compound` element is deprecated. Please use the struct `element` instead.
             </xs:documentation>
             <xs:appinfo>
                 <info type="deprecation" frequency="once-per-file" />
