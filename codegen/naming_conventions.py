@@ -2,24 +2,24 @@ import re
 
 # precompiled regular expressions, used in name_parts
 
-_RE_NAME_SEP = re.compile('[_\W]+')
+_RE_NAME_SEP: re.Pattern[str] = re.compile(r'[_\W]+')
 """Matches seperators for splitting names."""
 
-_RE_NAME_DIGITS = re.compile('([0-9]+)|([a-zA-Z]+)')
+_RE_NAME_DIGITS: re.Pattern[str] = re.compile(r'([0-9]+)|([a-zA-Z]+)')
 """Matches digits or characters for splitting names."""
 
-_RE_NAME_CAMEL = re.compile('([A-Z][a-z]*)|([a-z]+)')
+_RE_NAME_CAMEL: re.Pattern[str] = re.compile(r'([A-Z][a-z]*)|([a-z]+)')
 """Finds components of camelCase and CamelCase names."""
 
-_RE_NAME_LC = re.compile('[a-z]')
+_RE_NAME_LC: re.Pattern[str] = re.compile(r'[a-z]')
 """Matches a lower case character."""
 
-_RE_NAME_UC = re.compile('[A-Z]')
+_RE_NAME_UC: re.Pattern[str] = re.compile(r'[A-Z]')
 """Matches an upper case character."""
 
-template_re = re.compile(r"template(_[0-9][0-9]*)?")
+template_re: re.Pattern[str] = re.compile(r"template(_[0-9][0-9]*)?")
 
-def name_parts(name):
+def name_parts(name: str) -> list[str]:
     """Intelligently split a name into parts:
     * first, split at non-alphanumeric characters
     * next, seperate digits from characters
@@ -73,7 +73,7 @@ def name_parts(name):
     return parts
 
 
-def name_attribute(name):
+def name_attribute(name: str) -> str:
     """Converts an attribute name, as in the description file,
     into a name usable by python.
     :param name: The attribute name.
@@ -90,12 +90,12 @@ def name_attribute(name):
     return prefix + '_'.join(part.lower() for part in name_parts(name))
 
 
-def name_access(access):
+def name_access(access: str) -> str:
     """Applies name_attribute to every part of a dot-separated string"""
     return '.'.join([name_attribute(attr) for attr in access.split('.')])
 
 
-def name_class(name):
+def name_class(name: str) -> str:
     """Converts a class name, as in the xsd file, into a name usable
     by python.
     :param name: The class name.
@@ -109,7 +109,7 @@ def name_class(name):
     return ''.join(part.capitalize() for part in name_parts(name))
 
 
-def name_enum_key(name):
+def name_enum_key(name: str) -> str:
     """Converts a key name into a name suitable for an enum key.
     :param name: the key name
     :type name: str
@@ -120,14 +120,14 @@ def name_enum_key(name):
     return '_'.join(part.upper() for part in name_parts(name))
 
 
-def name_enum_key_if_necessary(name):
+def name_enum_key_if_necessary(name: str) -> str:
     if len(name.split()) > 1 or name.upper() != name:
         return name_enum_key(name)
     else:
         return name
 
 
-def clean_comment_str(comment_str="", indent="", class_comment=""):
+def clean_comment_str(comment_str: str | None = "", indent: str = "", class_comment: str = "") -> str:
     """Reformats an XML comment string into multi-line a python style comment block"""
     if comment_str is None:
         return ""
@@ -140,7 +140,7 @@ def clean_comment_str(comment_str="", indent="", class_comment=""):
     return "\n" + "".join(lines)
 
 
-def name_module(name):
+def name_module(name: str) -> str:
     """Converts a module name into a name suitable for a python module
     :param name: the module name
     :type name: str
@@ -151,7 +151,7 @@ def name_module(name):
     return name.lower()
 
 
-def force_bool(value):
+def force_bool(value: str) -> str:
     """Converts true/false or an integer to either 'True' or 'False'
     with all the usual rules of integer conversion to bools.
     :param value: the string to converts

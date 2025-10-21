@@ -24,8 +24,12 @@ optional-dependencies.manis_tool_gui = [
 ]
 optional-dependencies.dev = [
     "pre-commit~=3.8.0",
-    "pytest~=8.3.3",
-    "pytest-qt~=4.4.0",
+    "pytest~=8.4.2",
+    "pytest-qt~=4.5.0",
+    "pytest-subtests~=0.14.2",
+    "lxml~=6.0.2",
+    "types-lxml~=2025.8.25",
+    "xmlschema~=4.2.0"
 ]
 optional-dependencies.doc = [
     "mkdocs~=1.6.1",
@@ -46,3 +50,32 @@ log_cli_level = 'DEBUG'
 log_file = 'logs/pytest.log'
 log_file_format = '%(levelname)s | %(message)s'
 qt_api = 'pyqt5'
+minversion = '8.4'
+addopts = '-ra -v'
+testpaths = [
+    "tests",
+]
+
+[tool.mypy]
+modules = ["gui", "codegen", "fgm_editor_gui", "ms2_tool_gui", "ovl_tool_gui"]
+strict = true
+exclude = '''(?x)(
+    ^__init__\.py$  # 
+    | codegen/FilterXmlVersions\.py$
+    | codegen/from_bt\.py$
+)'''
+
+
+[tool.coverage.run]
+omit = [
+    "bin/*",
+    "constants/*",
+    "generated/*",
+    "tests/*",
+    "venv/*",
+    "codegen/filters.py",
+    "codegen/FilterXmlVersions.py",
+    "codegen/from_bt.py",
+    "codegen/Method.py",
+    "codegen/Module.py",
+]

@@ -1,3 +1,9 @@
+import os
+from typing import TYPE_CHECKING, TextIO
+if TYPE_CHECKING:
+    from . import Config, Element
+    from .XmlParser import XmlParser
+
 from .expression import Version
 from .naming_conventions import name_enum_key
 from .path_utils import module_path_to_import_path, to_import_path
@@ -5,8 +11,8 @@ from .path_utils import module_path_to_import_path, to_import_path
 base_ver_attrs = ("id", "supported", "custom", "ext")
 
 
-def split_parenthesis_aware(input_string, delimiter):
-	split_string = []
+def split_parenthesis_aware(input_string: str, delimiter: str) -> list[str]:
+	split_string: list[str] = []
 	par_level = 0
 	last_start = 0
 	i = 0
@@ -33,10 +39,10 @@ class Versions:
 	"""Creates and writes a version block"""
 
 	@staticmethod
-	def get_default_games(version):
+	def get_default_games(version: 'Element') -> tuple[list[str], list[str]]:
 		game_names = split_parenthesis_aware(version.text, delimiter=', ')
-		default_games = []
-		all_games = []
+		default_games: list[str] = []
+		all_games: list[str] = []
 		for name in game_names:
 			if name[:2] == "{{" and name[-2:] == "}}":
 				name = name[2:-2]
@@ -45,15 +51,15 @@ class Versions:
 		return default_games, all_games
 
 	@staticmethod
-	def format_id(version_id):
+	def format_id(version_id: str) -> str:
 		return version_id.lower()
 
-	def __init__(self, parser, gen_dir):
-		self.parent = parser
-		self.gen_dir = gen_dir
-		self.versions = []
+	def __init__(self, parser: 'XmlParser', gen_dir: str) -> None:
+		self.parent: XmlParser = parser
+		self.gen_dir: str = gen_dir
+		self.versions: list['Element'] = []
 
-	def read(self, xml_struct):
+	def read(self, xml_struct: 'Element') -> None:
 		# apply Version(num) for every entry in a version-defining attribute
 		# can't do this in xmlparser apply_conventions because it doesn't know
 		# which attributes are the version-defining ones
@@ -64,7 +70,13 @@ class Versions:
 				xml_struct.attrib[k] = ', '.join([str(Version(value)) for value in values])
 		self.versions.append(xml_struct)
 
-	def write(self, out_file):
+	def write(self, out_file: str) -> None:
+		if os.path.exists(out_file):
+			with open(out_file, "r", encoding=self.parent.encoding) as f:
+				content = f.read()
+				# If generated function is present, assume the file is complete and skip
+				if "def get_game(context):" in content:
+					return
 		if self.versions:
 			with open(out_file, "a", encoding=self.parent.encoding) as stream:
 				stream.write(f"from enum import Enum\n\n")
@@ -87,9 +99,9 @@ class Versions:
 					self.write_set_version(stream, version)
 
 				# go through all the games, record them and map defaults to versions
-				full_name_key_map = {}
-				version_default_map = {}
-				version_game_map = {}
+				full_name_key_map: dict[str, str] = {}
+				version_default_map: dict[str, set[str]] = {}
+				version_game_map: dict[str, list[str]] = {}
 				for version in self.versions:
 					version_default_map[version.attrib['id']] = set()
 					default_games, all_games = self.get_default_games(version)
@@ -120,7 +132,7 @@ class Versions:
 					stream.write(f"\navailable_versions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
 					stream.write("\n")
 
-	def write_version_class(self, stream, version_class):
+	def write_version_class(self, stream: TextIO, version_class: str) -> None:
 		stream.write(f"class {version_class}(VersionBase):\n\n")
 		stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
 		stream.write(f"\t_verattrs = ({', '.join(repr(attr) for attr in self.parent.verattrs)})\n\n")
@@ -131,11 +143,11 @@ class Versions:
 			stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
 		stream.write("\n\n")
 
-	def write_version_obj(self, stream, version, version_class):
+	def write_version_obj(self, stream: TextIO, version: 'Element', version_class: str) -> None:
 		stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
 		stream.write(f"id={repr(version.attrib['id'])}")
 		for verattr, (access, attr_type) in self.parent.verattrs.items():
-			values = version.attrib.get(verattr)
+			values: str | None = version.attrib.get(verattr)
 			if values:
 				values = values.split(', ')
 				str_values = []
@@ -156,7 +168,7 @@ class Versions:
 		stream.write(f", all_games=[{', '.join([f'games.{name_enum_key(game)}' for game in all_games])}]")
 		stream.write(")\n")
 
-	def write_games_enum(self, full_name_key_map, stream):
+	def write_games_enum(self, full_name_key_map, stream: TextIO) -> None:
 		# define game enum
 		enum_keys = [(key, full_name) for full_name, key in full_name_key_map.items()]
 		enum_keys.sort()
@@ -165,7 +177,7 @@ class Versions:
 			f"games = Enum('Games', {enum_keys})")
 		stream.write("\n\n\n")
 
-	def write_set_version(self, stream, version):
+	def write_set_version(self, stream: TextIO, version: 'Element') -> None:
 		stream.write(f"def set_{self.format_id(version.attrib['id'])}(context):")
 		for k, v in version.attrib.items():
 			if k not in base_ver_attrs:
@@ -182,7 +194,7 @@ class Versions:
 				stream.write(f"\n\tcontext.{name}{suffix} = {val}")
 		stream.write("\n\n\n")
 
-	def write_is_version(self, stream, version):
+	def write_is_version(self, stream: TextIO, version: 'Element') -> None:
 		stream.write(f"def is_{self.format_id(version.attrib['id'])}(context):")
 		conds_list = []
 		for k, v in version.attrib.items():
@@ -200,7 +212,7 @@ class Versions:
 		stream.write("\n\t\treturn True")
 		stream.write("\n\n\n")
 
-	def write_get_game(self, stream, version_game_map):
+	def write_get_game(self, stream: TextIO, version_game_map) -> None:
 		# write game lookup function
 		stream.write(f"def get_game(context):")
 		stream.write(f"\n\tversions = []")
@@ -214,7 +226,7 @@ class Versions:
 		stream.write("\n\treturn versions")
 		stream.write("\n\n\n")
 
-	def write_set_game(self, stream, version_default_map, version_game_map):
+	def write_set_game(self, stream: TextIO, version_default_map, version_game_map) -> None:
 		# write game version setting function
 		stream.write(f"def set_game(context, game):")
 		stream.write(f"\n\tif isinstance(game, str):")

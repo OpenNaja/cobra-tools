@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xi="http://www.w3.org/2001/XInclude"
+           elementFormDefault="qualified">
+
+    <!-- Import the XInclude namespace to allow xi:include -->
+    <xs:import namespace="http://www.w3.org/2001/XInclude" schemaLocation="XInclude.xsd"/>
+
+    <!-- Include the base types schema -->
+    <xs:include schemaLocation="base_types.xsd"/>
+
+    <!-- Root element definition -->
+    <xs:element name="niftoolsxml">
+        <!--<xs:annotation>
+            <xs:documentation>
+                DEPRECATED: The niftoolsxml element is deprecated. Please use `fileformat` instead.
+            </xs:documentation>
+            <xs:appinfo>
+                <info type="deprecation" frequency="once-per-file" />
+            </xs:appinfo>
+        </xs:annotation>-->
+        <xs:complexType mixed="true">  <!-- TODO: Remove mixed="true" and force comments instead -->
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="token"/>
+                    <xs:element ref="verattr"/>
+                    <xs:element ref="version"/>
+                    <xs:element ref="basic"/>
+                    <xs:element ref="enum"/>
+                    <xs:element ref="bitfield"/>
+                    <xs:element ref="bitstruct"/>
+                    <xs:element ref="bitflags"/>
+                    <xs:element ref="compound"/>
+                    <xs:element ref="struct"/>
+                    <xs:element ref="xi:include"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="version" type="xs:string" use="optional"/>
+            <!-- Allow attributes from the standard XML namespace, like xml:base -->
+            <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="fileformat">
+        <xs:complexType mixed="true">  <!-- TODO: Remove mixed="true" and force comments instead -->
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="token"/>
+                    <xs:element ref="verattr"/>
+                    <xs:element ref="version"/>
+                    <xs:element ref="basic"/>
+                    <xs:element ref="enum"/>
+                    <xs:element ref="bitfield"/>
+                    <xs:element ref="bitstruct"/>
+                    <xs:element ref="bitflags"/>
+                    <xs:element ref="compound"/>
+                    <xs:element ref="struct"/>
+                    <xs:element ref="xi:include"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="version" type="xs:string" use="optional"/>
+            <!-- Allow attributes from the standard XML namespace, like xml:base -->
+            <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="tokenChildType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="token" type="xs:string" use="required"/>
+                <xs:attribute name="string" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Corrected Token definition -->
+    <xs:element name="token">
+        <!-- Set mixed="true" to allow character content (like comments) alongside child elements -->
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="verexpr" type="tokenChildType"/>
+                <xs:element name="operator" type="tokenChildType"/>
+                <xs:element name="global" type="tokenChildType"/>
+            </xs:choice>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="attrs" type="xs:string" use="required"/>
+            <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="verattr">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="access" type="xs:string" use="required"/>
+            <xs:attribute name="index" type="xs:integer" use="optional"/>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+            <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="version">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="id" type="xs:string" use="required"/>
+                    <xs:attribute name="version" type="integerOrIntegerList" use="required"/>
+                    <xs:attribute name="user_version" type="integerOrIntegerList" use="optional"/>
+                    <xs:attribute name="mani_version" type="integerOrIntegerList" use="optional"/>
+                    <xs:attribute name="version_flag" type="xs:string" use="optional"/>
+                    <xs:attribute name="is_dev" type="xs:boolean" use="optional"/>
+                    <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Basic type definition -->
+    <xs:element name="basic">
+        <xs:complexType mixed="true">
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="integral" type="xs:boolean" use="required"/>
+            <xs:attribute name="countable" type="xs:boolean" use="optional"/>
+            <xs:attribute name="boolean" type="xs:boolean" use="optional"/>
+            <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- enum-like attributes -->
+    <xs:attributeGroup name="commonEnumAttributes">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="storage" type="unsignedIntStorageType" use="required"/>
+        <xs:attribute name="numbytes" type="xs:positiveInteger" use="optional"/>
+        <xs:attribute name="default" type="decimalOrHexIntType" use="optional"/>
+        <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+    </xs:attributeGroup>
+
+    <!-- <enum> -->
+    <xs:element name="enum">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element name="option" maxOccurs="unbounded" minOccurs="1">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute name="value" type="decimalOrHexIntType" use="required"/>
+                                <xs:attribute name="name" type="xs:string" use="required"/>
+                                <xs:attribute name="custom" type="xs:string" use="optional"/> <!-- TODO: REMOVE -->
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attributeGroup ref="commonEnumAttributes"/>
+        </xs:complexType> 
+    </xs:element>
+
+    <!-- Define a type for the inner <member> element -->
+    <xs:complexType name="bitfieldMemberType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="type" type="xs:string" use="required"/>
+                <xs:attribute name="width" type="xs:positiveInteger" use="required"/>
+                <xs:attribute name="pos" type="xs:nonNegativeInteger" use="required"/>
+                <xs:attribute name="default" type="decimalOrHexIntType" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Define a type for the inner <member> element -->
+    <xs:complexType name="bitflagsMemberType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="bit" type="xs:nonNegativeInteger" use="required"/>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Define a type for the inner <bits> element -->
+    <xs:complexType name="bitstructBitsType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="numbits" type="xs:positiveInteger" use="required"/>
+                <xs:attribute name="default" type="decimalOrHexIntType" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Define the main shared type for bitfield-like elements -->
+    <xs:complexType name="bitfieldType" mixed="true">
+        <xs:sequence>
+            <xs:element name="member" type="bitfieldMemberType" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="commonEnumAttributes"/>
+    </xs:complexType>
+
+    <xs:complexType name="bitflagsType" mixed="true">
+        <xs:sequence>
+            <xs:element name="option" type="bitflagsMemberType" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="commonEnumAttributes"/>
+    </xs:complexType>
+
+    <!-- Define the main shared type for bitstruct-like elements -->
+    <xs:complexType name="bitstructType" mixed="true">
+        <xs:sequence>
+            <xs:element name="bits" type="bitstructBitsType" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="commonEnumAttributes"/>
+    </xs:complexType>
+
+    <!-- <bitfield> -->
+    <xs:element name="bitfield" type="bitfieldType"/>
+    <!-- <bitflags> -->
+    <xs:element name="bitflags" type="bitflagsType"/>
+    <!-- <bitstruct> -->
+    <xs:element name="bitstruct" type="bitstructType"/>
+
+
+    <xs:attributeGroup name="structAttributes">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="inherit" type="xs:string" use="optional"/>
+        <xs:attribute name="count" type="xs:string" use="optional"/>
+        <xs:attribute name="size" type="xs:positiveInteger" use="optional"/>
+        <xs:attribute name="allow_np" type="xs:boolean" use="optional"/>
+        <xs:attribute name="args" type="xs:positiveInteger" use="optional"/>
+        <xs:attribute name="numbytes" type="xs:positiveInteger" use="optional"/>
+        <xs:attribute name="abstract" type="xs:boolean" use="optional"/>
+    </xs:attributeGroup>
+    
+    <xs:complexType name="fieldType" mixed="true">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="type" type="xs:string" use="required"/>
+                <xs:attribute name="arg" type="xs:string" use="optional"/>
+                <xs:attribute name="arg1" type="xs:string" use="optional"/>
+                <xs:attribute name="arg2" type="xs:string" use="optional"/>
+                <xs:attribute name="arr1" type="xs:string" use="optional"/>
+                <xs:attribute name="arr2" type="xs:string" use="optional"/>
+                <xs:attribute name="arr3" type="xs:string" use="optional"/>
+                <xs:attribute name="length" type="xs:string" use="optional"/>
+                <xs:attribute name="width" type="xs:string" use="optional"/>
+                <xs:attribute name="depth" type="xs:string" use="optional"/>
+                <xs:attribute name="since" type="xs:positiveInteger" use="optional"/>
+                <xs:attribute name="until" type="xs:positiveInteger" use="optional"/>
+                <xs:attribute name="default" type="xs:string" use="optional"/>
+                <xs:attribute name="template" type="xs:string" use="optional"/>
+                <xs:attribute name="cond" type="xs:string" use="optional"/>
+                <xs:attribute name="vercond" type="xs:string" use="optional"/>
+                <xs:attribute name="abstract" type="xs:string" use="optional"/>
+                <xs:attribute name="optional" type="xs:string" use="optional"/>
+                <xs:assert test="not(@arr1 and @length) and 
+                                not(@arr2 and @width) and 
+                                not(@arr3 and @depth)">
+                    <xs:annotation>
+                        <xs:documentation>
+                        Validation Error: Attribute pairs are mutually exclusive. 
+                        You cannot use 'arr1' with 'length', 'arr2' with 'width', or 'arr3' with 'depth' on the same element.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:assert>
+                <xs:assert test="if (@optional = 'true') then (exists(@default) or contains(@type, 'Pointer')) else true()">
+                    <xs:annotation>
+                        <xs:documentation>
+                            When optional="true" is specified, a 'default' attribute must be provided, unless the type is a Pointer.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:assert>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:group name="fieldElements">
+        <xs:choice>
+            <xs:element name="add" type="fieldType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="field" type="fieldType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:group>
+
+    <xs:complexType name="structType" mixed="true">
+        <xs:sequence>
+            <xs:group ref="fieldElements" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="structAttributes"/>
+        <xs:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" processContents="lax"/>
+<!--
+        <xs:assert test="not(child::*[1]/following-sibling::text()[normalize-space()])">
+            <xs:annotation>  
+                <xs:documentation>
+                Assertion Error: Text content is not allowed after the first child element. 
+                Please place all descriptive text before any child elements.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:assert>
+-->
+    </xs:complexType>
+
+    <!-- <compound> -->
+    <xs:element name="compound" type="structType"><!--
+        <xs:annotation>
+            <xs:documentation>
+                DEPRECATED: The compound element is deprecated. Please use the struct element instead.
+            </xs:documentation>
+            <xs:appinfo>
+                <info type="deprecation" frequency="once-per-file" />
+            </xs:appinfo>
+        </xs:annotation>-->
+    </xs:element>
+    <!-- <struct> -->
+    <xs:element name="struct" type="structType"/>
+
+</xs:schema>
+

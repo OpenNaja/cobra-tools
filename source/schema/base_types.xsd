@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+    <xs:simpleType name="booleanStringType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="hexIntType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="0[xX][0-9a-fA-F]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="decimalOrHexIntType">
+        <xs:union memberTypes="xs:integer hexIntType"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="unsignedIntStorageType">
+        <xs:annotation>
+            <xs:documentation>Restricts the value to a specific set of unsigned integer type names.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ubyte"/>
+            <xs:enumeration value="ushort"/>
+            <xs:enumeration value="uint"/>
+            <xs:enumeration value="uint64"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="integerOrIntegerList">
+        <xs:list itemType="xs:integer"/>
+    </xs:simpleType>
+
+</xs:schema>

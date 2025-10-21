@@ -1,28 +1,32 @@
+from itertools import groupby
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from . import Config, Element
+    from .XmlParser import XmlParser
+
 from .BaseClass import BaseClass
 from .Union import Union
+from .Imports import Imports
+from .naming_conventions import template_re
 
 FIELD_TYPES = ("add", "field")
 
 
 class Compound(BaseClass):
 
-    def __init__(self, parser, struct, gen_dir, src_dir, root_dir):
-        super().__init__(parser, struct, gen_dir, src_dir, root_dir)
+    def __init__(self, parser: 'XmlParser', struct: 'Element', cfg: 'Config') -> None:
+        super().__init__(parser, struct, cfg)
 
-    def read(self):
+    def read(self) -> None:
         """Create a self.struct class"""
         super().read()
 
         self.field_unions = []
-        for field in self.struct:
-            if field.tag in FIELD_TYPES:
-                field_name = field.attrib["name"]
-                if self.field_unions and self.field_unions[-1].name == field_name:
-                    union = self.field_unions[-1]
-                else:
-                    union = Union(self, field_name)
-                    self.field_unions.append(union)
-                union.append(field)
+        relevant_fields = (field for field in self.struct if field.tag in FIELD_TYPES)
+        for field_name, members in groupby(relevant_fields, key=lambda f: f.attrib["name"]):
+            union = Union(self, field_name)
+            union.members.extend(list(members)) # Add all members from the group at once
+            self.field_unions.append(union)
 
         if not self.class_basename:
             self.class_basename = "BaseStruct"
@@ -34,7 +38,7 @@ class Compound(BaseClass):
             super().write(f)
 
             self.write_line(f)
-            if self.struct.get("allow_np", None) == "true":
+            if self.struct.get("allow_np", False):
                 self.write_line(f, 1, f"allow_np = True")
 
             # handle more-than-one length attributes as properties, to keep it synced with the main one
@@ -105,3 +109,101 @@ class Compound(BaseClass):
 
             self.write_src_body(f)
             self.write_line(f)
+
+        if self.write_stubs:
+            self.write_pyi()
+
+    def write_pyi(self) -> None:
+        """Writes the .pyi type stub file for this class."""
+        # Initialization
+        pyi_imports = Imports(self.parser, self.struct, self.gen_dir, for_pyi=True)
+        pyi_imports.add(self.class_basename)
+
+        is_generic = self.class_name in self.parser.generic_types
+        needs_union = False
+        has_numpy_array_field = False
+        attribute_lines = []
+
+        for union in self.field_unions:
+            # Determine the type hint for the current attribute
+            type_hint = ""
+            if self.class_name == "Pointer" and union.name == "data":
+                type_hint = "_T"
+                is_generic = True
+            else:
+                member = union.members[0]
+                member_template = self.parser.get_attr_with_array_alt(member, "template")
+                is_templated_with_tvar = member_template and isinstance(member_template, str) and template_re.fullmatch(member_template)
+                
+                if is_generic and is_templated_with_tvar:
+                    base_type = union.get_type_hint(member)
+                    type_hint = base_type.replace("[object]", "[_T]")
+                else:
+                    union_types = sorted(list({union.get_type_hint(m) for m in union.members}))
+                    if len(union_types) > 1:
+                        type_hint = f"Union[{', '.join(union_types)}]"
+                        needs_union = True # Flag that a Union is required
+                    else:
+                        type_hint = union_types[0] if union_types else "object"
+            
+            attribute_lines.append(f"    {union.name}: {type_hint}\n")
+
+            # Check for numpy array fields
+            if not has_numpy_array_field:
+                for member in union.members:
+                    if (member.attrib["type"] in self.parser.numpy_types and 
+                            self.parser.get_attr_with_backups(member, ["arr1", "length"])):
+                        has_numpy_array_field = True
+                        break
+
+        # File Writing
+        with open(self.out_pyi_file, "w", encoding=self.parser.encoding) as f:
+            # Propagate generic status from parent class
+            if not is_generic and self.class_basename:
+                is_generic = self.class_basename in self.parser.generic_types
+
+            # Add imports based on flags set during the loop
+            if is_generic:
+                pyi_imports.typing_imports.add("TypeVar")
+                if self.class_basename not in self.parser.generic_types:
+                    pyi_imports.typing_imports.add("Generic")
+            if needs_union:
+                pyi_imports.typing_imports.add("Union")
+            if has_numpy_array_field:
+                pyi_imports.add("numpy as np")
+
+            # Special import for ArrayPointer/ForEachPointer
+            if self.class_name in ("ArrayPointer", "ForEachPointer"):
+                pyi_imports.add("Array")
+
+            pyi_imports.write(f)
+
+            if is_generic:
+                f.write("_T = TypeVar(\"_T\")\n\n")
+
+            # Construct the class definition line
+            class_call = self.get_class_call().strip()
+            class_def = class_call[:-1] if class_call.endswith(':') else class_call
+            if is_generic:
+                parent_is_generic = self.class_basename in self.parser.generic_types
+                if parent_is_generic:
+                    if self.class_name in ("ArrayPointer", "ForEachPointer"):
+                        class_def = class_def.replace(f"({self.class_basename})", f"({self.class_basename}[Array[_T]])")
+                    else:
+                        class_def = class_def.replace(f"({self.class_basename})", f"({self.class_basename}[_T])")
+                else:
+                    if "(" in class_def and ")" in class_def:
+                        closing_paren_index = class_def.rfind(')')
+                        class_def = f"{class_def[:closing_paren_index]}, Generic[_T]){class_def[closing_paren_index+1:]}"
+                    else:
+                        class_def += f"(Generic[_T])"
+            
+            f.write(f"{class_def}:\n")
+
+            # Write the attributes collected during the loop
+            if not attribute_lines:
+                f.write("    pass\n")
+            else:
+                f.writelines(attribute_lines)
+
+            f.write("\n    def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...\n")

@@ -1,434 +1,457 @@
-import importlib
+import importlib.util
 import logging
-import re
-import xml.etree.ElementTree as ET
 import os
+import sys
+import time
 import shutil
 import fnmatch
 import argparse
 import traceback
-from html import unescape
+from typing import TYPE_CHECKING, Any, Optional
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from .Basics import Basics
-from .Compound import Compound
-from .Enum import Enum
-from .Bitfield import Bitfield
-from .Versions import Versions
-from .Module import Module
-from .naming_conventions import force_bool, name_access, name_attribute, name_class, name_enum_key_if_necessary, name_module, clean_comment_str
-from .path_utils import module_path_to_import_path, module_path_to_file_path, to_import_path
-from .expression import format_potential_tuple
-
-logging.basicConfig(level=logging.DEBUG)
-
-arg_regex = re.compile(r"(#ARG)([0-9]*)(#)")
-template_regex = re.compile(r"(#T)([0-9]*)(#)")
+from . import (Config, ExitCode, FormatDependencies, NamespacedTypes, LogMessageID, PARSING_EXCEPTIONS,
+               XmlValidationError, LXML_INSTALLED, XMLSCHEMA_INSTALLED, ET, xmlschema)
+from .XmlParser import XmlParser
+from .codegen_worker import process_single_format
+from .path_utils import to_import_path, pluralize_name
 
 
-class XmlParser:
-    struct_types = ("compound", "niobject", "struct")
-    bitstruct_types = ("bitfield", "bitflags", "bitstruct")
-    builtin_literals = {'str': '', 'float': 0.0, 'int': 0, 'bool': False}
+if TYPE_CHECKING:
+    from . import ElementTree, Element
+    from xmlschema import XMLSchema11
+else:
+    XMLSchema11 = Any
 
-    def __init__(self, format_name, root_dir, gen_dir="generated", src_dir="source"):
-        """Set up the xml parser."""
-
-        self.format_name = format_name
-        self.root_dir = root_dir
-        self.gen_dir = gen_dir
-        self.src_dir = src_dir
-        self.base_segments = os.path.join("formats", self.format_name)
-        # which encoding to use for the output files
-        self.encoding = 'utf-8'
-
-        # elements for versions
-        self.versions = None
-
-        # ordered (!) list of tuples ({tokens}, (target_attribs)) for each <token>
-        self.tokens = []
-
-        # maps version attribute name to [access, type]
-        self.verattrs = {}
-        # maps each type to its generated py file's relative path
-        self.path_dict = {
-            "Array": "array",
-            "BasicBitfield": "bitfield",
-            "BitfieldMember": "bitfield",
-            "versions": self.base_segments,
-            "ContextReference": "context",
-            "BaseEnum": "base_enum",
-            "BaseStruct": "base_struct",
-            "name_type_map": os.path.join(self.base_segments, "imports")
-            }
-        # maps each type to its member tag type
-        self.tag_dict = {}
-        # order is relevant to ensure that structs are later imported in the correct order in generated code
-        self.processed_types = {}
-
-        self.basics = None
-
-    def generate_module_paths(self, root, xml_path, parsed_xmls):
-        """preprocessing - generate module paths for imports relative to the output dir"""
-        for child in root:
-            if child.tag == "token":
-                # tokens must be applied before applying naming conventions
-                self.read_token(child)
-                continue
-            elif child.tag.split('}')[-1] == "include":
-                # xinclude element which may include tokens, read the element to add them
-                self.read_xinclude(child, xml_path, parsed_xmls)
-                continue
-            self.replace_tokens(child)
-            self.apply_conventions(child)
-            # only check stuff that has a name - ignore version tags
-            if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
-                base_segments = self.base_segments
-                if child.tag == "module":
-                    # for modules, set the path to base/module_name
-                    class_name = child.attrib["name"]
-                    class_segments = [class_name]
-                elif child.tag == "basic":
-                    class_name = child.attrib["name"]
-                    class_segments = ["basic"]
-                else:
-                    # for classes, set the path to module_path/tag/class_name or
-                    # base/tag/class_name if it's not part of a module
-                    class_name = child.attrib["name"]
-                    if child.attrib.get("module"):
-                        base_segments = self.path_dict[child.attrib["module"]]
-                    class_segments = [f"{child.tag}s", class_name, ]
-                # store the final relative module path for this class
-                self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
-                self.tag_dict[class_name.lower()] = child.tag
-
-    def load_xml(self, xml_file, parsed_xmls=None):
-        """Loads an XML (can be filepath or open file) and does all parsing
-        Goes over all children of the root node and calls the appropriate function depending on type of the child"""
-        try:
-            # try for case where xml_file is a passed file object
-            xml_path = xml_file.name
-        except AttributeError:
-            # if attribute error, assume it was a file path
-            xml_path = xml_file
-        xml_path = os.path.realpath(xml_path)
-        # dictionary of xml file: XmlParser
-        if parsed_xmls is None:
-            parsed_xmls = {}
-
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-
-        self.versions = Versions(self, gen_dir=self.gen_dir)
-        self.basics = Basics(self)
-
-        self.generate_module_paths(root, xml_path, parsed_xmls)
-
-        for child in root:
-            try:
-                if child.tag in self.struct_types:
-                    Compound(self, child, self.gen_dir, self.src_dir, self.root_dir)
-                elif child.tag in self.bitstruct_types:
-                    Bitfield(self, child, self.gen_dir, self.src_dir, self.root_dir)
-                elif child.tag == "basic":
-                    self.basics.read(child)
-                elif child.tag == "enum":
-                    Enum(self, child, self.gen_dir, self.src_dir, self.root_dir)
-                elif child.tag == "module":
-                    Module(self, child, self.gen_dir, self.root_dir)
-                elif child.tag == "version":
-                    self.versions.read(child)
-                elif child.tag == "verattr":
-                    self.read_verattr(child)
-            except:
-                logging.exception(f"Parsing child {child} failed")
-        versions_file = module_path_to_file_path(os.path.join(self.base_segments, "versions"), self.gen_dir, self.root_dir)
-        self.versions.write(versions_file)
-        imports_module = os.path.join(self.base_segments, "imports")
-        self.write_import_map(module_path_to_file_path(imports_module, self.gen_dir, self.root_dir))
-        init_file_path = module_path_to_file_path(os.path.join(self.base_segments, "__init__"), self.gen_dir, self.root_dir)
-        import_string = f'from {module_path_to_import_path(imports_module, self.gen_dir)} import name_type_map\n'
-        if not os.path.exists(init_file_path):
-            with open(init_file_path, "w", encoding=self.encoding) as f:
-                f.write(import_string)
-        else:
-            with open(init_file_path, "r+", encoding=self.encoding) as f:
-                init_content = f.read()
-                f.seek(0, 0)
-                f.write(import_string)
-                f.write(init_content)
-
-        parsed_xmls[xml_path] = self
-
-    def write_import_map(self, file):
-        with open(file, "w", encoding=self.encoding) as f:
-            f.write("from importlib import import_module\n")
-            f.write("\n\ntype_module_name_map = {\n")
-            for type_name in self.processed_types:
-                f.write(f"\t'{type_name}': '{module_path_to_import_path(self.path_dict[type_name], self.gen_dir)}',\n")
-            f.write('}\n')
-            f.write("\nname_type_map = {}\n")
-            f.write("for type_name, module in type_module_name_map.items():\n")
-            f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
-            f.write("for class_object in name_type_map.values():\n")
-            f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
-            f.write("\t\tclass_object.init_attributes()\n")
-
-    # the following constructs do not create classes
-    def read_token(self, token):
-        """Reads an xml <token> block and stores it in the tokens list"""
-        self.tokens.append(([(sub_token.attrib["token"], sub_token.attrib["string"])
-                            for sub_token in token],
-                            token.attrib["attrs"].split(" ")))
-
-    def read_verattr(self, verattr):
-        """Reads an xml <verattr> and stores it in the verattrs dict"""
-        name = verattr.attrib['name']
-        assert name not in self.verattrs, f"verattr {name} already defined!"
-        access = verattr.attrib['access']
-        attr_type = verattr.attrib.get('type')
-        self.verattrs[name] = [access, attr_type]
-
-    def read_xinclude(self, xinclude, xml_path, parsed_xmls):
-        """Reads an xi:include element, and parses the linked xml if it doesn't exist yet in parsed xmls"""
-        # convert the linked relative path to an absolute one
-        new_path = os.path.realpath(os.path.join(os.path.dirname(xml_path), xinclude.attrib['href']))
-        # check if the xml file was already parsed
-        if new_path not in parsed_xmls:
-            # if not, parse it now
-            format_name = os.path.splitext(os.path.basename(new_path))[0]
-            new_parser = XmlParser(format_name, root_dir=self.root_dir, gen_dir=self.gen_dir)
-            new_parser.load_xml(new_path, parsed_xmls)
-        else:
-            new_parser = parsed_xmls[new_path]
-        # append all pertinent information (file paths etc) to self for access
-        self.copy_xml_dicts(new_parser)
-
-    @staticmethod
-    def apply_convention(struct, func, params):
-        for k in params:
-            if struct.attrib.get(k):
-                struct.attrib[k] = func(struct.attrib[k])
-
-    def apply_conventions(self, struct):
-        # struct top level
-        if struct.tag in ("token",):
-            # don't apply conventions to these types (or there are none to apply)
-            return
-        elif struct.tag == "version":
-            self.apply_convention(struct, force_bool, ("supported", "custom"))
-        elif struct.tag == "verattr":
-            self.apply_convention(struct, name_class, ("type",))
-            self.apply_convention(struct, name_access, ("access",))
-        elif struct.tag == "module":
-            self.apply_convention(struct, name_module, ("name", "depends"))
-            self.apply_convention(struct, force_bool, ("custom",))
-            struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
-        else:
-            # it is a tag with a class
-            struct.attrib["__name__"] = struct.attrib["name"]
-            self.apply_convention(struct, name_class, ("name", "inherit"))
-            self.apply_convention(struct, name_module, ("module",))
-            if struct.tag == "basic":
-                self.apply_convention(struct, force_bool, ("boolean", "integral", "countable", "generic"))
-            elif struct.tag == "enum":
-                self.apply_convention(struct, name_class, ("storage",))
-                for option in struct:
-                    self.apply_convention(option, name_enum_key_if_necessary, ("name", ))
-            elif struct.tag in self.bitstruct_types:
-                self.apply_convention(struct, name_class, ("storage",))
-                # a bitfield/bitflags fields
-                if struct.tag == 'bitflags':
-                    for field in struct:
-                        field.attrib['enum_name'] = name_enum_key_if_necessary(field.attrib['name'])
-                for field in struct:
-                    self.apply_convention(field, name_attribute, ("name",))
-                    self.apply_convention(field, name_class, ("type",))
-            elif struct.tag in self.struct_types:
-                self.apply_convention(struct, force_bool, ("generic",))
-                # a struct's fields
-                for field in struct:
-                    self.apply_convention(field, name_attribute, ("name",))
-                    self.apply_convention(field, name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, force_bool, ("optional", "abstract", "recursive"))
-                    # template can refer to a type of an attribute
-                    self.apply_convention(field, format_potential_tuple, ("default",))
-                    for default in field:
-                        self.apply_convention(default, name_class, ("onlyT",))
-                        self.apply_convention(default, format_potential_tuple, ("value",))
-            # filter comment str
-            struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
-
-    @staticmethod
-    def match_replace_function(base_string):
-        def match_replace(match_object):
-            if match_object.group(2):
-                indexing = f'_{match_object.group(2)}'
-            else:
-                indexing = ''
-            return f'{base_string}{indexing}'
-        return match_replace
-
-    def replace_tokens(self, xml_struct):
-        """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
-        # replace versions after tokens because tokens include versions
-        for tokens, target_attribs in self.tokens:
-            for target_attrib in target_attribs:
-                if target_attrib in xml_struct.attrib:
-                    expr_str = xml_struct.attrib[target_attrib]
-                    for op_token, op_str in tokens:
-                        expr_str = expr_str.replace(op_token, op_str)
-                    # get rid of any remaining html escape characters
-                    xml_struct.attrib[target_attrib] = unescape(expr_str)
-        # additional tokens that are not specified by nif.xml
-        fixed_tokens = (("\\", "."), ("#SELF#", "instance"))
-        fixed_array_parts = ((arg_regex, "arg"), (template_regex, "template"))
-        for attrib, expr_str in xml_struct.attrib.items():
-            for op_token, op_str in fixed_tokens:
-                expr_str = expr_str.replace(op_token, op_str)
-            for part_regex, base_string in fixed_array_parts:
-                expr_str = re.sub(part_regex, self.match_replace_function(base_string), expr_str)
-            xml_struct.attrib[attrib] = expr_str
-        for xml_child in xml_struct:
-            self.replace_tokens(xml_child)
-
-    @staticmethod
-    def copy_dict_info(own_dict, other_dict):
-        """Add information from other dict if we didn't have it yet"""
-        for key in other_dict.keys():
-            if key not in own_dict:
-                own_dict[key] = other_dict[key]
-
-    def copy_xml_dicts(self, other_parser):
-        """Copy information necessary for linking and generation from another parser as if we'd read the file"""
-        [self.versions.versions.append(version) for version in other_parser.versions.versions]
-        self.tokens.extend(other_parser.tokens)
-        self.copy_dict_info(self.verattrs, other_parser.verattrs)
-        self.copy_dict_info(self.path_dict, other_parser.path_dict)
-        self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
-        self.basics.add_other_basics(other_parser.basics)
-        self.copy_dict_info(self.processed_types, other_parser.processed_types)
-
-    @staticmethod
-    def get_attr_with_backups(field, attribute_keys):
-        # return the value of the first attribute in the list that is not empty or missing
-        for key in attribute_keys:
-            attr_value = field.attrib.get(key)
-            if attr_value:
-                return attr_value
-        else:
-            return None
-
-    @staticmethod
-    def get_attr_with_array_alt(field, attribute_name):
-        # return either a string of the matching attribute, or a list of all continuous <attribute><nr> attributes,
-        # starting from 1
-        value = field.attrib.get(attribute_name, None)
-        if value is None:
-            array_value = []
-            i = 1
-            current_entry = field.attrib.get(f"{attribute_name}{i}", None)
-            while current_entry is not None:
-                array_value.append(current_entry)
-                i += 1
-                current_entry = field.attrib.get(f"{attribute_name}{i}", None)
-
-            if array_value:
-                value = array_value
-
-        return value
-
-    def interpret_boolean(self, f_type, default_string):
-        if f_type in self.path_dict and self.tag_dict[f_type.lower()] == "basic" and f_type in self.basics.booleans:
-            # boolean basics *can* be used as booleans, but don't have to be
-            if default_string.capitalize() in ("True", "False"):
-                default_string = default_string.capitalize()
-                return default_string
-        return None
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s')
 
 
-def copy_src_to_generated(src_dir, trg_dir):
-    """copies the files from the source folder to the generated folder"""
-    # remove old codegen
-    if os.path.exists(trg_dir):
-        shutil.rmtree(trg_dir)
-    # do the actual copying (ignore .git folders because there's trouble deleting them)
-    shutil.copytree(src_dir, trg_dir, ignore=shutil.ignore_patterns('.git',))
+def copy_src_to_generated(subfolder_pairs: list[tuple[str, str]], cfg: 'Config') -> None:
+    """
+    For each provided (source, target) subfolder pair, this function wipes the
+    target subfolder and copies the entire source subfolder tree.
+    """
+    for src_subdir, trg_subdir in subfolder_pairs:
+        logging.info(f"Syncing subfolder '{os.path.basename(src_subdir)}'...")
+        
+        if os.path.exists(trg_subdir):
+            shutil.rmtree(trg_subdir)
+            
+        ignore_patterns: tuple[str, ...] = ('.git', 'schema')
+        if not cfg.copy_xml:
+            ignore_patterns += ('*.xml',)
+        if not cfg.write_stubs:
+            ignore_patterns += ('*.pyi',)
+        shutil.copytree(src_subdir, trg_subdir, ignore=shutil.ignore_patterns(*ignore_patterns))
+ 
 
-
-def fix_imports(gen_dir):
+def fix_imports(gen_dir: str) -> None:
     """Fixes hardcoded imports in non-generated files"""
     gen_import_path = to_import_path(gen_dir)
     for path, _, files in os.walk(os.path.abspath(gen_dir)):
-        for filename in fnmatch.filter(files, "*.py"):
-            filepath = os.path.join(path, filename)
-            with open(filepath, "r", encoding="utf-8") as f:
-                s = f.read()
-            s = s.replace("from generated.", f"from {gen_import_path}.")
-            s = s.replace("import generated.", f"import {gen_import_path}.")
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.write(s)
+        for pattern in ("*.py", "*.pyi"):
+            for filename in fnmatch.filter(files, pattern):
+                filepath = os.path.join(path, filename)
+                with open(filepath, "r", encoding="utf-8") as f:
+                    s = f.read()
+                s = s.replace("from generated.", f"from {gen_import_path}.")
+                s = s.replace("import generated.", f"import {gen_import_path}.")
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(s)
 
 
-def create_inits(base_dir):
-    """Create a __init__.py file in all subdirectories that don't have one, to prevent error on second import"""
+def create_inits(base_dirs: list[str]) -> None:
+    """Create a __init__.py file in all subdirectories that don't have one."""
     init_name = "__init__.py"
-    for root, dirs, files in os.walk(base_dir):
-        if init_name not in files:
-            # __init__.py does not exist, create it
-            with open(os.path.join(root, init_name), 'x'):
-                pass
-        # don't go into subdirectories that start with a double underscore
-        dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
+    # Loop over the specific base directories provided for processing.
+    for base_dir in base_dirs:
+        for root, dirs, files in os.walk(base_dir):
+            if init_name not in files:
+                # __init__.py does not exist, create it
+                with open(os.path.join(root, init_name), 'x'):
+                    pass
+            # Ignore special subdirectories
+            dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 
 
-def apply_autopep8(target_dir):
+def apply_autopep8(target_dir: str) -> None:
     """Run autopep8 --in-place on the target directory, if that package is installed"""
     if importlib.util.find_spec("autopep8"):
-        import autopep8
+        import autopep8  # type: ignore
         options = autopep8.parse_args(arguments=['-i', '-r', target_dir])
         autopep8.fix_multiple_files([target_dir], options=options)
     else:
-        logging.warn("Tried to run autopep8, but module not found.")
+        logging.warning("Tried to run autopep8, but module not found.")
 
 
-def generate_classes(root_dir, gen_dir, src_dir, silent):
+def validate_xml_file(xml_path: str, xsd_schema: 'XMLSchema11', doc_tree: 'ElementTree') -> None:
+    """Uses xmlschema to validate the XML file against an XSD schema."""
+    if not XMLSCHEMA_INSTALLED:
+        logging.warning("xmlschema library is not installed, skipping XSD validation")
+        return
+
+    if not xsd_schema:
+        logging.warning(f"Schema file not found, skipping validation")
+        return
+        
     try:
-        if silent:
-            logging.disable(logging.ERROR)
-        logging.info("Starting class generation")
-        source_dir = os.path.join(root_dir, src_dir)
-        target_dir = os.path.join(root_dir, gen_dir)
-        formats_dir = os.path.join(source_dir, "formats")
-        copy_src_to_generated(source_dir, target_dir)
-        fix_imports(target_dir)
-        parsed_xmls = {}
-        for format_name in os.listdir(formats_dir):
-            dir_path = os.path.join(formats_dir, format_name)
-            if os.path.isdir(dir_path):
-                xml_path = os.path.join(dir_path, format_name+".xml")
-                if os.path.isfile(xml_path):
-                    if os.path.realpath(xml_path) in parsed_xmls:
-                        logging.info(f"Already read {format_name}, skipping")
-                    else:
-                        logging.info(f"Reading {format_name} format")
-                        xmlp = XmlParser(format_name, root_dir, gen_dir=gen_dir)
-                        xmlp.load_xml(xml_path, parsed_xmls)
-        create_inits(target_dir)
-        if silent:
-            logging.disable(logging.NOTSET)
-        return 0
-    except:
-        traceback.print_exc()
-        return 1
+        validation_errors = []
+        # If lxml is available, use it to pre-parse the XML
+        # This provides source line information to xmlschema
+        if LXML_INSTALLED:
+            # Pass the parsed lxml data tree to iter_errors.
+            validation_errors = list(xsd_schema.iter_errors(doc_tree))
+        else:
+            # Fallback to xmlschema's internal parser if lxml is not installed
+            logging.debug("lxml not found, using xmlschema's default parser")
+            validation_errors = list(xsd_schema.iter_errors(xml_path))
+
+        # If the list is not empty, validation has failed.
+        if validation_errors:
+            logging.error(f"XSD validation failed for {os.path.basename(xml_path)}:")
+            for error in validation_errors:
+                # Safely access source URL and line number
+                display_file = os.path.basename(xml_path)
+                if error.source:
+                    # The source is an lxml resource object
+                    if hasattr(error.source, 'root') and error.source.root is not None and hasattr(error.source.root, 'base'):
+                        display_file = os.path.basename(error.source.root.base)
+                    # The source is the default object with a URL
+                    elif hasattr(error.source, 'url'):
+                        display_file = os.path.basename(error.source.url)
+            
+                line = error.sourceline if error.sourceline else 0
+                context = f"Line {line}"  # Default context
+                if error.elem is not None and hasattr(error.elem, 'tag'):
+                    context = f"<{error.elem.tag.split('}')[-1]}> at Line {line}"
+
+                message = error.reason
+                # Check if the error is from an XsdAssert and has a documented message
+                if hasattr(error.validator, 'annotation') and error.validator.annotation:
+                    # The .documentation attribute is a list of Element objects.
+                    # We extract the .text from each and join them into a single string.
+                    if error.validator.annotation is None:
+                        logging.warning(f"File: {display_file}, {context} - {message}")
+                    doc_texts = [doc.text for doc in error.validator.annotation.documentation if doc.text]
+                    if doc_texts:
+                        message = ' '.join(doc_texts).strip()
+
+                logging.error(
+                    f"  File: {display_file}, {context} - {message}"
+                )
+            # Raise an exception to stop the parsing of this file.
+            raise XmlValidationError("Validation failed with xmlschema")
+
+        # Set to track which 'once-per-file' messages have been printed
+        printed_once_per_file_messages = set()
+
+        if doc_tree is not None:
+            for element in doc_tree.iter():
+                if not isinstance(element.tag, str):
+                    continue
+
+                xsd_component = xsd_schema.find(element.tag)
+                if not xsd_component or not isinstance(xsd_component, xmlschema.XsdElement):
+                    continue
+
+                component_to_check = xsd_component.ref if xsd_component.ref else xsd_component
+                if component_to_check and component_to_check.annotation:
+                    doc_texts = [doc.text for doc in component_to_check.annotation.documentation if doc.text and doc.text.strip()]
+                    if doc_texts:
+                        message = ' '.join(doc_texts).strip().replace('\n', ' ').strip()
+                        # Default frequency is 'per-instance'
+                        frequency = 'per-instance'
+                        # Check for our custom appinfo metadata
+                        if component_to_check.annotation.appinfo:
+                            # .appinfo is a list of the <xs:appinfo> elements
+                            for appinfo_element in component_to_check.annotation.appinfo:
+                                # We need to look at the CHILDREN of the <xs:appinfo> element
+                                for info_child in appinfo_element:
+                                    if info_child.tag == 'info':
+                                        # Found our custom <info> tag, now get its attribute
+                                        frequency = info_child.get('frequency', 'per-instance')
+                                        break  # Stop after finding the first <info> tag
+                                else:
+                                    continue # Continue if inner loop didn't break
+                                break # Stop after processing first <xs:appinfo> with an <info> tag
+                        
+                        # Decide whether to print the message
+                        if frequency == 'once-per-file':
+                            if message not in printed_once_per_file_messages:
+                                logging.info(f"  {os.path.basename(xml_path)}: {message}")
+                                printed_once_per_file_messages.add(message)
+                        else: # Default 'per-instance' behavior
+                            line = element.sourceline
+                            logging.info(f"  <{element.tag.split('}')[-1]}> at Line {line}: {message}")
+
+        # If the list is empty, validation was successful.
+        logging.info(f"Successfully validated {os.path.basename(xml_path)} with xmlschema")
+
+    except PARSING_EXCEPTIONS as e:
+        # Catch errors related to parsing the schema or XML itself.
+        logging.error(f"A parsing error occurred during xmlschema validation for {os.path.basename(xml_path)}: {e}")
+        raise
+    except Exception as e:
+        # Catch any other unexpected errors.
+        if isinstance(e, XmlValidationError):
+            raise # Re-raise our exception to signal failure.
+        logging.error(f"An unexpected error occurred during xmlschema validation for {os.path.basename(xml_path)}: {e}")
+        raise
 
 
-if __name__ == '__main__':
+def discovery_pass(formats_dir: str, cfg: 'Config', xsd_schema: 'XMLSchema11', formats: list[str] | None) -> tuple[NamespacedTypes, FormatDependencies, list[str]]:
+    """
+    Validates XML with XMLSchema and performs a lightweight pass over all XML files to build:
+    1. A namespaced map of all defined types: {format: {type: path}}.
+    2. A dependency map for each format: {format: [dependency_format]}. (Only for <module>, not XInclude)
+    """
+    logging.info("Starting discovery pass...", extra={'msg_id': LogMessageID.DISCOVERY_START})
+    namespaced_types: NamespacedTypes = {}
+    format_dependencies: FormatDependencies = {}
+    validation_errors: list[str] = []
+
+    dummy_parser = XmlParser("dummy", cfg)
+    
+    all_roots = {}
+    format_names: list[str] = [d for d in os.listdir(formats_dir) if os.path.isdir(os.path.join(formats_dir, d))]
+
+    # First pass: Parse XMLs, apply conventions, and find dependencies
+    for format_name in format_names:
+        namespaced_types[format_name] = {}
+        format_dependencies[format_name] = []  # No defaults for now
+        xml_path = os.path.join(formats_dir, format_name, f"{format_name}.xml")
+        if os.path.isfile(xml_path):
+            tree: ElementTree | None = None
+            root: Element | None = None
+            try:
+                # Use lxml if available
+                if LXML_INSTALLED and ET:
+                    parser = ET.XMLParser(remove_blank_text=True)
+                    tree = ET.parse(xml_path, parser)
+                    root = tree.getroot()
+                else:
+                    tree = ET.parse(xml_path)
+                    root = tree.getroot()
+                should_validate = (formats is None) or (format_name in formats)
+                if xsd_schema and should_validate:
+                    validate_xml_file(xml_path, xsd_schema, tree)
+            except (XmlValidationError, Exception) as e:
+                # If validation fails, add the format to our error list and skip it
+                logging.error(f"Validation failed for '{format_name}'. It will be excluded from generation.")
+                validation_errors.append(format_name)
+                continue
+
+            all_roots[format_name] = root
+            for child in root:
+                dummy_parser.apply_conventions(child)
+                # Check for an explicit module dependency
+                if child.tag == "module" and "depends" in child.attrib:
+                    # Override default dependencies
+                    format_dependencies[format_name] = child.attrib["depends"].split()
+
+    # Second pass: Build the namespaced path dict
+    for format_name, root in all_roots.items():
+        base_segments = os.path.join("formats", format_name)
+        for child in root:
+            if not isinstance(child.tag, str):
+                continue
+            if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
+                class_name = child.attrib.get("name")
+                if not class_name:
+                    continue
+                
+                if child.tag == "module":
+                    path = os.path.join(base_segments, class_name)
+                elif child.tag == "basic":
+                    # Basics are typically shared, place them under their format's 'basic' folder
+                    path = os.path.join(base_segments, "basic")
+                else:
+                    module_name = child.attrib.get("module")
+                    current_base = namespaced_types[format_name].get(module_name, base_segments)
+                    path = os.path.join(current_base, pluralize_name(child.tag), class_name)
+                
+                namespaced_types[format_name][class_name] = path
+                
+    logging.info(f"Discovery complete. Found {sum(len(v) for v in namespaced_types.values())} types across {len(format_names)} formats.",
+                 extra={'msg_id': LogMessageID.DISCOVERY_COMPLETE})
+    return namespaced_types, format_dependencies, validation_errors
+
+
+def _handle_error(exc: Exception, xml_path: str) -> ExitCode:
+    """Logs an error, updates the validation list, and returns the appropriate exit code."""
+    format_name = os.path.basename(os.path.dirname(xml_path))
+    
+    #if isinstance(exc, XmlValidationError):
+    #    logging.error(f"Skipping '{format_name}' due to a validation error.")
+    #    validation_errors.append(format_name)
+    #    return ExitCode.VALIDATION_ERROR
+    #else:
+    # For any other unexpected error, log the full traceback.
+    logging.error(f"An unexpected error occurred while processing '{format_name}'.\n{traceback.format_exc()}")
+    return ExitCode.UNEXPECTED_ERROR
+
+
+def generate_classes(cfg: 'Config', formats: list[str] | None = None) -> ExitCode:
+    start_time = time.monotonic()
+    if cfg.silent:
+        logging.disable(logging.ERROR)
+    logging.info("Starting class generation", extra={'msg_id': LogMessageID.GENERATION_START})
+    source_dir = os.path.join(cfg.root_dir, cfg.src_dir)
+    target_dir = os.path.join(cfg.root_dir, cfg.gen_dir)
+    formats_dir = os.path.join(source_dir, "formats")
+
+    # Load XSD Schema
+    xsd_schema = None
+    if XMLSCHEMA_INSTALLED:
+        schema_path = os.path.abspath(os.path.join(cfg.src_dir, "schema", "codegen_schema_11.xsd"))
+        if os.path.exists(schema_path):
+            logging.info("Loading and compiling XSD schema...", extra={'msg_id': LogMessageID.SCHEMA_LOAD_START})
+            try:
+                xsd_schema = xmlschema.XMLSchema11(schema_path)
+                logging.info("Schema loaded successfully.", extra={'msg_id': LogMessageID.SCHEMA_LOAD_SUCCESS})
+            except Exception as e:
+                logging.error(f"Failed to load or parse XSD schema: {e}", extra={'msg_id': LogMessageID.SCHEMA_LOAD_FAIL})
+                return ExitCode.INVALID_SCHEMA # Abort if the schema itself is invalid
+        else:
+            logging.warning(f"Schema file not found at {schema_path}, skipping validation.", extra={'msg_id': LogMessageID.SCHEMA_NOT_FOUND})
+
+    # Run the discovery pass
+    (namespaced_types,
+    format_dependencies,
+    validation_errors) = discovery_pass(formats_dir, cfg, xsd_schema, formats)
+    logging.info(f"Discovery pass finished in {time.monotonic()-start_time:.2f} seconds.")
+    
+    if validation_errors and cfg.abort_on_error:
+        logging.error("=" * 40)
+        logging.error("Aborting before generation due to validation errors.")
+        logging.error(f"Failed formats: {', '.join(validation_errors)}")
+        logging.error("=" * 40)
+        return ExitCode.VALIDATION_ERROR
+
+    is_selective_run = formats is not None
+    # Use the provided list for a selective run, or scan the directory for a full run.
+    formats_to_process = formats if is_selective_run else os.listdir(formats_dir)
+    # Exclude failed formats from all subsequent steps
+    failed_formats = set(validation_errors)
+    valid_formats_to_process = [fmt for fmt in formats_to_process if fmt not in failed_formats]
+
+    # Build the list of full XML file paths from the format names
+    files_to_generate = []
+    for format_name in valid_formats_to_process:
+        dir_path = os.path.join(formats_dir, format_name)
+        if os.path.isdir(dir_path):
+            xml_path = os.path.join(dir_path, f"{format_name}.xml")
+            if os.path.isfile(xml_path):
+                files_to_generate.append(xml_path)
+    
+    subfolders_to_process = []
+    if is_selective_run:
+        for format_name in formats:
+            src_format_dir = os.path.join(formats_dir, format_name)
+            trg_format_dir = os.path.join(target_dir, "formats", format_name)
+            if os.path.isdir(src_format_dir):
+                subfolders_to_process.append((src_format_dir, trg_format_dir))
+        copy_src_to_generated(subfolders_to_process, cfg)
+    else:
+        # Full run copies the entire top-level directory
+        copy_src_to_generated([(source_dir, target_dir)], cfg)
+
+    fix_imports(target_dir)
+
+    # Perform the generation pass
+    parsed_xmls: dict[str, 'XmlParser'] = {}
+    exit_code = ExitCode.VALIDATION_ERROR if validation_errors else ExitCode.SUCCESS
+    is_running_sequentially = (
+        "pytest" in sys.modules or not cfg.concurrent
+    )
+    if is_running_sequentially:
+        # Sequential execution for tests, debugging, or profiling
+        logging.info(f"Processing {len(files_to_generate)} formats in single-process mode...", extra={'msg_id': LogMessageID.PROCESSING_SINGLE})
+        for xml_path in files_to_generate:
+            try:
+                process_single_format(
+                    xml_path, cfg, namespaced_types, format_dependencies, parsed_xmls
+                )
+            except Exception as e:
+                run_exit_code = _handle_error(e, xml_path)
+                if run_exit_code > exit_code:
+                    exit_code = run_exit_code
+                if exit_code == ExitCode.UNEXPECTED_ERROR:
+                    return exit_code
+    else:  # pragma: no cover
+        with ProcessPoolExecutor() as executor:
+            # Submit each file to the executor to be processed
+            futures = {
+                # Pass the validation_cache to each worker
+                executor.submit(
+                    process_single_format, xml_path, cfg, namespaced_types, format_dependencies
+                ): xml_path
+                for xml_path in files_to_generate
+            }
+
+            logging.info(f"Processing {len(files_to_generate)} formats in parallel...",
+                         extra={'msg_id': LogMessageID.PROCESSING_MULTI})
+
+            # Process the results as they are completed.
+            for future in as_completed(futures):
+                xml_path = futures[future]
+                try:
+                    future.result()
+                except Exception as e:
+                    run_exit_code = _handle_error(e, xml_path)
+                    if run_exit_code > exit_code:
+                        exit_code = run_exit_code
+                    if exit_code == ExitCode.UNEXPECTED_ERROR:
+                        executor.shutdown(wait=False, cancel_futures=True)
+                        return exit_code
+
+    if validation_errors:
+        logging.warning("=" * 40)
+        logging.warning(f"Codegen finished with validation errors.", extra={'msg_id': LogMessageID.VALIDATION_ERRORS_HEADER})
+        logging.warning(f"Total files skipped: {len(validation_errors)}")
+        logging.warning(f"Validation errors: {', '.join(validation_errors)}")
+        logging.warning("=" * 40)
+
+    create_inits([target_dir])
+
+    if cfg.silent:
+        logging.disable(logging.NOTSET)
+
+    end_time = time.monotonic()
+    duration = end_time - start_time
+    logging.info(f"Class generation finished in {duration:.2f} seconds.", extra={'msg_id': LogMessageID.GENERATION_FINISH_TIME})
+        
+    return exit_code
+
+
+if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(prog='codegen')
     parser.add_argument('-g', '--generated-dir', default="generated")
     parser.add_argument('-s', '--source-dir', default="source")
+    parser.add_argument(
+        '-f', '--formats',
+        nargs='+',
+        help="A list of specific format names to generate (e.g. `fgm tex`). If not provided, all formats are processed."
+    )
+    parser.add_argument('--no-stubs', action='store_true', help="Disable generation of .pyi stub files")
+    parser.add_argument('--copy-xml', action='store_true', help="Copy XML files from the source to the generated directory")
+    parser.add_argument('--abort-on-error', action='store_true', help="Abort if there are any validation errors")
     parser.add_argument('--silent', action='store_true')
+
     args = parser.parse_args()
-    exit_code = generate_classes(os.getcwd(), gen_dir=args.generated_dir, src_dir=args.source_dir, silent=args.silent)
+
+    config = Config(
+        root_dir=os.getcwd(),
+        gen_dir=args.generated_dir,
+        src_dir=args.source_dir,
+        silent=args.silent,
+        write_stubs=not args.no_stubs,
+        copy_xml=args.copy_xml,
+        abort_on_error=args.abort_on_error,
+        concurrent=False,  # No real speedup for now, set to True in the event it becomes worth it
+    )
+
+    exit_code = generate_classes(config, formats=args.formats)
     try:
         exit(exit_code)
     except NameError:

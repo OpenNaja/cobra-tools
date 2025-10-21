@@ -1,13 +1,21 @@
-from .BaseClass import BaseClass
 import logging
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from . import Config, Element
+    from .XmlParser import XmlParser
+
+from .Basics import Basics
+from .BaseClass import BaseClass
+from .Imports import Imports
+from .naming_conventions import name_class
 
 
 class Bitfield(BaseClass):
 
-    def __init__(self, parser, struct, gen_dir, src_dir, root_dir):
-        super().__init__(parser, struct, gen_dir, src_dir, root_dir)
+    def __init__(self, parser: 'XmlParser', struct: 'Element', cfg: 'Config') -> None:
+        super().__init__(parser, struct, cfg)
 
-    def map_pos(self):
+    def map_pos(self) -> None:
         """Generate position if it does not exist"""
         pos = 0
         for field in self.struct:
@@ -16,9 +24,9 @@ class Bitfield(BaseClass):
                 field.attrib["pos"] = str(pos)
                 pos += int(num_bits)
 
-    def get_mask(self):
+    def get_mask(self) -> None:
         """Generate position if it does not exist"""
-        for field in self.struct:
+        for field in self.elements:
             if not field.attrib.get('mask'):
                 if "numbits" in field.attrib:
                     num_bits = int(field.attrib["numbits"])
@@ -37,7 +45,7 @@ class Bitfield(BaseClass):
                 mask = ~((~0) << (pos + num_bits)) & ((~0) << pos)
                 field.attrib['mask'] = str(hex(mask))
 
-    def read(self):
+    def read(self) -> None:
         """Create a self.struct class"""
         super().read()
         storage = self.struct.attrib["storage"]
@@ -58,7 +66,7 @@ class Bitfield(BaseClass):
                     self.write_line(
                         f, 1, f"{field.attrib['enum_name']} = 2 ** {field.attrib['bit']}"
                     )
-            for field in self.struct:
+            for field in self.elements:
                 field_name = field.attrib["name"]
                 field_type = field.attrib.get("type", "int")
                 if field_type not in self.parser.builtin_literals:
@@ -70,7 +78,7 @@ class Bitfield(BaseClass):
             self.write_line(f, 0)
             self.write_line(f, 1, f"def set_defaults(self):")
             defaults = []
-            for field in self.struct:
+            for field in self.elements:
                 field_name = field.attrib["name"]
                 field_type = field.attrib.get("type", "int")
                 field_default = field.attrib.get("default")
@@ -94,3 +102,40 @@ class Bitfield(BaseClass):
 
             self.write_src_body(f)
             self.write_line(f)
+
+        if self.write_stubs:
+            self.write_pyi()
+
+    def write_pyi(self) -> None:
+        """Writes the .pyi type stub file for this bitfield."""
+        with open(self.out_pyi_file, "w", encoding=self.parser.encoding) as f:
+            pyi_imports = Imports(self.parser, self.struct, self.gen_dir, for_pyi=True)
+            pyi_imports.add(self.class_basename)
+            pyi_imports.write(f)
+
+            class_call = self.get_class_call().strip()
+            f.write(f"{class_call[:-1] if class_call.endswith(':') else class_call}:\n")
+
+            basics: Basics | None = self.parser.basics
+            for field in self.elements:
+                field_name = field.attrib["name"]
+                # After conventions, type is capitalized, e.g., "Uint", "Byte"
+                field_type_cased = field.attrib.get("type", "Int")
+                # Map basic types to built-ins
+                if basics and field_type_cased in basics.booleans:
+                    type_hint = "bool"
+                elif basics and field_type_cased in basics.strings:
+                    type_hint = "str"
+                elif basics and field_type_cased in basics.integrals:
+                    type_hint = "int"
+                elif basics and field_type_cased in basics.floats:
+                    type_hint = "float"
+                else:
+                    # It's a complex type (e.g., an enum)
+                    type_hint = field_type_cased
+
+                f.write(f"    {field_name}: {type_hint}\n")
+
+            if self.struct.tag == 'bitflags':
+                for field in self.elements:
+                    f.write(f"    {field.attrib['enum_name']}: int\n")

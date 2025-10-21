@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat>
+
+    <!-- Define version expression tokens for cleaner conditions in 'vercond' attributes. -->
+    <token name="verexpr" attrs="vercond">
+        <verexpr token="#V1#" string="(#VER# #EQ# 1)">Version 1 of the format.</verexpr>
+        <verexpr token="#V2#" string="(#VER# #EQ# 2)">Version 2 of the format.</verexpr>
+        <verexpr token="#V2_OR_LATER#" string="(#VER# #GTE# 2)">Version 2 or any subsequent version.</verexpr>
+    </token>
+
+    <!-- 
+    Include the base definitions from ovl_base.xml.
+    This provides common types like GenericHeader, MemStruct, Pointer, ZString, etc.
+    -->
+    <xi:include href="../ovl_base/ovl_base.xml"
+        xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <!-- === 1. Versioning System Demonstration === -->
+
+    <!-- Define the actual versions of this example format. -->
+    <version id="V1_RELEASE" version="1">Example Format Version 1</version>
+    <version id="V2_BETA" version="2" user_version="1234">Example Format Version 2</version>
+    <version id="V3_ALPHA" version="3" user_version="5678">Example Format Version 3</version>
+
+    <!-- === 2. Custom Data Type Definitions === -->
+
+    <!-- An example enum with a specific storage type. -->
+    <enum name="ExampleEnum" numbytes="2" storage="ushort">
+        <option value="0" name="STATUS_INACTIVE" />
+        <option value="1" name="STATUS_ACTIVE" />
+        <option value="100" name="STATUS_DELETED" />
+    </enum>
+
+    <!-- An example bitfield demonstrating members of various sizes. -->
+    <bitfield name="ExampleFlags" storage="uint">
+        <member width="1" pos="0" name="bool_0" type="bool" />
+        <member width="1" pos="1" name="bool_1_default" type="bool" default="1" />
+        <member width="4" pos="4" name="uint_4" type="uint" />
+        <member width="2" pos="2" name="ushort_6" type="ushort" />
+    </bitfield>
+
+    <bitstruct name="ExampleBitstruct" numbytes="4" storage="uint">
+        <bits name="field_1" numbits="1" default="1">Comment</bits>
+        <bits name="field_2" numbits="1" />
+        <bits name="field_3" numbits="1" />
+        <bits name="field_4" numbits="1" />
+        <bits name="field_5" numbits="8" />
+        <bits name="field_6" numbits="1" default="1">Comment</bits>
+        <bits name="field_7" numbits="4" />
+        <bits name="field_8" numbits="1" />
+        <bits name="field_9" numbits="1" />
+        <bits name="field_10" numbits="1" />
+        <bits name="field_11" numbits="3" />
+        <bits name="field_12" numbits="1" />
+    </bitstruct>
+
+    <bitflags name="ExampleBitflags" storage="uint">
+        <option bit="0" name="FLAG_1" />
+        <option bit="1" name="FLAG_2" />
+        <option bit="2" name="FLAG_3" />
+        <option bit="3" name="FLAG_4" />
+        <option bit="4" name="FLAG_5" />
+        <option bit="5" name="FLAG_6" />
+        <option bit="6" name="FLAG_7" />
+        <option bit="7" name="FLAG_8" />
+        <option bit="8" name="FLAG_9" />
+        <option bit="9" name="FLAG_10" />
+    </bitflags>
+
+    <!-- === 3. Struct (Compound) Demonstrations === -->
+
+    <!-- A struct that is vectorized with numpy -->
+    <struct name="StructAllowNumPy" size="6" allow_np="true">
+        A signed int16 vector in 3D space (x,y,z).
+        <field name="x" type="short">First coordinate.</field>
+        <field name="y" type="short">Second coordinate.</field>
+        <field name="z" type="short">Third coordinate.</field>
+    </struct>
+
+    <!-- A struct that is vectorized with numpy -->
+    <struct name="StructAllowNumPyForceBool" size="6" allow_np="1"> <!-- Test force_bool -->
+        An unsigned int16 vector in 3D space (x,y,z).
+        <field name="x" type="ushort">First coordinate.</field>
+        <field name="y" type="ushort">Second coordinate.</field>
+        <field name="z" type="ushort">Third coordinate.</field>
+    </struct>
+
+    <!-- A struct with various basic types from base.xml. -->
+    <struct name="StructWithBasicTypes" inherit="MemStruct">
+        A basic structure with various primitive data types.
+        <field name="uint_field" type="uint" />
+        <field name="float_field" type="float" />
+        <field name="int64_field_with_default" type="int64" default="-1" />
+        <field name="bool_field_with_default" type="bool" default="False" />
+        <field name="bool_field_with_lc_true" type="bool" default="true" />
+        <field name="bool_field_with_lc_false" type="bool" default="false" />
+        <field name="fixed_string_field" type="FixedString" arg="64">A fixed-size string.</field>
+    </struct>
+
+    <struct name="struct_snake_case" inherit="StructWithBasicTypes"/>
+
+    <!-- A struct that uses the custom enum and bitfield defined above. -->
+    <struct name="StructWithCustomTypes" inherit="MemStruct">
+        Demonstrates using custom enums and bitfields.
+        <field name="enum_field" type="ExampleEnum" />
+        <field name="bitfield_field" type="ExampleFlags" />
+        <field name="bitstruct_field" type="ExampleBitstruct" />
+        <field name="bitflags_field" type="ExampleBitflags" />
+        <field name="pointer_to_zstring_field" type="Pointer" template="ZString">A pointer to a null-terminated string.</field>
+    </struct>
+
+    <!-- A struct demonstrating extensive conditional logic. -->
+    <compound name="StructWithConditionalFields" inherit="MemStruct">
+        Shows conditional fields based on version ('vercond') and other field values ('cond').
+        <add name="condition_flag_field" type="bool" />
+        <add name="branch_selector" type="uint">0 for integer, 1 for float.</add>
+        <!-- Field only present in Version 1. -->
+        <add name="version_1_only_field" type="uint" vercond="#V1#">This field only exists in Version 1.</add>
+        <!-- Field only present in Version 2 and later. -->
+        <add name="version_2_plus_field" type="float" vercond="#V2_OR_LATER#">This field only exists in Version 2 and later.</add>
+        <!-- Field conditionally present based on another field's value. -->
+        <add name="conditionally_present_pointer" type="Pointer" template="ZString" cond="condition_flag_field">This field only exists if the flag is true.</add>
+        <!-- Union-like behavior: Two fields with the same name but mutually exclusive conditions. -->
+        <add name="union_field" type="int" cond="branch_selector #EQ# 0">Integer value for the union.</add>
+        <add name="union_field" type="float" cond="branch_selector #EQ# 1">Float value for the union.</add>
+    </compound>
+
+    <!-- A struct demonstrating arrays and expressions in attributes. -->
+    <struct name="StructWithArraysAndExpressions" inherit="MemStruct">
+        Demonstrates static arrays, dynamic arrays, and expressions.
+        <field name="dynamic_array_count" type="uint" />
+        <field name="dynamic_array_pointer" type="ArrayPointer" template="StructWithBasicTypes" arg="dynamic_array_count">A dynamic array whose size is determined by 'dynamic_array_count'.</field>
+        <field name="static_array_field" type="StructWithBasicTypes" arr1="4">A static array of 4 elements.</field>
+        <field name="expression_array_count" type="uint" default="2" />
+        <field name="expression_sized_array_field" type="uint" arr1="expression_array_count #MUL# 2">An array whose size is an expression: double the 'expression_array_count' field.</field>
+    </struct>
+
+    <!-- A struct demonstrating templating for generic programming. -->
+    <compound name="StructWithGenericTemplate" inherit="MemStruct">
+        A generic container that can point to any type. The '#T#' syntax indicates a generic type parameter.
+        <add name="generic_array_count" type="uint" />
+        <add name="generic_array_pointer" type="ArrayPointer" template="#T#" arg="generic_array_count">A pointer to an array of a generic type, to be specified on instantiation.</add>
+    </compound>
+
+    <!-- A struct dedicated to testing all operator tokens from base.xml -->
+    <struct name="StructWithOperatorExpressions" inherit="MemStruct">
+        Tests arithmetic, bitwise, comparison, and logical operators in field attributes.
+        <!-- Operands for the expressions -->
+        <field name="operand_a" type="uint" default="10" />
+        <field name="operand_b" type="uint" default="20" />
+        <field name="bool_a" type="bool" default="True" />
+        <field name="bool_b" type="bool" default="False" />
+        <!-- Arithmetic operators tested in 'arr1' -->
+        <field name="add_result" type="byte" arr1="operand_a #ADD# operand_b" />
+        <field name="sub_result" type="byte" arr1="operand_b #SUB# operand_a" />
+        <field name="mul_result" type="byte" arr1="operand_a #MUL# 3" />
+        <field name="div_result" type="byte" arr1="operand_b #DIV# operand_a" />
+        <field name="mod_result" type="byte" arr1="operand_a #MOD# 3" />
+        <!-- Bitwise operators tested in 'arr1' -->
+        <field name="lsh_result" type="byte" arr1="operand_a #LSH# 1" />
+        <field name="rsh_result" type="byte" arr1="operand_b #RSH# 2" />
+        <field name="bitand_result" type="byte" arr1="operand_a #BITAND# 15" />
+        <field name="bitor_result" type="byte" arr1="operand_b #BITOR# 5" />
+        <!-- Comparison and Logical operators tested in 'cond' -->
+        <field name="lt_cond_field" type="uint" cond="operand_a #LT# operand_b" />
+        <field name="gt_cond_field" type="uint" cond="operand_b #GT# operand_a" />
+        <field name="lte_cond_field" type="uint" cond="operand_a #LTE# 10" />
+        <field name="gte_cond_field" type="uint" cond="operand_b #GTE# 20" />
+        <field name="eq_cond_field" type="uint" cond="operand_a #EQ# 10" />
+        <field name="neq_cond_field" type="uint" cond="operand_a #NEQ# operand_b" />
+        <field name="and_cond_field" type="uint" cond="(operand_a #EQ# 10) #AND# (bool_a)" />
+        <field name="or_cond_field" type="uint" cond="bool_a #OR# bool_b" />
+    </struct>
+
+    <!-- Struct that inherits Pointer, to test Generic inheritance in .pyi -->
+    <struct name="StructInheritsPointer" inherit="Pointer" />
+    <!-- Struct that inherits ArrayPointer, to test Generic inheritance in .pyi -->
+    <struct name="StructInheritsArrayPointer" inherit="ArrayPointer" />
+
+    <!-- The root object for this example file format -->
+    <struct name="ExampleFormatRoot" inherit="MemStruct">
+        The main root structure for this example file format.
+        <field name="header_field" type="GenericHeader" />
+        <field name="pointer_to_array_struct" type="Pointer" template="StructWithArraysAndExpressions" />
+        <field name="object_array_count" type="uint64" />
+        <field name="object_array_pointer" type="ArrayPointer" template="StructWithConditionalFields" arg="object_array_count" />
+        <field name="fixed_size_array_pointer" type="ArrayPointer" template="StructWithCustomTypes" arg="50">A pointer to a fixed-size array of 50 elements.</field>
+        <field name="pointer_to_operator_struct" type="Pointer" template="StructWithOperatorExpressions" />
+        <field name="pointer_to_generic_container" type="Pointer" template="StructWithGenericTemplate" />
+        <field name="fixed_size_array" type="uint" arr1="16" />
+        <field name="fixed_size_array_2d" type="uint" arr1="2" arr2="16" />
+        <field name="fixed_size_array_3d" type="uint" arr1="1" arr2="2" arr3="16" />
+        <field name="fixed_size_ndarray" type="StructAllowNumPy" arr1="16" />
+        <field name="fixed_size_ndarray_2d" type="StructAllowNumPy" arr1="2" arr2="16" />
+        <field name="fixed_size_ndarray_3d" type="StructAllowNumPy" arr1="1" arr2="2" arr3="16" />
+        <field name="fixed_size_ndarray_fb" type="StructAllowNumPyForceBool" arr1="16" />
+        <field name="struct_inherits_pointer" type="StructInheritsPointer" />
+        <field name="struct_inherits_array_pointer" type="StructInheritsArrayPointer" />
+    </struct>
+
+</fileformat>
