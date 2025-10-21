@@ -235,11 +235,18 @@ def discovery_pass(formats_dir: str, cfg: 'Config', xsd_schema: 'XMLSchema11', f
                 should_validate = (formats is None) or (format_name in formats)
                 if xsd_schema and should_validate:
                     validate_xml_file(xml_path, xsd_schema, tree)
-            except (XmlValidationError, Exception) as e:
+            except PARSING_EXCEPTIONS as e:
+                logging.error(f"Failed to parse '{format_name}' due to a syntax error:\n\t{e}")
+                validation_errors.append(format_name)
+                continue
+            except XmlValidationError as e:
                 # If validation fails, add the format to our error list and skip it
                 logging.error(f"Validation failed for '{format_name}'. It will be excluded from generation.")
                 validation_errors.append(format_name)
                 continue
+            except Exception as e:
+                if _handle_error(e, xml_path) == ExitCode.UNEXPECTED_ERROR:
+                    raise e
 
             all_roots[format_name] = root
             for child in root:
