@@ -11,14 +11,14 @@
 
     <!-- Root element definition -->
     <xs:element name="niftoolsxml">
-        <!--<xs:annotation>
+        <xs:annotation>
             <xs:documentation>
                 DEPRECATED: The niftoolsxml element is deprecated. Please use `fileformat` instead.
             </xs:documentation>
             <xs:appinfo>
                 <info type="deprecation" frequency="once-per-file" />
             </xs:appinfo>
-        </xs:annotation>-->
+        </xs:annotation>
         <xs:complexType mixed="true">  <!-- TODO: Remove mixed="true" and force comments instead -->
             <xs:sequence>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -300,7 +300,7 @@
     </xs:complexType>
 
     <!-- <compound> -->
-    <xs:element name="compound" type="structType"><!--
+    <xs:element name="compound" type="structType">
         <xs:annotation>
             <xs:documentation>
                 DEPRECATED: The compound element is deprecated. Please use the struct element instead.
@@ -308,7 +308,7 @@
             <xs:appinfo>
                 <info type="deprecation" frequency="once-per-file" />
             </xs:appinfo>
-        </xs:annotation>-->
+        </xs:annotation>
     </xs:element>
     <!-- <struct> -->
     <xs:element name="struct" type="structType"/>

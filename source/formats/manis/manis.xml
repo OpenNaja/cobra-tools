@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<token name="verexpr" attrs="vercond">
 		<verexpr token="#DLA#" string="(#VER# #EQ# 256)">DLA</verexpr>mock version defined on export
@@ -71,376 +71,376 @@
 		<member width="1" pos="2" name="z" type="bool"/>
 	</bitfield>
 
-    <compound name="ManisRoot" inherit="MemStruct">
+    <struct name="ManisRoot" inherit="MemStruct">
 		24 bytes for DLA, ZTUAC, PC, JWE, old PZ
 		32 bytes for PZ1.6+, JWE2
-		<add name="mani files size" type="ushort">16 * mani count</add>
-        <add name="hash block size" type="ushort">4 * string count</add>
-		<add name="zero 0" type="uint"/>
-        <add name="zero 1" type="uint64" />
-        <add name="zero 2" type="uint64" />
-        <add name="zero 3" type="uint64" since="260" />
-    </compound>
+		<field name="mani files size" type="ushort">16 * mani count</field>
+        <field name="hash block size" type="ushort">4 * string count</field>
+		<field name="zero 0" type="uint"/>
+        <field name="zero 1" type="uint64" />
+        <field name="zero 2" type="uint64" />
+        <field name="zero 3" type="uint64" since="260" />
+    </struct>
 
-	<compound name="ManiInfo" >
+	<struct name="ManiInfo" >
         288 bytes for JWE (last member is not padded at end in stock) / PZ
         304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
         320 bytes for war
         304 bytes for PC2, possibly different manis dtype apparently use_ushort has moved
-        <add name="ref" type="Empty"/>
-        <add name="duration" type="float"/>
-		<add name="FrameCount" type="uint"/>
+        <field name="ref" type="Empty"/>
+        <field name="duration" type="float"/>
+		<field name="FrameCount" type="uint"/>
 		determines the format of keys data
-		<add name="dtype" type="ManisDtype" vercond="!#PC2#"/>
-		<add name="dtype" type="ManisDtypePC2" vercond="#PC2#"/>
-		<add name="zeros 0 " type="uint" arr1="3"/>
-		<add name="extra pc 1" type="ushort" until="258"/>jwe1 also
-		<add name="PosBoneCount" type="ushort"/>
-		<add name="OriBoneCount" type="ushort"/>
-		<add name="SclBoneCount" type="ushort"/>
-		<add name="unk_count_0" type="ushort"/>JWE2 dev mentions MorphCount and VisCount
-		<add name="unk_count_1" type="ushort"/>
-		<add name="unk_count_2" type="ushort"/>
-		<add name="extra count " type="ushort" vercond="#PC2#"/>
-		<add name="FloatCount" type="ushort"/>
+		<field name="dtype" type="ManisDtype" vercond="!#PC2#"/>
+		<field name="dtype" type="ManisDtypePC2" vercond="#PC2#"/>
+		<field name="zeros 0 " type="uint" arr1="3"/>
+		<field name="extra pc 1" type="ushort" until="258"/>jwe1 also
+		<field name="PosBoneCount" type="ushort"/>
+		<field name="OriBoneCount" type="ushort"/>
+		<field name="SclBoneCount" type="ushort"/>
+		<field name="unk_count_0" type="ushort"/>JWE2 dev mentions MorphCount and VisCount
+		<field name="unk_count_1" type="ushort"/>
+		<field name="unk_count_2" type="ushort"/>
+		<field name="extra count " type="ushort" vercond="#PC2#"/>
+		<field name="FloatCount" type="ushort"/>
 		in DLA, these store count * frame_count
-		<add name="PosBoneCount Repeat" type="ushort" until="257"/>
-		<add name="OriBoneCount Repeat" type="ushort" until="257"/>
-		<add name="SclBoneCount Repeat" type="ushort" until="257"/>
-		<add name="unk 0" type="ushort" until="257"/>
-		<add name="unk 1" type="ushort" until="257"/>
-		<add name="root_pos_bone" type="BoneIndex" arg="dtype" default="255"/>
-		<add name="root_ori_bone" type="BoneIndex" arg="dtype" default="255"/>
-		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
+		<field name="PosBoneCount Repeat" type="ushort" until="257"/>
+		<field name="OriBoneCount Repeat" type="ushort" until="257"/>
+		<field name="SclBoneCount Repeat" type="ushort" until="257"/>
+		<field name="unk 0" type="ushort" until="257"/>
+		<field name="unk 1" type="ushort" until="257"/>
+		<field name="root_pos_bone" type="BoneIndex" arg="dtype" default="255"/>
+		<field name="root_ori_bone" type="BoneIndex" arg="dtype" default="255"/>
+		<field name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</field>
 		# these might be alignment for the pointers
-		<add name="unk 2" type="ushort" />
-		<add name="unk 3" type="ushort" />
-		<add name="unk 4" type="ushort" />
-		<add name="unk 5" type="ushort" until="257"/># on PC
-		<add name="extra zeros pc" type="ushort" arr1="6" until="257"/>for ZTUAC rhinos
+		<field name="unk 2" type="ushort" />
+		<field name="unk 3" type="ushort" />
+		<field name="unk 4" type="ushort" />
+		<field name="unk 5" type="ushort" until="257"/># on PC
+		<field name="extra zeros pc" type="ushort" arr1="6" until="257"/>for ZTUAC rhinos
 		not on JWE1
-		<add name="unk 5" type="ushort" since="260"/># on PZ, JWE2
-		<add name="unk 6" type="ushort" vercond="#PC2#"/>
-		<add name="unk 7" type="ushort" vercond="#PC2#"/>
-		<add name="unk 8" type="ushort" vercond="#PC2#"/>
-		<add name="pointers" type="uint64" arr1="27" >216 bytes</add>
-		<add name="extra_for_use_ushort" type="ushort" arr1="7" cond="dtype\use_ushort"/>PC2 goes wrong here ig
-		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
-		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
-		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
-		<add name="OriBoneMax" type="BoneIndex" arg="dtype"/>
-		<add name="SclBoneMin" type="BoneIndex" arg="dtype"/>
-		<add name="SclBoneMax" type="BoneIndex" arg="dtype"/>
-		<add name="PosBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="PosBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="OriBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="OriBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="SclBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="SclBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
-		<add name="zero 0 end" type="ushort" since="258"/>
-		<add name="zero 1 end" type="ushort" />for PC and JWE1, this is alignment and not present at the end of the mani_infos array
-		<add name="pad2" type="PadAlign" template="ref" arg="16" since="258"/>not on ZTUAC rhinos
-    </compound>
+		<field name="unk 5" type="ushort" since="260"/># on PZ, JWE2
+		<field name="unk 6" type="ushort" vercond="#PC2#"/>
+		<field name="unk 7" type="ushort" vercond="#PC2#"/>
+		<field name="unk 8" type="ushort" vercond="#PC2#"/>
+		<field name="pointers" type="uint64" arr1="27" >216 bytes</field>
+		<field name="extra_for_use_ushort" type="ushort" arr1="7" cond="dtype\use_ushort"/>PC2 goes wrong here ig
+		<field name="PosBoneMin" type="BoneIndex" arg="dtype"/>
+		<field name="PosBoneMax" type="BoneIndex" arg="dtype"/>
+		<field name="OriBoneMin" type="BoneIndex" arg="dtype"/>
+		<field name="OriBoneMax" type="BoneIndex" arg="dtype"/>
+		<field name="SclBoneMin" type="BoneIndex" arg="dtype"/>
+		<field name="SclBoneMax" type="BoneIndex" arg="dtype"/>
+		<field name="PosBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="PosBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="OriBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="OriBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="SclBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="SclBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
+		<field name="zero 0 end" type="ushort" since="258"/>
+		<field name="zero 1 end" type="ushort" />for PC and JWE1, this is alignment and not present at the end of the mani_infos array
+		<field name="pad2" type="PadAlign" template="ref" arg="16" since="258"/>not on ZTUAC rhinos
+    </struct>
 
-    <compound name="Buffer1">
+    <struct name="Buffer1">
 		the game verifies that hash and target name match
 		if they don't, the target won't be animated
-		<add name="target hashes" type="uint" arr1="#ARG#"/>
-		<add name="target names" type="ZString" arr1="#ARG#"/>
-		<add name="bone pad" type="PadAlign" template="target names" arg="4" since="260"/>not on DLA, may be present on PC, not on JWE1
-    </compound>
+		<field name="target hashes" type="uint" arr1="#ARG#"/>
+		<field name="target names" type="ZString" arr1="#ARG#"/>
+		<field name="bone pad" type="PadAlign" template="target names" arg="4" since="260"/>not on DLA, may be present on PC, not on JWE1
+    </struct>
 
-    <compound name="KeysReader">
-    </compound>
+    <struct name="KeysReader">
+    </struct>
 
-    <compound name="InfoHeader">
+    <struct name="InfoHeader">
         Custom header struct
-        <add name="version" type="ushort"/>
-        <add name="mani_version" type="ushort"/>
-        <add name="mani count" type="uint"/>
-        <add name="stream" type="ZString" />
-        <add name="names" type="ZString" arr1="mani count"/>
-        <add name="header" type="ManisRoot"/>
-        <add name="mani infos" type="ManiInfo" arr1="mani count"/>
-        <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
-        <add name="keys buffer" type="KeysReader" arg="#SELF#"/>
-    </compound>
+        <field name="version" type="ushort"/>
+        <field name="mani_version" type="ushort"/>
+        <field name="mani count" type="uint"/>
+        <field name="stream" type="ZString" />
+        <field name="names" type="ZString" arr1="mani count"/>
+        <field name="header" type="ManisRoot"/>
+        <field name="mani infos" type="ManiInfo" arr1="mani count"/>
+        <field name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
+        <field name="keys buffer" type="KeysReader" arg="#SELF#"/>
+    </struct>
 
-	<compound name="Vector4H" size="8">
+	<struct name="Vector4H" size="8">
 		<field name="x" type="normshort"/>
 		<field name="y" type="normshort"/>
 		<field name="z" type="normshort"/>
 		idiosyncratic - w is last!
 		<field name="w" type="normshort"/>
-	</compound>
+	</struct>
 
-	<compound name="Vector3H" size="8">
+	<struct name="Vector3H" size="8">
 		<field name="x" type="normshort"/>
 		<field name="y" type="normshort"/>
 		<field name="z" type="normshort"/>
-	</compound>
+	</struct>
 
-	<compound name="Vector2" size="8">
+	<struct name="Vector2" size="8">
 		<field name="x" type="float"/>
 		<field name="y" type="float"/>
-	</compound>
+	</struct>
 
-    <compound name="FloatsGrabber" >
-    </compound>
+    <struct name="FloatsGrabber" >
+    </struct>
 
-    <compound name="Segment" >
-		<add name="unk a" type="uint" >seen 0 or 2</add>
-		<add name="unk b" type="uint" >seen 0 or 2</add>
-		<add name="ptr_ori_result" type="uint64" />ready for anim_wavelet_data_rel_3
-		<add name="ptr_pos_result" type="uint64" />ready for anim_wavelet_data_rel_3
-		<add name="ptr_scale_0_result" type="uint64" />?
-		<add name="ptr_scale_1_result" type="uint64" />?
-		<add name="ptr_morph_result" type="uint64" />?
-		<add name="ptr_CompressedManiData" type="uint64" />ready for anim_decompress_handler_rel
-		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
-		<add name="ptr_compressed_keys" type="uint64" />ready for anim_decompress_handler_rel
-		<add name="zeros 1" type="uint64" />
-    </compound>
+    <struct name="Segment" >
+		<field name="unk a" type="uint" >seen 0 or 2</field>
+		<field name="unk b" type="uint" >seen 0 or 2</field>
+		<field name="ptr_ori_result" type="uint64" />ready for anim_wavelet_data_rel_3
+		<field name="ptr_pos_result" type="uint64" />ready for anim_wavelet_data_rel_3
+		<field name="ptr_scale_0_result" type="uint64" />?
+		<field name="ptr_scale_1_result" type="uint64" />?
+		<field name="ptr_morph_result" type="uint64" />?
+		<field name="ptr_CompressedManiData" type="uint64" />ready for anim_decompress_handler_rel
+		<field name="byte size" type="uint64" >to be read sequentially starting after this array </field>
+		<field name="ptr_compressed_keys" type="uint64" />ready for anim_decompress_handler_rel
+		<field name="zeros 1" type="uint64" />
+    </struct>
 
-    <compound name="String32" >
-		<add name="ref" type="Empty"/>
-		<add name="name" type="ZString"/>
-		<add name="pad" type="PadAlign" template="ref" arg="32"/>
-    </compound>
+    <struct name="String32" >
+		<field name="ref" type="Empty"/>
+		<field name="name" type="ZString"/>
+		<field name="pad" type="PadAlign" template="ref" arg="32"/>
+    </struct>
 
-    <compound name="LocBound" >
-		<add name="loc min" type="Vector3"/>
-		<add name="loc extent" type="Vector3"/>might be extent, but not sure about how it is encoded
-    </compound>
+    <struct name="LocBound" >
+		<field name="loc min" type="Vector3"/>
+		<field name="loc extent" type="Vector3"/>might be extent, but not sure about how it is encoded
+    </struct>
 
-    <compound name="SegmentsReader" >
-    </compound>
+    <struct name="SegmentsReader" >
+    </struct>
 
-	<compound name="CompressedManiData">
-		<add name="FrameCount" type="uint"/>
-		<add name="OriBoneCount" type="uint"/>
-		<add name="PosBoneCount" type="uint"/>
-		<add name="SclBoneCount" type="ushort"/>
-		<add name="MorphBoneCount" type="ushort"/>
-		<add name="zeros 18" type="uint" arr1="8" since="257">fixed 32 bytes</add>
-		<add name="name_a" type="String32" until="256"/>
-<!--		<add name="name_b" type="String32" until="256"/>-->used in DLA when no scales are keyed?
+	<struct name="CompressedManiData">
+		<field name="FrameCount" type="uint"/>
+		<field name="OriBoneCount" type="uint"/>
+		<field name="PosBoneCount" type="uint"/>
+		<field name="SclBoneCount" type="ushort"/>
+		<field name="MorphBoneCount" type="ushort"/>
+		<field name="zeros 18" type="uint" arr1="8" since="257">fixed 32 bytes</field>
+		<field name="name_a" type="String32" until="256"/>
+<!--		<field name="name_b" type="String32" until="256"/>-->used in DLA when no scales are keyed?
 		used eg in PZ animal boxes, which have scale keys
-		<add name="scale min" type="Vector3" />
-		<add name="scale max" type="Vector3" />
-		<add name="ptr_first_segment" type="uint64" />
-		<add name="unk 1" type="uint" since="257"/>
-		<add name="unk 2" type="uint" since="257" />
-		<add name="SegmentCount" type="ushort" >counts temporal segments</add>
-		<add name="QuantisationLevel" type="ushort" >usually 420 or 52905</add>
-		<add name="unk 1" type="uint" until="256"/>DLA
-		<add name="unk 2" type="uint" until="256" />DLA
-		<add name="ref2" type="Empty"/>
-		<add name="unk 3" type="uint" >?</add>
-		<add name="loc_bound_indices" type="ubyte" arr1="PosBoneCount"/>
-		<add name="anoth pad" type="PadAlign" template="ref2" arg="4"/>
-		<add name="loc_bounds" type="FloatsGrabber" arg="loc_bound_indices" />not present without pos bones
-		<add name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
-		<add name="segments" type="Segment" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
-		<add name="segments_data" type="SegmentsReader" arg="segments"/>
-	</compound>
+		<field name="scale min" type="Vector3" />
+		<field name="scale max" type="Vector3" />
+		<field name="ptr_first_segment" type="uint64" />
+		<field name="unk 1" type="uint" since="257"/>
+		<field name="unk 2" type="uint" since="257" />
+		<field name="SegmentCount" type="ushort" >counts temporal segments</field>
+		<field name="QuantisationLevel" type="ushort" >usually 420 or 52905</field>
+		<field name="unk 1" type="uint" until="256"/>DLA
+		<field name="unk 2" type="uint" until="256" />DLA
+		<field name="ref2" type="Empty"/>
+		<field name="unk 3" type="uint" >?</field>
+		<field name="loc_bound_indices" type="ubyte" arr1="PosBoneCount"/>
+		<field name="anoth pad" type="PadAlign" template="ref2" arg="4"/>
+		<field name="loc_bounds" type="FloatsGrabber" arg="loc_bound_indices" />not present without pos bones
+		<field name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
+		<field name="segments" type="Segment" arr1="SegmentCount" >give the byte size of the various temporal segments</field>
+		<field name="segments_data" type="SegmentsReader" arg="segments"/>
+	</struct>
 
-	<compound name="WarExtraPart">
-		<add name="stuff" type="ushort" arr1="24"/>
-	</compound>
+	<struct name="WarExtraPart">
+		<field name="stuff" type="ushort" arr1="24"/>
+	</struct>
 
-	<compound name="WarExtra">
-		<add name="zeros" type="uint" arr1="1"/>
-		<add name="stuff" type="WarExtraPart" arr1="4"/>
-	</compound>
+	<struct name="WarExtra">
+		<field name="zeros" type="uint" arr1="1"/>
+		<field name="stuff" type="WarExtraPart" arr1="4"/>
+	</struct>
 
-    <compound name="LimbInfo" >
-		<add name="zeros 0" type="uint64" > </add>
-		<add name="bone" type="ChannelName" arg="#ARG#">seen only ...Horselink_joint</add>
-		<add name="counta" type="uint" > </add>
-    </compound>
+    <struct name="LimbInfo" >
+		<field name="zeros 0" type="uint64" > </field>
+		<field name="bone" type="ChannelName" arg="#ARG#">seen only ...Horselink_joint</field>
+		<field name="counta" type="uint" > </field>
+    </struct>
 
-    <compound name="LimbInfoZT" >
+    <struct name="LimbInfoZT" >
 		32 bytes
-		<add name="footplant" type="ChannelName"/>
-		<add name="index b" type="ushort"/>
-		<add name="zero 0" type="ushort"/>
-		<add name="count a" type="ushort"/>
-		<add name="count b" type="ushort"/>
-		<add name="zero 1" type="ushort"/>
-		<add name="zeros" type="uint" arr1="5"/>
-    </compound>
+		<field name="footplant" type="ChannelName"/>
+		<field name="index b" type="ushort"/>
+		<field name="zero 0" type="ushort"/>
+		<field name="count a" type="ushort"/>
+		<field name="count b" type="ushort"/>
+		<field name="zero 1" type="ushort"/>
+		<field name="zeros" type="uint" arr1="5"/>
+    </struct>
 
-    <compound name="LimbChunkReader" >
-    </compound>
+    <struct name="LimbChunkReader" >
+    </struct>
 
-    <compound name="LimbChunkReaderZt" >
-    </compound>
+    <struct name="LimbChunkReaderZt" >
+    </struct>
 
-    <compound name="WeirdElementOne" >
-		<add name="float 0" type="float"> </add>
-		<add name="vec 0" type="Vector3"/>
-		<add name="zeros 0" type="uint64" arr1="2"> </add>
-		<add name="vec 1" type="Vector3"/>
-		<add name="countb" type="uint"> </add>
-    </compound>
+    <struct name="WeirdElementOne" >
+		<field name="float 0" type="float"> </field>
+		<field name="vec 0" type="Vector3"/>
+		<field name="zeros 0" type="uint64" arr1="2"> </field>
+		<field name="vec 1" type="Vector3"/>
+		<field name="countb" type="uint"> </field>
+    </struct>
 
-    <compound name="WeirdElementTwo" >
-		<add name="many floats" type="float" arr1="7"> </add>
-    </compound>
+    <struct name="WeirdElementTwo" >
+		<field name="many floats" type="float" arr1="7"> </field>
+    </struct>
 
-    <compound name="WeirdElementTwoReader" >
-    </compound>
+    <struct name="WeirdElementTwoReader" >
+    </struct>
 
-    <compound name="LimbChunk" >
+    <struct name="LimbChunk" >
 		arg is LimbInfo
-		<add name="list one" type="WeirdElementOne" arr1="#ARG#\counta" >for LimbChunk_list[n] needs limbs[n]'s counta for array length</add>
-		<add name="list two" type="WeirdElementTwoReader" arg="list one" >needs sum of countb's from weird list one</add>
-    </compound>
+		<field name="list one" type="WeirdElementOne" arr1="#ARG#\counta" >for LimbChunk_list[n] needs limbs[n]'s counta for array length</field>
+		<field name="list two" type="WeirdElementTwoReader" arg="list one" >needs sum of countb's from weird list one</field>
+    </struct>
 
-    <compound name="ElemZt" >
-		<add name="floats" type="float" arr1="4"> </add>
-		<add name="a" type="ushort"/>
-		<add name="b" type="ushort"/>
-		<add name="c" type="ushort"/>
-		<add name="d" type="ushort"/>
-    </compound>
+    <struct name="ElemZt" >
+		<field name="floats" type="float" arr1="4"> </field>
+		<field name="a" type="ushort"/>
+		<field name="b" type="ushort"/>
+		<field name="c" type="ushort"/>
+		<field name="d" type="ushort"/>
+    </struct>
 
-    <compound name="LimbChunkZt" >
+    <struct name="LimbChunkZt" >
 		arg is LimbInfo
-		<add name="list one" type="float" arr1="#ARG#\count a" arr2="2"/>
-		<add name="list two" type="ElemZt" arr1="#ARG#\count b" />
-    </compound>
+		<field name="list one" type="float" arr1="#ARG#\count a" arr2="2"/>
+		<field name="list two" type="ElemZt" arr1="#ARG#\count b" />
+    </struct>
 
-    <compound name="LimbTrackDataZT" >
-		<add name="ref" type="Empty"/>
-		<add name="limb_count" type="uint64"/>
-		<add name="pad" type="uint64"/>
-		<add name="limbs" type="LimbInfoZT" arr1="limb_count"/>
-		<add name="limbs_data" type="LimbChunkReaderZt" arg="limbs"/>
-    </compound>
+    <struct name="LimbTrackDataZT" >
+		<field name="ref" type="Empty"/>
+		<field name="limb_count" type="uint64"/>
+		<field name="pad" type="uint64"/>
+		<field name="limbs" type="LimbInfoZT" arr1="limb_count"/>
+		<field name="limbs_data" type="LimbChunkReaderZt" arg="limbs"/>
+    </struct>
 
-    <compound name="LimbTrackData" >
-		<add name="ref" type="Empty"/>
-		<add name="padding 0" type="SmartPadding"/>
-		<add name="limb_count" type="ushort"/>2 for bipeds, 4 for quadrupeds
-		<add name="flag" type="ushort" > </add>
-		<add name="zero 1" type="uint" > </add>
-		<add name="limbs" type="LimbInfo" arr1="limb_count" arg="#ARG#"/>
-		<add name="limbs_data" type="LimbChunkReader" arg="limbs"/>
-    </compound>
+    <struct name="LimbTrackData" >
+		<field name="ref" type="Empty"/>
+		<field name="padding 0" type="SmartPadding"/>
+		<field name="limb_count" type="ushort"/>2 for bipeds, 4 for quadrupeds
+		<field name="flag" type="ushort" > </field>
+		<field name="zero 1" type="uint" > </field>
+		<field name="limbs" type="LimbInfo" arr1="limb_count" arg="#ARG#"/>
+		<field name="limbs_data" type="LimbChunkReader" arg="limbs"/>
+    </struct>
 
-    <compound name="UshortLut" >
+    <struct name="UshortLut" >
 		found in WH
 		in seemingly uncompressed manis
-		<add name="ref" type="Empty"/>
-<!--		<add name="align" type="uint64" arr1="1316" />-->
-		<add name="align" type="SmartPadding" />
-		<add name="a" type="ubyte" arr1="48" />
-		<add name="b" type="ubyte" arr1="48" />
-		<add name="zeros" type="ubyte" arr1="48" />
-		<add name="target_bone_count" type="uint"/>
-		<add name="offsets" type="uint" arr1="82" /> probably not fixed count
-		<add name="flags" type="ubyte" arr1="96" /> probably not fixed count
-		<add name="ref2" type="Empty"/>
+		<field name="ref" type="Empty"/>
+<!--		<field name="align" type="uint64" arr1="1316" />-->
+		<field name="align" type="SmartPadding" />
+		<field name="a" type="ubyte" arr1="48" />
+		<field name="b" type="ubyte" arr1="48" />
+		<field name="zeros" type="ubyte" arr1="48" />
+		<field name="target_bone_count" type="uint"/>
+		<field name="offsets" type="uint" arr1="82" /> probably not fixed count
+		<field name="flags" type="ubyte" arr1="96" /> probably not fixed count
+		<field name="ref2" type="Empty"/>
 		the uncompressed keys that follow appear to be interleaved with some kind of lut
-    </compound>
+    </struct>
 
-    <compound name="UncompressedManiDataPC2" >
+    <struct name="UncompressedManiDataPC2" >
 		in compressed manis
-		<add name="z0" type="uint64" arr1="3" />
-		<add name="c0" type="uint64" />
-		<add name="z1" type="uint64" arr1="3" />
-		<add name="c2" type="uint64" />
-		<add name="z2" type="uint64" arr1="7" />
-		<add name="target_bone_count" type="uint64" />
-    </compound>
+		<field name="z0" type="uint64" arr1="3" />
+		<field name="c0" type="uint64" />
+		<field name="z1" type="uint64" arr1="3" />
+		<field name="c2" type="uint64" />
+		<field name="z2" type="uint64" arr1="7" />
+		<field name="target_bone_count" type="uint64" />
+    </struct>
 
-    <compound name="SmallChunk" >
+    <struct name="SmallChunk" >
 		PC2: 20 bytes
 		c+b=a
-		<add name="a" type="uint" />
-		<add name="b" type="uint" />
-		<add name="c" type="uint" />
-		<add name="d" type="uint" />increasing
-		<add name="half" type="ushort" />
-		<add name="full" type="ushort" />
-    </compound>
+		<field name="a" type="uint" />
+		<field name="b" type="uint" />
+		<field name="c" type="uint" />
+		<field name="d" type="uint" />increasing
+		<field name="half" type="ushort" />
+		<field name="full" type="ushort" />
+    </struct>
 
-	<compound name="CompressedManiDataPC2" >
+	<struct name="CompressedManiDataPC2" >
 		in compressed manis
-		<add name="size" type="uint" />
-		<add name="ref" type="Empty"/>
+		<field name="size" type="uint" />
+		<field name="ref" type="Empty"/>
 
-		<add name="u0" type="uint" />variable
-		<add name="constant" type="ubyte" arr1="8" />
-		<add name="bone_count" type="uint" />
-		<add name="FrameCount" type="uint"/>
-		<add name="fps" type="float"/>
-		<add name="unk_float" type="float"/>maybe two hfloats?
-		<add name="frame_segments_count" type="uint"/>
-		<add name="u3" type="uint"/>
-		<add name="OriBoneCount" type="uint"/>
-		<add name="PosBoneCount" type="uint"/>
-		<add name="SclBoneCount" type="ushort"/>
-		<add name="MorphBoneCount" type="ushort"/>
-		<add name="unk_count_1" type="uint"/>
-		<add name="unk_count_2" type="uint"/>
-		<add name="unk_count_3" type="uint"/>
+		<field name="u0" type="uint" />variable
+		<field name="constant" type="ubyte" arr1="8" />
+		<field name="bone_count" type="uint" />
+		<field name="FrameCount" type="uint"/>
+		<field name="fps" type="float"/>
+		<field name="unk_float" type="float"/>maybe two hfloats?
+		<field name="frame_segments_count" type="uint"/>
+		<field name="u3" type="uint"/>
+		<field name="OriBoneCount" type="uint"/>
+		<field name="PosBoneCount" type="uint"/>
+		<field name="SclBoneCount" type="ushort"/>
+		<field name="MorphBoneCount" type="ushort"/>
+		<field name="unk_count_1" type="uint"/>
+		<field name="unk_count_2" type="uint"/>
+		<field name="unk_count_3" type="uint"/>
 		@64
-		<add name="ff" type="int"/>
+		<field name="ff" type="int"/>
 		@68
-		<add name="count" type="uint"/>
-		<add name="s1" type="uint"/>
-		<add name="s2" type="uint"/>
-		<add name="s3" type="uint"/>
-		<add name="frame_segments" type="uint" arr1="frame_segments_count"/>
-		<add name="ff2" type="int"/>
-		<add name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
-		<add name="ref2" type="Empty"/>
-		<add name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
-		<add name="ref3" type="Empty"/>
-<!--		<add name="pad" type="PadAlign" template="ref" arg="4"/>-->
-    </compound>
+		<field name="count" type="uint"/>
+		<field name="s1" type="uint"/>
+		<field name="s2" type="uint"/>
+		<field name="s3" type="uint"/>
+		<field name="frame_segments" type="uint" arr1="frame_segments_count"/>
+		<field name="ff2" type="int"/>
+		<field name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
+		<field name="ref2" type="Empty"/>
+		<field name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
+		<field name="ref3" type="Empty"/>
+<!--		<field name="pad" type="PadAlign" template="ref" arg="4"/>-->
+    </struct>
 
-	<compound name="ManiBlock" >
+	<struct name="ManiBlock" >
 		aligned to 16
-		<add name="ref" type="Empty"/>
+		<field name="ref" type="Empty"/>
 		define the channel names
-		<add name="PosBonesNames" type="ChannelName" arr1="#ARG#\PosBoneCount"/>
-		<add name="OriBonesNames" type="ChannelName" arr1="#ARG#\OriBoneCount"/>
-		<add name="SclBonesNames" type="ChannelName" arr1="#ARG#\SclBoneCount"/>
-		<add name="FloatsNames" type="ChannelName" arr1="#ARG#\FloatCount"/>
+		<field name="PosBonesNames" type="ChannelName" arr1="#ARG#\PosBoneCount"/>
+		<field name="OriBonesNames" type="ChannelName" arr1="#ARG#\OriBoneCount"/>
+		<field name="SclBonesNames" type="ChannelName" arr1="#ARG#\SclBoneCount"/>
+		<field name="FloatsNames" type="ChannelName" arr1="#ARG#\FloatCount"/>
 		map channel to corresponding bone index
-		<add name="pos_channel_to_bone" type="#T#" arr1="#ARG#\PosBoneCount"/>
-		<add name="ori_channel_to_bone" type="#T#" arr1="#ARG#\OriBoneCount"/>
-		<add name="scl_channel_to_bone" type="#T#" arr1="#ARG#\SclBoneCount"/>
+		<field name="pos_channel_to_bone" type="#T#" arr1="#ARG#\PosBoneCount"/>
+		<field name="ori_channel_to_bone" type="#T#" arr1="#ARG#\OriBoneCount"/>
+		<field name="scl_channel_to_bone" type="#T#" arr1="#ARG#\SclBoneCount"/>
 		map bone to corresponding channel, -1 for bones in range that are not keyed
-		<add name="pos_bone_to_channel" type="#T#" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LTE# #ARG#\PosBoneMax"/>
-		<add name="ori_bone_to_channel" type="#T#" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LTE# #ARG#\OriBoneMax"/>
-		<add name="scl_bone_to_channel" type="#T#" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LTE# #ARG#\SclBoneMax"/>
-		<add name="pad" type="PadAlign" template="ref" arg="4"/>
+		<field name="pos_bone_to_channel" type="#T#" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LTE# #ARG#\PosBoneMax"/>
+		<field name="ori_bone_to_channel" type="#T#" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LTE# #ARG#\OriBoneMax"/>
+		<field name="scl_bone_to_channel" type="#T#" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LTE# #ARG#\SclBoneMax"/>
+		<field name="pad" type="PadAlign" template="ref" arg="4"/>
 		start of uncompressed keyframe data
-		<add name="UshortLut" type="UshortLut" cond="(#ARG#\dtype\use_ushort #EQ# 1) #AND# (#ARG#\dtype\compression #EQ# 0)" />
-		<add name="start_keys_ref" type="Empty"/>
-		<add name="PosBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
-		<add name="OriBones" type="normshort" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" arr3="4" cond="#ARG#\dtype\compression #EQ# 0" />
+		<field name="UshortLut" type="UshortLut" cond="(#ARG#\dtype\use_ushort #EQ# 1) #AND# (#ARG#\dtype\compression #EQ# 0)" />
+		<field name="start_keys_ref" type="Empty"/>
+		<field name="PosBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
+		<field name="OriBones" type="normshort" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" arr3="4" cond="#ARG#\dtype\compression #EQ# 0" />
 		found in DLA SpaceMountain animations.manisetd740d135, and PZ crane
-		<add name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
-		<add name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
+		<field name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
+		<field name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		always uncompressed, possibly because ACL didn't support scalars
-		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
-		<add name="uncompressed_pad_PC2" type="PadAlign" template="ref" arg="8" vercond="#PC2#"/>
-		<add name="precompressed" type="UncompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
+		<field name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
+		<field name="uncompressed_pad_PC2" type="PadAlign" template="ref" arg="8" vercond="#PC2#"/>
+		<field name="precompressed" type="UncompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
 
-		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
-		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
-		<add name="compressed" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
-		<add name="compressed" type="CompressedManiData" vercond="!#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
+		<field name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
+		<field name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
+		<field name="compressed" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />varies between the two janitor manis, padding just before 'frame count'
+		<field name="compressed" type="CompressedManiData" vercond="!#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
 		# aligned to 16
-		<add name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#" vercond="!#PC2#"/>
+		<field name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#" vercond="!#PC2#"/>
 		# might be aligned to 8
-		<add name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 2" until="257" vercond="!#PC2#"/>
-    </compound>
+		<field name="LimbTrackData" type="LimbTrackDataZT" cond="#ARG#\dtype\compression #GT# 2" until="257" vercond="!#PC2#"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

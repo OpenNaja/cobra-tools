@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<compound name="Layer" inherit="MemStruct">
-        <add name="layer_name" type="Pointer" template="ZString"/>
-        <add name="zero_0" type="uint64" default="0" optional="True"/>
-        <add name="zero_1" type="uint64" default="0" optional="True"/>
-        <add name="float_attributes" type="ArrayPointer" template="FloatAttrib" arg="float_attributes_count"/>
-        <add name="float_attributes_count" type="uint64"/>
-        <add name="zero_2" type="uint64" default="0" optional="True"/>
-        <add name="zero_3" type="uint64" default="0" optional="True"/>
-        <add name="bool_attributes" type="ArrayPointer" template="BoolAttrib" arg="bool_attributes_count"/>
-        <add name="bool_attributes_count" type="uint64"/>
-    </compound>
+	<struct name="Layer" inherit="MemStruct">
+        <field name="layer_name" type="Pointer" template="ZString"/>
+        <field name="zero_0" type="uint64" default="0" optional="True"/>
+        <field name="zero_1" type="uint64" default="0" optional="True"/>
+        <field name="float_attributes" type="ArrayPointer" template="FloatAttrib" arg="float_attributes_count"/>
+        <field name="float_attributes_count" type="uint64"/>
+        <field name="zero_2" type="uint64" default="0" optional="True"/>
+        <field name="zero_3" type="uint64" default="0" optional="True"/>
+        <field name="bool_attributes" type="ArrayPointer" template="BoolAttrib" arg="bool_attributes_count"/>
+        <field name="bool_attributes_count" type="uint64"/>
+    </struct>
 
-    <compound name="FloatAttrib" inherit="MemStruct">
-        <add name="attrib_name" type="Pointer" template="ZString"/>
-        <add name="flags" type="byte" arr1="4"/>
-        <add name="value" type="float" arr1="4"/>
-        <add name="padding" type="uint" default="0" optional="True"/>
-    </compound>
+    <struct name="FloatAttrib" inherit="MemStruct">
+        <field name="attrib_name" type="Pointer" template="ZString"/>
+        <field name="flags" type="byte" arr1="4"/>
+        <field name="value" type="float" arr1="4"/>
+        <field name="padding" type="uint" default="0" optional="True"/>
+    </struct>
 
-    <compound name="BoolAttrib" inherit="MemStruct">
-        <add name="attrib_name" type="Pointer" template="ZString"/>
-        <add name="attrib" type="byte" arr1="4"/>
-        <add name="padding" type="uint" default="0" optional="True"/>
-    </compound>
+    <struct name="BoolAttrib" inherit="MemStruct">
+        <field name="attrib_name" type="Pointer" template="ZString"/>
+        <field name="attrib" type="byte" arr1="4"/>
+        <field name="padding" type="uint" default="0" optional="True"/>
+    </struct>
 
-	<compound name="Texture" inherit="MemStruct">
-		<add name="fgm name" type="Pointer" template="ZString">first fgm slot</add>
-        <add name="texture suffix" type="Pointer" template="ZString"/>
-        <add name="texture type" type="Pointer" template="ZString"/>
-    </compound>
+	<struct name="Texture" inherit="MemStruct">
+		<field name="fgm name" type="Pointer" template="ZString">first fgm slot</field>
+        <field name="texture suffix" type="Pointer" template="ZString"/>
+        <field name="texture type" type="Pointer" template="ZString"/>
+    </struct>
 
-	<compound name="MatcolRoot" inherit="MemStruct">
+	<struct name="MatcolRoot" inherit="MemStruct">
         root_entry data
-        <add name="main" type="Pointer" template="RootFrag"/>
-		<add name="one" type="uint64" >always 1</add>
-    </compound>
+        <field name="main" type="Pointer" template="RootFrag"/>
+		<field name="one" type="uint64" >always 1</field>
+    </struct>
 
-	<compound name="RootFrag" inherit="MemStruct">
-        <add name="mat_type" type="uint64"/>(3=variant, 2=layered)
-        <add name="textures" type="ArrayPointer" template="Texture" arg="tex_count"/>
-        <add name="tex_count" type="uint64"/>
-        <add name="materials" type="ArrayPointer" template="Layer" arg="mat_count"/>
-        <add name="mat_count" type="uint64"/>
-        <add name="unk" type="uint64" default="0" optional="True"/>
-    </compound>
+	<struct name="RootFrag" inherit="MemStruct">
+        <field name="mat_type" type="uint64"/>(3=variant, 2=layered)
+        <field name="textures" type="ArrayPointer" template="Texture" arg="tex_count"/>
+        <field name="tex_count" type="uint64"/>
+        <field name="materials" type="ArrayPointer" template="Layer" arg="mat_count"/>
+        <field name="mat_count" type="uint64"/>
+        <field name="unk" type="uint64" default="0" optional="True"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

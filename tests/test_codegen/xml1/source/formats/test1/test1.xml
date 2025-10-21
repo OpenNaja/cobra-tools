@@ -111,20 +111,20 @@
     </struct>
 
     <!-- A struct demonstrating extensive conditional logic. -->
-    <compound name="StructWithConditionalFields" inherit="MemStruct">
+    <struct name="StructWithConditionalFields" inherit="MemStruct">
         Shows conditional fields based on version ('vercond') and other field values ('cond').
-        <add name="condition_flag_field" type="bool" />
-        <add name="branch_selector" type="uint">0 for integer, 1 for float.</add>
+        <field name="condition_flag_field" type="bool" />
+        <field name="branch_selector" type="uint">0 for integer, 1 for float.</field>
         <!-- Field only present in Version 1. -->
-        <add name="version_1_only_field" type="uint" vercond="#V1#">This field only exists in Version 1.</add>
+        <field name="version_1_only_field" type="uint" vercond="#V1#">This field only exists in Version 1.</field>
         <!-- Field only present in Version 2 and later. -->
-        <add name="version_2_plus_field" type="float" vercond="#V2_OR_LATER#">This field only exists in Version 2 and later.</add>
+        <field name="version_2_plus_field" type="float" vercond="#V2_OR_LATER#">This field only exists in Version 2 and later.</field>
         <!-- Field conditionally present based on another field's value. -->
-        <add name="conditionally_present_pointer" type="Pointer" template="ZString" cond="condition_flag_field">This field only exists if the flag is true.</add>
+        <field name="conditionally_present_pointer" type="Pointer" template="ZString" cond="condition_flag_field">This field only exists if the flag is true.</field>
         <!-- Union-like behavior: Two fields with the same name but mutually exclusive conditions. -->
-        <add name="union_field" type="int" cond="branch_selector #EQ# 0">Integer value for the union.</add>
-        <add name="union_field" type="float" cond="branch_selector #EQ# 1">Float value for the union.</add>
-    </compound>
+        <field name="union_field" type="int" cond="branch_selector #EQ# 0">Integer value for the union.</field>
+        <field name="union_field" type="float" cond="branch_selector #EQ# 1">Float value for the union.</field>
+    </struct>
 
     <!-- A struct demonstrating arrays and expressions in attributes. -->
     <struct name="StructWithArraysAndExpressions" inherit="MemStruct">
@@ -137,11 +137,11 @@
     </struct>
 
     <!-- A struct demonstrating templating for generic programming. -->
-    <compound name="StructWithGenericTemplate" inherit="MemStruct">
+    <struct name="StructWithGenericTemplate" inherit="MemStruct">
         A generic container that can point to any type. The '#T#' syntax indicates a generic type parameter.
-        <add name="generic_array_count" type="uint" />
-        <add name="generic_array_pointer" type="ArrayPointer" template="#T#" arg="generic_array_count">A pointer to an array of a generic type, to be specified on instantiation.</add>
-    </compound>
+        <field name="generic_array_count" type="uint" />
+        <field name="generic_array_pointer" type="ArrayPointer" template="#T#" arg="generic_array_count">A pointer to an array of a generic type, to be specified on instantiation.</field>
+    </struct>
 
     <!-- A struct dedicated to testing all operator tokens from base.xml -->
     <struct name="StructWithOperatorExpressions" inherit="MemStruct">

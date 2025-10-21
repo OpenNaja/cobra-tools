@@ -1,88 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="TrackMeshRoot" inherit="MemStruct">
+    <struct name="TrackMeshRoot" inherit="MemStruct">
         PC: 80 bytes
-        <add name="a" type="uint64"  />
-        <add name="offset_data" type="ArrayPointer" arg="offset_data_count" template="TrackMesh_Offset"/>
-        <add name="object_data" type="ArrayPointer" arg="object_data_count" template="TrackMesh_Object"/>
-        <add name="element_data" type="ArrayPointer" arg="element_data_count" template="TrackMesh_Element"/>
-        <add name="offset_data_count" type="uint"  />
-        <add name="object_data_count" type="uint"  />
-        <add name="element_data_count" type="uint64"  />
-        <add name="lods" type="ArrayPointer" arg="lods_count" template="Lod"/>
-        <add name="lods_count" type="uint64"  />   -- change this to lods_count
-        <add name="heatmap_name" type="Pointer" template="ZString"/>
-        <add name="g" type="uint64"  />
-    </compound>
+        <field name="a" type="uint64"  />
+        <field name="offset_data" type="ArrayPointer" arg="offset_data_count" template="TrackMesh_Offset"/>
+        <field name="object_data" type="ArrayPointer" arg="object_data_count" template="TrackMesh_Object"/>
+        <field name="element_data" type="ArrayPointer" arg="element_data_count" template="TrackMesh_Element"/>
+        <field name="offset_data_count" type="uint"  />
+        <field name="object_data_count" type="uint"  />
+        <field name="element_data_count" type="uint64"  />
+        <field name="lods" type="ArrayPointer" arg="lods_count" template="Lod"/>
+        <field name="lods_count" type="uint64"  />   -- change this to lods_count
+        <field name="heatmap_name" type="Pointer" template="ZString"/>
+        <field name="g" type="uint64"  />
+    </struct>
 
-    <compound name="TrackMesh_Offset" inherit="MemStruct"> -- Rename this to TrackMesh_Offset 
+    <struct name="TrackMesh_Offset" inherit="MemStruct"> -- Rename this to TrackMesh_Offset 
         PC : 64 bytes
         PC2: 72 bytes
-        <add name="offset_id" type="Pointer" template="ZString"/>
-        <add name="mdl2_name" type="Pointer" template="ZString"/>When used this is a mdl2, rename so the 2 doesn't get messed up
-        <add name="bone_name" type="Pointer" template="ZString"/>when used this is a bone of the model
-        <add name="relative_offset" type="Vector3" />
-        <add name="spacing" type="float" />
-        <add name="one" type="uint" />
-        <add name="min_pitch" type="float" />    -- Min pitch to display, before was a
-        <add name="min_yaw" type="float" />    -- Min yaw to display, before was b
-        <add name="flags" type="uint" /> -- Flags  (4 = inverted) (before was count)
-        <add name="z4" type="uint" />
-        <add name="z5" type="uint" />
-        <add name="z6" type="uint64" vercond="is_PC2"/>
-    </compound>
+        <field name="offset_id" type="Pointer" template="ZString"/>
+        <field name="mdl2_name" type="Pointer" template="ZString"/>When used this is a mdl2, rename so the 2 doesn't get messed up
+        <field name="bone_name" type="Pointer" template="ZString"/>when used this is a bone of the model
+        <field name="relative_offset" type="Vector3" />
+        <field name="spacing" type="float" />
+        <field name="one" type="uint" />
+        <field name="min_pitch" type="float" />    -- Min pitch to display, before was a
+        <field name="min_yaw" type="float" />    -- Min yaw to display, before was b
+        <field name="flags" type="uint" /> -- Flags  (4 = inverted) (before was count)
+        <field name="z4" type="uint" />
+        <field name="z5" type="uint" />
+        <field name="z6" type="uint64" vercond="is_PC2"/>
+    </struct>
 
-    <compound name="TrackMesh_Object" inherit="MemStruct">
+    <struct name="TrackMesh_Object" inherit="MemStruct">
         PC : 48 bytes
         PC2: 64 bytes
-        <add name="place_id" type="Pointer" template="ZString"/>
-        <add name="file" type="Pointer" template="ZString"/> -- can be a prefab, a model, an object, hitcheck, an audio.. 
-        <add name="type" type="uint" /> -- this is what defines what the string 'file' means
-        <add name="b" type="uint" />
-        <add name="c" type="uint" /> 
-        <add name="xtra1" type="float" default="1.0"/>    -- this is a float in PC2, but before was part of c
-        <add name="xtra2" type="uint64" vercond="is_PC2"/>
-        <add name="attachment_start" type="Pointer" template="ZString"/>
-        <add name="attachment_end" type="Pointer" template="ZString"/>
-        <add name="e" type="uint64" vercond="is_PC2"/>
+        <field name="place_id" type="Pointer" template="ZString"/>
+        <field name="file" type="Pointer" template="ZString"/> -- can be a prefab, a model, an object, hitcheck, an audio.. 
+        <field name="type" type="uint" /> -- this is what defines what the string 'file' means
+        <field name="b" type="uint" />
+        <field name="c" type="uint" /> 
+        <field name="xtra1" type="float" default="1.0"/>    -- this is a float in PC2, but before was part of c
+        <field name="xtra2" type="uint64" vercond="is_PC2"/>
+        <field name="attachment_start" type="Pointer" template="ZString"/>
+        <field name="attachment_end" type="Pointer" template="ZString"/>
+        <field name="e" type="uint64" vercond="is_PC2"/>
 
-    </compound>
+    </struct>
 
-    <compound name="TrackMesh_Element" inherit="MemStruct">
+    <struct name="TrackMesh_Element" inherit="MemStruct">
         PC : 120 bytes
         PC2: 128 bytes
-        <add name="element_id" type="Pointer" template="ZString"/>
-        <add name="Objects_List" type="Pointer" template="ZStringList" arg="objects_list_count" />
-        <add name="objects_list_count" type="uint64"/>
-        <add name="flanges" type="Pointer" template="ZStringList" arg="flanges_count" />
-        <add name="flanges_count" type="uint64" default="1"/>
-        <add name="start_1" type="Pointer" template="ZStringList" arg="start_1_count" />
-        <add name="start_1_count" type="uint64" />
-        <add name="start_2" type="Pointer" template="ZStringList" arg="start_2_count" />
-        <add name="start_2_count" type="uint64" />
-        <add name="start_3" type="Pointer" template="ZStringList" arg="start_3_count" />
-        <add name="start_3_count" type="uint64" />
-        <add name="stop_1" type="Pointer" template="ZStringList" arg="stop_1_count" />
-        <add name="stop_1_count" type="uint64" />
-        <add name="stop_2" type="Pointer" template="ZStringList" arg="stop_2_count" />
-        <add name="stop_2_count" type="uint64" />
-        <add name="unknown1" type="uint64" vercond="is_PC2" default="0"/>
-    </compound>
+        <field name="element_id" type="Pointer" template="ZString"/>
+        <field name="Objects_List" type="Pointer" template="ZStringList" arg="objects_list_count" />
+        <field name="objects_list_count" type="uint64"/>
+        <field name="flanges" type="Pointer" template="ZStringList" arg="flanges_count" />
+        <field name="flanges_count" type="uint64" default="1"/>
+        <field name="start_1" type="Pointer" template="ZStringList" arg="start_1_count" />
+        <field name="start_1_count" type="uint64" />
+        <field name="start_2" type="Pointer" template="ZStringList" arg="start_2_count" />
+        <field name="start_2_count" type="uint64" />
+        <field name="start_3" type="Pointer" template="ZStringList" arg="start_3_count" />
+        <field name="start_3_count" type="uint64" />
+        <field name="stop_1" type="Pointer" template="ZStringList" arg="stop_1_count" />
+        <field name="stop_1_count" type="uint64" />
+        <field name="stop_2" type="Pointer" template="ZStringList" arg="stop_2_count" />
+        <field name="stop_2_count" type="uint64" />
+        <field name="unknown1" type="uint64" vercond="is_PC2" default="0"/>
+    </struct>
 
-    <compound name="Lod" inherit="MemStruct">
+    <struct name="Lod" inherit="MemStruct">
         PC : 16 bytes
         PC2: 20 bytes
-        <add name="a" type="uint" />
-        <add name="b" type="uint" />
-        <add name="c" type="uint" />
-        <add name="distance" type="float" />
-        <add name="e" type="uint" vercond="is_PC2" default="1"/>
+        <field name="a" type="uint" />
+        <field name="b" type="uint" />
+        <field name="c" type="uint" />
+        <field name="distance" type="float" />
+        <field name="e" type="uint" vercond="is_PC2" default="1"/>
 
-    </compound>
+    </struct>
 
 
-</niftoolsxml>
+</fileformat>

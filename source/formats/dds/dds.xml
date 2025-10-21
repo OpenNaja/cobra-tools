@@ -232,46 +232,46 @@
     -->
 
     <struct name="PixelFormat">
-        <add name="Size" type="uint" default="32">Always 32.</add>
-        <add name="Flags" type="PixelFormatFlags">Non-zero for DX9, zero for DX10.</add>
-        <add name="FourCC" type="FourCC">Determines compression type. Zero means no compression.</add> 
-        <add name="Bit Count" type="uint">For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.</add>
-        <add name="R Mask" type="uint">For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.</add>
-        <add name="G Mask" type="uint">For non-compressed types, this determines
- the green mask. Usually 0x0000FF00. Is zero for compressed textures.</add>
-        <add name="B Mask" type="uint">For non-compressed types, this determines
- the blue mask. Usually 0x00FF0000. Is zero for compressed textures.</add>
-        <add name="A Mask" type="uint">For non-compressed types, this determines
- the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.</add>
+        <field name="Size" type="uint" default="32">Always 32.</field>
+        <field name="Flags" type="PixelFormatFlags">Non-zero for DX9, zero for DX10.</field>
+        <field name="FourCC" type="FourCC">Determines compression type. Zero means no compression.</field> 
+        <field name="Bit Count" type="uint">For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.</field>
+        <field name="R Mask" type="uint">For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.</field>
+        <field name="G Mask" type="uint">For non-compressed types, this determines
+ the green mask. Usually 0x0000FF00. Is zero for compressed textures.</field>
+        <field name="B Mask" type="uint">For non-compressed types, this determines
+ the blue mask. Usually 0x00FF0000. Is zero for compressed textures.</field>
+        <field name="A Mask" type="uint">For non-compressed types, this determines
+ the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.</field>
     </struct>
 
     <struct name="DXT10Header" numbytes="20">
-        <add name="DxgiFormat" type="DxgiFormat" />
-        <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
-        <add name="Misc Flag" type="uint" />
-        <add name="num_tiles" type="uint" default="1" />
-        <add name="Misc Flag 2" type="uint" />
+        <field name="DxgiFormat" type="DxgiFormat" />
+        <field name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
+        <field name="Misc Flag" type="uint" />
+        <field name="num_tiles" type="uint" default="1" />
+        <field name="Misc Flag 2" type="uint" />
     </struct>
 
     <struct name="Header">
-        <add name="Header String" type="FixedString" arg="4">DDS </add>
-        <add name="Size" type="uint" default="124">Always 124 + 4 bytes for headerstring, header ends at 128.</add>
-        <add name="Flags" type="HeaderFlags" />
-        <add name="Height" type="uint">The texture height.</add>
-        <add name="Width" type="uint">The texture width.</add>
-        <add name="Linear Size" type="uint" />
-        <add name="Depth" type="uint" default="1"/>
-        <add name="Mipmap Count" type="uint" />
-        <add name="Reserved 1" type="uint" arr1="11" />
-        <add name="Pixel Format" type="PixelFormat" />
-        <add name="Caps 1" type="Caps1" />
-        <add name="Caps 2" type="Caps2" />
-        <add name="Caps 3" type="uint" />
-        <add name="Caps 4" type="uint" />
-        <add name="Unused" type="uint" />
+        <field name="Header String" type="FixedString" arg="4">DDS </field>
+        <field name="Size" type="uint" default="124">Always 124 + 4 bytes for headerstring, header ends at 128.</field>
+        <field name="Flags" type="HeaderFlags" />
+        <field name="Height" type="uint">The texture height.</field>
+        <field name="Width" type="uint">The texture width.</field>
+        <field name="Linear Size" type="uint" />
+        <field name="Depth" type="uint" default="1"/>
+        <field name="Mipmap Count" type="uint" />
+        <field name="Reserved 1" type="uint" arr1="11" />
+        <field name="Pixel Format" type="PixelFormat" />
+        <field name="Caps 1" type="Caps1" />
+        <field name="Caps 2" type="Caps2" />
+        <field name="Caps 3" type="uint" />
+        <field name="Caps 4" type="uint" />
+        <field name="Unused" type="uint" />
 		
         <!-- DX10 extensions, only if FourCC == "DX10", does not count into 'size' -->
-        <add name="DX10" type="DXT10Header" cond="Pixel Format\FourCC == 808540228" />
+        <field name="DX10" type="DXT10Header" cond="Pixel Format\FourCC == 808540228" />
     </struct>
 
 </fileformat>

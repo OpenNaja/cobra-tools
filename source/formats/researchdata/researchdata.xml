@@ -1,130 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="ResearchRoot" inherit="MemStruct">
+    <struct name="ResearchRoot" inherit="MemStruct">
         <!-- pointer at 0 -->
-        <add name="ptr_0" type="Pointer" template="ZStringObfuscated"/>
+        <field name="ptr_0" type="Pointer" template="ZStringObfuscated"/>
         <!-- FF FF FF FF 00 00 00 00 -->
-        <add name="int_0" type="int" />
-        <add name="int_1" type="int" />
+        <field name="int_0" type="int" />
+        <field name="int_1" type="int" />
         <!-- pointer at 16 -->
-        <add name="research_name" type="Pointer" template="ZString"/>
+        <field name="research_name" type="Pointer" template="ZString"/>
         <!-- pointer at 24 -->
-        <add name="research_icon" type="Pointer" template="ZString"/>
+        <field name="research_icon" type="Pointer" template="ZString"/>
         <!-- pointer at 32 -->
-        <add name="research_icon_queued" type="Pointer" template="ZString"/>
-        <add name="unk_1" type="int" />
-        <add name="research_cost_realmstone" type="int" />
-        <add name="int_2" type="int" />
-        <add name="research_duration" type="int" />
-        <add name="unk_3" type="uint64" />
+        <field name="research_icon_queued" type="Pointer" template="ZString"/>
+        <field name="unk_1" type="int" />
+        <field name="research_cost_realmstone" type="int" />
+        <field name="int_2" type="int" />
+        <field name="research_duration" type="int" />
+        <field name="unk_3" type="uint64" />
         <!-- dep @ 64-->
-        <add name="applied_global_buff" type="Pointer" template="AppliedGlobalBuff"/>
+        <field name="applied_global_buff" type="Pointer" template="AppliedGlobalBuff"/>
         <!-- pointer at 72 -->
         <!-- the structs under here are not understood-->
-        <add name="research_replace_squad_variants" type="ArrayPointer" template="ResearchAffectedSquaddata" arg="research_replace_squad_variants_count"/>
-        <add name="research_replace_squad_variants_count" type="uint64" />
+        <field name="research_replace_squad_variants" type="ArrayPointer" template="ResearchAffectedSquaddata" arg="research_replace_squad_variants_count"/>
+        <field name="research_replace_squad_variants_count" type="uint64" />
         <!-- pointer at 88 -->
-        <add name="affected_squad_loc" type="Pointer" template="ZString"/>
+        <field name="affected_squad_loc" type="Pointer" template="ZString"/>
         <!-- pointer at 96 -->
-        <add name="?unit_path" type="Pointer" template="ZString"/>
+        <field name="?unit_path" type="Pointer" template="ZString"/>
         <!-- pointer at 104 -->        
-        <add name="research_description" type="ArrayPointer" template="ResearchDescriptionLoc" arg="research_description_count"/>
+        <field name="research_description" type="ArrayPointer" template="ResearchDescriptionLoc" arg="research_description_count"/>
         <!-- this is "1" which could correspond to the length of the above string list -->
-        <add name="research_description_count" type="uint64" />
+        <field name="research_description_count" type="uint64" />
         <!-- pointer at 120 -->
-        <add name="research_flavor_text" type="Pointer" template="ZString"/>
+        <field name="research_flavor_text" type="Pointer" template="ZString"/>
         <!-- pointer at 128 -->
-        <add name="applies_to_squad" type="ArrayPointer" template="ResearchDataAppliesToSquad" arg="applies_to_squad_count" />
-        <add name="applies_to_squad_count" type="uint64" />
+        <field name="applies_to_squad" type="ArrayPointer" template="ResearchDataAppliesToSquad" arg="applies_to_squad_count" />
+        <field name="applies_to_squad_count" type="uint64" />
         <!-- pointer at 144 -->
-        <add name="research_affected_squadloadouts" type="Pointer" template="ResearchAffectSquadloadouts"/>
-        <add name="unk_9" type="uint64" />
+        <field name="research_affected_squadloadouts" type="Pointer" template="ResearchAffectSquadloadouts"/>
+        <field name="unk_9" type="uint64" />
         <!-- pointer at 160 -->
-        <add name="research_replaceds_squads" type="Pointer" template="SquadReplacementData" arg="replacement_squad_data_count"/>
-        <add name="replacement_squad_data_count" type="uint64" />
-    </compound>
+        <field name="research_replaceds_squads" type="Pointer" template="SquadReplacementData" arg="replacement_squad_data_count"/>
+        <field name="replacement_squad_data_count" type="uint64" />
+    </struct>
 
-    <compound name="AppliedGlobalBuff" inherit="MemStruct">
-        <add name="globalbuffdependency" type="Pointer"/>
-    </compound>
+    <struct name="AppliedGlobalBuff" inherit="MemStruct">
+        <field name="globalbuffdependency" type="Pointer"/>
+    </struct>
 
-    <compound name="ResearchDescriptionLoc" inherit="MemStruct">
-        <add name="research_loc" type="Pointer" template="ZString"/>
-        <add name="unk_0" type="uint64"/>
-    </compound>
+    <struct name="ResearchDescriptionLoc" inherit="MemStruct">
+        <field name="research_loc" type="Pointer" template="ZString"/>
+        <field name="unk_0" type="uint64"/>
+    </struct>
 
-    <compound name="ResearchAffectSquadloadouts" inherit="MemStruct">
-        <add name="research_loc" type="ArrayPointer" template="ResearchAffectedSquadloadout" arg="affected_squadloadout_count"/>
-        <add name="affected_squadloadout_count" type="uint64"/>
-    </compound>
+    <struct name="ResearchAffectSquadloadouts" inherit="MemStruct">
+        <field name="research_loc" type="ArrayPointer" template="ResearchAffectedSquadloadout" arg="affected_squadloadout_count"/>
+        <field name="affected_squadloadout_count" type="uint64"/>
+    </struct>
 
-    <compound name="ResearchAffectedSquadloadout" inherit="MemStruct">
-        <add name="affected_squad_loadout" type="Pointer"/>
-    </compound>
+    <struct name="ResearchAffectedSquadloadout" inherit="MemStruct">
+        <field name="affected_squad_loadout" type="Pointer"/>
+    </struct>
 
-    <compound name="SquadReplacementData" inherit="MemStruct">
-        <add name="squaddata_ref" type="Pointer"/>
-    </compound>
+    <struct name="SquadReplacementData" inherit="MemStruct">
+        <field name="squaddata_ref" type="Pointer"/>
+    </struct>
 
-    <compound name="ResearchDataAppliesToSquad" inherit="MemStruct">
-        <add name="dependency_name" type="Pointer"/>
-    </compound>
+    <struct name="ResearchDataAppliesToSquad" inherit="MemStruct">
+        <field name="dependency_name" type="Pointer"/>
+    </struct>
 
-    <compound name="ResearchAffectedSquaddata" inherit="MemStruct">
-        <add name="affected_squaddata_from" type="Pointer"/>
-        <add name="affected_squaddata_to" type="Pointer"/>
+    <struct name="ResearchAffectedSquaddata" inherit="MemStruct">
+        <field name="affected_squaddata_from" type="Pointer"/>
+        <field name="affected_squaddata_to" type="Pointer"/>
         <!-- pointer @ 16 -->
-        <add name="affected_squad_transition_fx" type="Pointer" template="ResearchFXData"/>
-    </compound>
+        <field name="affected_squad_transition_fx" type="Pointer" template="ResearchFXData"/>
+    </struct>
 
-    <compound name="ResearchFXData" inherit="MemStruct">
-        <add name="unk_0" type="uint64"/>
+    <struct name="ResearchFXData" inherit="MemStruct">
+        <field name="unk_0" type="uint64"/>
         <!-- pointer @ 8 -->
-        <add name="research_complete_fx" type="Pointer" template="SubResearchFXData"/>
+        <field name="research_complete_fx" type="Pointer" template="SubResearchFXData"/>
         <!-- seems to correspond to the above as a count, but the pointers are different structs-->
-        <add name="unk_1" type="uint64"/>
-        <add name="unk_2" type="uint64"/>
-    </compound>
+        <field name="unk_1" type="uint64"/>
+        <field name="unk_2" type="uint64"/>
+    </struct>
 
-    <compound name="SubResearchFXData" inherit="MemStruct">
+    <struct name="SubResearchFXData" inherit="MemStruct">
         <!--pointer @ 0 -->
-        <add name="fx_name" type="Pointer" template="FxDataName"/>
+        <field name="fx_name" type="Pointer" template="FxDataName"/>
         <!--pointer @ 0 -->
-        <add name="fx_params" type="Pointer" template="FxDataSettings"/>
-    </compound>
+        <field name="fx_params" type="Pointer" template="FxDataSettings"/>
+    </struct>
 
-    <compound name="FxDataName" inherit="MemStruct">
-        <add name="unk_0" type="uint64"/>
+    <struct name="FxDataName" inherit="MemStruct">
+        <field name="unk_0" type="uint64"/>
         <!--pointer @ 8 -->
-        <add name="unk_ptr" type="Pointer" template="ZString"/>
+        <field name="unk_ptr" type="Pointer" template="ZString"/>
         <!-- all of these are 0-->
-        <add name="unk_1" type="uint64"/>
-        <add name="unk_2" type="uint64"/>
-        <add name="unk_3" type="uint64"/>
-        <add name="unk_4" type="uint64"/>
-        <add name="unk_5" type="uint64"/>
-        <add name="unk_6" type="uint64"/>
-        <add name="unk_7" type="uint64"/>
-    </compound>
+        <field name="unk_1" type="uint64"/>
+        <field name="unk_2" type="uint64"/>
+        <field name="unk_3" type="uint64"/>
+        <field name="unk_4" type="uint64"/>
+        <field name="unk_5" type="uint64"/>
+        <field name="unk_6" type="uint64"/>
+        <field name="unk_7" type="uint64"/>
+    </struct>
 
-    <compound name="FxDataSettings" inherit="MemStruct">
-        <add name="unk_0" type="uint64"/>
+    <struct name="FxDataSettings" inherit="MemStruct">
+        <field name="unk_0" type="uint64"/>
         <!--pointer @ 8 -->
-        <add name="unk_ptr_0" type="Pointer" template="ZString"/>
+        <field name="unk_ptr_0" type="Pointer" template="ZString"/>
         <!--pointer @ 16 -->
-        <add name="unk_ptr_1" type="Pointer" template="ZString"/>
+        <field name="unk_ptr_1" type="Pointer" template="ZString"/>
         <!-- all of these are 0-->
-        <add name="unk_1" type="uint64"/>
-        <add name="unk_2" type="uint64"/>
-        <add name="unk_3" type="uint64"/>
-        <add name="unk_4" type="uint64"/>
-        <add name="unk_5" type="uint64"/>
-        <add name="unk_6" type="uint64"/>
-        <add name="unk_7" type="uint64"/>
-    </compound>
+        <field name="unk_1" type="uint64"/>
+        <field name="unk_2" type="uint64"/>
+        <field name="unk_3" type="uint64"/>
+        <field name="unk_4" type="uint64"/>
+        <field name="unk_5" type="uint64"/>
+        <field name="unk_6" type="uint64"/>
+        <field name="unk_7" type="uint64"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

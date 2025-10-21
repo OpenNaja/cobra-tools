@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="UiMovieHeader" inherit="MemStruct">
-        <add name="movie_name" type="Pointer" template="ZString"/>
-        <add name="pkg_name" type="Pointer" template="ZString"/>
-        <add name="category_name" type="Pointer" template="ZString"/>
-        <add name="type_name" type="Pointer" template="ZString"/>
+    <struct name="UiMovieHeader" inherit="MemStruct">
+        <field name="movie_name" type="Pointer" template="ZString"/>
+        <field name="pkg_name" type="Pointer" template="ZString"/>
+        <field name="category_name" type="Pointer" template="ZString"/>
+        <field name="type_name" type="Pointer" template="ZString"/>
 
-        <add name="flag 1" type="uint"/>
-        <add name="flag 2" type="ushort"/>
-        <add name="flag 3" type="ushort"/>
-        <add name="floats" type="float" arr1="3"/>
-        <add name="u0" type="ubyte"/>
-        <add name="num_ui_triggers" type="ubyte"/>
-        <add name="u1" type="ubyte"/>
-        <add name="num_ui_names" type="ubyte"/>
-        <add name="num_assetpkgs" type="ubyte"/>
-        <add name="u2" type="ubyte"/>
-        <add name="num_list_1" type="ubyte"/>
-        <add name="num_list_2" type="ubyte"/>
-        <add name="num_ui_interfaces" type="ubyte"/>
-        <add name="u3" type="ubyte"/>
-        <add name="u4" type="ubyte"/>
-        <add name="u5" type="ubyte"/>
+        <field name="flag 1" type="uint"/>
+        <field name="flag 2" type="ushort"/>
+        <field name="flag 3" type="ushort"/>
+        <field name="floats" type="float" arr1="3"/>
+        <field name="u0" type="ubyte"/>
+        <field name="num_ui_triggers" type="ubyte"/>
+        <field name="u1" type="ubyte"/>
+        <field name="num_ui_names" type="ubyte"/>
+        <field name="num_assetpkgs" type="ubyte"/>
+        <field name="u2" type="ubyte"/>
+        <field name="num_list_1" type="ubyte"/>
+        <field name="num_list_2" type="ubyte"/>
+        <field name="num_ui_interfaces" type="ubyte"/>
+        <field name="u3" type="ubyte"/>
+        <field name="u4" type="ubyte"/>
+        <field name="u5" type="ubyte"/>
 
-        <add name="ptr_0" type="Pointer"/>
-        <add name="ui_triggers" type="Pointer" template="ZStringList" arg="num_ui_triggers"/>
-        <add name="ptr_1" type="Pointer"/>
-        <add name="ui_names" type="Pointer" template="ZStringList" arg="num_ui_names"/>
-        <add name="assetpkgs" type="Pointer" template="ZStringList" arg="num_assetpkgs"/>
-        <add name="ptr_2" type="Pointer"/>
-        <add name="list_1" type="ArrayPointer" template="uint" arg="num_list_1"/>
-        <add name="list_2" type="ArrayPointer" template="uint" arg="num_list_2"/>
-        <add name="ui_interfaces" type="Pointer" template="ZStringList" arg="num_ui_interfaces"/>
-        <add name="ptr_3" type="Pointer"/>
-    </compound>
+        <field name="ptr_0" type="Pointer"/>
+        <field name="ui_triggers" type="Pointer" template="ZStringList" arg="num_ui_triggers"/>
+        <field name="ptr_1" type="Pointer"/>
+        <field name="ui_names" type="Pointer" template="ZStringList" arg="num_ui_names"/>
+        <field name="assetpkgs" type="Pointer" template="ZStringList" arg="num_assetpkgs"/>
+        <field name="ptr_2" type="Pointer"/>
+        <field name="list_1" type="ArrayPointer" template="uint" arg="num_list_1"/>
+        <field name="list_2" type="ArrayPointer" template="uint" arg="num_list_2"/>
+        <field name="ui_interfaces" type="Pointer" template="ZStringList" arg="num_ui_interfaces"/>
+        <field name="ptr_3" type="Pointer"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

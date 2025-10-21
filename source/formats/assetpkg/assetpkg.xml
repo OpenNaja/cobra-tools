@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="AssetpkgRoot" inherit="MemStruct">
-        <add name="asset_path" type="Pointer" template="ZString" />
-        <add name="shared" type="uint64" default="0" optional="True"/>
-    </compound>
+    <struct name="AssetpkgRoot" inherit="MemStruct">
+        <field name="asset_path" type="Pointer" template="ZString" />
+        <field name="shared" type="uint64" default="0" optional="True"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
@@ -11,249 +11,249 @@
         <option value="2" name="Staff" />
     </enum>
 
-    <compound name="PathExtrusion" inherit="MemStruct">
+    <struct name="PathExtrusion" inherit="MemStruct">
         <!-- Size 48 -->
-        <add name="model" type="Pointer" template="ZString"/>
-        <add name="post_model" type="Pointer" template="ZString"/>
-        <add name="endcap_model" type="Pointer" template="ZString"/>
-        <add name="unkFloat1" type="float" />
-        <add name="unkFloat2" type="float" />
-        <add name="is_kerb" type="bool" />
-        <add name="is_not_ground" type="bool" default="True" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
-        <add name="post_count" type="byte" default="0" />
-        <add name="has_posts" type="bool" default="False" />
-    </compound>
+        <field name="model" type="Pointer" template="ZString"/>
+        <field name="post_model" type="Pointer" template="ZString"/>
+        <field name="endcap_model" type="Pointer" template="ZString"/>
+        <field name="unkFloat1" type="float" />
+        <field name="unkFloat2" type="float" />
+        <field name="is_kerb" type="bool" />
+        <field name="is_not_ground" type="bool" default="True" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
+        <field name="post_count" type="byte" default="0" />
+        <field name="has_posts" type="bool" default="False" />
+    </struct>
 
-    <compound name="PathMaterial" inherit="MemStruct">
+    <struct name="PathMaterial" inherit="MemStruct">
         <!-- Size 112 -->
-        <add name="elevated_mat" type="Pointer" template="ZString"/>
-        <add name="elevated_mat_valid" type="Pointer" template="ZString"/>
-        <add name="elevated_mat_invalid" type="Pointer" template="ZString"/>
-        <add name="terrain_mat" type="Pointer" template="ZString"/>
-        <add name="terrain_mat_valid" type="Pointer" template="ZString"/>
-        <add name="terrain_mat_invalid" type="Pointer" template="ZString"/>
-        <add name="underside_mat_1" type="Pointer" template="ZString"/>
-        <add name="underside_mat_2" type="Pointer" template="ZString"/>
-        <add name="stairs_mat_1" type="Pointer" template="ZString"/>
-        <add name="stairs_mat_2" type="Pointer" template="ZString"/>
-        <add name="path_sub_type" type="uint64" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
-        <add name="mat_data" type="ArrayPointer" template="PathMaterialData" arg="num_data" />
-        <add name="num_data" type="uint64" />
-    </compound>
+        <field name="elevated_mat" type="Pointer" template="ZString"/>
+        <field name="elevated_mat_valid" type="Pointer" template="ZString"/>
+        <field name="elevated_mat_invalid" type="Pointer" template="ZString"/>
+        <field name="terrain_mat" type="Pointer" template="ZString"/>
+        <field name="terrain_mat_valid" type="Pointer" template="ZString"/>
+        <field name="terrain_mat_invalid" type="Pointer" template="ZString"/>
+        <field name="underside_mat_1" type="Pointer" template="ZString"/>
+        <field name="underside_mat_2" type="Pointer" template="ZString"/>
+        <field name="stairs_mat_1" type="Pointer" template="ZString"/>
+        <field name="stairs_mat_2" type="Pointer" template="ZString"/>
+        <field name="path_sub_type" type="uint64" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
+        <field name="mat_data" type="ArrayPointer" template="PathMaterialData" arg="num_data" />
+        <field name="num_data" type="uint64" />
+    </struct>
 
-    <compound name="PathMaterialData" inherit="MemStruct">
+    <struct name="PathMaterialData" inherit="MemStruct">
         <!-- Size 16 -->
-        <add name="terrain_type" type="uint" /> <!-- 2 = Sand -->
-        <add name="opacity" type="float" />
-        <add name="padding" type="uint64" default="0" optional="True" />
-    </compound>
+        <field name="terrain_type" type="uint" /> <!-- 2 = Sand -->
+        <field name="opacity" type="float" />
+        <field name="padding" type="uint64" default="0" optional="True" />
+    </struct>
 
-    <compound name="PathResource" inherit="MemStruct">
+    <struct name="PathResource" inherit="MemStruct">
         <!-- Size 48 -->
-        <add name="pathtype" type="Pointer" template="ZString" vercond="#PC#"/>
-        <add name="pathmaterial" type="Pointer" template="ZString"/>
-        <add name="pathextrusion_kerb" type="Pointer" template="ZString"/>
-        <add name="pathextrusion_railing" type="Pointer" template="ZString"/>
-        <add name="pathextrusion_ground" type="Pointer" template="ZString"/>
-        <add name="pathsupport" type="Pointer" template="ZString"/>
-        <add name="path_type" type="byte" /> <!-- 0 for Guest, 1 for Queue, 2 for Staff -->
-        <add name="path_sub_type" type="byte" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
-        <add name="unkByte1" type="byte" default="1" />
-        <add name="unkByte2" type="byte" />
-    </compound>
+        <field name="pathtype" type="Pointer" template="ZString" vercond="#PC#"/>
+        <field name="pathmaterial" type="Pointer" template="ZString"/>
+        <field name="pathextrusion_kerb" type="Pointer" template="ZString"/>
+        <field name="pathextrusion_railing" type="Pointer" template="ZString"/>
+        <field name="pathextrusion_ground" type="Pointer" template="ZString"/>
+        <field name="pathsupport" type="Pointer" template="ZString"/>
+        <field name="path_type" type="byte" /> <!-- 0 for Guest, 1 for Queue, 2 for Staff -->
+        <field name="path_sub_type" type="byte" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
+        <field name="unkByte1" type="byte" default="1" />
+        <field name="unkByte2" type="byte" />
+    </struct>
 
-    <compound name="PathJoinPartResourceRoot" inherit="MemStruct">
+    <struct name="PathJoinPartResourceRoot" inherit="MemStruct">
         <!-- Size 16 -->
-        <add name="resources_list" type="ArrayPointer" template="PathJoinPartResource" arg="num_res" />
-        <add name="num_res" type="uint64" />
-    </compound>
+        <field name="resources_list" type="ArrayPointer" template="PathJoinPartResource" arg="num_res" />
+        <field name="num_res" type="uint64" />
+    </struct>
 
-    <compound name="PathJoinPartResource" inherit="MemStruct">
+    <struct name="PathJoinPartResource" inherit="MemStruct">
         <!-- Size 72 -->
-        <add name="unkPoints1" type="ArrayPointer" template="Vector3" arg="num_points_1" />
-        <add name="unkPoints2" type="ArrayPointer" template="Vector3" arg="num_points_2" />
-        <add name="unkVector" type="ArrayPointer" template="Vector4" arg="1" />
-        <add name="unkShorts" type="ArrayPointer" template="ushort" arg="8" />
-        <add name="unkPoints3" type="ArrayPointer" template="Vector3" arg="num_points_3" />
-        <add name="padding_1" type="uint64" default="0" optional="True" />
-        <add name="pathresource" type="Pointer" template="ZString"/>
-        <add name="unkByte1" type="byte" />
-        <add name="unkByte2" type="byte" />
-        <add name="unkByte3" type="byte" />
-        <add name="num_points_1" type="byte" />
-        <add name="num_points_1_copy" type="byte" />
-        <add name="num_points_2" type="byte" />
-        <add name="num_points_2_copy" type="byte" />
-        <add name="num_points_3" type="byte" />
-        <add name="padding_2" type="uint64" default="0" optional="True" />
-    </compound>
+        <field name="unkPoints1" type="ArrayPointer" template="Vector3" arg="num_points_1" />
+        <field name="unkPoints2" type="ArrayPointer" template="Vector3" arg="num_points_2" />
+        <field name="unkVector" type="ArrayPointer" template="Vector4" arg="1" />
+        <field name="unkShorts" type="ArrayPointer" template="ushort" arg="8" />
+        <field name="unkPoints3" type="ArrayPointer" template="Vector3" arg="num_points_3" />
+        <field name="padding_1" type="uint64" default="0" optional="True" />
+        <field name="pathresource" type="Pointer" template="ZString"/>
+        <field name="unkByte1" type="byte" />
+        <field name="unkByte2" type="byte" />
+        <field name="unkByte3" type="byte" />
+        <field name="num_points_1" type="byte" />
+        <field name="num_points_1_copy" type="byte" />
+        <field name="num_points_2" type="byte" />
+        <field name="num_points_2_copy" type="byte" />
+        <field name="num_points_3" type="byte" />
+        <field name="padding_2" type="uint64" default="0" optional="True" />
+    </struct>
 
-    <compound name="PathSupport" inherit="MemStruct">
+    <struct name="PathSupport" inherit="MemStruct">
         <!-- Size 16 -->
-        <add name="support" type="Pointer" template="ZString"/>
-        <add name="distance" type="float" default="10.0" />
-        <add name="_unkInt1" type="uint" />
-    </compound>
+        <field name="support" type="Pointer" template="ZString"/>
+        <field name="distance" type="float" default="10.0" />
+        <field name="_unkInt1" type="uint" />
+    </struct>
 
-    <compound name="PathType" inherit="MemStruct">
+    <struct name="PathType" inherit="MemStruct">
         <!-- Size 16 -->
-        <add name="enum_value" type="PathTypes" />
-        <add name="_align" type="ubyte" arr1="3" />
-        <add name="min_width" type="float" default="4.0" />
-        <add name="max_width" type="float" default="10.0" />
-        <add name="_unkInt2" type="uint" />
-    </compound>
+        <field name="enum_value" type="PathTypes" />
+        <field name="_align" type="ubyte" arr1="3" />
+        <field name="min_width" type="float" default="4.0" />
+        <field name="max_width" type="float" default="10.0" />
+        <field name="_unkInt2" type="uint" />
+    </struct>
 
-    <compound name="SubBrace" inherit="MemStruct">
+    <struct name="SubBrace" inherit="MemStruct">
         <!-- Size 24 -->
-        <add name="brace_model_1" type="Pointer" template="ZString"/>
-		<add name="brace_model_2" type="Pointer" template="ZString"/>
-		<add name="brace_model_3" type="Pointer" template="ZString"/>
-		<add name="brace_model_4" type="Pointer" template="ZString"/>
-    </compound>
+        <field name="brace_model_1" type="Pointer" template="ZString"/>
+		<field name="brace_model_2" type="Pointer" template="ZString"/>
+		<field name="brace_model_3" type="Pointer" template="ZString"/>
+		<field name="brace_model_4" type="Pointer" template="ZString"/>
+    </struct>
 
-    <compound name="BrokeStruct" inherit="MemStruct">
+    <struct name="BrokeStruct" inherit="MemStruct">
         <!-- Size 48 -->
-        <add name="sup_model" type="Pointer" template="ZString"/>
-        <add name="fallen_model" type="Pointer" template="ZString"/>
-        <add name="cap_model" type="Pointer" template="ZString"/>
-        <add name="unkVector1" type="Vector3" />
-        <add name="unkVector2" type="Vector3" />
-    </compound>
+        <field name="sup_model" type="Pointer" template="ZString"/>
+        <field name="fallen_model" type="Pointer" template="ZString"/>
+        <field name="cap_model" type="Pointer" template="ZString"/>
+        <field name="unkVector1" type="Vector3" />
+        <field name="unkVector2" type="Vector3" />
+    </struct>
 
-    <compound name="Connector" inherit="MemStruct">
+    <struct name="Connector" inherit="MemStruct">
         <!-- PC, PZ Size 24, PC2 size 32 -->
-        <add name="connector_model" type="Pointer" template="ZString"/>
-        <add name="joint_model" type="Pointer" template="ZString"/>
-        <add name="new" type="Pointer" template="ZString" since="27"/>not sure if used
-        <add name="angle_limit" type="float" />
-        <add name="direction" type="float" /> <!-- 1.0 = Up, -1.0 = Down -->
-    </compound>
+        <field name="connector_model" type="Pointer" template="ZString"/>
+        <field name="joint_model" type="Pointer" template="ZString"/>
+        <field name="new" type="Pointer" template="ZString" since="27"/>not sure if used
+        <field name="angle_limit" type="float" />
+        <field name="direction" type="float" /> <!-- 1.0 = Up, -1.0 = Down -->
+    </struct>
 
-    <compound name="Joint" inherit="MemStruct">
+    <struct name="Joint" inherit="MemStruct">
         <!-- Size 48 -->
-        <add name="joint_model_1" type="Pointer" template="ZString"/>
-        <add name="joint_model_2" type="Pointer" template="ZString"/>
-        <add name="joint_model_3" type="Pointer" template="ZString"/>
-        <add name="joint_model_4" type="Pointer" template="ZString"/>
-        <add name="unkFloat" type="float"/>
-        <add name="unkInt" type="uint" />
-        <add name="unkInt2" type="uint64" />
-    </compound>
+        <field name="joint_model_1" type="Pointer" template="ZString"/>
+        <field name="joint_model_2" type="Pointer" template="ZString"/>
+        <field name="joint_model_3" type="Pointer" template="ZString"/>
+        <field name="joint_model_4" type="Pointer" template="ZString"/>
+        <field name="unkFloat" type="float"/>
+        <field name="unkInt" type="uint" />
+        <field name="unkInt2" type="uint64" />
+    </struct>
 
-    <compound name="ConnectorMultiJoint" inherit="MemStruct">
+    <struct name="ConnectorMultiJoint" inherit="MemStruct">
         <!-- Size 40 -->
-        <add name="connector_model" type="Pointer" template="ZString"/>
-        <add name="support_model" type="Pointer" template="ZString"/>
-        <add name="joints" type="ArrayPointer" template="Joint" arg="num_joints" />
-        <add name="num_joints" type="uint" />
-        <add name="extent_min" type="float" />
-        <add name="extent_max" type="float" />
-        <add name="some_index" type="uint" />increases with each pass of the extent range
-    </compound>
+        <field name="connector_model" type="Pointer" template="ZString"/>
+        <field name="support_model" type="Pointer" template="ZString"/>
+        <field name="joints" type="ArrayPointer" template="Joint" arg="num_joints" />
+        <field name="num_joints" type="uint" />
+        <field name="extent_min" type="float" />
+        <field name="extent_max" type="float" />
+        <field name="some_index" type="uint" />increases with each pass of the extent range
+    </struct>
 
-    <compound name="Pillar" inherit="MemStruct">
+    <struct name="Pillar" inherit="MemStruct">
         <!-- Size 40 PC, 48 PZ, 40 PC2 -->
-        <add name="pillar_model" type="Pointer" template="ZString"/>
-        <add name="cap_model" type="Pointer" template="ZString"/>
-        <add name="fln_model" type="Pointer" template="ZString"/>
-        <add name="unkFloats" type="float" arr1="2"/>
-        <add name="unkInt2" type="uint64"/>
-        <add name="unkInt3" type="uint64"  since="24" until="24" />PZ
-    </compound>
+        <field name="pillar_model" type="Pointer" template="ZString"/>
+        <field name="cap_model" type="Pointer" template="ZString"/>
+        <field name="fln_model" type="Pointer" template="ZString"/>
+        <field name="unkFloats" type="float" arr1="2"/>
+        <field name="unkInt2" type="uint64"/>
+        <field name="unkInt3" type="uint64"  since="24" until="24" />PZ
+    </struct>
 
-    <compound name="Footer" inherit="MemStruct">
+    <struct name="Footer" inherit="MemStruct">
         <!-- Size 32 -->
-        <add name="footer_model" type="Pointer" template="ZString"/>
-        <add name="ext_model" type="Pointer" template="ZString" />
-        <add name="joint_model" type="Pointer" template="ZString"/>
-        <add name="unkFloats" type="float" arr1="2"/>
-    </compound>
+        <field name="footer_model" type="Pointer" template="ZString"/>
+        <field name="ext_model" type="Pointer" template="ZString" />
+        <field name="joint_model" type="Pointer" template="ZString"/>
+        <field name="unkFloats" type="float" arr1="2"/>
+    </struct>
 
-    <compound name="SupportSetData" inherit="MemStruct">
+    <struct name="SupportSetData" inherit="MemStruct">
         <!-- PC, PZ Size 16, PC2 size 20 -->
-        <add name="unkIndex" type="uint" />
-        <add name="unkInt1" type="uint" />
-        <add name="unkInt2" type="uint" />
-        <add name="unkFloat1" type="float" />
-        <add name="unkInt3" type="uint" since="27"/>
-    </compound>
+        <field name="unkIndex" type="uint" />
+        <field name="unkInt1" type="uint" />
+        <field name="unkInt2" type="uint" />
+        <field name="unkFloat1" type="float" />
+        <field name="unkInt3" type="uint" since="27"/>
+    </struct>
 
-    <compound name="SupportSetRoot" inherit="MemStruct">
+    <struct name="SupportSetRoot" inherit="MemStruct">
         <!-- Size 144 -->
-        <add name="connector_1" type="ArrayPointer" template="Connector" arg="num_connector_1" /> <!-- 8 -->
-        <add name="connector_2" type="ArrayPointer" template="ConnectorMultiJoint" arg="num_connector_2" /> <!-- 16 -->
-        <add name="pillar" type="ArrayPointer" template="Pillar" arg="num_pillar"/> <!-- 24 -->
-        <add name="footer" type="ArrayPointer" template="Footer" arg="num_footer"/> <!-- 32 -->
-        <add name="sub_braces" type="ArrayPointer" template="SubBrace" arg="num_sub_brace" /> <!-- 40 -->
-        <add name="unkVector1" type="Vector3" /> <!-- 52 -->
-        <add name="unkVector2" type="Vector2" /> <!-- 60 -->
-        <add name="unkVector3" type="Vector3" /> <!-- 72 -->
-        <add name="unkInt1" type="uint" /> <!-- 76 -->
-        <add name="num_connector_1" type="uint" /> <!-- 80 -->
-        <add name="num_connector_2" type="uint" /> <!-- 84 -->
-        <add name="num_pillar" type="uint" /> <!-- 88 -->
-        <add name="num_footer" type="uint" /> <!-- 92 -->
-        <add name="num_sub_brace" type="uint" /> <!-- 96 -->
-        <add name="unkFloats" type="float" arr1="4"/> <!-- 112 -->
-        <add name="broken_supports" type="CondPointer" template="BrokeStruct" arg="0" /> <!-- 120 -->
-        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" /> <!-- 128 -->
-        <add name="num_data" type="uint" /> <!-- 132 -->
-        <add name="zeros" type="uint" default="0" arr1="3"/> <!-- 144 -->
-    </compound>
+        <field name="connector_1" type="ArrayPointer" template="Connector" arg="num_connector_1" /> <!-- 8 -->
+        <field name="connector_2" type="ArrayPointer" template="ConnectorMultiJoint" arg="num_connector_2" /> <!-- 16 -->
+        <field name="pillar" type="ArrayPointer" template="Pillar" arg="num_pillar"/> <!-- 24 -->
+        <field name="footer" type="ArrayPointer" template="Footer" arg="num_footer"/> <!-- 32 -->
+        <field name="sub_braces" type="ArrayPointer" template="SubBrace" arg="num_sub_brace" /> <!-- 40 -->
+        <field name="unkVector1" type="Vector3" /> <!-- 52 -->
+        <field name="unkVector2" type="Vector2" /> <!-- 60 -->
+        <field name="unkVector3" type="Vector3" /> <!-- 72 -->
+        <field name="unkInt1" type="uint" /> <!-- 76 -->
+        <field name="num_connector_1" type="uint" /> <!-- 80 -->
+        <field name="num_connector_2" type="uint" /> <!-- 84 -->
+        <field name="num_pillar" type="uint" /> <!-- 88 -->
+        <field name="num_footer" type="uint" /> <!-- 92 -->
+        <field name="num_sub_brace" type="uint" /> <!-- 96 -->
+        <field name="unkFloats" type="float" arr1="4"/> <!-- 112 -->
+        <field name="broken_supports" type="CondPointer" template="BrokeStruct" arg="0" /> <!-- 120 -->
+        <field name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" /> <!-- 128 -->
+        <field name="num_data" type="uint" /> <!-- 132 -->
+        <field name="zeros" type="uint" default="0" arr1="3"/> <!-- 144 -->
+    </struct>
 
-    <compound name="WoodenSupportSetRoot" inherit="MemStruct">
+    <struct name="WoodenSupportSetRoot" inherit="MemStruct">
         <!-- Size 288 -->
-        <add name="model_00" type="Pointer" template="ZString"/>
-        <add name="model_08" type="Pointer" template="ZString"/>
-        <add name="model_16" type="Pointer" template="ZString"/>
-        <add name="model_24" type="Pointer" template="ZString"/>
-        <add name="model_32" type="Pointer" template="ZString"/>
-        <add name="model_40" type="Pointer" template="ZString"/>
-        <add name="model_48" type="Pointer" template="ZString"/>
-        <add name="model_56" type="Pointer" template="ZString"/>
-        <add name="model_64" type="Pointer" template="ZString"/>
-        <add name="model_72" type="Pointer" template="ZString"/>
-        <add name="model_80" type="Pointer" template="ZString"/>
-        <add name="model_88" type="Pointer" template="ZString"/>
-        <add name="model_96" type="Pointer" template="ZString"/>
-        <add name="model_104" type="Pointer" template="ZString"/>
-        <add name="model_112" type="Pointer" template="ZString"/>
-        <add name="model_120" type="Pointer" template="ZString"/>
-        <add name="model_128" type="Pointer" template="ZString"/>
-        <add name="model_136" type="Pointer" template="ZString"/>
-        <add name="model_144" type="Pointer" template="ZString"/>
-        <add name="model_152" type="Pointer" template="ZString"/>
-        <add name="model_160" type="Pointer" template="ZString"/>
-        <add name="model_168" type="Pointer" template="ZString"/>
-        <add name="model_176" type="Pointer" template="ZString"/>
-        <add name="model_184" type="Pointer" template="ZString"/>
-        <add name="model_192" type="Pointer" template="ZString"/>
-        <add name="model_200" type="Pointer" template="ZString"/>
-        <add name="model_208" type="Pointer" template="ZString"/>
-        <add name="model_216" type="Pointer" template="ZString"/>
-        <add name="model_224" type="Pointer" template="ZString"/>
-        <add name="model_232" type="Pointer" template="ZString"/>
-        <add name="model_240" type="Pointer" template="ZString"/>
-        <add name="unkFloats" type="float" arr1="5"/> 
-        <add name="num_data" type="uint" /> <!-- matches num_data1 -->
-        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
-        <add name="num_data1" type="uint64" /> 
-    </compound>
+        <field name="model_00" type="Pointer" template="ZString"/>
+        <field name="model_08" type="Pointer" template="ZString"/>
+        <field name="model_16" type="Pointer" template="ZString"/>
+        <field name="model_24" type="Pointer" template="ZString"/>
+        <field name="model_32" type="Pointer" template="ZString"/>
+        <field name="model_40" type="Pointer" template="ZString"/>
+        <field name="model_48" type="Pointer" template="ZString"/>
+        <field name="model_56" type="Pointer" template="ZString"/>
+        <field name="model_64" type="Pointer" template="ZString"/>
+        <field name="model_72" type="Pointer" template="ZString"/>
+        <field name="model_80" type="Pointer" template="ZString"/>
+        <field name="model_88" type="Pointer" template="ZString"/>
+        <field name="model_96" type="Pointer" template="ZString"/>
+        <field name="model_104" type="Pointer" template="ZString"/>
+        <field name="model_112" type="Pointer" template="ZString"/>
+        <field name="model_120" type="Pointer" template="ZString"/>
+        <field name="model_128" type="Pointer" template="ZString"/>
+        <field name="model_136" type="Pointer" template="ZString"/>
+        <field name="model_144" type="Pointer" template="ZString"/>
+        <field name="model_152" type="Pointer" template="ZString"/>
+        <field name="model_160" type="Pointer" template="ZString"/>
+        <field name="model_168" type="Pointer" template="ZString"/>
+        <field name="model_176" type="Pointer" template="ZString"/>
+        <field name="model_184" type="Pointer" template="ZString"/>
+        <field name="model_192" type="Pointer" template="ZString"/>
+        <field name="model_200" type="Pointer" template="ZString"/>
+        <field name="model_208" type="Pointer" template="ZString"/>
+        <field name="model_216" type="Pointer" template="ZString"/>
+        <field name="model_224" type="Pointer" template="ZString"/>
+        <field name="model_232" type="Pointer" template="ZString"/>
+        <field name="model_240" type="Pointer" template="ZString"/>
+        <field name="unkFloats" type="float" arr1="5"/> 
+        <field name="num_data" type="uint" /> <!-- matches num_data1 -->
+        <field name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
+        <field name="num_data1" type="uint64" /> 
+    </struct>
 
-    <compound name="LatticeSupportSetRoot" inherit="MemStruct">
+    <struct name="LatticeSupportSetRoot" inherit="MemStruct">
         <!-- Size 288 -->
-        <add name="model_00" type="Pointer" template="ZString"/>
-        <add name="model_08" type="Pointer" template="ZString"/>
-        <add name="model_16" type="Pointer" template="ZString"/>
-        <add name="model_24" type="Pointer" template="ZString"/>
-        <add name="unkFloats" type="float" arr1="10"/> 
-        <add name="sub_braces" type="ArrayPointer" template="SubBrace" arg="num_sub_brace" />
-        <add name="num_sub_brace" type="uint64" />
-        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
-        <add name="num_data" type="uint64" />
-        <add name="padding" type="uint64" /> 
-    </compound>
+        <field name="model_00" type="Pointer" template="ZString"/>
+        <field name="model_08" type="Pointer" template="ZString"/>
+        <field name="model_16" type="Pointer" template="ZString"/>
+        <field name="model_24" type="Pointer" template="ZString"/>
+        <field name="unkFloats" type="float" arr1="10"/> 
+        <field name="sub_braces" type="ArrayPointer" template="SubBrace" arg="num_sub_brace" />
+        <field name="num_sub_brace" type="uint64" />
+        <field name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
+        <field name="num_data" type="uint64" />
+        <field name="padding" type="uint64" /> 
+    </struct>
 
 
-</niftoolsxml>
+</fileformat>

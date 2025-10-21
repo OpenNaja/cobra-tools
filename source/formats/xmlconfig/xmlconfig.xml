@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="XmlconfigRoot" inherit="MemStruct">
-        <add name="xml_string" type="Pointer" template="ZString" />
-    </compound>
+    <struct name="XmlconfigRoot" inherit="MemStruct">
+        <field name="xml_string" type="Pointer" template="ZString" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

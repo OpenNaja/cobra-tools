@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="CodexDataRoot" inherit="MemStruct">
-        <add name="CodexData_list"  type="ArrayPointer" template="CodexChapter" arg="CodexData_count"/>
-        <add name="CodexData_count" type="uint64" />
-    </compound>
+    <struct name="CodexDataRoot" inherit="MemStruct">
+        <field name="CodexData_list"  type="ArrayPointer" template="CodexChapter" arg="CodexData_count"/>
+        <field name="CodexData_count" type="uint64" />
+    </struct>
 
-    <compound name="CodexChapter" inherit="MemStruct">
-        <add name="dependency_name" type="Pointer" />
-    </compound>
+    <struct name="CodexChapter" inherit="MemStruct">
+        <field name="dependency_name" type="Pointer" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

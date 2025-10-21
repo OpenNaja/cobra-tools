@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="AssetPackListRoot" inherit="MemStruct">
-        <add name="AssetPackList_version" type="uint64" />
-        <add name="AssetPackList_list"  type="ArrayPointer" template="AssetPack" arg="AssetPackList_count"/>
-        <add name="AssetPackList_count" type="uint64" />
-    </compound>
+    <struct name="AssetPackListRoot" inherit="MemStruct">
+        <field name="AssetPackList_version" type="uint64" />
+        <field name="AssetPackList_list"  type="ArrayPointer" template="AssetPack" arg="AssetPackList_count"/>
+        <field name="AssetPackList_count" type="uint64" />
+    </struct>
 
-    <compound name="AssetPack" inherit="MemStruct">
-        <add name="AssetPack_Name" type="Pointer" template="ZString" />
-        <add name="AssetPack_UI_Name" type="Pointer" template="ZString" />
-        <add name="AssetPack_UI_Description" type="Pointer" template="ZString" />
-        <add name="AssetPack_AssetPackage" type="Pointer" template="ZString" />
-        <add name="AssetPackList_Flags1" type="uint64" />  # Most likely DLC Flags
-        <add name="AssetPackList_Flags2" type="uint64" />
-    </compound>
+    <struct name="AssetPack" inherit="MemStruct">
+        <field name="AssetPack_Name" type="Pointer" template="ZString" />
+        <field name="AssetPack_UI_Name" type="Pointer" template="ZString" />
+        <field name="AssetPack_UI_Description" type="Pointer" template="ZString" />
+        <field name="AssetPack_AssetPackage" type="Pointer" template="ZString" />
+        <field name="AssetPackList_Flags1" type="uint64" />  # Most likely DLC Flags
+        <field name="AssetPackList_Flags2" type="uint64" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

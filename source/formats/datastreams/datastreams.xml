@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="DataStreamsRoot" inherit="MemStruct">
+    <struct name="DataStreamsRoot" inherit="MemStruct">
         JWE1 16 bytes
-        <add name="count" type="uint64" />
-        <add name="layer_list"  type="ArrayPointer" template="DataStreamsSettings" arg="count"/>
-    </compound>
+        <field name="count" type="uint64" />
+        <field name="layer_list"  type="ArrayPointer" template="DataStreamsSettings" arg="count"/>
+    </struct>
 
-    <compound name="DataStreamsSettings" inherit="MemStruct">
+    <struct name="DataStreamsSettings" inherit="MemStruct">
         JWE1 48 bytes
-        <add name="name_a"  type="Pointer" template="ZString"/>
-        <add name="name_b"  type="Pointer" template="ZString"/>
-        <add name="z0" type="uint64" />
-        <add name="z1" type="uint64" />
-        <add name="count" type="uint64" />
-        <add name="data"  type="ArrayPointer" template="CurveDataPoint" arg="count"/>
-    </compound>
+        <field name="name_a"  type="Pointer" template="ZString"/>
+        <field name="name_b"  type="Pointer" template="ZString"/>
+        <field name="z0" type="uint64" />
+        <field name="z1" type="uint64" />
+        <field name="count" type="uint64" />
+        <field name="data"  type="ArrayPointer" template="CurveDataPoint" arg="count"/>
+    </struct>
 
     below is copied directly from motiongraph!
 
@@ -31,13 +31,13 @@
 		<option value="5" name="Bezier" />
     </enum>
 
-    <compound name="CurveDataPoint" inherit="MemStruct">
+    <struct name="CurveDataPoint" inherit="MemStruct">
         12 bytes
-        <add name="x" type="float"/>
-        <add name="y" type="short"/>
-        <add name="SubCurveType" type="SubCurveType"/>
-        <add name="SubsequentCurveParam" type="short"/>
-        <add name="SubsequentCurveParamB" type="short"/>
-    </compound>
+        <field name="x" type="float"/>
+        <field name="y" type="short"/>
+        <field name="SubCurveType" type="SubCurveType"/>
+        <field name="SubsequentCurveParam" type="short"/>
+        <field name="SubsequentCurveParamB" type="short"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

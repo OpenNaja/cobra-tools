@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
@@ -17,76 +17,76 @@
         <option value="9" name="String" />
     </enum>
 
-    <compound name="ZStrPtr" inherit="MemStruct">
+    <struct name="ZStrPtr" inherit="MemStruct">
         need to wrap this to avoid setting template on the np arrays
-        <add name="string" type="Pointer" template="ZString" />
-    </compound>
+        <field name="string" type="Pointer" template="ZString" />
+    </struct>
 
-    <compound name="ParamData" inherit="MemStruct">
+    <struct name="ParamData" inherit="MemStruct">
         16 bytes
-        <add name="data" type="bool" arr1="1" cond="#ARG# #EQ# 0" />
-        <add name="data" type="float" arr1="1" cond="#ARG# #EQ# 1" />
-        <add name="data" type="int" arr1="1" cond="#ARG# #EQ# 2" />
-        <add name="data" type="uint" arr1="1" cond="#ARG# #EQ# 3" />
-        <add name="data" type="float" arr1="2" cond="#ARG# #EQ# 4" />
-        <add name="data" type="float" arr1="3" cond="#ARG# #EQ# 5" />
-        <add name="data" type="float" arr1="4" cond="#ARG# #EQ# 6" />
-        <add name="data" type="ubyte" arr1="4" cond="#ARG# #EQ# 7" />
-        <add name="data" type="float" arr1="4" cond="#ARG# #EQ# 8" />
-        <add name="data" type="ZStrPtr" arr1="1" cond="#ARG# #EQ# 9" />
+        <field name="data" type="bool" arr1="1" cond="#ARG# #EQ# 0" />
+        <field name="data" type="float" arr1="1" cond="#ARG# #EQ# 1" />
+        <field name="data" type="int" arr1="1" cond="#ARG# #EQ# 2" />
+        <field name="data" type="uint" arr1="1" cond="#ARG# #EQ# 3" />
+        <field name="data" type="float" arr1="2" cond="#ARG# #EQ# 4" />
+        <field name="data" type="float" arr1="3" cond="#ARG# #EQ# 5" />
+        <field name="data" type="float" arr1="4" cond="#ARG# #EQ# 6" />
+        <field name="data" type="ubyte" arr1="4" cond="#ARG# #EQ# 7" />
+        <field name="data" type="float" arr1="4" cond="#ARG# #EQ# 8" />
+        <field name="data" type="ZStrPtr" arr1="1" cond="#ARG# #EQ# 9" />
         todo - padding!
-    </compound>
+    </struct>
 
-    <compound name="RenderParametersRoot" inherit="MemStruct">
+    <struct name="RenderParametersRoot" inherit="MemStruct">
         32 bytes
-        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="params" type="Pointer" template="ParamList" arg="params_count"/>
-        <add name="params_count" type="uint64" />
-        <add name="unk" type="uint64" />
-    </compound>
+        <field name="param_name" type="Pointer" template="ZStringObfuscated"/>
+        <field name="params" type="Pointer" template="ParamList" arg="params_count"/>
+        <field name="params_count" type="uint64" />
+        <field name="unk" type="uint64" />
+    </struct>
 
-    <compound name="ParamList" inherit="NestedPointers">
-        <add name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
-    </compound>
+    <struct name="ParamList" inherit="NestedPointers">
+        <field name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
+    </struct>
 
-    <compound name="CurveParamList" inherit="NestedPointers">
-        <add name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
-    </compound>
+    <struct name="CurveParamList" inherit="NestedPointers">
+        <field name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
+    </struct>
 
-    <compound name="CurveList" inherit="NestedPointers" args="2">
-        <add name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG1#" arg="#ARG2#"/>
-    </compound>
+    <struct name="CurveList" inherit="NestedPointers" args="2">
+        <field name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG1#" arg="#ARG2#"/>
+    </struct>
 
-    <compound name="Param" inherit="MemStruct">
+    <struct name="Param" inherit="MemStruct">
         32 bytes
-        <add name="attribute_name" type="Pointer" template="ZString"/>
-        <add name="dtype" type="RenderParameterType" />
-        <add name="unused" type="uint" default="0" optional="True"/>
-        <add name="data" type="ParamData" arg="dtype" />
-    </compound>
+        <field name="attribute_name" type="Pointer" template="ZString"/>
+        <field name="dtype" type="RenderParameterType" />
+        <field name="unused" type="uint" default="0" optional="True"/>
+        <field name="data" type="ParamData" arg="dtype" />
+    </struct>
 
-    <compound name="RenderParameterCurvesRoot" inherit="MemStruct">
+    <struct name="RenderParameterCurvesRoot" inherit="MemStruct">
         32 bytes
-        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="params" type="Pointer" template="CurveParamList" arg="params_count"/>
-        <add name="params_count" type="uint64" />
-        <add name="unk" type="uint64" />
-    </compound>
+        <field name="param_name" type="Pointer" template="ZStringObfuscated"/>
+        <field name="params" type="Pointer" template="CurveParamList" arg="params_count"/>
+        <field name="params_count" type="uint64" />
+        <field name="unk" type="uint64" />
+    </struct>
 
-    <compound name="CurveParam" inherit="MemStruct">
-        <add name="attribute_name" type="Pointer" template="ZString"/>
-        <add name="dtype" type="RenderParameterType" />
-        <add name="do_interpolation" type="uint" >set to 1 if count > 1</add>
-        <add name="samples" type="Pointer" template="CurveList" arg1="samples_count" arg2="dtype"/>
-        <add name="samples_count" type="uint64" />
-    </compound>
+    <struct name="CurveParam" inherit="MemStruct">
+        <field name="attribute_name" type="Pointer" template="ZString"/>
+        <field name="dtype" type="RenderParameterType" />
+        <field name="do_interpolation" type="uint" >set to 1 if count > 1</field>
+        <field name="samples" type="Pointer" template="CurveList" arg1="samples_count" arg2="dtype"/>
+        <field name="samples_count" type="uint64" />
+    </struct>
 
-    <compound name="KeyPoint" inherit="MemStruct">
-        <add name="time" type="float" />
-        <add name="value" type="ParamData" arg="arg"/>
+    <struct name="KeyPoint" inherit="MemStruct">
+        <field name="time" type="float" />
+        <field name="value" type="ParamData" arg="arg"/>
         # often 0 or very close
-        <add name="tangent before" type="float" />
-        <add name="tangent after" type="float" />
-    </compound>
+        <field name="tangent before" type="float" />
+        <field name="tangent after" type="float" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

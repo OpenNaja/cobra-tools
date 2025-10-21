@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="VendingMachineInteractionSettingsRoot" inherit="MemStruct">
+    <struct name="VendingMachineInteractionSettingsRoot" inherit="MemStruct">
         PC 80 bytes
-        <add name="AnimationInteraction" type="ArrayPointer" template="GuestAnimationInteractionList" arg="AnimationInteractionCount"/>
-        <add name="AnimationInteractionCount" type="uint" />
-        <add name="float1" type="float" default="9.0"/>
-        <add name="float2" type="float" default="12.0"/>
-        <add name="unk_1" type="uint" /> probably padding
+        <field name="AnimationInteraction" type="ArrayPointer" template="GuestAnimationInteractionList" arg="AnimationInteractionCount"/>
+        <field name="AnimationInteractionCount" type="uint" />
+        <field name="float1" type="float" default="9.0"/>
+        <field name="float2" type="float" default="12.0"/>
+        <field name="unk_1" type="uint" /> probably padding
 
-        <add name="AnimationIdle" type="Pointer" template="ZStringList" arg="AnimationIdleCount"/>
-        <add name="AnimationIdleCount" type="uint" />
-        <add name="unk_2" type="uint" /> probably padding
+        <field name="AnimationIdle" type="Pointer" template="ZStringList" arg="AnimationIdleCount"/>
+        <field name="AnimationIdleCount" type="uint" />
+        <field name="unk_2" type="uint" /> probably padding
 
-        <add name="AnimationWin"  type="Pointer" template="ZStringList" arg="AnimationWinCount"/>
-        <add name="AnimationWinCount" type="uint" />
-        <add name="unk_3" type="uint" /> probably padding
+        <field name="AnimationWin"  type="Pointer" template="ZStringList" arg="AnimationWinCount"/>
+        <field name="AnimationWinCount" type="uint" />
+        <field name="unk_3" type="uint" /> probably padding
 
-        <add name="AnimationFail"  type="Pointer" template="ZStringList" arg="AnimationFailCount"/>
-        <add name="AnimationFailCount" type="uint" />
-        <add name="float3" type="float" default="12.0"/>
+        <field name="AnimationFail"  type="Pointer" template="ZStringList" arg="AnimationFailCount"/>
+        <field name="AnimationFailCount" type="uint" />
+        <field name="float3" type="float" default="12.0"/>
 
         padding
-        <add name="pad_0" type="uint"/>
-        <add name="pad_1" type="uint"/>
-    </compound>
+        <field name="pad_0" type="uint"/>
+        <field name="pad_1" type="uint"/>
+    </struct>
 
-    <compound name="GuestAnimationInteractionList" inherit="MemStruct">
-        <add name="type" type="uint"/> 2=AM 258=AF 1=TM 257=TF 0=CM 256=CF
-        <add name="Unk_0" type="uint"/>
-        <add name="InteractIn" type="Pointer" template="ZString"/>
-        <add name="InteractLoop" type="Pointer" template="ZString"/>
-        <add name="InteractOut" type="Pointer" template="ZString"/>
-        <add name="InteractIdle"  type="Pointer" template="ZStringList" arg="InteractIdleCount"/>
-        <add name="InteractIdleCount" type="uint" />
-        <add name="Unk_0" type="uint"/>
+    <struct name="GuestAnimationInteractionList" inherit="MemStruct">
+        <field name="type" type="uint"/> 2=AM 258=AF 1=TM 257=TF 0=CM 256=CF
+        <field name="Unk_0" type="uint"/>
+        <field name="InteractIn" type="Pointer" template="ZString"/>
+        <field name="InteractLoop" type="Pointer" template="ZString"/>
+        <field name="InteractOut" type="Pointer" template="ZString"/>
+        <field name="InteractIdle"  type="Pointer" template="ZStringList" arg="InteractIdleCount"/>
+        <field name="InteractIdleCount" type="uint" />
+        <field name="Unk_0" type="uint"/>
 
-        <add name="InteractionGrab" type="Pointer" template="ZString"/>
-        <add name="InteractionGood" type="Pointer" template="ZString"/>
-        <add name="InteractionNeutral" type="Pointer" template="ZString"/>
-        <add name="InteractionBad" type="Pointer" template="ZString"/>
-        <add name="InteractionNone" type="Pointer" template="ZString"/>
-    </compound>
+        <field name="InteractionGrab" type="Pointer" template="ZString"/>
+        <field name="InteractionGood" type="Pointer" template="ZString"/>
+        <field name="InteractionNeutral" type="Pointer" template="ZString"/>
+        <field name="InteractionBad" type="Pointer" template="ZString"/>
+        <field name="InteractionNone" type="Pointer" template="ZString"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

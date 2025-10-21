@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="MissionDataRoot" inherit="MemStruct">
-        <add name="Mission_UI_Name" type="Pointer" template="ZString" />
-        <add name="Mission_UI_Description" type="Pointer" template="ZString" />
-        <add name="Mission_UI_Description_Pause" type="Pointer" template="ZString" />
-        <add name="Mission_ID" type="Pointer" template="ZString" />
-        <add name="Mission_Name" type="Pointer" template="ZString" />
-        <add name="Mission_Objective_Fail_Generic" type="Pointer" template="ZString" />
-        <add name="Mission_Objective_Success_Generic" type="Pointer" template="ZString" />
+    <struct name="MissionDataRoot" inherit="MemStruct">
+        <field name="Mission_UI_Name" type="Pointer" template="ZString" />
+        <field name="Mission_UI_Description" type="Pointer" template="ZString" />
+        <field name="Mission_UI_Description_Pause" type="Pointer" template="ZString" />
+        <field name="Mission_ID" type="Pointer" template="ZString" />
+        <field name="Mission_Name" type="Pointer" template="ZString" />
+        <field name="Mission_Objective_Fail_Generic" type="Pointer" template="ZString" />
+        <field name="Mission_Objective_Success_Generic" type="Pointer" template="ZString" />
 
-        <add name="MissionLevel_list"  type="ArrayPointer" template="MissionLevel" arg="MissionLevel_count"/>
-        <add name="MissionLevel_count" type="uint64" />
+        <field name="MissionLevel_list"  type="ArrayPointer" template="MissionLevel" arg="MissionLevel_count"/>
+        <field name="MissionLevel_count" type="uint64" />
 
-        <add name="MissionLevel_AI_Strategy" type="Pointer" template="ZString" />
+        <field name="MissionLevel_AI_Strategy" type="Pointer" template="ZString" />
 
         # todo: if any of these values is no 0
-        <add name="MissionLevel_Unknown01" type="uint64" /> # check if not zero
-        <add name="MissionLevel_Unknown02" type="uint64" /> # check if not zero
-        <add name="MissionLevel_Unknown03" type="uint64" /> # check if not zero
-        <add name="MissionLevel_Unknown04" type="uint64" /> # check if not zero
-        <add name="MissionLevel_Unknown05" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown01" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown02" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown03" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown04" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown05" type="uint64" /> # check if not zero
 
-        <add name="MissionLevelUnknown_list"  type="ArrayPointer" template="MissionLevelUnknownList" arg="MissionLevelUnknown_count"/>
-        <add name="MissionLevelUnknown_count" type="uint64" />
+        <field name="MissionLevelUnknown_list"  type="ArrayPointer" template="MissionLevelUnknownList" arg="MissionLevelUnknown_count"/>
+        <field name="MissionLevelUnknown_count" type="uint64" />
 
-        <add name="MissionLevel_Unknown06" type="uint64" /> # check if not zero
-        <add name="MissionLevel_Unknown07" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown06" type="uint64" /> # check if not zero
+        <field name="MissionLevel_Unknown07" type="uint64" /> # check if not zero
 
-        <add name="MissionLevelDifficulty_list"  type="ArrayPointer" template="MissionLevelDifficultyList" arg="MissionLevelDifficulty_count"/>
-        <add name="MissionLevelDifficulty_count" type="uint64" />
+        <field name="MissionLevelDifficulty_list"  type="ArrayPointer" template="MissionLevelDifficultyList" arg="MissionLevelDifficulty_count"/>
+        <field name="MissionLevelDifficulty_count" type="uint64" />
 
-        <add name="MissionLevelCamera"  type="Pointer" template="ZStringList" arg="MissionLevelCamera_count"/>
-        <add name="MissionLevelCamera_count" type="uint64" />
+        <field name="MissionLevelCamera"  type="Pointer" template="ZStringList" arg="MissionLevelCamera_count"/>
+        <field name="MissionLevelCamera_count" type="uint64" />
 
-        <add name="Mission_Campaign_Name" type="Pointer" template="ZString" /> # could be assetpackages or world
-        <add name="Mission_Mission_Name" type="Pointer" template="ZString" />  # could be assetpackages or world
+        <field name="Mission_Campaign_Name" type="Pointer" template="ZString" /> # could be assetpackages or world
+        <field name="Mission_Mission_Name" type="Pointer" template="ZString" />  # could be assetpackages or world
 
-    </compound>
+    </struct>
 
-    <compound name="MissionLevelUnknownList" inherit="MemStruct">
-        <add name="MissionLevelUnknown_list"  type="Pointer" template="MissionLevelUnknown"/>
-    </compound>
+    <struct name="MissionLevelUnknownList" inherit="MemStruct">
+        <field name="MissionLevelUnknown_list"  type="Pointer" template="MissionLevelUnknown"/>
+    </struct>
 
 
-    <compound name="MissionLevelUnknown" inherit="MemStruct">
-        <add name="MissionLevelUnknown_Data_Flags" type="uint64" /> # this seems to be a byte type flag
-        <add name="MissionLevelUnknown_Data" type="Pointer" template="ZString" />
-        <add name="MissionLevelUnknown_Data_Flags1" type="uint" />
-        <add name="MissionLevelUnknown_Data_Flags2" type="uint" />
-        <add name="MissionLevelUnknown_Data_Flags3" type="uint" />
-        <add name="MissionLevelUnknown_Data_Flags4" type="uint" />
-    </compound>
+    <struct name="MissionLevelUnknown" inherit="MemStruct">
+        <field name="MissionLevelUnknown_Data_Flags" type="uint64" /> # this seems to be a byte type flag
+        <field name="MissionLevelUnknown_Data" type="Pointer" template="ZString" />
+        <field name="MissionLevelUnknown_Data_Flags1" type="uint" />
+        <field name="MissionLevelUnknown_Data_Flags2" type="uint" />
+        <field name="MissionLevelUnknown_Data_Flags3" type="uint" />
+        <field name="MissionLevelUnknown_Data_Flags4" type="uint" />
+    </struct>
 
-    <compound name="MissionLevel" inherit="MemStruct">
-        <add name="MissionLevel_Path" type="Pointer" template="ZString" />
-        <add name="MissionLevel_Graph" type="Pointer" template="ZString" />
-    </compound>
+    <struct name="MissionLevel" inherit="MemStruct">
+        <field name="MissionLevel_Path" type="Pointer" template="ZString" />
+        <field name="MissionLevel_Graph" type="Pointer" template="ZString" />
+    </struct>
 
-    <compound name="MissionLevelDifficultyList" inherit="MemStruct">
-        <add name="MissionLevelDifficulty_list"  type="Pointer" template="MissionLevelDifficulty"/>
-    </compound>
+    <struct name="MissionLevelDifficultyList" inherit="MemStruct">
+        <field name="MissionLevelDifficulty_list"  type="Pointer" template="MissionLevelDifficulty"/>
+    </struct>
 
     # TODO ASSIGN VALID NAMES
-    <compound name="MissionLevelDifficulty" inherit="MemStruct">
-        <add name="MissionLevelDifficulty1" type="Pointer" template="ZString" />
-        <add name="MissionLevelDifficulty2" type="Pointer" template="ZString" />
-        <add name="MissionLevelDifficulty3" type="Pointer" template="ZString" />
-        <add name="MissionLevelDifficulty4" type="Pointer" template="ZString" />
-        <add name="MissionLevelDifficulty5" type="Pointer" template="ZString" />
-        <add name="MissionLevelDifficulty6" type="Pointer" template="ZString" />
-    </compound>
+    <struct name="MissionLevelDifficulty" inherit="MemStruct">
+        <field name="MissionLevelDifficulty1" type="Pointer" template="ZString" />
+        <field name="MissionLevelDifficulty2" type="Pointer" template="ZString" />
+        <field name="MissionLevelDifficulty3" type="Pointer" template="ZString" />
+        <field name="MissionLevelDifficulty4" type="Pointer" template="ZString" />
+        <field name="MissionLevelDifficulty5" type="Pointer" template="ZString" />
+        <field name="MissionLevelDifficulty6" type="Pointer" template="ZString" />
+    </struct>
 
 
-</niftoolsxml>
+</fileformat>

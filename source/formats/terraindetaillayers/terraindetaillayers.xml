@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="TerrainDetailLayersRoot" inherit="MemStruct">
+    <struct name="TerrainDetailLayersRoot" inherit="MemStruct">
         # 16 bytes
-        <add name="layer_list"  type="ArrayPointer" template="TerrainDetailsLayerItem" arg="layer_count"/>
-        <add name="layer_count" type="uint64" />
+        <field name="layer_list"  type="ArrayPointer" template="TerrainDetailsLayerItem" arg="layer_count"/>
+        <field name="layer_count" type="uint64" />
 
-    </compound>
+    </struct>
 
-    <compound name="TerrainDetailsLayerItem" inherit="MemStruct">
+    <struct name="TerrainDetailsLayerItem" inherit="MemStruct">
         # 88 bytes
 
-        <add name="layer_name"  type="Pointer" template="ZString"/>
+        <field name="layer_name"  type="Pointer" template="ZString"/>
         # seems like brushes list or something
-        <add name="info_list"  type="ArrayPointer" template="InfoStruct" arg="info_count"/>
-        <add name="info_count" type="uint" />
+        <field name="info_list"  type="ArrayPointer" template="InfoStruct" arg="info_count"/>
+        <field name="info_count" type="uint" />
 
-        <add name="float1"   type="float" />
-        <add name="float2"   type="float" />
-        <add name="float3"   type="float" />
-        <add name="float4"   type="float" />
-        <add name="float5"   type="float" />
-        <add name="float6"   type="float" />
-        <add name="unk_2"    type="uint" />
+        <field name="float1"   type="float" />
+        <field name="float2"   type="float" />
+        <field name="float3"   type="float" />
+        <field name="float4"   type="float" />
+        <field name="float5"   type="float" />
+        <field name="float6"   type="float" />
+        <field name="unk_2"    type="uint" />
 
         # LOD info
-        <add name="detail_list" type="ArrayPointer" template="DetailStruct" arg="detail_count"/>
-        <add name="detail_count" type="uint" />
+        <field name="detail_list" type="ArrayPointer" template="DetailStruct" arg="detail_count"/>
+        <field name="detail_count" type="uint" />
 
-        <add name="floata1"   type="float" />
-        <add name="floata2"   type="float" />
-        <add name="floata3"   type="float" />
-        <add name="floata4"   type="float" />
-        <add name="floata5"   type="float" />
-        <add name="floata6"   type="float" />
-        <add name="floata7"   type="float" />
-        <add name="floata8"   type="float" />
+        <field name="floata1"   type="float" />
+        <field name="floata2"   type="float" />
+        <field name="floata3"   type="float" />
+        <field name="floata4"   type="float" />
+        <field name="floata5"   type="float" />
+        <field name="floata6"   type="float" />
+        <field name="floata7"   type="float" />
+        <field name="floata8"   type="float" />
 
-        <add name="unk_3_flags"         type="uint" />
-        <add name="unk_count"    type="uint64" />
-        <add name="other_names" type="Pointer" template="ZStringList" arg="other_names_count"/>
-        <add name="other_names_count"    type="uint64" />
-        <add name="second_name"  type="Pointer" template="ZString"/>
+        <field name="unk_3_flags"         type="uint" />
+        <field name="unk_count"    type="uint64" />
+        <field name="other_names" type="Pointer" template="ZStringList" arg="other_names_count"/>
+        <field name="other_names_count"    type="uint64" />
+        <field name="second_name"  type="Pointer" template="ZString"/>
 
-        <add name="floatb1"   type="float" />
-        <add name="floatb2"   type="float" />
+        <field name="floatb1"   type="float" />
+        <field name="floatb2"   type="float" />
 
-    </compound>
+    </struct>
 
     # brush list
-    <compound name="InfoStruct" inherit="MemStruct">
-        <add name="brush_list"  type="ArrayPointer" template="brushitemStruct" arg="brush_count"/>
-        <add name="brush_count" type="uint" />
-        <add name="brush_flags" type="uint" />
+    <struct name="InfoStruct" inherit="MemStruct">
+        <field name="brush_list"  type="ArrayPointer" template="brushitemStruct" arg="brush_count"/>
+        <field name="brush_count" type="uint" />
+        <field name="brush_flags" type="uint" />
         # confirm this is scale or alpha
-        <add name="Scale"        type="float" />
+        <field name="Scale"        type="float" />
         # looks like padding
-        <add name="unk_1"        type="float" />
-    </compound>
+        <field name="unk_1"        type="float" />
+    </struct>
 
-    <compound name="brushitemStruct" inherit="MemStruct">
-        <add name="brush_name"  type="Pointer" template="ZString"/>
-        <add name="brush_type"  type="uint64"/>
-    </compound>
+    <struct name="brushitemStruct" inherit="MemStruct">
+        <field name="brush_name"  type="Pointer" template="ZString"/>
+        <field name="brush_type"  type="uint64"/>
+    </struct>
 
     # Level Of Detail for the layer
-    <compound name="DetailStruct" inherit="MemStruct">
-        <add name="index"    type="uint" />
-        <add name="x"        type="float" />
-        <add name="y"        type="float" />
-        <add name="z"        type="float" />
-    </compound>
+    <struct name="DetailStruct" inherit="MemStruct">
+        <field name="index"    type="uint" />
+        <field name="x"        type="float" />
+        <field name="y"        type="float" />
+        <field name="z"        type="float" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

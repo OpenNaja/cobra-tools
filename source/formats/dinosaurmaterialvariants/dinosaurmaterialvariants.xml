@@ -1,83 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="CommonHeader" inherit="MemStruct" >
-        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
-    </compound>
+    <struct name="CommonHeader" inherit="MemStruct" >
+        <field name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    </struct>
 
 
-    <compound name="Variant" inherit="MemStruct" >
-        <add name="has_ptr" type="uint64"/>
-        <add name="variant_name" type="Pointer" template="ZString"/>
-    </compound>
+    <struct name="Variant" inherit="MemStruct" >
+        <field name="has_ptr" type="uint64"/>
+        <field name="variant_name" type="Pointer" template="ZString"/>
+    </struct>
 
-    <compound name="DinoVariantsHeader" inherit="CommonHeader" >
-        <add name="has_sets" type="uint64"/>seen either 0 or 1, could possibly be more, would need refactor in that case
+    <struct name="DinoVariantsHeader" inherit="CommonHeader" >
+        <field name="has_sets" type="uint64"/>seen either 0 or 1, could possibly be more, would need refactor in that case
 		# 0 for rex 93 - has no materialpatterns, so that's probably why it's different
-        <add name="set_name" type="Pointer" template="ZString"/>
-        <add name="variants" type="ArrayPointer" template="Variant" arg="variant_count"/>
-        <add name="variant_count" type="uint64"/>
-        <add name="zero" type="uint64"/>
-    </compound>
+        <field name="set_name" type="Pointer" template="ZString"/>
+        <field name="variants" type="ArrayPointer" template="Variant" arg="variant_count"/>
+        <field name="variant_count" type="uint64"/>
+        <field name="zero" type="uint64"/>
+    </struct>
 
 
-    <compound name="Layer" inherit="MemStruct" >
-        <add name="increment_channel" type="uint64">1 to use next mask channel, 0 to use same as previous</add>
-        <add name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</add>
-        <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
-    </compound>
+    <struct name="Layer" inherit="MemStruct" >
+        <field name="increment_channel" type="uint64">1 to use next mask channel, 0 to use same as previous</field>
+        <field name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</field>
+        <field name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</field>
+    </struct>
 
-    <compound name="DinoLayersHeader" inherit="CommonHeader" >
-        <add name="layers" type="ArrayPointer" template="Layer" arg="layer_count"/>
-        <add name="layer_count" type="uint64"/>
-        <add name="zero" type="uint64"/>
-    </compound>
+    <struct name="DinoLayersHeader" inherit="CommonHeader" >
+        <field name="layers" type="ArrayPointer" template="Layer" arg="layer_count"/>
+        <field name="layer_count" type="uint64"/>
+        <field name="zero" type="uint64"/>
+    </struct>
 
 
-    <compound name="Pattern" inherit="MemStruct" >
-        <add name="has_ptr" type="uint64"/>
-        <add name="pattern_name" type="Pointer" template="ZString"/>
-    </compound>
+    <struct name="Pattern" inherit="MemStruct" >
+        <field name="has_ptr" type="uint64"/>
+        <field name="pattern_name" type="Pointer" template="ZString"/>
+    </struct>
 
-    <compound name="DinoPatternsHeader" inherit="CommonHeader" >
-        <add name="set_count" type="uint64"/>
-        <add name="set_name" type="Pointer" template="ZString"/>
-        <add name="patterns" type="ArrayPointer" template="Pattern" arg="pattern_count"/>
-        <add name="pattern_count" type="uint64"/>
-        <add name="zero" type="uint64"/>
-    </compound>
+    <struct name="DinoPatternsHeader" inherit="CommonHeader" >
+        <field name="set_count" type="uint64"/>
+        <field name="set_name" type="Pointer" template="ZString"/>
+        <field name="patterns" type="ArrayPointer" template="Pattern" arg="pattern_count"/>
+        <field name="pattern_count" type="uint64"/>
+        <field name="zero" type="uint64"/>
+    </struct>
 
-    <compound name="Vector3f" inherit="MemStruct" >
-        <add name="x" type="float"/>
-        <add name="y" type="float"/>
-        <add name="z" type="float"/>
-    </compound>
+    <struct name="Vector3f" inherit="MemStruct" >
+        <field name="x" type="float"/>
+        <field name="y" type="float"/>
+        <field name="z" type="float"/>
+    </struct>
 
-    <compound name="DinoEffectsHeader" inherit="CommonHeader" >
-        <add name="vec0" type="Vector3f"/>
-        <add name="vec1" type="Vector3f"/>
-        <add name="a" type="uint"/>
-        <add name="b" type="uint"/>
-        <add name="vec2" type="Vector3f"/>
-        <add name="vec3" type="Vector3f"/>
-        <add name="vec4" type="Vector3f"/>
-        <add name="vec5" type="Vector3f"/>
-        <add name="c" type="uint"/>
-        <add name="d" type="uint"/>
-        <add name="floats1" type="float" arr1="2"/>
-        <add name="e" type="uint"/>
-        <add name="floats2" type="float" arr1="2"/>
-        <add name="f" type="uint"/>
-        <add name="floats3" type="float" arr1="8"/>
-        <add name="g" type="uint"/>
-        <add name="floats4" type="float" arr1="6"/>
-        <add name="h" type="uint"/>
-        <add name="floats5" type="float" arr1="20"/>
-        <add name="i" type="uint"/>
-        <add name="float" type="float"/>
-     </compound>
+    <struct name="DinoEffectsHeader" inherit="CommonHeader" >
+        <field name="vec0" type="Vector3f"/>
+        <field name="vec1" type="Vector3f"/>
+        <field name="a" type="uint"/>
+        <field name="b" type="uint"/>
+        <field name="vec2" type="Vector3f"/>
+        <field name="vec3" type="Vector3f"/>
+        <field name="vec4" type="Vector3f"/>
+        <field name="vec5" type="Vector3f"/>
+        <field name="c" type="uint"/>
+        <field name="d" type="uint"/>
+        <field name="floats1" type="float" arr1="2"/>
+        <field name="e" type="uint"/>
+        <field name="floats2" type="float" arr1="2"/>
+        <field name="f" type="uint"/>
+        <field name="floats3" type="float" arr1="8"/>
+        <field name="g" type="uint"/>
+        <field name="floats4" type="float" arr1="6"/>
+        <field name="h" type="uint"/>
+        <field name="floats5" type="float" arr1="20"/>
+        <field name="i" type="uint"/>
+        <field name="float" type="float"/>
+     </struct>
 
-</niftoolsxml>
+</fileformat>

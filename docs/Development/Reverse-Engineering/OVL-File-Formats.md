@@ -68,16 +68,16 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
 
     Let's start by writing an XML representation for the main struct, which covers its 64 bytes:
     ```xml
-        <compound name="FgmHeader" inherit="MemStruct">
-            <add name="count_0" type="uint64" />
-            <add name="count_1" type="uint64" />
-            <add name="ptr_0" type="Pointer" />
-            <add name="ptr_1" type="Pointer" />
-            <add name="ptr_2" type="Pointer" />
-            <add name="ptr_3" type="Pointer" />
-            <add name="unk_0" type="uint64" />
-            <add name="unk_1" type="uint64" />
-        </compound>
+        <struct name="FgmHeader" inherit="MemStruct">
+            <field name="count_0" type="uint64" />
+            <field name="count_1" type="uint64" />
+            <field name="ptr_0" type="Pointer" />
+            <field name="ptr_1" type="Pointer" />
+            <field name="ptr_2" type="Pointer" />
+            <field name="ptr_3" type="Pointer" />
+            <field name="unk_0" type="uint64" />
+            <field name="unk_1" type="uint64" />
+        </struct>
     ```
     Setting `type` to `Pointer` will make the tool read those 8 bytes as a pointer and then read a sub-struct at the address that this pointer points to. But first, you need to figure out the data layout of the pointer's sub-struct for this to work.
 
@@ -122,25 +122,25 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
 7. Now you have some more knowledge of the format, so time to document the struct in XML syntax for the codegen. This will result in something like the following:
 
     ```xml
-        <compound name="FgmHeader" inherit="MemStruct">
-            <add name="count_0" type="uint64" />
-            <add name="count_1" type="uint64" />
-            <add name="array_0" type="ArrayPointer" template="Sub1" arg="count_0"/>
-            <add name="ptr_1" type="Pointer" />
-            <add name="dependencies" type="Pointer" />
-            <add name="ptr_3" type="Pointer" />
-            <add name="unk_0" type="uint64" />
-            <add name="unk_1" type="uint64" />
-        </compound>
+        <struct name="FgmHeader" inherit="MemStruct">
+            <field name="count_0" type="uint64" />
+            <field name="count_1" type="uint64" />
+            <field name="array_0" type="ArrayPointer" template="Sub1" arg="count_0"/>
+            <field name="ptr_1" type="Pointer" />
+            <field name="dependencies" type="Pointer" />
+            <field name="ptr_3" type="Pointer" />
+            <field name="unk_0" type="uint64" />
+            <field name="unk_1" type="uint64" />
+        </struct>
 
-        <compound name="Sub1" inherit="MemStruct">
-            <add name="offset" type="uint" />
-            <add name="constant_eight" type="uint" />
-            <add name="index" type="uint" />
-            <add name="zero_0" type="uint" />
-            <add name="zero_1" type="uint" />
-            <add name="zero_2" type="uint" />
-        </compound>
+        <struct name="Sub1" inherit="MemStruct">
+            <field name="offset" type="uint" />
+            <field name="constant_eight" type="uint" />
+            <field name="index" type="uint" />
+            <field name="zero_0" type="uint" />
+            <field name="zero_1" type="uint" />
+            <field name="zero_2" type="uint" />
+        </struct>
     ```
     Notice that `ptr_0` has been renamed to `array_0`, its `type` changed to `ArrayPointer`. Its sub-struct is set to `template="Sub1"`, counted by `arg="count_0"`.
 

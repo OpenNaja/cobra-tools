@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="TerrainIndexedDetailLayersRoot" inherit="MemStruct">
+    <struct name="TerrainIndexedDetailLayersRoot" inherit="MemStruct">
         # 16 bytes
-        <add name="layer_list"  type="ArrayPointer" template="TerrainDetailsLayerItem" arg="layer_count"/>
-        <add name="layer_count" type="uint64" />
+        <field name="layer_list"  type="ArrayPointer" template="TerrainDetailsLayerItem" arg="layer_count"/>
+        <field name="layer_count" type="uint64" />
 
-    </compound>
+    </struct>
 
-    <compound name="TerrainDetailsLayerItem" inherit="MemStruct">
-        <add name="layer_name"  type="Pointer" template="ZString"/>
+    <struct name="TerrainDetailsLayerItem" inherit="MemStruct">
+        <field name="layer_name"  type="Pointer" template="ZString"/>
         # seems like layer to brushes list 
-        <add name="info_list"   type="ArrayPointer" template="brushitemStruct" arg="info_count"/>
-        <add name="info_count"  type="uint64" />
+        <field name="info_list"   type="ArrayPointer" template="brushitemStruct" arg="info_count"/>
+        <field name="info_count"  type="uint64" />
 
-    </compound>
+    </struct>
 
-    <compound name="brushitemStruct" inherit="MemStruct">
-        <add name="layer_name"  type="Pointer" template="ZString"/>
-        <add name="brush_name"  type="Pointer" template="ZString"/>
-    </compound>
+    <struct name="brushitemStruct" inherit="MemStruct">
+        <field name="layer_name"  type="Pointer" template="ZString"/>
+        <field name="brush_name"  type="Pointer" template="ZString"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

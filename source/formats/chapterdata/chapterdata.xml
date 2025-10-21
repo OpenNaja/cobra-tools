@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="ChapterDataRoot" inherit="MemStruct">
-        <add name="ChapterData_type" type="ubyte" /> # 1 for factions, 0 for general help, 1 means will have extra faction tabs
-        <add name="ChapterData_hidden" type="ubyte" />   # 1 for helppopups.chapterdata, that one is not showing up in the UI
-        <add name="ChapterData_id" type="ubyte" />   # 0 to 4 for factions, 5 on general help :?, cloud just be order instead
-        <add name="ChapterData_zero" type="ubyte" />   # 0 found on all
+    <struct name="ChapterDataRoot" inherit="MemStruct">
+        <field name="ChapterData_type" type="ubyte" /> # 1 for factions, 0 for general help, 1 means will have extra faction tabs
+        <field name="ChapterData_hidden" type="ubyte" />   # 1 for helppopups.chapterdata, that one is not showing up in the UI
+        <field name="ChapterData_id" type="ubyte" />   # 0 to 4 for factions, 5 on general help :?, cloud just be order instead
+        <field name="ChapterData_zero" type="ubyte" />   # 0 found on all
 
-        <add name="ChapterData_unused1" type="uint" />   # 0 found on all
+        <field name="ChapterData_unused1" type="uint" />   # 0 found on all
 
-        <add name="ChapterData_list1" type="uint64" />   
-        <add name="ChapterData_list2" type="uint64" />   
-        <add name="ChapterData_list3" type="uint64" />   
-        <add name="ChapterData_list4" type="uint64" />   
+        <field name="ChapterData_list1" type="uint64" />   
+        <field name="ChapterData_list2" type="uint64" />   
+        <field name="ChapterData_list3" type="uint64" />   
+        <field name="ChapterData_list4" type="uint64" />   
 
-        <add name="ChapterData_count1" type="uint" />   
-        <add name="ChapterData_count2" type="uint" />   
-        <add name="ChapterData_count3" type="uint" />   
-        <add name="ChapterData_count4" type="uint" />   
+        <field name="ChapterData_count1" type="uint" />   
+        <field name="ChapterData_count2" type="uint" />   
+        <field name="ChapterData_count3" type="uint" />   
+        <field name="ChapterData_count4" type="uint" />   
 
-        <add name="ChapterData_list"  type="ArrayPointer" template="ChapterData" arg="ChapterData_count"/>
-        <add name="ChapterData_count" type="uint64" />
-        <add name="ChapterData_unused2" type="uint64" />   # 0 found on all
+        <field name="ChapterData_list"  type="ArrayPointer" template="ChapterData" arg="ChapterData_count"/>
+        <field name="ChapterData_count" type="uint64" />
+        <field name="ChapterData_unused2" type="uint64" />   # 0 found on all
 
-    </compound>
+    </struct>
 
-    <compound name="ChapterData" inherit="MemStruct">
-        <add name="ChapterData_Name" type="Pointer" template="ZString"/>
-        <add name="ChapterData_flags" type="uint64"/>  # one bit is hidden, 
-        <add name="ChapterDataInfo_list"  type="ArrayPointer" template="ChapterDataInfo" arg="ChapterDataInfo_count"/>
-        <add name="ChapterDataInfo_count" type="uint64" />
-    </compound>
+    <struct name="ChapterData" inherit="MemStruct">
+        <field name="ChapterData_Name" type="Pointer" template="ZString"/>
+        <field name="ChapterData_flags" type="uint64"/>  # one bit is hidden, 
+        <field name="ChapterDataInfo_list"  type="ArrayPointer" template="ChapterDataInfo" arg="ChapterDataInfo_count"/>
+        <field name="ChapterDataInfo_count" type="uint64" />
+    </struct>
 
-    <compound name="ChapterDataInfo" inherit="MemStruct">
-        <add name="ChapterDataInto_Str1" type="Pointer" template="ZString"/>
-        <add name="ChapterDataInto_Str2" type="Pointer" template="ZString"/>
-        <add name="ChapterDataInto_Str3" type="Pointer" template="ZString"/>
-        <add name="ChapterDataInto_Str4" type="Pointer" template="ZString"/>
-        <add name="ChapterDataInto_Str5" type="Pointer" template="ZString"/>
-    </compound>
+    <struct name="ChapterDataInfo" inherit="MemStruct">
+        <field name="ChapterDataInto_Str1" type="Pointer" template="ZString"/>
+        <field name="ChapterDataInto_Str2" type="Pointer" template="ZString"/>
+        <field name="ChapterDataInto_Str3" type="Pointer" template="ZString"/>
+        <field name="ChapterDataInto_Str4" type="Pointer" template="ZString"/>
+        <field name="ChapterDataInto_Str5" type="Pointer" template="ZString"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

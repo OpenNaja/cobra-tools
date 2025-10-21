@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="ResearchRoot" inherit="MemStruct">
-        <add name="levels" type="ArrayPointer" template="Research" arg="count"/>
-        <add name="count" type="uint64" />
-    </compound>
+    <struct name="ResearchRoot" inherit="MemStruct">
+        <field name="levels" type="ArrayPointer" template="Research" arg="count"/>
+        <field name="count" type="uint64" />
+    </struct>
 
-    <compound name="Research" inherit="MemStruct">
-        <add name="item_name" type="Pointer" template="ZString"/>
-        <add name="is_completed" type="uint" /> set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)
-        <add name="is_entry_level" type="uint" /> first research enabled level (0 if research is complete)
-        <add name="is_enabled" type="uint64" /> at least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)
-        <add name="next_research" type="Pointer" template="NextResearch" arg="next_research_count" />
-        <add name="next_research_count" type="uint64" />
-        <add name="unk3" type="uint64" />
-        <add name="unk4" type="uint64" />
-    </compound>
+    <struct name="Research" inherit="MemStruct">
+        <field name="item_name" type="Pointer" template="ZString"/>
+        <field name="is_completed" type="uint" /> set to 1 for researchs completed (e.g. scenario level2  will have level1 unlocked already)
+        <field name="is_entry_level" type="uint" /> first research enabled level (0 if research is complete)
+        <field name="is_enabled" type="uint64" /> at least one research item needs to have 1 to enable research on this tree (all 0 used for noneresearchable)
+        <field name="next_research" type="Pointer" template="NextResearch" arg="next_research_count" />
+        <field name="next_research_count" type="uint64" />
+        <field name="unk3" type="uint64" />
+        <field name="unk4" type="uint64" />
+    </struct>
 
-    <compound name="NextResearch" inherit="MemStruct">
-        <add name="item_name" type="Pointer" template="ZString" arr1="#ARG#" />
-        <add name="unk1" type="uint64" /> Walked all over the files and this was always 0
-    </compound>
+    <struct name="NextResearch" inherit="MemStruct">
+        <field name="item_name" type="Pointer" template="ZString" arr1="#ARG#" />
+        <field name="unk1" type="uint64" /> Walked all over the files and this was always 0
+    </struct>
 
-</niftoolsxml>
+</fileformat>

@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     # todo - levels, next_levels and children actually seem to be terminated by nullptrs not counted with the counts
 
-    <compound name="ResearchRoot" inherit="MemStruct">
-        <add name="levels" type="ArrayPointer" template="ResearchLevel" arg="levels_count"/>
-        <add name="levels_count" type="uint64" />
-    </compound>
+    <struct name="ResearchRoot" inherit="MemStruct">
+        <field name="levels" type="ArrayPointer" template="ResearchLevel" arg="levels_count"/>
+        <field name="levels_count" type="uint64" />
+    </struct>
 
-    <compound name="ResearchLevel" inherit="MemStruct">
-        <add name="level_name" type="Pointer" template="ZString"/>
-        <add name="next_levels" type="Pointer" template="ZStringList" arg="next_levels_count"/>
-        <add name="next_levels_count" type="uint64" />
-        <add name="children" type="Pointer" template="ZStringList" arg="children_count"/>
-        <add name="children_count" type="uint64" />
-    </compound>
+    <struct name="ResearchLevel" inherit="MemStruct">
+        <field name="level_name" type="Pointer" template="ZString"/>
+        <field name="next_levels" type="Pointer" template="ZStringList" arg="next_levels_count"/>
+        <field name="next_levels_count" type="uint64" />
+        <field name="children" type="Pointer" template="ZStringList" arg="children_count"/>
+        <field name="children_count" type="uint64" />
+    </struct>
 
-    <compound name="UnlockState" inherit="MemStruct">
-        <add name="entity_name" type="Pointer" template="ZString"/>
-        <add name="level_name" type="Pointer" template="ZString"/>
-    </compound>
+    <struct name="UnlockState" inherit="MemStruct">
+        <field name="entity_name" type="Pointer" template="ZString"/>
+        <field name="level_name" type="Pointer" template="ZString"/>
+    </struct>
 
-    <compound name="ResearchStartRoot" inherit="MemStruct">
-        <add name="states" type="ArrayPointer" template="UnlockState" arg="states_count"/>
-        <add name="states_count" type="uint64" />
-    </compound>
+    <struct name="ResearchStartRoot" inherit="MemStruct">
+        <field name="states" type="ArrayPointer" template="UnlockState" arg="states_count"/>
+        <field name="states_count" type="uint64" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

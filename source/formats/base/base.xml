@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 	
     <token name="operator" attrs="cond vercond arr1 arr2 arg">
         All Operators except for unary not (!), parentheses, and member of (\)
@@ -87,47 +87,47 @@
         A string that ends with a null byte (0x00).
     </basic>
 
-    <compound name="ZStringBuffer" count="0" >
+    <struct name="ZStringBuffer" count="0" >
         Holds a buffer of zero-terminated strings
-    </compound>
+    </struct>
 
-    <compound name="ZStringBufferPadded" inherit="ZStringBuffer" count="0" >
+    <struct name="ZStringBufferPadded" inherit="ZStringBuffer" count="0" >
         Holds a buffer of zero-terminated strings, aligned to 8 bytes at the end
-    </compound>
+    </struct>
 
-    <compound name="PadAlign">
+    <struct name="PadAlign">
         Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
-    </compound>
+    </struct>
 
-    <compound name="FixedString" count="0" >
+    <struct name="FixedString" count="0" >
         Holds a string of a fixed size, given as #ARG#.
-    </compound>
+    </struct>
 
-    <compound name="Vector2" size="8">
+    <struct name="Vector2" size="8">
         A vector in 2D space (x,y).
         <field name="x" type="float">First coordinate.</field>
         <field name="y" type="float">Second coordinate.</field>
-    </compound>
+    </struct>
 
-	<compound name="Vector3" size="12">
+	<struct name="Vector3" size="12">
 		A vector in 3D space (x,y,z).
 		<field name="x" type="float">First coordinate.</field>
 		<field name="y" type="float">Second coordinate.</field>
 		<field name="z" type="float">Third coordinate.</field>
-	</compound>
+	</struct>
 
-	<compound name="Vector3Half" size="6">
+	<struct name="Vector3Half" size="6">
 		A vector in 3D space (x,y,z).
 		<field name="x" type="hfloat">First coordinate.</field>
 		<field name="y" type="hfloat">Second coordinate.</field>
 		<field name="z" type="hfloat">Third coordinate.</field>
-	</compound>
+	</struct>
 
-    <compound name="Vector4" size="16">
+    <struct name="Vector4" size="16">
         A vector in 3D space (x,y,z).
         <field name="x" type="float">First coordinate.</field>
         <field name="y" type="float">Second coordinate.</field>
         <field name="z" type="float">Third coordinate.</field>
         <field name="w" type="float">Fourth coordinate.</field>
-    </compound>
-</niftoolsxml>
+    </struct>
+</fileformat>

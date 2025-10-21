@@ -129,130 +129,130 @@
 		<option value="250" name="ALL"></option>
     </enum>
 
-	<compound name="TexBuffer" inherit="MemStruct" >
+	<struct name="TexBuffer" inherit="MemStruct" >
 		Describes one buffer of a tex / texturestream file.
 		24 bytes per texture buffer
-		<add name="offset" type="uint64">byte offset in the combined buffer</add>
-		<add name="size" type="uint64">byte size of this tex buffer</add>
-		<add name="first_mip" type="ubyte">index of first mip used in this buffer</add>
-		<add name="mip_count" type="ubyte">amount of mip levels included in this buffer</add>
-		<add name="padding0" type="short" default="0" optional="True"/>
-		<add name="padding1" type="int" default="0" optional="True"/>
-    </compound>
+		<field name="offset" type="uint64">byte offset in the combined buffer</field>
+		<field name="size" type="uint64">byte size of this tex buffer</field>
+		<field name="first_mip" type="ubyte">index of first mip used in this buffer</field>
+		<field name="mip_count" type="ubyte">amount of mip levels included in this buffer</field>
+		<field name="padding0" type="short" default="0" optional="True"/>
+		<field name="padding1" type="int" default="0" optional="True"/>
+    </struct>
 
-	<compound name="TexBufferPc" inherit="MemStruct" >
+	<struct name="TexBufferPc" inherit="MemStruct" >
 		The different tex buffers contain the smallest mip
-		<add name="width" type="ushort"/>
-		<add name="height" type="ushort"/>
-		<add name="num_tiles" type="ushort" since="18">may be depth</add>
-		<add name="num mips" type="ushort">the first ie. biggest levels are clipped off</add>
-    </compound>
+		<field name="width" type="ushort"/>
+		<field name="height" type="ushort"/>
+		<field name="num_tiles" type="ushort" since="18">may be depth</field>
+		<field name="num mips" type="ushort">the first ie. biggest levels are clipped off</field>
+    </struct>
 
-	<compound name="Mipmap" inherit="MemStruct">
+	<struct name="Mipmap" inherit="MemStruct">
 		Describes one tex mipmap
-		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
-		<add name="size" type="uint" >bytes for one array tile, including padding</add>
-		<add name="size array" type="uint">bytes for all array tile, including padding</add>
-		<add name="size scan" type="uint" >size of a scan line of blocks, including padding that is added to the end of the line</add>
-		<add name="size data" type="uint">size of all non-empty scanline blocks (including padding), ie. the last mips add an empty scanline which does not count</add>
-    </compound>
+		<field name="offset" type="uint">starting offset into the texture buffer for this mip level</field>
+		<field name="size" type="uint" >bytes for one array tile, including padding</field>
+		<field name="size array" type="uint">bytes for all array tile, including padding</field>
+		<field name="size scan" type="uint" >size of a scan line of blocks, including padding that is added to the end of the line</field>
+		<field name="size data" type="uint">size of all non-empty scanline blocks (including padding), ie. the last mips add an empty scanline which does not count</field>
+    </struct>
 
-	<compound name="SizeInfoRaw" inherit="MemStruct" >
+	<struct name="SizeInfoRaw" inherit="MemStruct" >
 		Data struct for headers of type 7
-		<add name="zero" type="uint64" default="0" optional="True">zero</add>
-		<add name="data size" type="uint" >total dds buffer size, sum of size_array of all mips</add>
-		<add name="width" type="uint">x size in pixels</add>
-		<add name="height" type="uint" >y size in pixels</add>
-		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>
-		<add name="num_tiles" type="uint" default="1" optional="True"/>
-		<add name="num mips" type="uint">amount of mip map levels</add>
-		<add name="unk_pz" type="uint64" since="20" default="0" optional="True">only found in PZ and JWE2</add>
-		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
-    </compound>
+		<field name="zero" type="uint64" default="0" optional="True">zero</field>
+		<field name="data size" type="uint" >total dds buffer size, sum of size_array of all mips</field>
+		<field name="width" type="uint">x size in pixels</field>
+		<field name="height" type="uint" >y size in pixels</field>
+		<field name="depth" type="uint" default="1" optional="True" >may be depth</field>
+		<field name="num_tiles" type="uint" default="1" optional="True"/>
+		<field name="num mips" type="uint">amount of mip map levels</field>
+		<field name="unk_pz" type="uint64" since="20" default="0" optional="True">only found in PZ and JWE2</field>
+		<field name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</field>
+    </struct>
 
-	<compound name="SizeInfo" inherit="MemStruct" >
-		<add name="data" type="SizeInfoRaw"/>
-		<add name="padding" type="ubyte" arr1="320 - (data \ io_size)" vercond="#PZ16# #OR# #PZ# #OR# #JWE2#"/>
-		<add name="padding" type="ubyte" arr1="384 - (data \ io_size)" vercond="#JWE#"/>
-    </compound>
+	<struct name="SizeInfo" inherit="MemStruct" >
+		<field name="data" type="SizeInfoRaw"/>
+		<field name="padding" type="ubyte" arr1="320 - (data \ io_size)" vercond="#PZ16# #OR# #PZ# #OR# #JWE2#"/>
+		<field name="padding" type="ubyte" arr1="384 - (data \ io_size)" vercond="#JWE#"/>
+    </struct>
 
-    <compound name="TexHeader" inherit="MemStruct">
+    <struct name="TexHeader" inherit="MemStruct">
 		DLA: 24 bytes, no pointers
         ZTUAC, PC: 24 bytes, with 1 pointer
         JWE, PZ, JWE2: 40 bytes, with 2 pointers
 		PC2: 48 bytes, no pointers
-		<add vercond="!is_PC2" name="zero 0" type="uint" until="15" default="0" optional="True"/>
-		<add vercond="!is_PC2" name="zero 0" type="uint64" since="17" default="0" optional="True"/>
-		<add vercond="!is_PC2" name="zero 1" type="uint64" since="19" default="0" optional="True"/>
-		<add vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="17" until="18" template="TexBufferPc" arg="stream_count"/>
-		<add vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="19" template="TexBuffer" arg="stream_count"/>
-		<add vercond="!is_PC2" name="size_info" type="Pointer" since="19" template="SizeInfo"/>
+		<field vercond="!is_PC2" name="zero 0" type="uint" until="15" default="0" optional="True"/>
+		<field vercond="!is_PC2" name="zero 0" type="uint64" since="17" default="0" optional="True"/>
+		<field vercond="!is_PC2" name="zero 1" type="uint64" since="19" default="0" optional="True"/>
+		<field vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="17" until="18" template="TexBufferPc" arg="stream_count"/>
+		<field vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="19" template="TexBuffer" arg="stream_count"/>
+		<field vercond="!is_PC2" name="size_info" type="Pointer" since="19" template="SizeInfo"/>
 		compression types do not index directly into the official DDS enum
-		<add vercond="!is_PC2" name="compression type" type="DdsType_Coaster" until="18"/>
-		<add vercond="!is_PC2" name="compression type" type="DdsType" since="19"/>
-		<add vercond="!is_PC2" name="one 0" type="ubyte">0 or 1</add>
-		<add vercond="!is_PC2" name="num mips" type="ushort" until="15"/>
-		<add vercond="!is_PC2" name="width" type="ushort" until="15"/>
-		<add vercond="!is_PC2" name="height" type="ushort" until="15"/>
-		<add vercond="!is_PC2" name="stream_count" type="ubyte" since="17">amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex</add>
-		<add vercond="!is_PC2" name="stream_count repeat" type="ubyte" since="17">usually as above</add>
-		<add vercond="!is_PC2" name="pad" type="uint" default="0" optional="True">0; 1 for PC</add>
-		<add vercond="!is_PC2" name="pad dla" type="uint64" until="15" default="0" optional="True"/>
+		<field vercond="!is_PC2" name="compression type" type="DdsType_Coaster" until="18"/>
+		<field vercond="!is_PC2" name="compression type" type="DdsType" since="19"/>
+		<field vercond="!is_PC2" name="one 0" type="ubyte">0 or 1</field>
+		<field vercond="!is_PC2" name="num mips" type="ushort" until="15"/>
+		<field vercond="!is_PC2" name="width" type="ushort" until="15"/>
+		<field vercond="!is_PC2" name="height" type="ushort" until="15"/>
+		<field vercond="!is_PC2" name="stream_count" type="ubyte" since="17">amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex</field>
+		<field vercond="!is_PC2" name="stream_count repeat" type="ubyte" since="17">usually as above</field>
+		<field vercond="!is_PC2" name="pad" type="uint" default="0" optional="True">0; 1 for PC</field>
+		<field vercond="!is_PC2" name="pad dla" type="uint64" until="15" default="0" optional="True"/>
 
 		PC2 mime_version = 10 still, but completely different layout
-		<add vercond="is_PC2" name="zero 0" type="uint" default="0" optional="True"/>
-		<add vercond="is_PC2" name="compression type" type="DdsType" />
-		<add vercond="is_PC2" name="compression pad" type="ubyte" arr1="3" />
-		<add vercond="is_PC2" name="width" type="uint">x size in pixels</add>
-		<add vercond="is_PC2" name="height" type="uint" >y size in pixels</add>
-		<add vercond="is_PC2" name="depth" type="uint" default="1" optional="True" >may be depth</add>
-		<add vercond="is_PC2" name="num mips" type="uint" />
-		<add vercond="is_PC2" name="num_tiles" type="uint" default="1" optional="True"/>
-        <add vercond="is_PC2" name="texel_ref" type="Empty"/>
-		<add vercond="is_PC2" name="texel" type="ZString" />
-        <add vercond="is_PC2" name="texel_padding" type="PadAlign" template="texel_ref" arg="4"/>
-    </compound>
+		<field vercond="is_PC2" name="zero 0" type="uint" default="0" optional="True"/>
+		<field vercond="is_PC2" name="compression type" type="DdsType" />
+		<field vercond="is_PC2" name="compression pad" type="ubyte" arr1="3" />
+		<field vercond="is_PC2" name="width" type="uint">x size in pixels</field>
+		<field vercond="is_PC2" name="height" type="uint" >y size in pixels</field>
+		<field vercond="is_PC2" name="depth" type="uint" default="1" optional="True" >may be depth</field>
+		<field vercond="is_PC2" name="num mips" type="uint" />
+		<field vercond="is_PC2" name="num_tiles" type="uint" default="1" optional="True"/>
+        <field vercond="is_PC2" name="texel_ref" type="Empty"/>
+		<field vercond="is_PC2" name="texel" type="ZString" />
+        <field vercond="is_PC2" name="texel_padding" type="PadAlign" template="texel_ref" arg="4"/>
+    </struct>
 
-    <compound name="Pc2TexMip" inherit="MemStruct">
-		<add name="offset" type="uint"/>
-		<add name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
-		<add name="num_weaves_x" type="ushort"/>
-		<add name="num_weaves_y" type="ushort"/>
-		<add name="do_weave" type="short"/>
-		<add name="ff" type="short" default="0"/>
-    </compound>
+    <struct name="Pc2TexMip" inherit="MemStruct">
+		<field name="offset" type="uint"/>
+		<field name="size" type="uint"/>this is for a single array tile, multiply with num_tiles for complete mip
+		<field name="num_weaves_x" type="ushort"/>
+		<field name="num_weaves_y" type="ushort"/>
+		<field name="do_weave" type="short"/>
+		<field name="ff" type="short" default="0"/>
+    </struct>
 
-    <compound name="Pc2TexBuffer" inherit="MemStruct">
+    <struct name="Pc2TexBuffer" inherit="MemStruct">
 		PC2 mime_version = 10 still, but completely different layout
-		<add name="compression type" type="DdsType" />
-		<add name="compression pad" type="ubyte" arr1="3" />
-		<add name="width" type="uint">x size in pixels</add>
-		<add name="height" type="uint" >y size in pixels</add>
-		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>
-		<add name="num_tiles" type="uint" default="1" optional="True"/>
+		<field name="compression type" type="DdsType" />
+		<field name="compression pad" type="ubyte" arr1="3" />
+		<field name="width" type="uint">x size in pixels</field>
+		<field name="height" type="uint" >y size in pixels</field>
+		<field name="depth" type="uint" default="1" optional="True" >may be depth</field>
+		<field name="num_tiles" type="uint" default="1" optional="True"/>
 		# not related to shuffling texel block bit widths
-		<add name="flag" type="ubyte" default="0"/>seen at least 0, 32, 96
-		<add name="num mips" type="ubyte" />
-		<add name="num mips low" type="ubyte" default="7" />
-		<add name="num mips high" type="ubyte" default="9" />
-		<add name="weave_width" type="uint" default="256"/>can be 256, 512
-		<add name="weave_height" type="uint" default="256"/>
-		<add name="can_weave" type="uint" default="1"/>seen 0 when weave_width = 0, 1 if otherwise
-		<add name="buffer_size" type="uint64"/>
-		<add name="main" type="Pc2TexMip" arr1="2"/>
-		<add name="mip_maps" type="Pc2TexMip" arr1="14"/>
-    </compound>
+		<field name="flag" type="ubyte" default="0"/>seen at least 0, 32, 96
+		<field name="num mips" type="ubyte" />
+		<field name="num mips low" type="ubyte" default="7" />
+		<field name="num mips high" type="ubyte" default="9" />
+		<field name="weave_width" type="uint" default="256"/>can be 256, 512
+		<field name="weave_height" type="uint" default="256"/>
+		<field name="can_weave" type="uint" default="1"/>seen 0 when weave_width = 0, 1 if otherwise
+		<field name="buffer_size" type="uint64"/>
+		<field name="main" type="Pc2TexMip" arr1="2"/>
+		<field name="mip_maps" type="Pc2TexMip" arr1="14"/>
+    </struct>
 
-    <compound name="TexturestreamHeader" inherit="MemStruct">
+    <struct name="TexturestreamHeader" inherit="MemStruct">
 		JWE, PZ, PC: 8 bytes
         JWE2: 16 bytes
-		<add name="zero" type="uint64" default="0" optional="True"/>
-		<add name="lod_index" type="uint64" vercond="#JWE2#"/>
-    </compound>
+		<field name="zero" type="uint64" default="0" optional="True"/>
+		<field name="lod_index" type="uint64" vercond="#JWE2#"/>
+    </struct>
 
-    <compound name="TexelHeader" inherit="MemStruct">
+    <struct name="TexelHeader" inherit="MemStruct">
 		PC2: 8 bytes
-		<add name="zero" type="uint64" default="0" optional="True"/>
-    </compound>
+		<field name="zero" type="uint64" default="0" optional="True"/>
+    </struct>
 </fileformat>
 

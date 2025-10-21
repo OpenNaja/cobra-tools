@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="RideSettingsRoot" inherit="MemStruct">
+    <struct name="RideSettingsRoot" inherit="MemStruct">
         PC 32 bytes
         PZ 16 bytes
-        <add name="unk_0" type="float" default="0.4"/>
-        <add name="unk_1" type="uint"/>maybe a cond for the pointer and count
-        <add name="array_1" type="ArrayPointer" template="Pair" arg="count" vercond="!#PZ#"/>
-        <add name="count" type="uint" vercond="!#PZ#"/>
+        <field name="unk_0" type="float" default="0.4"/>
+        <field name="unk_1" type="uint"/>maybe a cond for the pointer and count
+        <field name="array_1" type="ArrayPointer" template="Pair" arg="count" vercond="!#PZ#"/>
+        <field name="count" type="uint" vercond="!#PZ#"/>
         padding
-        <add name="pad_0" type="uint"/>
-        <add name="pad_1" type="uint"/>
-        <add name="pad_2" type="uint" vercond="!#PZ#"/>
-    </compound>
+        <field name="pad_0" type="uint"/>
+        <field name="pad_1" type="uint"/>
+        <field name="pad_2" type="uint" vercond="!#PZ#"/>
+    </struct>
 
-    <compound name="Pair" inherit="MemStruct">
-        <add name="value_0" type="uint"/>
-        <add name="value_1" type="float"/>
-    </compound>
+    <struct name="Pair" inherit="MemStruct">
+        <field name="value_0" type="uint"/>
+        <field name="value_1" type="float"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

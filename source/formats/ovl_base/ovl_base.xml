@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
     <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
@@ -75,72 +75,72 @@
 
 	<!-- Structs for the OVL file -->
 
-    <compound name="Pointer" >
+    <struct name="Pointer" >
         a pointer in an ovl memory layout, can point to a struct or a dependency entry
-        <add name="pool_index" type="int" default="0">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
-        <add name="data_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
-        <add name="data" type="uint" abstract="True">data lives at some other point</add>
-    </compound>
+        <field name="pool_index" type="int" default="0">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</field>
+        <field name="data_offset" type="uint" >the byte offset relative to the start of the MemPool's data</field>
+        <field name="data" type="uint" abstract="True">data lives at some other point</field>
+    </struct>
 
-    <compound name="Reference" inherit="Pointer" >
-    </compound>
+    <struct name="Reference" inherit="Pointer" >
+    </struct>
 
-    <compound name="LookupPointer" inherit="Pointer" >
-    </compound>
+    <struct name="LookupPointer" inherit="Pointer" >
+    </struct>
 
-    <compound name="ArrayPointer" inherit="Pointer" >
+    <struct name="ArrayPointer" inherit="Pointer" >
         a pointer to an array in an ovl memory layout
-    </compound>
+    </struct>
 
-    <compound name="CondPointer" inherit="Pointer" >
+    <struct name="CondPointer" inherit="Pointer" >
         a pointer to a data struct that may sometimes be null without a bool
-    </compound>
+    </struct>
 
-    <compound name="ForEachPointer" inherit="Pointer" >
+    <struct name="ForEachPointer" inherit="Pointer" >
         a pointer to an array in an ovl memory layout
-    </compound>
+    </struct>
 
-    <compound name="MemStruct" >
+    <struct name="MemStruct" >
         this is a struct that is capable of having pointers
-    </compound>
+    </struct>
 
-	<compound name="SmartPadding">
+	<struct name="SmartPadding">
 		Grabs 00 bytes only
-	</compound>
+	</struct>
 
     <basic name="ZStringObfuscated" integral="false">
         A string that ends with a null byte (0x00), and additionally has its bytes modified.
     </basic>
 
-    <compound name="GenericHeader">
+    <struct name="GenericHeader">
         Found at the beginning of every OVL file
-        <add name="magic" type="FixedString" arg="4">'FRES' for ovl</add>
-        <add name="version_flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</add>
-        <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
-        <add name="Bitswap" type="byte" >endianness?, usually zero</add>
-        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user_version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
-    </compound>
+        <field name="magic" type="FixedString" arg="4">'FRES' for ovl</field>
+        <field name="version_flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</field>
+        <field name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</field>
+        <field name="Bitswap" type="byte" >endianness?, usually zero</field>
+        <field name="Seventh Byte" type="byte" default="1" >always = 1</field>
+        <field name="user_version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</field>
+    </struct>
 
-    <compound name="Empty">
+    <struct name="Empty">
         An empty object, used to reference stream offsets
-    </compound>
+    </struct>
 
-    <compound name="NestedPointers" inherit="MemStruct">
+    <struct name="NestedPointers" inherit="MemStruct">
         todo - this should handle the invisible nesting of ptrs automatically for a generic template
-<!--        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>-->
-    </compound>
+<!--        <field name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>-->
+    </struct>
 
-    <compound name="ZStringList" inherit="NestedPointers">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
-    </compound>
+    <struct name="ZStringList" inherit="NestedPointers">
+        <field name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
+    </struct>
 
-    <compound name="ByteColor" inherit="MemStruct">
+    <struct name="ByteColor" inherit="MemStruct">
         4 bytes
-        <add name="r" type="ubyte"/>
-        <add name="g" type="ubyte"/>
-        <add name="b" type="ubyte"/>
-        <add name="a" type="ubyte"/>
-    </compound>
+        <field name="r" type="ubyte"/>
+        <field name="g" type="ubyte"/>
+        <field name="b" type="ubyte"/>
+        <field name="a" type="ubyte"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

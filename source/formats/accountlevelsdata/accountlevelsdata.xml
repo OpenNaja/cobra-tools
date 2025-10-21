@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="AccountLevelsDataRoot" inherit="MemStruct">
-        <add name="AccountLevel_version" type="uint64" />
-        <add name="AccountLevels"  type="ArrayPointer" template="AccountLevel" arg="AccountLevels_count"/>
-        <add name="AccountLevels_count" type="uint64" />
-    </compound>
+    <struct name="AccountLevelsDataRoot" inherit="MemStruct">
+        <field name="AccountLevel_version" type="uint64" />
+        <field name="AccountLevels"  type="ArrayPointer" template="AccountLevel" arg="AccountLevels_count"/>
+        <field name="AccountLevels_count" type="uint64" />
+    </struct>
 
-    <compound name="AccountLevel" inherit="MemStruct">
-        <add name="Level_Id" type="uint64" />
-        <add name="Levels" type="Pointer" template="ZStringList" arg="Levels_count"/>
-        <add name="Levels_count" type="uint64" />
-    </compound>
+    <struct name="AccountLevel" inherit="MemStruct">
+        <field name="Level_Id" type="uint64" />
+        <field name="Levels" type="Pointer" template="ZStringList" arg="Levels_count"/>
+        <field name="Levels_count" type="uint64" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

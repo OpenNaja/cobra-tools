@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="ParticleAtlasRoot" inherit="MemStruct">
-        <add name="tex_name" type="Pointer" template="ZString"/>
-        <add name="gfr_name" type="Pointer" template="ZString"/>
-        <add name="id" type="uint" >matches number in tex file name</add>
-        <add name="zero" type="uint" />
-		<add name="dependency_name" type="Pointer" >tex file used by atlas</add>
-    </compound>
+    <struct name="ParticleAtlasRoot" inherit="MemStruct">
+        <field name="tex_name" type="Pointer" template="ZString"/>
+        <field name="gfr_name" type="Pointer" template="ZString"/>
+        <field name="id" type="uint" >matches number in tex file name</field>
+        <field name="zero" type="uint" />
+		<field name="dependency_name" type="Pointer" >tex file used by atlas</field>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

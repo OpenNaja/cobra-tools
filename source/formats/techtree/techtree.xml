@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="TechTreeRoot" inherit="MemStruct">
+    <struct name="TechTreeRoot" inherit="MemStruct">
         <!-- pointer at 0 -->
-        <add name="filename" type="Pointer" template="ZStringObfuscated"/>
-        <add name="buffer_0" type="int"/>
-        <add name="buffer_1" type="int"/>
+        <field name="filename" type="Pointer" template="ZStringObfuscated"/>
+        <field name="buffer_0" type="int"/>
+        <field name="buffer_1" type="int"/>
         <!-- pointer at 16 -->
-        <add name="tech_levels" type="ArrayPointer" template="TechLevel" arg="tech_levels_count"/>
-        <add name="tech_levels_count" type="uint64"/>
-    </compound>
+        <field name="tech_levels" type="ArrayPointer" template="TechLevel" arg="tech_levels_count"/>
+        <field name="tech_levels_count" type="uint64"/>
+    </struct>
 
-    <compound name="TechLevel" inherit="MemStruct">
+    <struct name="TechLevel" inherit="MemStruct">
         <!-- pointer at 0 -->
-        <add name="automatic_research" type="ArrayPointer" template="ResearchDataDep" arg="automatic_research_count" />
-        <add name="automatic_research_count" type="uint"/>
-        <add name="unknown_0" type="int"/>
+        <field name="automatic_research" type="ArrayPointer" template="ResearchDataDep" arg="automatic_research_count" />
+        <field name="automatic_research_count" type="uint"/>
+        <field name="unknown_0" type="int"/>
         <!-- pointer at 16 -->
-        <add name="unlockable_research" type="ArrayPointer" template="ResearchDataDep" arg="unlockable_research_count" />
-        <add name="unlockable_research_count" type="uint"/>
-        <add name="unknown_1" type="int"/>
+        <field name="unlockable_research" type="ArrayPointer" template="ResearchDataDep" arg="unlockable_research_count" />
+        <field name="unlockable_research_count" type="uint"/>
+        <field name="unknown_1" type="int"/>
         <!-- pointer at 32 -->
-        <add name="mutexed_unlockable_research" type="ArrayPointer" template="MutexResearch" arg="mutexed_unlockable_research_count"/>
-        <add name="mutexed_unlockable_research_count" type="uint"/>
-        <add name="unknown_2" type="int"/>
-    </compound>
+        <field name="mutexed_unlockable_research" type="ArrayPointer" template="MutexResearch" arg="mutexed_unlockable_research_count"/>
+        <field name="mutexed_unlockable_research_count" type="uint"/>
+        <field name="unknown_2" type="int"/>
+    </struct>
 
-    <compound name="MutexResearch" inherit="MemStruct">
-        <add name="mutex_options" type="ArrayPointer" template="ResearchDataDep" arg="mutex_options_count"/>
-        <add name="mutex_options_count" type="uint64"/>
-    </compound>
+    <struct name="MutexResearch" inherit="MemStruct">
+        <field name="mutex_options" type="ArrayPointer" template="ResearchDataDep" arg="mutex_options_count"/>
+        <field name="mutex_options_count" type="uint64"/>
+    </struct>
 
-    <compound name="ResearchDataDep" inherit="MemStruct">
-        <add name="research_data_dependency" type="Pointer"/>
-    </compound>
+    <struct name="ResearchDataDep" inherit="MemStruct">
+        <field name="research_data_dependency" type="Pointer"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

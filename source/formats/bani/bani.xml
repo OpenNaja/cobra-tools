@@ -1,112 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Vector3Short" size="6" allow_np="true">
+    <struct name="Vector3Short" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
         <field name="x" type="short">First coordinate.</field>
         <field name="y" type="short">Second coordinate.</field>
         <field name="z" type="short">Third coordinate.</field>
-    </compound>
+    </struct>
 
-    <compound name="Vector3Ushort" size="6" allow_np="true">
+    <struct name="Vector3Ushort" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
         <field name="x" type="ushort">First coordinate.</field>
         <field name="y" type="ushort">Second coordinate.</field>
         <field name="z" type="ushort">Third coordinate.</field>
-    </compound>
+    </struct>
 
-	<compound name="BaniRoot" inherit="MemStruct">
+	<struct name="BaniRoot" inherit="MemStruct">
         This varies per bani animation file and describes the bani's frames and duration
 		older: 24 bytes
         PC2: 32 bytes
-        <add name="banis" type="Pointer" >points to the banis file used</add>
-        <add name="index" type="uint" since="7">?</add>
-        <add name="offset" type="uint" since="7">index * 16</add>
-        <add name="read start frame" type="uint">The frame in the banis where this bani starts reading</add>PC2: num_frames * 8 + previous offset
-        <add name="num frames" type="uint">Number of frames in this bani file</add>
-        <add name="animation length" type="float">length of the animation, can easily get keyframe spacing now</add>
-        <add name="LoopFlag" type="uint">if 1381323599 then looped</add>
-    </compound>
+        <field name="banis" type="Pointer" >points to the banis file used</field>
+        <field name="index" type="uint" since="7">?</field>
+        <field name="offset" type="uint" since="7">index * 16</field>
+        <field name="read start frame" type="uint">The frame in the banis where this bani starts reading</field>PC2: num_frames * 8 + previous offset
+        <field name="num frames" type="uint">Number of frames in this bani file</field>
+        <field name="animation length" type="float">length of the animation, can easily get keyframe spacing now</field>
+        <field name="LoopFlag" type="uint">if 1381323599 then looped</field>
+    </struct>
 
-    <compound name="BaniData" inherit="MemStruct">
+    <struct name="BaniData" inherit="MemStruct">
         PC2: 16 bytes
-        <add name="a" type="ushort"/>
-        <add name="b" type="ushort"/>
-        <add name="unk" type="float"/>
-        <add name="increment" type="ushort"/>in guests by 15, in pigeon by 1, starts at bani_count?
-        <add name="zero" type="ubyte" default="0"/>
-        <add name="num_bones" type="ubyte"/>
-        <add name="index_reversed" type="uint"/>
-    </compound>
+        <field name="a" type="ushort"/>
+        <field name="b" type="ushort"/>
+        <field name="unk" type="float"/>
+        <field name="increment" type="ushort"/>in guests by 15, in pigeon by 1, starts at bani_count?
+        <field name="zero" type="ubyte" default="0"/>
+        <field name="num_bones" type="ubyte"/>
+        <field name="index_reversed" type="uint"/>
+    </struct>
 
-    <compound name="BoneInfo" allow_np="true">
+    <struct name="BoneInfo" allow_np="true">
         PC2: 2 bytes
-        <add name="index" type="ubyte"/>
-        <add name="flag" type="ubyte"/>
-    </compound>
+        <field name="index" type="ubyte"/>
+        <field name="flag" type="ubyte"/>
+    </struct>
 
-    <compound name="BaniBones" inherit="MemStruct">
+    <struct name="BaniBones" inherit="MemStruct">
         PC2: multiples of 32 bytes for each bani, data per bone index
-		<add name="ref" type="Empty"/>
-        <add name="data" type="BoneInfo" arr1="#ARG#\num_bones" />
-		<add name="padding" type="PadAlign" template="ref" arg="32"/>
-    </compound>
+		<field name="ref" type="Empty"/>
+        <field name="data" type="BoneInfo" arr1="#ARG#\num_bones" />
+		<field name="padding" type="PadAlign" template="ref" arg="32"/>
+    </struct>
 
-    <compound name="Bone" allow_np="true">
+    <struct name="Bone" allow_np="true">
         PC2: 12 bytes
-        <add name="rot" type="Vector3Short" />
-        <add name="loc" type="Vector3Ushort" />
-    </compound>
+        <field name="rot" type="Vector3Short" />
+        <field name="loc" type="Vector3Ushort" />
+    </struct>
 
-    <compound name="Keys" inherit="NestedPointers" args="2">
-        <add name="data" type="Bone" arr1="#ARG1#" arr2="#ARG2#"/>
-    </compound>
+    <struct name="Keys" inherit="NestedPointers" args="2">
+        <field name="data" type="Bone" arr1="#ARG1#" arr2="#ARG2#"/>
+    </struct>
 
-    <compound name="BanisRoot" inherit="MemStruct">
+    <struct name="BanisRoot" inherit="MemStruct">
         older games: 40 bytes
         PC2: new structure, 4 pointers to keyframe data at start
-        <add name="bani_data" type="ArrayPointer" arg="bani_count" template="BaniData" since="7"/>
+        <field name="bani_data" type="ArrayPointer" arg="bani_count" template="BaniData" since="7"/>
         padded with 00 bytes
-        <add name="bones_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
+        <field name="bones_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
         padded with FF bytes, todo however the counts or padding appear different on af.banisetfc27d51a
-        <add name="bones2_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
-        <add name="keys" type="Pointer" template="Keys" arg1="num frames" arg2="num bones" since="7"/>
-        <add name="zeros" type="uint" arr1="3" since="7"/>
-        <add name="count_a" type="uint" since="7"/>
-        <add name="count_b_0" type="uint" since="7"/>loc?
-        <add name="count_b_1" type="uint" since="7"/>rot?
-        <add name="keys_size" type="uint" since="7"/>
+        <field name="bones2_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
+        <field name="keys" type="Pointer" template="Keys" arg1="num frames" arg2="num bones" since="7"/>
+        <field name="zeros" type="uint" arr1="3" since="7"/>
+        <field name="count_a" type="uint" since="7"/>
+        <field name="count_b_0" type="uint" since="7"/>loc?
+        <field name="count_b_1" type="uint" since="7"/>rot?
+        <field name="keys_size" type="uint" since="7"/>
 
-        <add name="zeros" type="uint64" arr1="2" until="5"/>
+        <field name="zeros" type="uint64" arr1="2" until="5"/>
 
-        <add name="bytes per frame" type="uint" >bytes per bone * num bones</add>
-        <add name="bytes per bone" type="uint" >seen 12 (PC2 pigeon), 16 (PC1 pigeon)</add>
-        <add name="num frames" type="uint" >Number of frames for all bani files in banis buffer</add>
-        <add name="num bones" type="uint" >number of bones in data, must correspond to ms2</add>
+        <field name="bytes per frame" type="uint" >bytes per bone * num bones</field>
+        <field name="bytes per bone" type="uint" >seen 12 (PC2 pigeon), 16 (PC1 pigeon)</field>
+        <field name="num frames" type="uint" >Number of frames for all bani files in banis buffer</field>
+        <field name="num bones" type="uint" >number of bones in data, must correspond to ms2</field>
 
-        <add name="loc scale" type="float" until="5">scale for translation range</add>
-        <add name="loc min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</add>
+        <field name="loc scale" type="float" until="5">scale for translation range</field>
+        <field name="loc min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</field>
 
-        <add name="bani_count" type="uint" since="7"/>
-        <add name="zero2" type="uint64" since="7"/>
-    </compound>
+        <field name="bani_count" type="uint" since="7"/>
+        <field name="zero2" type="uint64" since="7"/>
+    </struct>
 
-    <compound name="BaniInfo">
+    <struct name="BaniInfo">
         Custom header struct
-        <add name="name" type="ZString"/>
-        <add name="data" type="BaniRoot"/>
-    </compound>
+        <field name="name" type="ZString"/>
+        <field name="data" type="BaniRoot"/>
+    </struct>
 
-    <compound name="BanisInfoHeader">
+    <struct name="BanisInfoHeader">
         Custom header struct
-        <add name="version" type="uint"/>
-        <add name="num_anims" type="uint"/>
-        <add name="anims" type="BaniInfo" arr1="num_anims"/>
-        <add name="data" type="BanisRoot"/>
+        <field name="version" type="uint"/>
+        <field name="num_anims" type="uint"/>
+        <field name="anims" type="BaniInfo" arr1="num_anims"/>
+        <field name="data" type="BanisRoot"/>
         keyframe data follows
-    </compound>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

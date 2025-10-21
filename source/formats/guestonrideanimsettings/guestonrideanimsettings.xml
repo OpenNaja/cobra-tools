@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="GuestOnRideAnimSettingsRoot" inherit="MemStruct">
-        <add name="RideAnims" type="ArrayPointer" template="RideAnims" arg="count"/>
-        <add name="count" type="uint64"/>
-    </compound>
+    <struct name="GuestOnRideAnimSettingsRoot" inherit="MemStruct">
+        <field name="RideAnims" type="ArrayPointer" template="RideAnims" arg="count"/>
+        <field name="count" type="uint64"/>
+    </struct>
 
-    <compound name="RideAnims" inherit="MemStruct">
+    <struct name="RideAnims" inherit="MemStruct">
         PC 136 bytes
         PZ 128 bytes
         PC2 64 bytes
-        <add name="anim_name" type="Pointer" template="ZString"/>
-        <add name="AM" type="Pointer" template="ZString" vercond="!is_PC2"/>
-        <add name="AF" type="Pointer" template="ZString" vercond="!is_PC2"/>
-        <add name="TM" type="Pointer" template="ZString" vercond="!is_PC2"/>
-        <add name="TF" type="Pointer" template="ZString" vercond="!is_PC2"/>
-        <add name="CF" type="Pointer" template="ZString" vercond="!is_PC2"/>
-        <add name="CM" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="anim_name" type="Pointer" template="ZString"/>
+        <field name="AM" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="AF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="TM" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="TF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="CF" type="Pointer" template="ZString" vercond="!is_PC2"/>
+        <field name="CM" type="Pointer" template="ZString" vercond="!is_PC2"/>
 
-        <add name="bools" type="ubyte" arr1="44" vercond="#PC#" />
-        <add name="bools" type="ubyte" arr1="56" vercond="#PZ# #AND# !is_PC2" />
-        <add name="bools" type="ubyte" arr1="32" vercond="is_PC2" />
+        <field name="bools" type="ubyte" arr1="44" vercond="#PC#" />
+        <field name="bools" type="ubyte" arr1="56" vercond="#PZ# #AND# !is_PC2" />
+        <field name="bools" type="ubyte" arr1="32" vercond="is_PC2" />
 
-        <add name="floats" type="float" arr1="5" vercond="#PC#"/>
-        <add name="floats" type="float" arr1="4" vercond="#PZ# #AND# !is_PC2"/>
-        <add name="floats" type="float" arr1="5" vercond="is_PC2"/>PC2 still 5
+        <field name="floats" type="float" arr1="5" vercond="#PC#"/>
+        <field name="floats" type="float" arr1="4" vercond="#PZ# #AND# !is_PC2"/>
+        <field name="floats" type="float" arr1="5" vercond="is_PC2"/>PC2 still 5
 
-        <add name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
+        <field name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
 
-        <add name="count" type="uint64" vercond="#PC#"/>
-        <add name="count" type="uint" vercond="is_PC2"/>
+        <field name="count" type="uint64" vercond="#PC#"/>
+        <field name="count" type="uint" vercond="is_PC2"/>
 
-    </compound>
+    </struct>
 
-    <compound name="AnimPair" inherit="MemStruct">
-        <add name="anim_name1" type="Pointer" template="ZString"/>
-        <add name="anim_name2" type="Pointer" template="ZString"/>
-    </compound>
-</niftoolsxml>
+    <struct name="AnimPair" inherit="MemStruct">
+        <field name="anim_name1" type="Pointer" template="ZString"/>
+        <field name="anim_name2" type="Pointer" template="ZString"/>
+    </struct>
+</fileformat>

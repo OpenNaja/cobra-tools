@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="TrackedRideCarRoot" inherit="MemStruct">
+    <struct name="TrackedRideCarRoot" inherit="MemStruct">
         <!-- PC, PZ: 48 bytes
          PC2: 64 bytes -->
-        <add name="Seat Rows" type="ArrayPointer" template="Row" arg="Seat Rows Count"/>
-        <add name="Seat Rows Count" type="uint">Numer of seats rows</add>
-        <add name="Total Seats Count" type="uint">Total number of seats in this car</add>
-        <add name="Sizes" type="float" arr1="3">Size of different fence elements</add>
-        <add name="zero0" type="uint" default="0" optional="true"/>
-        <add name="Hitcheck Model Name" type="Pointer" template="ZString"/>
-        <add name="Cabin Geometry Attach" type="Pointer" template="ZString" since="7"/>
-        <add name="Cabin Geometry" type="Pointer" template="ZString" since="7"/>
-        <add name="zero2" type="uint64" default="0" optional="true" since="7"/>
-    </compound>
+        <field name="Seat Rows" type="ArrayPointer" template="Row" arg="Seat Rows Count"/>
+        <field name="Seat Rows Count" type="uint">Numer of seats rows</field>
+        <field name="Total Seats Count" type="uint">Total number of seats in this car</field>
+        <field name="Sizes" type="float" arr1="3">Size of different fence elements</field>
+        <field name="zero0" type="uint" default="0" optional="true"/>
+        <field name="Hitcheck Model Name" type="Pointer" template="ZString"/>
+        <field name="Cabin Geometry Attach" type="Pointer" template="ZString" since="7"/>
+        <field name="Cabin Geometry" type="Pointer" template="ZString" since="7"/>
+        <field name="zero2" type="uint64" default="0" optional="true" since="7"/>
+    </struct>
 
-    <compound name="Row" inherit="MemStruct">
+    <struct name="Row" inherit="MemStruct">
         <!-- 32 bytes consistent through all games -->
-        <add name="Offset" type="float">Offset of the row to create station gates</add>
-        <add name="u0" type="uint" default="0" optional="true"/> <!-- always found to be 0 -->
-        <add name="Seats" type="ArrayPointer" template="Seat" arg="Seats Count"/>
-        <add name="Seats Count" type="uint64" />
-    </compound>
+        <field name="Offset" type="float">Offset of the row to create station gates</field>
+        <field name="u0" type="uint" default="0" optional="true"/> <!-- always found to be 0 -->
+        <field name="Seats" type="ArrayPointer" template="Seat" arg="Seats Count"/>
+        <field name="Seats Count" type="uint64" />
+    </struct>
 
-    <compound name="Seat" inherit="MemStruct">
+    <struct name="Seat" inherit="MemStruct">
         <!-- 12 bytes consistent through all games -->
-        <add name="Position" type="float" arr1="3" />
-    </compound>
+        <field name="Position" type="float" arr1="3" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

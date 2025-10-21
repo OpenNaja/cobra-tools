@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="CampaignDataRoot" inherit="MemStruct">
-        <add name="Campaign_Name" type="Pointer" template="ZString" />
-        <add name="Campaign_Description" type="Pointer" template="ZString" />
-        <add name="Campaign_Unknown" type="uint64" />
-        <add name="Chapter_List" type="ArrayPointer" template="MissionData" arg="Chapter_Count"/>
-        <add name="Chapter_Count" type="uint64" />
-        <add name="Chapter_Unknown" type="uint64" />
-    </compound>
+    <struct name="CampaignDataRoot" inherit="MemStruct">
+        <field name="Campaign_Name" type="Pointer" template="ZString" />
+        <field name="Campaign_Description" type="Pointer" template="ZString" />
+        <field name="Campaign_Unknown" type="uint64" />
+        <field name="Chapter_List" type="ArrayPointer" template="MissionData" arg="Chapter_Count"/>
+        <field name="Chapter_Count" type="uint64" />
+        <field name="Chapter_Unknown" type="uint64" />
+    </struct>
 
-    <compound name="MissionData" inherit="MemStruct">
-        <add name="dependency_name" type="Pointer" />
-    </compound>
+    <struct name="MissionData" inherit="MemStruct">
+        <field name="dependency_name" type="Pointer" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

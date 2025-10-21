@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
@@ -9,103 +9,103 @@
         <option value="2" name="FLOAT"/>
     </enum>
 
-    <compound name="DataSlot">
-        <add name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
-        <add name="_count" type="uint64" >count of data</add>
-        <add name="data" type="#T#" arr1="_count" abstract="True"/>
-    </compound>
+    <struct name="DataSlot">
+        <field name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</field>
+        <field name="_count" type="uint64" >count of data</field>
+        <field name="data" type="#T#" arr1="_count" abstract="True"/>
+    </struct>
 
-    <compound name="VoxelskirtRoot" inherit="MemStruct">
+    <struct name="VoxelskirtRoot" inherit="MemStruct">
         # size varies according to game
         JWE2 - 120 bytes
-        <add name="zero" type="uint64" default="0" optional="True"/>
-        <add name="_data_size" type="uint64" >total size of buffer data</add>
-        <add name="x" type="uint64"/>
-        <add name="y" type="uint64"/>
-        <add name="scale" type="float" >multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m</add>
-        <add name="padding" type="uint" default="0" optional="True"/>
-        <add name="_height_offset" type="uint64" vercond="#PC#">zero, for PC only</add>
-        <add name="_weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
-        <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
-        <add name="areas" type="DataSlot" vercond="!#PC#" template="Area"/>
-        <add name="entity_groups" type="DataSlot" template="EntityGroup"/>
-        <add name="materials" type="DataSlot" template="Material"/>
-        <add name="names" type="DataSlot" template="Name"/>
-    </compound>
+        <field name="zero" type="uint64" default="0" optional="True"/>
+        <field name="_data_size" type="uint64" >total size of buffer data</field>
+        <field name="x" type="uint64"/>
+        <field name="y" type="uint64"/>
+        <field name="scale" type="float" >multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m</field>
+        <field name="padding" type="uint" default="0" optional="True"/>
+        <field name="_height_offset" type="uint64" vercond="#PC#">zero, for PC only</field>
+        <field name="_weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</field>
+        <field name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
+        <field name="areas" type="DataSlot" vercond="!#PC#" template="Area"/>
+        <field name="entity_groups" type="DataSlot" template="EntityGroup"/>
+        <field name="materials" type="DataSlot" template="Material"/>
+        <field name="names" type="DataSlot" template="Name"/>
+    </struct>
 
-    <compound name="Name">
-        <add name="_offset" type="uint64" >address of ZString</add>
-    </compound>
+    <struct name="Name">
+        <field name="_offset" type="uint64" >address of ZString</field>
+    </struct>
 
-    <compound name="Layer">
+    <struct name="Layer">
         32 bytes
         PZ and JWE only, describes a data layer image
-        <add name="_id" type="uint64" >index into name list</add>
-        <add name="dtype" type="VxlDtype"/>
-        <add name="_offset" type="uint64" >address of this data layer</add>
-        <add name="_data_size" type="uint64" >data size of this layer, in bytes</add>
-    </compound>
+        <field name="_id" type="uint64" >index into name list</field>
+        <field name="dtype" type="VxlDtype"/>
+        <field name="_offset" type="uint64" >address of this data layer</field>
+        <field name="_data_size" type="uint64" >data size of this layer, in bytes</field>
+    </struct>
 
-    <compound name="Area">
+    <struct name="Area">
         40 bytes
-        <add name="_id" type="uint64" >index into name list</add>
-        <add name="width 1" type="uint64"/>
-        <add name="height 1" type="uint64"/>
-        <add name="width 2" type="uint64"/>
-        <add name="height 2" type="uint64"/>
-    </compound>
+        <field name="_id" type="uint64" >index into name list</field>
+        <field name="width 1" type="uint64"/>
+        <field name="height 1" type="uint64"/>
+        <field name="width 2" type="uint64"/>
+        <field name="height 2" type="uint64"/>
+    </struct>
 
-    <compound name="Vector3f">
-        <add name="x" type="float"/>
-        <add name="y" type="float"/>
-        <add name="z" type="float"/>
-    </compound>
+    <struct name="Vector3f">
+        <field name="x" type="float"/>
+        <field name="y" type="float"/>
+        <field name="z" type="float"/>
+    </struct>
 
-    <compound name="EntityInstance">
+    <struct name="EntityInstance">
         Describes the position of one instanced entity
-        <add name="loc" type="Vector3f"/>
-        <add name="z rot" type="float"/>
-    </compound>
+        <field name="loc" type="Vector3f"/>
+        <field name="z rot" type="float"/>
+    </struct>
 
-    <compound name="Material">
+    <struct name="Material">
         24 bytes
-        <add name="entity_instances" type="DataSlot" template="EntityInstance"/>
-        <add name="_id" type="uint64" >index into name list</add>
-    </compound>
+        <field name="entity_instances" type="DataSlot" template="EntityInstance"/>
+        <field name="_id" type="uint64" >index into name list</field>
+    </struct>
 
-    <compound name="EntityGroup" inherit="Material">
+    <struct name="EntityGroup" inherit="Material">
         32 bytes
         describes a list of instances of one entity
-        <add name="ff" type="int" >-1</add>
-        <add name="ff or zero" type="int" >-1, 0 for PC</add>
-    </compound>
+        <field name="ff" type="int" >-1</field>
+        <field name="ff or zero" type="int" >-1, 0 for PC</field>
+    </struct>
 
 
-    <compound name="VoxelTerrainMaterialLayerSpecRoot" inherit="MemStruct">
+    <struct name="VoxelTerrainMaterialLayerSpecRoot" inherit="MemStruct">
         # Currently only tested in PC2
-        <add name="Unknown Name" type="Pointer" template="ZString">Invisible value, note: could be the brush name?</add>
-        <add name="Tile Size" type="float" >unknown</add>
-        <add name="Float 2" type="float" >invisible value</add>
+        <field name="Unknown Name" type="Pointer" template="ZString">Invisible value, note: could be the brush name?</field>
+        <field name="Tile Size" type="float" >unknown</field>
+        <field name="Float 2" type="float" >invisible value</field>
 
-        <add name="Flags" type="uint" >Not entirely sure, check again</add>
-        <add name="Float 3" type="float" >invisible value</add>
-        <add name="Parallax" type="float"/>
-        <add name="Macro Amount" type="float"/>
+        <field name="Flags" type="uint" >Not entirely sure, check again</field>
+        <field name="Float 3" type="float" >invisible value</field>
+        <field name="Parallax" type="float"/>
+        <field name="Macro Amount" type="float"/>
         
-        <add name="Water Permeability" type="float"/>
-        <add name="Macro Albedo" type="float"/>
-        <add name="Detail Normal" type="float"/>
-        <add name="Macro Roughness" type="float"/>
-        <add name="Macro Full" type="float"/>
-        <add name="Smoothness" type="float"/>
-        <add name="Float 10" type="float" >invisible value</add>
-        <add name="Float 11" type="float" >invisible value</add>
-    </compound>
+        <field name="Water Permeability" type="float"/>
+        <field name="Macro Albedo" type="float"/>
+        <field name="Detail Normal" type="float"/>
+        <field name="Macro Roughness" type="float"/>
+        <field name="Macro Full" type="float"/>
+        <field name="Smoothness" type="float"/>
+        <field name="Float 10" type="float" >invisible value</field>
+        <field name="Float 11" type="float" >invisible value</field>
+    </struct>
 
-    <compound name="VoxelTerrainMaterialAssetPackagesRoot" inherit="MemStruct">
+    <struct name="VoxelTerrainMaterialAssetPackagesRoot" inherit="MemStruct">
         # Currently only tested in PC2
-        <add name="Package Name" type="Pointer" template="ZString">It is not a list of strings</add>
-        <add name="unk_1" type="uint64" default="0">Could be padding.</add>
-    </compound>
+        <field name="Package Name" type="Pointer" template="ZString">It is not a list of strings</field>
+        <field name="unk_1" type="uint64" default="0">Could be padding.</field>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="SemanticFlexiColoursRoot" inherit="MemStruct">
-        <add name="names"  type="Pointer" template="ZStringList" arg="names_count"/>
-        <add name="names_count"  type="uint64" />
-    </compound>
+    <struct name="SemanticFlexiColoursRoot" inherit="MemStruct">
+        <field name="names"  type="Pointer" template="ZStringList" arg="names_count"/>
+        <field name="names_count"  type="uint64" />
+    </struct>
 
-    <compound name="SemanticFlexiColourOverridesRoot" inherit="MemStruct">
-        <add name="color_overrides"  type="ArrayPointer" template="ColorOverride" arg="num_color_overrides"/>
-        <add name="game_overrides"  type="ArrayPointer" template="GameOverride" arg="num_game_overrides"/>
-        <add name="num_color_overrides"  type="ushort" />
-        <add name="num_game_overrides"  type="ushort" />
-        <add name="_z0"  type="int" />
-        <add name="_z1"  type="uint64" />
-    </compound>
+    <struct name="SemanticFlexiColourOverridesRoot" inherit="MemStruct">
+        <field name="color_overrides"  type="ArrayPointer" template="ColorOverride" arg="num_color_overrides"/>
+        <field name="game_overrides"  type="ArrayPointer" template="GameOverride" arg="num_game_overrides"/>
+        <field name="num_color_overrides"  type="ushort" />
+        <field name="num_game_overrides"  type="ushort" />
+        <field name="_z0"  type="int" />
+        <field name="_z1"  type="uint64" />
+    </struct>
 
-    <compound name="FloatColor" inherit="MemStruct">
-        <add name="R" type="float"/>
-        <add name="G" type="float"/>
-        <add name="B" type="float"/>
-        <add name="A" type="float"/>
-    </compound>
+    <struct name="FloatColor" inherit="MemStruct">
+        <field name="R" type="float"/>
+        <field name="G" type="float"/>
+        <field name="B" type="float"/>
+        <field name="A" type="float"/>
+    </struct>
 
-    <compound name="ColorOverride" inherit="MemStruct">
+    <struct name="ColorOverride" inherit="MemStruct">
         PZ: 24 bytes
-        <add name="flexi_name"  type="Pointer" template="ZString"/>
-        <add name="color"  type="FloatColor" />
-    </compound>
+        <field name="flexi_name"  type="Pointer" template="ZString"/>
+        <field name="color"  type="FloatColor" />
+    </struct>
 
-    <compound name="GameOverride" inherit="MemStruct">
+    <struct name="GameOverride" inherit="MemStruct">
         PZ: 32 bytes
-        <add name="game_names"  type="Pointer" template="ZStringList" arg="game_names_count"/>
-        <add name="game_names_count"  type="uint64" />
-        <add name="flexi_names"  type="Pointer" template="ZStringList" arg="num_flexi_names"/>
-        <add name="num_flexi_names"  type="uint64" />
-    </compound>
+        <field name="game_names"  type="Pointer" template="ZStringList" arg="game_names_count"/>
+        <field name="game_names_count"  type="uint64" />
+        <field name="flexi_names"  type="Pointer" template="ZStringList" arg="num_flexi_names"/>
+        <field name="num_flexi_names"  type="uint64" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

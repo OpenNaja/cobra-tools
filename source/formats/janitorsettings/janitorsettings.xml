@@ -1,141 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="JanitorBetweenArrays" inherit="MemStruct">
+    <struct name="JanitorBetweenArrays" inherit="MemStruct">
         # only in PZ
-        <add name="a" type="float" default="1.0" />
-        <add name="b" type="float" default="0.5" />
-        <add name="c" type="uint64" default="0" />
-        <add name="d" type="float" default="0.2" />
-        <add name="e" type="float" default="1.0" />
-        <add name="f" type="float" default="1.0" />
-        <add name="g" type="float" default="1.0" />
-        <add name="h" type="float" default="0.0" />
-        <add name="i" type="float" default="1.0" />
-    </compound>
+        <field name="a" type="float" default="1.0" />
+        <field name="b" type="float" default="0.5" />
+        <field name="c" type="uint64" default="0" />
+        <field name="d" type="float" default="0.2" />
+        <field name="e" type="float" default="1.0" />
+        <field name="f" type="float" default="1.0" />
+        <field name="g" type="float" default="1.0" />
+        <field name="h" type="float" default="0.0" />
+        <field name="i" type="float" default="1.0" />
+    </struct>
     
-    <compound name="JanitorPreCount" inherit="MemStruct">
+    <struct name="JanitorPreCount" inherit="MemStruct">
                     and here comes the actual data part
         PZ has 13 floats (maybe some ints) before the counts
         PC has 11
-        <add name="unk_0" type="float" default="0.9"/>
-        <add name="unk_1" type="float" default="1.1"/>
-        <add name="unk_2" type="float" default="0.25"/>
+        <field name="unk_0" type="float" default="0.9"/>
+        <field name="unk_1" type="float" default="1.1"/>
+        <field name="unk_2" type="float" default="0.25"/>
         # go different here
-        <add name="extra_f_pz1" type="float" vercond="#PZ#"/>
-        <add name="extra_f_pz2" type="float" vercond="#PZ#"/>
+        <field name="extra_f_pz1" type="float" vercond="#PZ#"/>
+        <field name="extra_f_pz2" type="float" vercond="#PZ#"/>
 
-        <add name="unk_3" type="float" default="-0.02"/>
-        <add name="unk_4" type="float"/>
-        <add name="unk_5" type="float"/>
-        <add name="unk_6" type="float"/>
-        <add name="unk_7" type="float"/>
-        <add name="unk_8" type="uint"/>
-        <add name="unk_9" type="float"/>
-        <add name="unk_10" type="float"/>
-    </compound>
+        <field name="unk_3" type="float" default="-0.02"/>
+        <field name="unk_4" type="float"/>
+        <field name="unk_5" type="float"/>
+        <field name="unk_6" type="float"/>
+        <field name="unk_7" type="float"/>
+        <field name="unk_8" type="uint"/>
+        <field name="unk_9" type="float"/>
+        <field name="unk_10" type="float"/>
+    </struct>
 
-    <compound name="JanitorEnd" inherit="MemStruct">
+    <struct name="JanitorEnd" inherit="MemStruct">
         back to the "data" part
         slightly different layout, but end up at same size
         PC 22 bytes mostly floats
         PZ 22 bytes mostly floats
-        <add name="unk_11" type="float" default="4.0"/>
-        <add name="unk_12" type="float" default="8.0"/>
-        <add name="unk_13" type="float"/>
-        <add name="unk_14" type="float"/>
-        <add name="unk_15" type="float"/>
-        <add name="unk_16" type="float"/>
-        <add name="unk_17" type="float"/>
-        <add name="unk_18" type="float"/>
+        <field name="unk_11" type="float" default="4.0"/>
+        <field name="unk_12" type="float" default="8.0"/>
+        <field name="unk_13" type="float"/>
+        <field name="unk_14" type="float"/>
+        <field name="unk_15" type="float"/>
+        <field name="unk_16" type="float"/>
+        <field name="unk_17" type="float"/>
+        <field name="unk_18" type="float"/>
 
-        <add name="unk_19" type="float"/>
-        <add name="unk_20" type="float"/>
-        <add name="unk_21" type="float"/>
-        <add name="unk_22" type="float"/>
-        <add name="unk_23" type="float"/>
-        <add name="unk_24" type="float"/>
-        <add name="unk_25" type="float"/>
-        <add name="unk_26" type="float"/>
+        <field name="unk_19" type="float"/>
+        <field name="unk_20" type="float"/>
+        <field name="unk_21" type="float"/>
+        <field name="unk_22" type="float"/>
+        <field name="unk_23" type="float"/>
+        <field name="unk_24" type="float"/>
+        <field name="unk_25" type="float"/>
+        <field name="unk_26" type="float"/>
 
-        <add name="unk_27" type="float"/>
-        <add name="unk_28" type="float"/>
-        <add name="unk_29" type="float"/>
-        <add name="unk_30" type="float"/>
-        <add name="unk_31" type="float"/>
-        <add name="unk_32" type="float"/>
-    </compound>
+        <field name="unk_27" type="float"/>
+        <field name="unk_28" type="float"/>
+        <field name="unk_29" type="float"/>
+        <field name="unk_30" type="float"/>
+        <field name="unk_31" type="float"/>
+        <field name="unk_32" type="float"/>
+    </struct>
     
-    <compound name="JanitorSettingsRoot" inherit="MemStruct">
+    <struct name="JanitorSettingsRoot" inherit="MemStruct">
         PC: 272 bytes, version 1
         PZ: 304 bytes, version 1
         PC2: 224 bytes, version 9
 
         huge batch of arrays at the head of the file
-        <add name="array_0" type="ArrayPointer" template="float" arg="num_array_0" vercond="is_PC2"/>
-        <add name="array_1" type="ArrayPointer" template="float" arg="num_array_1" vercond="is_PC2"/>
-        <add name="array_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/>
-        <add name="array_3" type="ArrayPointer" template="float" arg="num_array_3" vercond="is_PC2"/>
-        <add name="array_4" type="ArrayPointer" template="float" arg="num_array_4" vercond="is_PC2"/>
+        <field name="array_0" type="ArrayPointer" template="float" arg="num_array_0" vercond="is_PC2"/>
+        <field name="array_1" type="ArrayPointer" template="float" arg="num_array_1" vercond="is_PC2"/>
+        <field name="array_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/>
+        <field name="array_3" type="ArrayPointer" template="float" arg="num_array_3" vercond="is_PC2"/>
+        <field name="array_4" type="ArrayPointer" template="float" arg="num_array_4" vercond="is_PC2"/>
 
         todo pz has different data types for the arrays
-        <add name="array_0" type="ArrayPointer" template="UIntPair" arg="num_array_0" vercond="!is_PC2"/>
-        <add name="array_1" type="ArrayPointer" template="UIntPair" arg="num_array_1" vercond="!is_PC2"/> maybe salary?
+        <field name="array_0" type="ArrayPointer" template="UIntPair" arg="num_array_0" vercond="!is_PC2"/>
+        <field name="array_1" type="ArrayPointer" template="UIntPair" arg="num_array_1" vercond="!is_PC2"/> maybe salary?
 
-        <add name="BetweenArrays" type="JanitorBetweenArrays" vercond="#PZ# #AND# !is_PC2" />
+        <field name="BetweenArrays" type="JanitorBetweenArrays" vercond="#PZ# #AND# !is_PC2" />
 
-        <add name="array_2" type="ArrayPointer" template="UIntPair" arg="num_array_2" vercond="!is_PC2"/>
-        <add name="array_3" type="ArrayPointer" template="UIntPair" arg="num_array_3" vercond="!is_PC2"/>
-        <add name="array_4" type="ArrayPointer" template="UIntPair" arg="num_array_4" vercond="!is_PC2"/>
-        <add name="array_5" type="ArrayPointer" template="UIntPair" arg="num_array_5" vercond="!is_PC2"/>
-        <add name="array_6" type="ArrayPointer" template="uint" arg="num_array_6"/>
-        <add name="array_7" type="ArrayPointer" template="uint" arg="num_array_7"/>
+        <field name="array_2" type="ArrayPointer" template="UIntPair" arg="num_array_2" vercond="!is_PC2"/>
+        <field name="array_3" type="ArrayPointer" template="UIntPair" arg="num_array_3" vercond="!is_PC2"/>
+        <field name="array_4" type="ArrayPointer" template="UIntPair" arg="num_array_4" vercond="!is_PC2"/>
+        <field name="array_5" type="ArrayPointer" template="UIntPair" arg="num_array_5" vercond="!is_PC2"/>
+        <field name="array_6" type="ArrayPointer" template="uint" arg="num_array_6"/>
+        <field name="array_7" type="ArrayPointer" template="uint" arg="num_array_7"/>
 
-        <add name="array_8" type="ArrayPointer" template="uint" arg="num_array_8" vercond="!is_PC2"/>
-        <add name="array_9" type="ArrayPointer" template="float" arg="num_array_9" />
+        <field name="array_8" type="ArrayPointer" template="uint" arg="num_array_8" vercond="!is_PC2"/>
+        <field name="array_9" type="ArrayPointer" template="float" arg="num_array_9" />
 
-        <add name="array_10" type="ArrayPointer" template="float" arg="num_array_10" vercond="!is_PC2"/>
-        <add name="array_11" type="ArrayPointer" template="float" arg="num_array_11" vercond="!is_PC2"/>
-        <add name="array_12" type="ArrayPointer" template="float" arg="num_array_12" vercond="!is_PC2"/>
-        <add name="array_13" type="ArrayPointer" template="float" arg="num_array_13"  vercond="#PC#"/> always 4.0?
-        <add name="array_14" type="ArrayPointer" template="float" arg="num_array_14"  vercond="#PC#"/> always 0.5?
+        <field name="array_10" type="ArrayPointer" template="float" arg="num_array_10" vercond="!is_PC2"/>
+        <field name="array_11" type="ArrayPointer" template="float" arg="num_array_11" vercond="!is_PC2"/>
+        <field name="array_12" type="ArrayPointer" template="float" arg="num_array_12" vercond="!is_PC2"/>
+        <field name="array_13" type="ArrayPointer" template="float" arg="num_array_13"  vercond="#PC#"/> always 4.0?
+        <field name="array_14" type="ArrayPointer" template="float" arg="num_array_14"  vercond="#PC#"/> always 0.5?
         
-        <add name="JanitorPreCount" type="JanitorPreCount" vercond="!is_PC2" />
+        <field name="JanitorPreCount" type="JanitorPreCount" vercond="!is_PC2" />
 
         PC has 15 counts
         PZ has 13 counts
         PC2 has 8 counts
-        <add name="num_array_0" type="ubyte" />
-        <add name="num_array_1" type="ubyte" />
-        <add name="num_array_2" type="ubyte" />
-        <add name="num_array_3" type="ubyte" />
-        <add name="num_array_4" type="ubyte" />
-        <add name="num_array_5" type="ubyte" vercond="!is_PC2" />
-        <add name="num_array_6" type="ubyte" />
-        <add name="num_array_7" type="ubyte" />
-        <add name="num_array_8" type="ubyte" vercond="!is_PC2"/>
-        <add name="num_array_9" type="ubyte" />
-        <add name="num_array_10" type="ubyte"  vercond="!is_PC2"/>
-        <add name="num_array_11" type="ubyte"  vercond="!is_PC2"/>
-        <add name="num_array_12" type="ubyte"  vercond="!is_PC2"/>
-        <add name="num_array_13" type="ubyte" vercond="#PC#" />
-        <add name="num_array_14" type="ubyte" vercond="#PC#" />
+        <field name="num_array_0" type="ubyte" />
+        <field name="num_array_1" type="ubyte" />
+        <field name="num_array_2" type="ubyte" />
+        <field name="num_array_3" type="ubyte" />
+        <field name="num_array_4" type="ubyte" />
+        <field name="num_array_5" type="ubyte" vercond="!is_PC2" />
+        <field name="num_array_6" type="ubyte" />
+        <field name="num_array_7" type="ubyte" />
+        <field name="num_array_8" type="ubyte" vercond="!is_PC2"/>
+        <field name="num_array_9" type="ubyte" />
+        <field name="num_array_10" type="ubyte"  vercond="!is_PC2"/>
+        <field name="num_array_11" type="ubyte"  vercond="!is_PC2"/>
+        <field name="num_array_12" type="ubyte"  vercond="!is_PC2"/>
+        <field name="num_array_13" type="ubyte" vercond="#PC#" />
+        <field name="num_array_14" type="ubyte" vercond="#PC#" />
 
-        <add name="padding" type="ubyte" arr1="8" vercond="is_PC2"/>
-        <add name="padding" type="ubyte" arr1="7" vercond="#PZ# #AND# !is_PC2"/>
-        <add name="padding" type="ubyte" arr1="5" vercond="#PC#"/>
+        <field name="padding" type="ubyte" arr1="8" vercond="is_PC2"/>
+        <field name="padding" type="ubyte" arr1="7" vercond="#PZ# #AND# !is_PC2"/>
+        <field name="padding" type="ubyte" arr1="5" vercond="#PC#"/>
 
-        <add name="array_pc_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/> unsure about count
+        <field name="array_pc_2" type="ArrayPointer" template="uint" arg="num_array_2" vercond="is_PC2"/> unsure about count
 
-        <add name="JanitorEnd" type="JanitorEnd" />
-    </compound>
+        <field name="JanitorEnd" type="JanitorEnd" />
+    </struct>
 
-    <compound name="UIntPair" inherit="MemStruct">
-        <add name="value_0" type="uint"/>
-        <add name="value_1" type="uint"/>
-    </compound>
+    <struct name="UIntPair" inherit="MemStruct">
+        <field name="value_0" type="uint"/>
+        <field name="value_1" type="uint"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

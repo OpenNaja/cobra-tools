@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="ppuipkgfile" inherit="MemStruct">
-        <add name="file_name" type="Pointer" template="ZString" />
-        <add name="file_size" type="uint64" />
-        <add name="file_content" type="ArrayPointer" template="Char" arg="file_size" />
-    </compound>
+    <struct name="ppuipkgfile" inherit="MemStruct">
+        <field name="file_name" type="Pointer" template="ZString" />
+        <field name="file_size" type="uint64" />
+        <field name="file_content" type="ArrayPointer" template="Char" arg="file_size" />
+    </struct>
 
-    <compound name="UserInterfaceIconData" inherit="MemStruct">
-        <add name="image_name" type="Pointer" template="ZString" />
-        <add name="assetPackage" type="Pointer" template="ZString"  />
-    </compound>
+    <struct name="UserInterfaceIconData" inherit="MemStruct">
+        <field name="image_name" type="Pointer" template="ZString" />
+        <field name="assetPackage" type="Pointer" template="ZString"  />
+    </struct>
 
-    <compound name="PPUIPKGRoot" inherit="MemStruct">
-        <add name="basic_path" type="Pointer" template="ZString" />
+    <struct name="PPUIPKGRoot" inherit="MemStruct">
+        <field name="basic_path" type="Pointer" template="ZString" />
 
-        <add name="file_count" type="uint64" />
-        <add name="files" type="ArrayPointer" template="ppuipkgfile" arg="file_count"/>
+        <field name="file_count" type="uint64" />
+        <field name="files" type="ArrayPointer" template="ppuipkgfile" arg="file_count"/>
 
-        <add name="icondata_count" type="uint64" />
-        <add name="types" type="ArrayPointer" template="UserInterfaceIconData" arg="icondata_count"/>
-    </compound>
+        <field name="icondata_count" type="uint64" />
+        <field name="types" type="ArrayPointer" template="UserInterfaceIconData" arg="icondata_count"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>

@@ -1,99 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="AchievementsRoot" inherit="MemStruct">
+    <struct name="AchievementsRoot" inherit="MemStruct">
         PZ: 48 bytes
         PC2: 32 bytes
-        <add name="condition_vars" type="ArrayPointer" template="ConditionVarPtr" arg="condition_vars_count"/>
-        <add name="condition_vars_count" type="uint64" />
-        <add name="condition_checks" type="ArrayPointer" template="ConditionCheck" arg="condition_checks_count"/>
-        <add name="condition_checks_count" type="uint64" />
-        <add name="c" type="ArrayPointer" template="Achievement" arg="c_count" until="3"/>
-        <add name="c_count" type="uint64" until="3"/>
-    </compound>
+        <field name="condition_vars" type="ArrayPointer" template="ConditionVarPtr" arg="condition_vars_count"/>
+        <field name="condition_vars_count" type="uint64" />
+        <field name="condition_checks" type="ArrayPointer" template="ConditionCheck" arg="condition_checks_count"/>
+        <field name="condition_checks_count" type="uint64" />
+        <field name="c" type="ArrayPointer" template="Achievement" arg="c_count" until="3"/>
+        <field name="c_count" type="uint64" until="3"/>
+    </struct>
 
-    <compound name="ConditionVarPtr" inherit="MemStruct">
-        <add name="condition_var" type="Pointer" template="ConditionVar"/>
-    </compound>
+    <struct name="ConditionVarPtr" inherit="MemStruct">
+        <field name="condition_var" type="Pointer" template="ConditionVar"/>
+    </struct>
 
-    <compound name="ConditionRef" inherit="MemStruct">
-        <add name="mode" type="uint64" />
-        <add name="condition_var" type="Pointer" template="ConditionVar"/>reference to entries from condition_vars array
-    </compound>
+    <struct name="ConditionRef" inherit="MemStruct">
+        <field name="mode" type="uint64" />
+        <field name="condition_var" type="Pointer" template="ConditionVar"/>reference to entries from condition_vars array
+    </struct>
 
-    <compound name="ConditionRef2" inherit="MemStruct">
+    <struct name="ConditionRef2" inherit="MemStruct">
         PZ 64, or probably 48 bytes
-        <add name="ref_name" type="Pointer" template="ZString"/>
-        <add name="mode" type="uint64" />
-        <add name="condition_ref" type="Pointer" template="ConditionRef"/>
-        <add name="count" type="uint64" default="1"/>
-        <add name="zero1" type="uint64" default="0" optional="true" />
-        <add name="zero2" type="uint64" default="0" optional="true" />
-<!--        <add name="zero3" type="uint64" default="0" optional="true" />-->
-<!--        <add name="zero4" type="uint64" default="0" optional="true" />-->
-    </compound>
+        <field name="ref_name" type="Pointer" template="ZString"/>
+        <field name="mode" type="uint64" />
+        <field name="condition_ref" type="Pointer" template="ConditionRef"/>
+        <field name="count" type="uint64" default="1"/>
+        <field name="zero1" type="uint64" default="0" optional="true" />
+        <field name="zero2" type="uint64" default="0" optional="true" />
+<!--        <field name="zero3" type="uint64" default="0" optional="true" />-->
+<!--        <field name="zero4" type="uint64" default="0" optional="true" />-->
+    </struct>
 
-    <compound name="ConditionRefPtr" inherit="MemStruct">
-        <add name="ptr" type="Pointer" template="ConditionRef"/>
-    </compound>
+    <struct name="ConditionRefPtr" inherit="MemStruct">
+        <field name="ptr" type="Pointer" template="ConditionRef"/>
+    </struct>
 
-    <compound name="ConditionRef2Ptr" inherit="MemStruct">
-        <add name="ptr" type="Pointer" template="ConditionRef2"/>
-    </compound>
+    <struct name="ConditionRef2Ptr" inherit="MemStruct">
+        <field name="ptr" type="Pointer" template="ConditionRef2"/>
+    </struct>
 
-    <compound name="ConditionsPtr" inherit="MemStruct">
-        <add name="ptr" type="ArrayPointer" template="ConditionPtr" arg="count"/>
-        <add name="count" type="uint64" />
-    </compound>
+    <struct name="ConditionsPtr" inherit="MemStruct">
+        <field name="ptr" type="ArrayPointer" template="ConditionPtr" arg="count"/>
+        <field name="count" type="uint64" />
+    </struct>
 
-    <compound name="ConditionVar" inherit="MemStruct">
+    <struct name="ConditionVar" inherit="MemStruct">
         PZ 32 bytes
-        <add name="Condition_name" type="Pointer" template="ZString"/>
-        <add name="b" type="uint64" />
-        <add name="count" type="uint64" />
-        <add name="d" type="uint64" />
-    </compound>
+        <field name="Condition_name" type="Pointer" template="ZString"/>
+        <field name="b" type="uint64" />
+        <field name="count" type="uint64" />
+        <field name="d" type="uint64" />
+    </struct>
 
-    <compound name="ConditionPc2" inherit="MemStruct">
+    <struct name="ConditionPc2" inherit="MemStruct">
         PC2 32 bytes
             PTR @ 352  -> SUB 117 | 7168 (  32)
       00 00 00 00 00 00 00 00 40 50 4F 49 4E 54 45 52  ........@POINTER
       00 00 40 40 00 00 00 00 00 00 00 00 00 00 00 00  ..@@............
-        <add name="a" type="uint64" />
-        <add name="reference" type="Pointer" /> into Conditions array
-        <add name="b" type="uint64" />
-        <add name="c" type="uint64" />
-    </compound>
+        <field name="a" type="uint64" />
+        <field name="reference" type="Pointer" /> into Conditions array
+        <field name="b" type="uint64" />
+        <field name="c" type="uint64" />
+    </struct>
 
-    <compound name="ConditionCheck" inherit="MemStruct">
+    <struct name="ConditionCheck" inherit="MemStruct">
         PZ 40 bytes
-        <add name="Condition_name" type="Pointer" template="ZString"/>
-        <add name="Condition_index" type="uint64" since="5"/>
-        <add name="Condition_index_str" type="Pointer" template="ZString" since="5"/>
-        <add name="Count" type="uint64" since="5"/>
-        <add name="zero" type="Pointer" template="ConditionPc2" since="5"/>
-        <add name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count" until="3"/>points to array of pointers
-        <add name="Conditions2_count" type="uint64" until="3"/>
-        <add name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count" until="3"/>
-        <add name="Conditions_count" type="uint64"  until="3"/>
-    </compound>
+        <field name="Condition_name" type="Pointer" template="ZString"/>
+        <field name="Condition_index" type="uint64" since="5"/>
+        <field name="Condition_index_str" type="Pointer" template="ZString" since="5"/>
+        <field name="Count" type="uint64" since="5"/>
+        <field name="zero" type="Pointer" template="ConditionPc2" since="5"/>
+        <field name="Conditions2" type="ArrayPointer" template="ConditionRef2Ptr" arg="Conditions2_count" until="3"/>points to array of pointers
+        <field name="Conditions2_count" type="uint64" until="3"/>
+        <field name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count" until="3"/>
+        <field name="Conditions_count" type="uint64"  until="3"/>
+    </struct>
 
-    <compound name="Achievement" inherit="MemStruct">
+    <struct name="Achievement" inherit="MemStruct">
         PZ 64 bytes
-        <add name="achievement_name" type="Pointer" template="ZString"/>
-        <add name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count"/>
-        <add name="Conditions_count" type="int" default="1" optional="true"/>
-        <add name="minus_one1" type="int" default="-1" optional="true" />
-        <add name="minus_one2" type="int" default="-1" optional="true" />
-        <add name="zero1" type="int" default="0" optional="true"/>
-        <add name="zero2" type="uint64" default="0" optional="true" />
-        <add name="flags" type="ubyte" arr1="4" />
-        <add name="zero3" type="int" default="0" optional="true" />
-        <add name="zero4" type="uint64" default="0" optional="true" />
-        <add name="zero5" type="uint64" default="0" optional="true" />
-    </compound>
+        <field name="achievement_name" type="Pointer" template="ZString"/>
+        <field name="Conditions" type="ArrayPointer" template="ConditionRefPtr" arg="Conditions_count"/>
+        <field name="Conditions_count" type="int" default="1" optional="true"/>
+        <field name="minus_one1" type="int" default="-1" optional="true" />
+        <field name="minus_one2" type="int" default="-1" optional="true" />
+        <field name="zero1" type="int" default="0" optional="true"/>
+        <field name="zero2" type="uint64" default="0" optional="true" />
+        <field name="flags" type="ubyte" arr1="4" />
+        <field name="zero3" type="int" default="0" optional="true" />
+        <field name="zero4" type="uint64" default="0" optional="true" />
+        <field name="zero5" type="uint64" default="0" optional="true" />
+    </struct>
 
-</niftoolsxml>
+</fileformat>

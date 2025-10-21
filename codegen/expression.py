@@ -1,5 +1,5 @@
 """Expression parser (for arr1, arr2, cond, and vercond xml attributes of
-<add> tag)."""
+<field> tag)."""
 import ast
 import math
 import operator

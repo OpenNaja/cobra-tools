@@ -1,190 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="nextRow1" inherit="MemStruct">
-        <add name="unk" type="uint64" />
-        <add name="maybe_hash" type="uint" />used in JWE2
-        <add name="count" type="ushort" />seems to count emitters / particle systems, influences counts for most effects
-        <add name="count_repeat" type="ushort" />
-    </compound>
+    <struct name="nextRow1" inherit="MemStruct">
+        <field name="unk" type="uint64" />
+        <field name="maybe_hash" type="uint" />used in JWE2
+        <field name="count" type="ushort" />seems to count emitters / particle systems, influences counts for most effects
+        <field name="count_repeat" type="ushort" />
+    </struct>
 
-    <compound name="EffectRef" inherit="MemStruct">
-        <add name="count"   type="ushort" />
-        <add name="offset"   type="ushort" />
-    </compound>
+    <struct name="EffectRef" inherit="MemStruct">
+        <field name="count"   type="ushort" />
+        <field name="offset"   type="ushort" />
+    </struct>
 
-    <compound name="Effect" inherit="MemStruct">
-    </compound>
+    <struct name="Effect" inherit="MemStruct">
+    </struct>
 
-    <compound name="Effect07" inherit="Effect">
+    <struct name="Effect07" inherit="Effect">
         might map the different effects per emitter?
         144 bytes - PZ
         + 16 bytes for JWE2
-        <add name="zero0" type="int64"/>
-        <add name="a" type="short" />
-        <add name="b" type="short" />
-        <add name="ints1" type="int" arr1="22"/>
-        <add name="floats" type="float" arr1="3"/>
-        <add name="ints21" type="int" arr1="5"/>
-        <add name="floats2" type="float" arr1="4" since="37"/>
-        <add name="c" type="short" />
-        <add name="d" type="short" />
-        <add name="one" type="int64" />
-    </compound>
+        <field name="zero0" type="int64"/>
+        <field name="a" type="short" />
+        <field name="b" type="short" />
+        <field name="ints1" type="int" arr1="22"/>
+        <field name="floats" type="float" arr1="3"/>
+        <field name="ints21" type="int" arr1="5"/>
+        <field name="floats2" type="float" arr1="4" since="37"/>
+        <field name="c" type="short" />
+        <field name="d" type="short" />
+        <field name="one" type="int64" />
+    </struct>
 
-    <compound name="Effect08" inherit="Effect">
+    <struct name="Effect08" inherit="Effect">
         96 bytes - PZ
-        <add name="floats" type="float" arr1="15"/>
-        <add name="minus1" type="int"/>
-        <add name="angle" type="float" arr1="3"/>radians; x,y often 0.0
-        <add name="floats2" type="float" arr1="5"/>
-    </compound>
+        <field name="floats" type="float" arr1="15"/>
+        <field name="minus1" type="int"/>
+        <field name="angle" type="float" arr1="3"/>radians; x,y often 0.0
+        <field name="floats2" type="float" arr1="5"/>
+    </struct>
 
-    <compound name="Effect09" inherit="Effect">
+    <struct name="Effect09" inherit="Effect">
         32 bytes - PZ
-        <add name="floats" type="float" arr1="8"/>
-    </compound>
+        <field name="floats" type="float" arr1="8"/>
+    </struct>
 
-    <compound name="Effect10" inherit="Effect">
+    <struct name="Effect10" inherit="Effect">
         48 bytes - PZ
-        <add name="zero_0" type="int64" />
-        <add name="u0" type="short" />
-        <add name="u1" type="short" />
-        <add name="zero_1" type="int" />
-        <add name="index" type="int64" />increments
-        <add name="zero_2" type="int64" />
-        <add name="count" type="int64" />
-        <add name="one_f" type="float" />
-        <add name="zero_3" type="int" />
-    </compound>
+        <field name="zero_0" type="int64" />
+        <field name="u0" type="short" />
+        <field name="u1" type="short" />
+        <field name="zero_1" type="int" />
+        <field name="index" type="int64" />increments
+        <field name="zero_2" type="int64" />
+        <field name="count" type="int64" />
+        <field name="one_f" type="float" />
+        <field name="zero_3" type="int" />
+    </struct>
 
-    <compound name="Effect11" inherit="Effect">
+    <struct name="Effect11" inherit="Effect">
         16 bytes - PZ
-        <add name="floats" type="float" arr1="4"/>
-    </compound>
+        <field name="floats" type="float" arr1="4"/>
+    </struct>
 
-    <compound name="Effect12" inherit="Effect">
+    <struct name="Effect12" inherit="Effect">
         240 bytes - PZ
-        <add name="zero_0" type="int64" />
-        <add name="u0" type="short" />
-        <add name="u1" type="short" />
-        <add name="zero_1" type="int" />
-        <add name="count1" type="int64" />
-        <add name="zero_2" type="int64" />
-        <add name="count2" type="int64" />
-        <add name="zeros" type="int64" arr1="7"/>
-        <add name="floats1" type="float" arr1="4"/>
-        <add name="pi_rel" type="float"/>
-        <add name="floats2" type="float" arr1="5"/>
-        <add name="ints1" type="int" arr1="2"/>
-        <add name="floats3" type="float" arr1="3"/>
-        <add name="ints2" type="int" arr1="3"/>
-        <add name="floats4" type="float" arr1="10"/>
-        <add name="bytes" type="byte" arr1="16"/>
-        <add name="float" type="float" />
-        <add name="ints2" type="int" arr1="3"/>
-    </compound>
+        <field name="zero_0" type="int64" />
+        <field name="u0" type="short" />
+        <field name="u1" type="short" />
+        <field name="zero_1" type="int" />
+        <field name="count1" type="int64" />
+        <field name="zero_2" type="int64" />
+        <field name="count2" type="int64" />
+        <field name="zeros" type="int64" arr1="7"/>
+        <field name="floats1" type="float" arr1="4"/>
+        <field name="pi_rel" type="float"/>
+        <field name="floats2" type="float" arr1="5"/>
+        <field name="ints1" type="int" arr1="2"/>
+        <field name="floats3" type="float" arr1="3"/>
+        <field name="ints2" type="int" arr1="3"/>
+        <field name="floats4" type="float" arr1="10"/>
+        <field name="bytes" type="byte" arr1="16"/>
+        <field name="float" type="float" />
+        <field name="ints2" type="int" arr1="3"/>
+    </struct>
 
-    <compound name="Effect13" inherit="Effect">
+    <struct name="Effect13" inherit="Effect">
         32 bytes - PZ
-        <add name="floats" type="float" arr1="8"/>
-    </compound>
+        <field name="floats" type="float" arr1="8"/>
+    </struct>
 
-    <compound name="Effect14" inherit="Effect">
+    <struct name="Effect14" inherit="Effect">
         8 bytes - PZ
         probably indexing
-        <add name="offset" type="int" />
-        <add name="count" type="int" />
-    </compound>
+        <field name="offset" type="int" />
+        <field name="count" type="int" />
+    </struct>
 
-    <compound name="Effect15" inherit="Effect">
+    <struct name="Effect15" inherit="Effect">
         32 bytes - PZ
-        <add name="floats1" type="float" arr1="4"/>
-        <add name="flags" type="byte" arr1="4"/>
-        <add name="floats2" type="float" arr1="3"/>
-    </compound>
+        <field name="floats1" type="float" arr1="4"/>
+        <field name="flags" type="byte" arr1="4"/>
+        <field name="floats2" type="float" arr1="3"/>
+    </struct>
 
-    <compound name="Effect16" inherit="Effect">
+    <struct name="Effect16" inherit="Effect">
         24 bytes - JWE2
-        <add name="ints" type="int64" arr1="3"/>
-    </compound>
+        <field name="ints" type="int64" arr1="3"/>
+    </struct>
 
-    <compound name="Effect21" inherit="Effect">
+    <struct name="Effect21" inherit="Effect">
         8 bytes - PZ
-        <add name="a" type="float" />maybe time
-        <add name="b" type="float" />maybe value
-    </compound>
+        <field name="a" type="float" />maybe time
+        <field name="b" type="float" />maybe value
+    </struct>
 
-    <compound name="LastRow" inherit="MemStruct">
-        <add name="unk07"   type="ushort" />
-        <add name="unk08"   type="ushort" />
-        <add name="unk09"   type="ushort" />
-        <add name="unk10"   type="ushort" />
-        <add name="unk11"   type="ushort" />
-        <add name="unk12"   type="ushort" />
-    </compound>
+    <struct name="LastRow" inherit="MemStruct">
+        <field name="unk07"   type="ushort" />
+        <field name="unk08"   type="ushort" />
+        <field name="unk09"   type="ushort" />
+        <field name="unk10"   type="ushort" />
+        <field name="unk11"   type="ushort" />
+        <field name="unk12"   type="ushort" />
+    </struct>
 
-    <compound name="ParticleEffectRoot" inherit="MemStruct">
-        <add name="unk64_1" type="uint64" />
-        <add name="unk64_2" type="uint64" />
-        <add name="unk64_3" type="uint64" />
-        <add name="unk64_4" type="uint64" />
-        <add name="unk64_5" type="uint64" />
-        <add name="unk64_6" type="uint64" />
+    <struct name="ParticleEffectRoot" inherit="MemStruct">
+        <field name="unk64_1" type="uint64" />
+        <field name="unk64_2" type="uint64" />
+        <field name="unk64_3" type="uint64" />
+        <field name="unk64_4" type="uint64" />
+        <field name="unk64_5" type="uint64" />
+        <field name="unk64_6" type="uint64" />
 
-        <add name="unk32_1" type="uint" />
-        <add name="unk32_2_neg" type="int" />
-        <add name="unk32_3" type="uint" />
-        <add name="unk32_4" type="uint" />
+        <field name="unk32_1" type="uint" />
+        <field name="unk32_2_neg" type="int" />
+        <field name="unk32_3" type="uint" />
+        <field name="unk32_4" type="uint" />
 
-        <add name="a_unk32_1" type="uint" />
-        <add name="a_unk32_2" type="uint" />
-        <add name="a_unk32_3_1" type="uint" />
-        <add name="a_unk32_4" type="uint" />
+        <field name="a_unk32_1" type="uint" />
+        <field name="a_unk32_2" type="uint" />
+        <field name="a_unk32_3_1" type="uint" />
+        <field name="a_unk32_4" type="uint" />
 
-        <add name="atlasinfo_count" type="uint64" />
-        <add name="name_foreach_textures" type="ArrayPointer" template="TextureData" arg="atlasinfo_count"/>
+        <field name="atlasinfo_count" type="uint64" />
+        <field name="name_foreach_textures" type="ArrayPointer" template="TextureData" arg="atlasinfo_count"/>
 
-        <add name="nextRow1" type="nextRow1"/>
-        <add name="effect00" type="EffectRef" template="Effect"/>
-        <add name="effect01" type="EffectRef" template="Effect"/>
-        <add name="effect02" type="EffectRef" template="Effect"/>
-        <add name="effect03" type="EffectRef" template="Effect"/>
-        <add name="effect04" type="EffectRef" template="Effect"/>
-        <add name="effect05" type="EffectRef" template="Effect"/>
-        <add name="effect06" type="EffectRef" template="Effect"/>
-        <add name="effect07" type="EffectRef" template="Effect07"/>
-        <add name="effect08" type="EffectRef" template="Effect08"/>
-        <add name="effect09" type="EffectRef" template="Effect09"/>
-        <add name="effect10" type="EffectRef" template="Effect10"/>
-        <add name="effect11" type="EffectRef" template="Effect11"/>
-        <add name="effect12" type="EffectRef" template="Effect12"/>
-        <add name="effect13" type="EffectRef" template="Effect13"/>
-        <add name="effect14" type="EffectRef" template="Effect14"/>
-        <add name="effect15" type="EffectRef" template="Effect15"/>
-        <add name="effect16" type="EffectRef" template="Effect16"/>
-        <add name="effect17" type="EffectRef" template="Effect"/>
-        <add name="effect18" type="EffectRef" template="Effect"/>
-        <add name="effect19" type="EffectRef" template="Effect"/>
-        <add name="effect20" type="EffectRef" template="Effect"/>
-        <add name="effect21" type="EffectRef" template="Effect21"/>
-        <add name="effect22" type="EffectRef" template="Effect"/>
-        <add name="effect23" type="EffectRef" template="Effect"/>
-        <add name="effect24" type="EffectRef" template="Effect"/>
-        <add name="effect25" type="EffectRef" template="Effect"/>
-        <add name="effect26" type="EffectRef" template="Effect"/>
-        <add name="nextRow5" type="LastRow"/>
-    </compound>
+        <field name="nextRow1" type="nextRow1"/>
+        <field name="effect00" type="EffectRef" template="Effect"/>
+        <field name="effect01" type="EffectRef" template="Effect"/>
+        <field name="effect02" type="EffectRef" template="Effect"/>
+        <field name="effect03" type="EffectRef" template="Effect"/>
+        <field name="effect04" type="EffectRef" template="Effect"/>
+        <field name="effect05" type="EffectRef" template="Effect"/>
+        <field name="effect06" type="EffectRef" template="Effect"/>
+        <field name="effect07" type="EffectRef" template="Effect07"/>
+        <field name="effect08" type="EffectRef" template="Effect08"/>
+        <field name="effect09" type="EffectRef" template="Effect09"/>
+        <field name="effect10" type="EffectRef" template="Effect10"/>
+        <field name="effect11" type="EffectRef" template="Effect11"/>
+        <field name="effect12" type="EffectRef" template="Effect12"/>
+        <field name="effect13" type="EffectRef" template="Effect13"/>
+        <field name="effect14" type="EffectRef" template="Effect14"/>
+        <field name="effect15" type="EffectRef" template="Effect15"/>
+        <field name="effect16" type="EffectRef" template="Effect16"/>
+        <field name="effect17" type="EffectRef" template="Effect"/>
+        <field name="effect18" type="EffectRef" template="Effect"/>
+        <field name="effect19" type="EffectRef" template="Effect"/>
+        <field name="effect20" type="EffectRef" template="Effect"/>
+        <field name="effect21" type="EffectRef" template="Effect21"/>
+        <field name="effect22" type="EffectRef" template="Effect"/>
+        <field name="effect23" type="EffectRef" template="Effect"/>
+        <field name="effect24" type="EffectRef" template="Effect"/>
+        <field name="effect25" type="EffectRef" template="Effect"/>
+        <field name="effect26" type="EffectRef" template="Effect"/>
+        <field name="nextRow5" type="LastRow"/>
+    </struct>
 
-    <compound name="TextureInfo" inherit="MemStruct">
-    </compound>
+    <struct name="TextureInfo" inherit="MemStruct">
+    </struct>
 
-    <compound name="TextureData" inherit="MemStruct">
-        <add name="dependency_name" type="Pointer">only present if textured</add>
-    </compound>
+    <struct name="TextureData" inherit="MemStruct">
+        <field name="dependency_name" type="Pointer">only present if textured</field>
+    </struct>
 
-</niftoolsxml>
+</fileformat>
 

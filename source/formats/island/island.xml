@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niftoolsxml>
-<niftoolsxml version="0.7.1.0">
+<!DOCTYPE fileformat>
+<fileformat>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="IslandRoot" inherit="MemStruct">
+    <struct name="IslandRoot" inherit="MemStruct">
         JWE2: 32 bytes
-        <add name="path_name" type="Pointer" template="ZString"/>
-        <add name="a" type="float"/>
-        <add name="b" type="float"/>
-        <add name="count" type="uint64"/>
-        <add name="zero" type="uint64"/>
-    </compound>
+        <field name="path_name" type="Pointer" template="ZString"/>
+        <field name="a" type="float"/>
+        <field name="b" type="float"/>
+        <field name="count" type="uint64"/>
+        <field name="zero" type="uint64"/>
+    </struct>
 
-</niftoolsxml>
+</fileformat>
