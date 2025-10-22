@@ -561,7 +561,7 @@ class OvlFile(Header):
 
 	@property
 	def is_pc_2(self):
-		return self.game == "Planet Coaster 2"
+		return self.game in ("Planet Coaster 2", "Jurassic World Evolution 3")
 
 	@property
 	def game(self):

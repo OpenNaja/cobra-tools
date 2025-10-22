@@ -42,6 +42,17 @@ def set_jwe2dev(context):
 	context.is_dev = 1
 
 
+def is_jwe3(context):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
+		return True
+
+
+def set_jwe3(context):
+	context.version = 20
+	context.user_version._value = 24724
+	context.is_dev = 0
+
+
 def is_pc(context):
 	if context.version == 32:
 		return True
@@ -97,7 +108,7 @@ def set_ztuac(context):
 	context.version = 13
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_COASTER_2', 'Planet Coaster 2'), ('PLANET_ZOO', 'Planet Zoo'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZOO_TYCOON', 'Zoo Tycoon'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JURASSIC_WORLD_EVOLUTION_3', 'Jurassic World Evolution 3'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_COASTER_2', 'Planet Coaster 2'), ('PLANET_ZOO', 'Planet Zoo'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZOO_TYCOON', 'Zoo Tycoon'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -110,6 +121,8 @@ def get_game(context):
 		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2])
 	if is_jwe2dev(context):
 		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2_DEV])
+	if is_jwe3(context):
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION_3])
 	if is_pc(context):
 		versions.extend([games.PLANET_COASTER])
 	if is_pc2(context):
@@ -141,6 +154,8 @@ def set_game(context, game):
 		return set_jwe2(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION_2_DEV}:
 		return set_jwe2dev(context)
+	if game in {games.JURASSIC_WORLD_EVOLUTION_3}:
+		return set_jwe3(context)
 	if game in {games.PLANET_COASTER}:
 		return set_pc(context)
 	if game in {games.PLANET_COASTER_2}:
@@ -171,6 +186,7 @@ dla = Ms2Version(id='DLA', version=(7,), primary_games=[], all_games=[games.DISN
 jwe = Ms2Version(id='JWE', version=(47, 39,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = Ms2Version(id='JWE2', version=(52, 51,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
+jwe3 = Ms2Version(id='JWE3', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_3])
 pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PLANET_COASTER])
 pc2 = Ms2Version(id='PC2', version=(54,), primary_games=[], all_games=[games.PLANET_COASTER_2])
 pz = Ms2Version(id='PZ', version=(50, 48,), primary_games=[], all_games=[games.PLANET_ZOO])
@@ -178,4 +194,4 @@ pz16 = Ms2Version(id='PZ16', version=(20,), user_version=(VersionInfo.from_value
 war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 ztuac = Ms2Version(id='ZTUAC', version=(13,), primary_games=[], all_games=[games.ZOO_TYCOON])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, pc, pc2, pz, pz16, war, ztuac]
+available_versions = [dla, jwe, jwe2, jwe2dev, jwe3, pc, pc2, pz, pz16, war, ztuac]
