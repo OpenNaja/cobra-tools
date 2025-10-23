@@ -8,7 +8,7 @@ class ModelInfo(MemStruct):
 	"""
 	Describes one model, corresponding to a .mdl2 file
 	JWE2 - 192 bytes
-	JWE2 Biosyn - 160 bytes
+	JWE2 Biosyn, JWE3 - 160 bytes
 	"""
 
 	__name__ = 'ModelInfo'

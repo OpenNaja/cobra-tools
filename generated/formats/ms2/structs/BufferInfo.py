@@ -12,6 +12,7 @@ class BufferInfo(BaseStruct):
 	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
 	JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
+	JWE3: 64 bytes
 	"""
 
 	__name__ = 'BufferInfo'

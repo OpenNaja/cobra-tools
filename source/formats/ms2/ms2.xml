@@ -14,6 +14,7 @@
 		<verexpr token="#JWE2_BIO#" string="(#VER# #EQ# 52)">JWE2</verexpr>
 		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">Warhammer Age of Sigmar - Realms of Ruin</verexpr>
 		<verexpr token="#PC2#" string="(#VER# #EQ# 54)">Planet Coaster 2</verexpr>
+		<verexpr token="#JWE3#" string="(#VER# #EQ# 55)">JWE3</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
@@ -33,6 +34,7 @@
 	<version id="JWE2" version="52 51" >Jurassic World Evolution 2</version>
 	<version id="WAR" version="53" >Warhammer Age of Sigmar - Realms of Ruin</version>
 	<version id="PC2" version="54" >Planet Coaster 2</version>
+	<version id="JWE3" version="55" >Jurassic World Evolution 3</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
@@ -509,6 +511,7 @@
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
 		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
+		JWE3: 64 bytes
 
 		<!-- JWE and PC, 16 bytes of 00 padding -->
 		<field name="u0" type="uint64" since="32" until="47" />
@@ -542,7 +545,7 @@
 	<struct name="ModelInfo" inherit="MemStruct">
 		Describes one model, corresponding to a .mdl2 file
 		JWE2 - 192 bytes
-		JWE2 Biosyn - 160 bytes
+		JWE2 Biosyn, JWE3 - 160 bytes
 		<field name="unk dla" type="uint64" until="7">??</field>
 		<field name="bounds min" type="Vector3">the smallest coordinates across all axes</field>
 		<field name="precision" type="float" since="47" until="51">related to the inverse of pack_base</field>
@@ -983,6 +986,8 @@
 		<field name="extra zero" type="uint64" vercond="!(#PC# #OR# #JWE#)">not PC, JWE</field>
 		<field name="enum count" type="uint64"/>
 		<field name="unknown58" type="uint64" >usually zero</field>
+		<field name="count 0 jwe3" type="uint64" default="0" since="55">JWE3, not PC2</field>
+		<field name="count 1 jwe3" type="uint64" default="0" since="55">JWE3, not PC2</field>
 		<field name="one" type="uint64" default="1" >always 1</field>
 		<field name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</field>
 		<field name="zeros count" type="uint64" >counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2</field>
@@ -1005,8 +1010,10 @@
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</field>
-		<field name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</field>
+
 		<field name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</field>
+		<field name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" until="54" >enumerates all bone indices, 4 may be flags</field>
+		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
 
 		<!-- experimental stuff for DLA cpt. hook model -->
 		<field name="inventory_datas" type="byte" arr1="inv_data_count" arr2="6" vercond="#DLA#">zeros</field>
@@ -1018,7 +1025,9 @@
 
 		<field name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</field>
 		<field name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</field>
-		<field name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</field>
+
+		<field name="jwe3" type="uint" arr1="count 0 jwe3" since="55" >unk</field>
+		<field name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data, probably changed in JWE3</field>
 		<field name="joints" type="JointData" cond="joint count" >joints</field>
 	</struct>
 

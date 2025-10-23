@@ -33,6 +33,8 @@ class BoneInfo(BaseStruct):
     extra_zero: int
     enum_count: int
     unknown_58: int
+    count_0_jwe_3: int
+    count_1_jwe_3: int
     one: int
     unk_pc_count: int
     zeros_count: int
@@ -55,6 +57,7 @@ class BoneInfo(BaseStruct):
     inventory_datas_2: Array[Array[int]]
     minus_padding: MinusPadding
     zeros_padding: ZerosPadding
+    jwe_3: Array[int]
     ik_info: IKInfo
     joints: JointData
 

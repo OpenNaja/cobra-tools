@@ -57,6 +57,9 @@ class Ms2Loader(MemStructLoader):
 		pool, offset = self.root_ptr
 		data = pool.get_data_at(offset)
 		version = struct.unpack(f"I", data[:4])[0]
+		if self.ovl.game == "Jurassic World Evolution 3":
+			logging.warning(f"Bumping ms2 version {version} to 55 to avoid version clash")
+			version = 55
 		self.context = Ms2Context()
 		self.context.version = version
 		self.context.biosyn = int(not self.ovl.is_dev)
@@ -170,6 +173,7 @@ class Ms2Loader(MemStructLoader):
 	def extract(self, out_dir):
 		self.get_version()
 		logging.info(f"Writing {self.name}")
+		self.header.version = self.context.version
 		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# print(name_buffer, bone_infos, verts)

@@ -43,14 +43,12 @@ def set_jwe2dev(context):
 
 
 def is_jwe3(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
+	if context.version == 55:
 		return True
 
 
 def set_jwe3(context):
-	context.version = 20
-	context.user_version._value = 24724
-	context.is_dev = 0
+	context.version = 55
 
 
 def is_pc(context):
@@ -186,7 +184,7 @@ dla = Ms2Version(id='DLA', version=(7,), primary_games=[], all_games=[games.DISN
 jwe = Ms2Version(id='JWE', version=(47, 39,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = Ms2Version(id='JWE2', version=(52, 51,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
-jwe3 = Ms2Version(id='JWE3', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_3])
+jwe3 = Ms2Version(id='JWE3', version=(55,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_3])
 pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PLANET_COASTER])
 pc2 = Ms2Version(id='PC2', version=(54,), primary_games=[], all_games=[games.PLANET_COASTER_2])
 pz = Ms2Version(id='PZ', version=(50, 48,), primary_games=[], all_games=[games.PLANET_ZOO])
