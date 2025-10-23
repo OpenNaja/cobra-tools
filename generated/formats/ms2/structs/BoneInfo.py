@@ -49,14 +49,14 @@ class BoneInfo(BaseStruct):
 		# usually zero
 		self.unknown_58 = name_type_map['Uint64'](self.context, 0, None)
 
-		# JWE3, not PC2
-		self.count_0_jwe_3 = name_type_map['Uint64'].from_value(0)
-
-		# JWE3, not PC2
-		self.count_1_jwe_3 = name_type_map['Uint64'].from_value(0)
-
 		# always 1
 		self.one = name_type_map['Uint64'].from_value(1)
+
+		# JWE3, not PC2
+		self.one_1_jwe_3 = name_type_map['Uint64'].from_value(1)
+
+		# JWE3, not PC2
+		self.one_2_jwe_3 = name_type_map['Uint64'].from_value(1)
 
 		# matches the other count on dino entertainer, but ik_count is not present
 		self.unk_pc_count = name_type_map['Uint64'](self.context, 0, None)
@@ -84,15 +84,16 @@ class BoneInfo(BaseStruct):
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
 		self.parents = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
+		# JWE3
+		self.enumeration = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
+
 		# align to 8 bytes
 		self.parents_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
 
 		# enumerates all bone indices
 
 		# enumerates all bone indices, 4 may be flags
-
-		# JWE3
-		self.enumeration = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
+		self.enumeration = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# zeros
 		self.inventory_datas = Array(self.context, 0, None, (0,), name_type_map['Byte'])
@@ -145,9 +146,9 @@ class BoneInfo(BaseStruct):
 		yield 'extra_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not ((context.version == 32) or ((context.version == 47) or (context.version == 39))), None)
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'count_0_jwe_3', name_type_map['Uint64'], (0, None), (False, 0), (lambda context: context.version >= 55, None)
-		yield 'count_1_jwe_3', name_type_map['Uint64'], (0, None), (False, 0), (lambda context: context.version >= 55, None)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1), (None, None)
+		yield 'one_1_jwe_3', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 55, None)
+		yield 'one_2_jwe_3', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 55, None)
 		yield 'unk_pc_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 32, None)
 		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'ik_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -164,10 +165,10 @@ class BoneInfo(BaseStruct):
 		yield 'bones', Array, (0, None, (None,), name_type_map['Bone']), (False, None), (None, None)
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 52, None)
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 53, None)
+		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 55, True)
 		yield 'parents_padding', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 13, True)
 		yield 'enumeration', Array, (0, None, (None, 2,), name_type_map['Uint']), (False, None), (lambda context: 32 <= context.version <= 54, True)
-		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 55, True)
 		yield 'inventory_datas', Array, (0, None, (None, 6,), name_type_map['Byte']), (False, None), (lambda context: context.version == 7, None)
 		yield 'weirdness', Array, (0, None, (8,), name_type_map['Short']), (False, None), (lambda context: context.version == 7, None)
 		yield 'weirdness', Array, (0, None, (10,), name_type_map['Short']), (False, None), (lambda context: context.version == 13, None)
@@ -206,10 +207,10 @@ class BoneInfo(BaseStruct):
 			yield 'extra_zero', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.version >= 55:
-			yield 'count_0_jwe_3', name_type_map['Uint64'], (0, None), (False, 0)
-			yield 'count_1_jwe_3', name_type_map['Uint64'], (0, None), (False, 0)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1)
+		if instance.context.version >= 55:
+			yield 'one_1_jwe_3', name_type_map['Uint64'], (0, None), (False, 1)
+			yield 'one_2_jwe_3', name_type_map['Uint64'], (0, None), (False, 1)
 		if instance.context.version == 32:
 			yield 'unk_pc_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None)
@@ -234,14 +235,14 @@ class BoneInfo(BaseStruct):
 			yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ubyte']), (False, None)
 		if instance.context.version >= 53:
 			yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ushort']), (False, None)
+		if instance.context.version >= 55 and instance.one:
+			yield 'enumeration', Array, (0, None, (instance.enum_count,), name_type_map['Ushort']), (False, None)
 		if instance.context.version >= 32:
 			yield 'parents_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 13 and instance.one:
 			yield 'enumeration', Array, (0, None, (instance.enum_count,), name_type_map['Ubyte']), (False, None)
 		if 32 <= instance.context.version <= 54 and instance.one:
 			yield 'enumeration', Array, (0, None, (instance.enum_count, 2,), name_type_map['Uint']), (False, None)
-		if instance.context.version >= 55 and instance.one:
-			yield 'enumeration', Array, (0, None, (instance.enum_count,), name_type_map['Ushort']), (False, None)
 		if instance.context.version == 7:
 			yield 'inventory_datas', Array, (0, None, (instance.inv_data_count, 6,), name_type_map['Byte']), (False, None)
 			yield 'weirdness', Array, (0, None, (8,), name_type_map['Short']), (False, None)
@@ -254,7 +255,7 @@ class BoneInfo(BaseStruct):
 		if instance.context.version >= 47:
 			yield 'zeros_padding', name_type_map['ZerosPadding'], (instance.zeros_count, None), (False, None)
 		if instance.context.version >= 55:
-			yield 'jwe_3', Array, (0, None, (instance.count_0_jwe_3,), name_type_map['Uint']), (False, None)
+			yield 'jwe_3', Array, (0, None, (instance.one_1_jwe_3,), name_type_map['Uint']), (False, None)
 		if instance.ik_count:
 			yield 'ik_info', name_type_map['IKInfo'], (instance, None), (False, None)
 		if instance.joint_count:

@@ -989,9 +989,9 @@
 		<field name="extra zero" type="uint64" vercond="!(#PC# #OR# #JWE#)">not PC, JWE</field>
 		<field name="enum count" type="uint64"/>
 		<field name="unknown58" type="uint64" >usually zero</field>
-		<field name="count 0 jwe3" type="uint64" default="0" since="55">JWE3, not PC2</field>
-		<field name="count 1 jwe3" type="uint64" default="0" since="55">JWE3, not PC2</field>
 		<field name="one" type="uint64" default="1" >always 1</field>
+		<field name="one 1 jwe3" type="uint64" default="1" since="55">JWE3, not PC2</field>
+		<field name="one 2 jwe3" type="uint64" default="1" since="55">JWE3, not PC2</field>
 		<field name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</field>
 		<field name="zeros count" type="uint64" >counts the weird padding at the end, usually == bone count; 0 for PZ, JWE2</field>
 		<field name="ik_count" type="uint64">max of ik_info's ik_count and ik_targets_count</field>
@@ -1012,11 +1012,11 @@
 		<field name="bones" type="Bone" arr1="bone count"/>
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
+		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
 		<field name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</field>
 
 		<field name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</field>
 		<field name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" until="54" >enumerates all bone indices, 4 may be flags</field>
-		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
 
 		<!-- experimental stuff for DLA cpt. hook model -->
 		<field name="inventory_datas" type="byte" arr1="inv_data_count" arr2="6" vercond="#DLA#">zeros</field>
@@ -1029,7 +1029,7 @@
 		<field name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</field>
 		<field name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</field>
 
-		<field name="jwe3" type="uint" arr1="count 0 jwe3" since="55" >unk</field>
+		<field name="jwe3" type="uint" arr1="one 1 jwe3" since="55" >unk</field>
 		<field name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data, probably changed in JWE3</field>
 		<field name="joints" type="JointData" cond="joint count" >joints</field>
 	</struct>

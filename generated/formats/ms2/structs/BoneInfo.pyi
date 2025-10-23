@@ -33,9 +33,9 @@ class BoneInfo(BaseStruct):
     extra_zero: int
     enum_count: int
     unknown_58: int
-    count_0_jwe_3: int
-    count_1_jwe_3: int
     one: int
+    one_1_jwe_3: int
+    one_2_jwe_3: int
     unk_pc_count: int
     zeros_count: int
     ik_count: int
@@ -50,6 +50,7 @@ class BoneInfo(BaseStruct):
     inverse_bind_matrices: Array[Matrix44]
     bones: Array[Bone]
     parents: Array[int]
+    enumeration: Array[int]
     parents_padding: PadAlign[object]
     enumeration: Union[Array[Array[int]], Array[int]]
     inventory_datas: Array[Array[int]]
