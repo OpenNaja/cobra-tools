@@ -24,6 +24,7 @@ suffix_map = {
 	"Jurassic World Evolution": "_jwe",
 	"Planet Zoo": "_pz",
 	"Jurassic World Evolution 2": "_jwe2",
+	"Jurassic World Evolution 3": "_jwe3",
 	"Warhammer Age of Sigmar - Realms of Ruin": "_whaos",
 }
 
@@ -228,6 +229,11 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 		name='Shader',
 		description='Shader for Jurassic World Evolution 2',
 		items=[(name, name, "") for name in c['Jurassic World Evolution 2']["shaders"]],
+	)
+	shader_name_jwe3: EnumProperty(
+		name='Shader',
+		description='Shader for Jurassic World Evolution 3',
+		items=[(name, name, "") for name in c['Jurassic World Evolution 3']["shaders"]],
 	)
 	shader_name_whaos: EnumProperty(
 		name='Shader',
