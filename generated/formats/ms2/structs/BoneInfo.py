@@ -87,6 +87,9 @@ class BoneInfo(BaseStruct):
 		# JWE3
 		self.enumeration = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
+		# JWE3
+		self.jwe_3_a = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+
 		# align to 8 bytes
 		self.parents_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
 
@@ -111,9 +114,6 @@ class BoneInfo(BaseStruct):
 
 		# weird zeros
 		self.zeros_padding = name_type_map['ZerosPadding'](self.context, self.zeros_count, None)
-
-		# unk
-		self.jwe_3 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# IK Data, probably changed in JWE3
 		self.ik_info = name_type_map['IKInfo'](self.context, self, None)
@@ -166,6 +166,7 @@ class BoneInfo(BaseStruct):
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 52, None)
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 53, None)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 55, True)
+		yield 'jwe_3_a', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version >= 55, None)
 		yield 'parents_padding', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 13, True)
 		yield 'enumeration', Array, (0, None, (None, 2,), name_type_map['Uint']), (False, None), (lambda context: 32 <= context.version <= 54, True)
@@ -175,7 +176,6 @@ class BoneInfo(BaseStruct):
 		yield 'inventory_datas_2', Array, (0, None, (None, 2,), name_type_map['Int']), (False, None), (lambda context: context.version == 7, None)
 		yield 'minus_padding', name_type_map['MinusPadding'], (None, None), (False, None), (lambda context: context.version <= 32, True)
 		yield 'zeros_padding', name_type_map['ZerosPadding'], (None, None), (False, None), (lambda context: context.version >= 47, None)
-		yield 'jwe_3', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 55, None)
 		yield 'ik_info', name_type_map['IKInfo'], (None, None), (False, None), (None, True)
 		yield 'joints', name_type_map['JointData'], (0, None), (False, None), (None, True)
 
@@ -237,6 +237,8 @@ class BoneInfo(BaseStruct):
 			yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ushort']), (False, None)
 		if instance.context.version >= 55 and instance.one:
 			yield 'enumeration', Array, (0, None, (instance.enum_count,), name_type_map['Ushort']), (False, None)
+		if instance.context.version >= 55:
+			yield 'jwe_3_a', Array, (0, None, (int(instance.bone_count / 2),), name_type_map['Ubyte']), (False, None)
 		if instance.context.version >= 32:
 			yield 'parents_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 13 and instance.one:
@@ -254,8 +256,6 @@ class BoneInfo(BaseStruct):
 			yield 'minus_padding', name_type_map['MinusPadding'], (instance.zeros_count, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'zeros_padding', name_type_map['ZerosPadding'], (instance.zeros_count, None), (False, None)
-		if instance.context.version >= 55:
-			yield 'jwe_3', Array, (0, None, (instance.one_1_jwe_3,), name_type_map['Uint']), (False, None)
 		if instance.ik_count:
 			yield 'ik_info', name_type_map['IKInfo'], (instance, None), (False, None)
 		if instance.joint_count:

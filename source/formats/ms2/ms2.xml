@@ -702,7 +702,7 @@
 	</struct>
 
 	<struct name="IKInfo">
-		<field name="weird padding" type="SmartPadding" since="55" >needed for JWE3</field>
+<!--		<field name="weird padding" type="SmartPadding" since="55" >needed for JWE3</field>-->
 		<field name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</field>
 <!--		<field name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</field>-->
 		<field name="ik_count" type="uint64"/>
@@ -1013,6 +1013,7 @@
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
+		<field name="jwe3 a" type="ubyte" arr1="bone_count / 2" since="55" >JWE3</field>
 		<field name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</field>
 
 		<field name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</field>
@@ -1029,7 +1030,6 @@
 		<field name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</field>
 		<field name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</field>
 
-		<field name="jwe3" type="uint" arr1="one 1 jwe3" since="55" >unk</field>
 		<field name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data, probably changed in JWE3</field>
 		<field name="joints" type="JointData" cond="joint count" >joints</field>
 	</struct>
