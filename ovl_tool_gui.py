@@ -276,18 +276,21 @@ class MainWindow(widgets.MainWindow):
 			if filepath:
 				commands = {"game": self.ovl_game_choice.entry.currentText()}
 				other_ovl_data = OvlFile()
-				other_ovl_data.load_hash_table()
-				other_ovl_data.load(filepath, commands)
-				for file_name in selected_file_names:
-					try:
-						loader_a = self.ovl_data.loaders[file_name]
-						loader_b = other_ovl_data.loaders[file_name]
-						if loader_a == loader_b:
-							logging.info(f"'{file_name}' is the same")
-						else:
-							logging.warning(f"'{file_name}' differs")
-					except:
-						logging.exception(f"Could not compare '{file_name}'")
+				try:
+					other_ovl_data.load_hash_table()
+					other_ovl_data.load(filepath, commands)
+					for file_name in selected_file_names:
+						try:
+							loader_a = self.ovl_data.loaders[file_name]
+							loader_b = other_ovl_data.loaders[file_name]
+							if loader_a == loader_b:
+								logging.info(f"'{file_name}' is the same")
+							else:
+								logging.warning(f"'{file_name}' differs")
+						except:
+							logging.exception(f"Could not compare '{file_name}'")
+				except:
+					logging.exception(f"Could not compare '{filepath}'")
 
 	def set_ovl_game_choice_game(self, game=None):
 		# logging.debug(f"Setting OVL game to {game}")

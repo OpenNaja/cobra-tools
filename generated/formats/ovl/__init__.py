@@ -847,6 +847,15 @@ class OvlFile(Header):
 	def load(self, filepath, commands={}):
 		# store commands
 		self.commands = commands
+		# automatically tag JWE2 dev build
+		self.is_dev = 1 if "Jurassic World Evolution 2 1.3.1.0" in filepath else 0
+		# pick game version from commands preset before reading anything
+		preset_game = commands.get("game", None)
+		if preset_game:
+			self._game = preset_game
+			logging.info(f"Game: {self.game}")
+		else:
+			logging.warning(f"No game preset was supplied")
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Loading {self.name}"):
 			with open(filepath, "rb") as stream:
@@ -860,23 +869,11 @@ class OvlFile(Header):
 					raise AttributeError(f"Unknown OVL magic for {self.name}, cannot be read")
 				self.read_fields(stream, self)
 				self.eof = stream.tell()
-
-			# pick game version
-			# automatically tag JWE2 dev build
-			self.is_dev = 1 if "Jurassic World Evolution 2 1.3.1.0" in filepath else 0
-			qualified_games = get_game(self)
-			# go for the first matching game as a general case
-			self._game = qualified_games[0].value
-			if len(qualified_games) != 1:
-				if "game" in commands:
-					preset_game = commands["game"]
-					if preset_game in [game.value for game in qualified_games]:
-						self._game = preset_game
-					else:
-						logging.warning(f"Multiple games qualified and preset '{preset_game}' did not match any")
-				else:
-					logging.warning(f"Multiple games qualified, but no preset was supplied")
-			logging.info(f"Game: {self.game}")
+			# verify preset game after reading context
+			if preset_game:
+				qualified_games = [game.value for game in get_game(self)]
+				if preset_game not in qualified_games:
+					logging.warning(f"Preset '{preset_game}' did not match any qualified game from {qualified_games}")
 
 			self.mimes_name = [self.names.get_str_at(i) for i in self.mimes["name"]]
 			# without leading . to avoid collisions on cases like JWE island.island
