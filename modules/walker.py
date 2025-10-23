@@ -195,7 +195,7 @@ def bulk_test_models(gui, dir_game, dir_walk, walk_ovls=True, official_only=True
 			for ms2_path in gui.reporter.iter_progress(ms2_files, "Walking MS2 files"):
 				if official_only and not filter_accept_official(ms2_path):
 					continue
-				ms2_path_rel = ms2_path.replace(dir_export, "")
+				ms2_path_rel = Path(ms2_path).relative_to(dir_export)
 				ms2_name = os.path.basename(ms2_path)
 				try:
 					# script = f"import bpy;bpy.ops.import_scene.cobra_ms2(filepath='{ms2_path}')"

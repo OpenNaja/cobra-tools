@@ -112,7 +112,7 @@ class ModelReader(BaseStruct):
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
 				model_info.bone_info.name = f"{model_info.name}_armature"
-				logging.debug(model_info.bone_info)
+				# logging.debug(model_info.bone_info)
 				self.bone_infos.append(model_info.bone_info)
 			except:
 				logging.warning(f"Bone info {i} failed for model_info")
