@@ -702,7 +702,7 @@
 	</struct>
 
 	<struct name="IKInfo">
-		<field name="padding jwe3" type="uint64" arr1="3"/>
+		<field name="weird padding" type="SmartPadding" since="55" >needed for JWE3</field>
 		<field name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</field>
 <!--		<field name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</field>-->
 		<field name="ik_count" type="uint64"/>
