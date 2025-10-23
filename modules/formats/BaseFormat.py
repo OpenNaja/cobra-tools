@@ -350,7 +350,7 @@ class BaseFile:
 	def increment_buffers(self, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
 		# create increasing buffer indices for PZ (still needed 22-05-10), JWE
-		if not is_jwe2(self.ovl):
+		if self.ovl.game not in ("Jurassic World Evolution 2", ):
 			for buff in self.data_entry.buffers:
 				buff.index = buffer_i
 				buffer_i += 1
