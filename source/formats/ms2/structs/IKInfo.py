@@ -21,7 +21,10 @@ class IKInfo(BaseStruct):
 		super().read_fields(stream, instance)
 		# after reading, we can resolve the bone pointers
 		for ptr in instance.get_pointers():
-			ptr.joint = instance.arg.bones[ptr.index]
+			try:
+				ptr.joint = instance.arg.bones[ptr.index]
+			except IndexError:
+				ptr.joint = f"Bad Ref ({ptr.index})"
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -10,6 +10,7 @@ from generated.formats.ovl_base.structs.SmartPadding import SmartPadding
 
 
 class IKInfo(BaseStruct):
+    padding_jwe_3: Array[int]
     weird_padding: SmartPadding
     ik_count: int
     ik_ptr: int

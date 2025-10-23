@@ -5,7 +5,9 @@ from generated.formats.ms2.imports import name_type_map
 class IKEntry(BaseStruct):
 
 	"""
-	60 bytes
+	older - 60 bytes
+	PC2 - 62 bytes
+	JWE3 - 60 bytes
 	"""
 
 	__name__ = 'IKEntry'
@@ -35,7 +37,7 @@ class IKEntry(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'child', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
 		yield 'parent', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
-		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
+		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, 0), (lambda context: context.version <= 54, None)
 		yield 'matrix', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
 		yield 'yaw', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
 		yield 'pitch', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
@@ -46,7 +48,8 @@ class IKEntry(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'child', name_type_map['BonePointer'], (0, None), (False, None)
 		yield 'parent', name_type_map['BonePointer'], (0, None), (False, None)
-		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, 0)
+		if instance.context.version <= 54:
+			yield 'unk_0', name_type_map['Ushort'], (0, None), (False, 0)
 		yield 'matrix', name_type_map['Matrix33'], (0, None), (False, None)
 		yield 'yaw', name_type_map['RotationRange'], (0, None), (False, None)
 		yield 'pitch', name_type_map['RotationRange'], (0, None), (False, None)

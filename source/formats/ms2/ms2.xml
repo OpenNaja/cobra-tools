@@ -682,10 +682,12 @@
 	</struct>
 
 	<struct name="IKEntry">
-		60 bytes
+		older - 60 bytes
+		PC2 - 62 bytes
+		JWE3 - 60 bytes
 		<field name="child" type="BonePointer"/>
 		<field name="parent" type="BonePointer"/>
-		<field name="unk0" type="ushort" default="0"/>
+		<field name="unk0" type="ushort" default="0" until="54"/>
 		<field name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the yaw and pitch ranges
 		probably relative to the bone</field>
 		<field name="yaw" type="RotationRange">degrees</field>
@@ -700,6 +702,7 @@
 	</struct>
 
 	<struct name="IKInfo">
+		<field name="padding jwe3" type="uint64" arr1="3"/>
 		<field name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</field>
 <!--		<field name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</field>-->
 		<field name="ik_count" type="uint64"/>
