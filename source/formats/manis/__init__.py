@@ -101,10 +101,10 @@ class KeysContext:
                 # stream can have 00 00 at context_offset for a segment with 1 frame = no relative keys
                 empty = self.stream.read_uint(16)
                 assert empty == 0, "Stream with no relative keys must have 00 00 context"
-            self.do_increment = self.runs_remaining = self.init_k_a = self.init_k_b = 0
+            self.do_increment = self.runs_left = self.init_k_a = self.init_k_b = 0
         else:
             self.do_increment = self.stream.read_uint(1)
-            self.runs_remaining = self.stream.read_uint(16)
+            self.runs_left = self.stream.read_uint(16)
             self.init_k_a = self.stream.read_uint_reversed(4)
             self.init_k_b = self.stream.read_uint_reversed(4)
             if not self.do_increment:
@@ -112,7 +112,7 @@ class KeysContext:
             logging.debug(self)
             self.do_increment = not self.do_increment
             self.begun = True
-            self.i_in_run = 0
+            self.frames_left = 0
         self.golomb_rice_offset = stream.pos
         # self.keys_offset = 16
         # seek to start of base keys
@@ -127,25 +127,15 @@ class KeysContext:
         keys_offset = self.stream.pos
         self.stream.seek(self.golomb_rice_offset)
         for frame_i in range(1, segment_frames_count):
-            if self.i_in_run == 0:
-                assert self.runs_remaining != 0
-                self.runs_remaining -= 1
+            if self.frames_left == 0:
+                assert self.runs_left != 0
+                self.runs_left -= 1
                 self.do_increment = not self.do_increment
                 init_k = self.init_k_a if self.do_increment else self.init_k_b
                 assert init_k < 32
                 # logging.info(f"do_increment {do_increment} init_k {init_k} at {self.stream.pos}")
-                k_size = self.stream.read_bit_size_flag(32 - init_k)
-                k_flag = 1 << (init_k & 0x1f)
-                k_flag_out = self.stream.interpret_as_shift(k_size, k_flag)
-                # logging.info(
-                # 	f"pos before key {self.stream.pos}, k_flag_out {k_flag_out}, init_k bare {k_size}")
-                k_key = self.stream.read_uint_reversed(k_size + init_k)
-                assert k_size + init_k < 32
-                self.i_in_run = k_key + k_flag_out
-            # logging.info(
-            # 	f"golomb_rice[{frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
-            # logging.info(f"pos after read {self.stream.pos}")
-            self.i_in_run -= 1
+                self.frames_left = self.decode_adaptive_golomb(init_k, 32 - init_k)
+            self.frames_left -= 1
             if self.do_increment:
                 frame_map[keyframe_count] = frame_i
                 keyframe_count += 1
@@ -156,33 +146,33 @@ class KeysContext:
                 # logging.info(f"rel_keys[{channel_i}] at bit {context.stream.pos}")
                 # define the minimal key size for this channel
                 ch_key_size = self.stream.read_uint_reversed(4)
-                ch_key_size_masked = ch_key_size & 31
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {context.stream.pos}")
                 for trg_frame_i in frame_map[:keyframe_count]:
-                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (32 - ch_key_size_masked)
-                    # rel_key_size = context.stream.read_bit_size_flag(15 - ch_key_size_masked)
-                    rel_key_size = self.stream.read_bit_size_flag(32)
-                    # todo this may have to be shifted only with the corresponding clamp applied
-                    rel_key_base = self.stream.interpret_as_shift(rel_key_size, rel_key_flag)
-                    ch_rel_key_size = ch_key_size + rel_key_size
-                    # clamp key size to 0-15 bits
-                    ch_rel_key_size = min(ch_rel_key_size, 15)
-                    # ensure the final key size is valid
-                    assert ch_rel_key_size <= 32
-                    # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
-                    # read the key, if it has a size
-                    if ch_rel_key_size:
-                        ch_rel_key = self.stream.read_uint_reversed(ch_rel_key_size)
-                    else:
-                        ch_rel_key = 0
-                    # logging.info(f"key = {ch_rel_key}")
-                    rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+                    result = self.decode_adaptive_golomb(ch_key_size, 32)
+                    rel_key_masked = result & 0xffff
                     raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(rel_key_masked)[0]
         return raw_keys_storage, frame_map
 
+    def decode_adaptive_golomb(self, ch_key_size, rel_size_limit):
+        k_flag = 1 << (ch_key_size & 31)
+        rel_key_size = self.stream.read_bit_size_flag(rel_size_limit)
+        rel_key_base = self.stream.interpret_as_shift(rel_key_size, k_flag)
+        ch_rel_key_size = ch_key_size + rel_key_size
+        # clamp key size to 0-15 bits
+        ch_rel_key_size = min(ch_rel_key_size, 15)
+        # ensure the final key size is valid
+        assert ch_rel_key_size <= 32
+        # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
+        # read the key, if it has a size
+        if ch_rel_key_size:
+            ch_rel_key = self.stream.read_uint_reversed(ch_rel_key_size)
+        else:
+            ch_rel_key = 0
+        return rel_key_base + ch_rel_key
+
     def __repr__(self):
-        return f"Context: do_increment {self.do_increment}, runs_remaining {self.runs_remaining}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
+        return f"Context: do_increment {self.do_increment}, runs_left {self.runs_left}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
 
 
 class ManisFile(InfoHeader, IoFile):
@@ -542,14 +532,14 @@ class ManisFile(InfoHeader, IoFile):
                         # todo - scale or sth before for JWE2 dev acro, only single channels, so probably fairly early
                         if mani_info.name == "acrocanthosaurus@jumpattackdefendthrowright" and segment_i == 2 and bone_i == 10:
                             # motionextracted.manisetf96acca0.manis, root, Y
-                            logging.debug(f"{out_frame_i}, {out}")
+                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         if mani_info.name == "acrocanthosaurus@walk" and segment_i == 0 and bone_i == 142:
                             # motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
-                            logging.debug(f"{out_frame_i}, {out}")
+                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                             # scale_pack = scale * 1.25
                         if mani_info.name == "acrocanthosaurus@socialinteractionb" and segment_i == 1 and bone_i == 141:
                             # motionextracted.maniset8be90845.manis, def_horselink_joint_IKBlend.L, Z; other segments fine
-                            logging.debug(f"{out_frame_i}, {out}")
+                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         #  maybe create a dedicated copy that includes just that bone?
                         last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
@@ -632,7 +622,7 @@ class ManisFile(InfoHeader, IoFile):
                         #  animationmotionextractedlocomotion.maniset535f4cdb, mandrill_male@runbase, bone 41 breaks after frame 2
                         #  https://github.com/OpenNaja/cobra-tools/issues/385
                         if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
-                            logging.debug(f"{out_frame_i}, {out}")
+                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         # scale fac (actually dynamic)
                         # 6.10389e-005 6.10389e-005 6.10389e-005 6.10389e-005
                         # 0.000103384 0.000103384 0.000103384 0.000103384
