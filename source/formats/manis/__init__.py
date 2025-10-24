@@ -544,9 +544,12 @@ class ManisFile(InfoHeader, IoFile):
                             # motionextracted.manisetf96acca0.manis, root, Y
                             logging.debug(f"{out_frame_i}, {out}")
                         if mani_info.name == "acrocanthosaurus@walk" and segment_i == 0 and bone_i == 142:
-                            #  motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
+                            # motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
                             logging.debug(f"{out_frame_i}, {out}")
                             # scale_pack = scale * 1.25
+                        if mani_info.name == "acrocanthosaurus@socialinteractionb" and segment_i == 1 and bone_i == 141:
+                            # motionextracted.maniset8be90845.manis, def_horselink_joint_IKBlend.L, Z; other segments fine
+                            logging.debug(f"{out_frame_i}, {out}")
                         #  maybe create a dedicated copy that includes just that bone?
                         last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
