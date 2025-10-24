@@ -521,13 +521,11 @@ class ManisFile(InfoHeader, IoFile):
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             # defines basic loc value; not byte aligned
-            vec = self.read_vec3(context.stream)[:3]
+            vec, keys_flag = self.read_vec3(context.stream)
+            vec = vec[:3]
             vec *= scale
             # the scale per bone is always norm = 0 in acro_run
             scale_pack = self.get_pack_scale(mani_info)
-            # which channels are keyframed
-            keys_flag = context.stream.read_uint(3)
-            keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, keys_flag)
                 if segment_frames_count > 1:
@@ -585,7 +583,7 @@ class ManisFile(InfoHeader, IoFile):
             # logging.info(context)
             # defines basic rot values
             # logging.info(f"ori[{ori_index}] {ori_name} at bit {context.stream.pos}")
-            vec = self.read_vec3(context.stream)
+            vec, keys_flag = self.read_vec3(context.stream)
             scale_pack = float(scale)
             # vec *= scale_pack * q_scale
             vec *= scale * q_scale
@@ -598,10 +596,6 @@ class ManisFile(InfoHeader, IoFile):
                 quat = vec / norm
                 quat *= scale_fac
                 quat[3] = q
-
-            # which channels are keyframed
-            keys_flag = context.stream.read_uint(3)
-            keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, keys_flag)
                 # logging.info(f"key {i} = {rel_key_masked}")
@@ -747,7 +741,10 @@ class ManisFile(InfoHeader, IoFile):
             z = f.read_uint_reversed(15)
         vec = np.zeros(4, dtype=np.float32)
         vec[:] = f.decode_zigzag(x, y, z, 0)
-        return vec
+        # which channels are keyframed
+        keys_flag = f.read_uint(3)
+        keys_flag = StoreKeys.from_value(keys_flag)
+        return vec, keys_flag
 
 
 def get_quat_scale_fac(norm_half_abs: float):
