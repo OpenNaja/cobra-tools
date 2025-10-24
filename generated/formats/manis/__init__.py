@@ -65,7 +65,7 @@ try:
             return -1
 
         @staticmethod
-        def make_signed(*args):
+        def decode_zigzag(*args):
             # use zigzag encoding
             return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]
 
@@ -179,7 +179,7 @@ class KeysContext:
                         ch_rel_key = 0
                     # logging.info(f"key = {ch_rel_key}")
                     rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-                    raw_keys_storage[trg_frame_i, channel_i] = self.stream.make_signed(rel_key_masked)[0]
+                    raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(rel_key_masked)[0]
         return raw_keys_storage, frame_map
 
     def __repr__(self):
@@ -747,7 +747,7 @@ class ManisFile(InfoHeader, IoFile):
             y = f.read_uint_reversed(15)
             z = f.read_uint_reversed(15)
         vec = np.zeros(4, dtype=np.float32)
-        vec[:] = f.make_signed(x, y, z, 0)
+        vec[:] = f.decode_zigzag(x, y, z, 0)
         return vec
 
 
