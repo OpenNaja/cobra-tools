@@ -424,20 +424,20 @@ class ManisFile(InfoHeader, IoFile):
     def log_loc_keys(self):
         for mani_info in self.iter_uncompressed_manis():
             # logging.info(mani_info)
-            for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-                v = mani_info.keys.pos_bones[0][pos_index]
+            for bone_i, bone_name in enumerate(mani_info.keys.pos_bones_names):
+                v = mani_info.keys.pos_bones[0][bone_i]
                 x, y, z = v.x, v.y, v.z
-                logging.info(f"unc {pos_index} {pos_name} {(x, y, z)}")
+                logging.info(f"unc {bone_i} {bone_name} {(x, y, z)}")
             break
 
     def log_rot_keys(self):
         for mani_info in self.iter_uncompressed_manis():
             # logging.info(mani_info)
-            for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
-                v = mani_info.keys.ori_bones[0][ori_index]
+            for bone_i, bone_name in enumerate(mani_info.keys.ori_bones_names):
+                v = mani_info.keys.ori_bones[0][bone_i]
                 x, y, z, w = v.x, v.y, v.z, v.w
-                # if "def_c_hips_joint" == ori_name:
-                #     logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
+                # if "def_c_hips_joint" == bone_name:
+                #     logging.info(f"{bone_i} {bone_name} {(x, y, z, w)}")
 
     def parse_keys(self, target=None, dump=False):
         for mani_info in self.iter_compressed_manis():
@@ -520,7 +520,7 @@ class ManisFile(InfoHeader, IoFile):
     def read_pos_keys(self, context, segment_i, mani_info, segment_frames_count, segment_pos_bones):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
-        for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+        for bone_i, bone_name in enumerate(mani_info.keys.pos_bones_names):
             # defines basic loc value; not byte aligned
             vec, keys_flag = self.read_vec3(context.stream)
             vec = vec[:3]
@@ -532,7 +532,7 @@ class ManisFile(InfoHeader, IoFile):
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # set base keyframe
-                    segment_pos_bones[0, pos_index] = vec
+                    segment_pos_bones[0, bone_i] = vec
                     # set other keyframes
                     last_key_a = identity
                     last_key_b = identity
@@ -541,8 +541,12 @@ class ManisFile(InfoHeader, IoFile):
                         trg_frame_i = frame_map[frame_inc]
                         out = raw_keys_storage[out_frame_i]
                         # todo - scale or sth before for JWE2 dev acro, only single channels, so probably fairly early
-                        #  motionextracted.manisetf96acca0.manis acrocanthosaurus@jumpattackdefendthrowright, segment[2], root, Y
-                        #  motionextracted.maniset85c65403 acrocanthosaurus@walk, segment[0], def_horselink_joint_IKBlend.L, Z; segment[1] is fine
+                        if mani_info.name == "acrocanthosaurus@jumpattackdefendthrowright" and segment_i == 2 and bone_i == 10:
+                            # motionextracted.manisetf96acca0.manis, root, Y
+                            logging.debug(f"{out_frame_i}, {out}")
+                        if mani_info.name == "acrocanthosaurus@walk" and segment_i == 0 and bone_i == 142:
+                            #  motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
+                            logging.debug(f"{out_frame_i}, {out}")
                         #  maybe create a dedicated copy that includes just that bone?
                         last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
@@ -555,17 +559,17 @@ class ManisFile(InfoHeader, IoFile):
                             last_key_b = last_key_delta + out * scale_pack
                         else:
                             # hold key from previous frame
-                            # print(pos_index, segment_i* 32 + out_frame_i)
-                            final = segment_pos_bones[out_frame_i-1, pos_index]
+                            # print(bone_i, segment_i* 32 + out_frame_i)
+                            final = segment_pos_bones[out_frame_i-1, bone_i]
                             last_key_a = identity
                             last_key_b = identity
                             # update scale_pack here, todo check if / what norm is used with conditional breakpoint
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
                             scale_pack = self.get_pack_scale(mani_info)
-                        segment_pos_bones[out_frame_i, pos_index] = final
+                        segment_pos_bones[out_frame_i, bone_i] = final
             else:
                 # set all keyframes
-                segment_pos_bones[:, pos_index] = vec
+                segment_pos_bones[:, bone_i] = vec
         logging.debug(f"Segment[{segment_i}] loc finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
 
     @staticmethod
@@ -580,16 +584,16 @@ class ManisFile(InfoHeader, IoFile):
         identity = zeros.copy()
         identity[3] = 1.0
         scale = self.get_pack_scale(mani_info)
-        for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
+        for bone_i, bone_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             # defines basic rot values
-            # logging.info(f"ori[{ori_index}] {ori_name} at bit {context.stream.pos}")
+            # logging.info(f"ori[{bone_i}] {bone_name} at bit {context.stream.pos}")
             vec, keys_flag = self.read_vec3(context.stream)
             scale_pack = float(scale)
             # vec *= scale_pack * q_scale
             vec *= scale * q_scale
             norm = np.linalg.norm(vec)
-            # logging.info(f"{ori_index} {ori_name} {vec} {norm}")
+            # logging.info(f"{bone_i} {bone_name} {vec} {norm}")
             if norm < epsilon:
                 quat = identity.copy()
             else:
@@ -606,8 +610,8 @@ class ManisFile(InfoHeader, IoFile):
                     # sign flipping happens before setting quat itself but for cleaner output in the graphs
                     quat = quat * -1 if quat[3] < 0 else quat
                     # set base keyframe
-                    # logging.info(f"BASE 0: {quat}, {ori_index}")
-                    segment_ori_bones[0, ori_index] = quat
+                    # logging.info(f"BASE 0: {quat}, {bone_i}")
+                    segment_ori_bones[0, bone_i] = quat
                     quat_pos = quat
                     last_key_a = zeros.copy()
                     # set other keyframes
@@ -619,6 +623,8 @@ class ManisFile(InfoHeader, IoFile):
                         # todo figure out logic for scale
                         #  animationmotionextractedlocomotion.maniset535f4cdb, mandrill_male@runbase, bone 41 breaks after frame 2
                         #  https://github.com/OpenNaja/cobra-tools/issues/385
+                        if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
+                            logging.debug(f"{out_frame_i}, {out}")
                         # scale fac (actually dynamic)
                         # 6.10389e-005 6.10389e-005 6.10389e-005 6.10389e-005
                         # 0.000103384 0.000103384 0.000103384 0.000103384
@@ -647,7 +653,7 @@ class ManisFile(InfoHeader, IoFile):
                         else:
                             # normalize and swizzle the quat
                             scaled_inter = rel_inter[[0, 3, 1, 2]] / norm
-                        # if 0 == ori_index:
+                        # if 0 == bone_i:
                         #     # self.printm(rel_inter)
                         #     # print(norm)
                         #     self.printm(scaled_inter)
@@ -655,7 +661,7 @@ class ManisFile(InfoHeader, IoFile):
                         # xmm12 0 0 -0.000366233 0
                         # probably not clipped to 0.0, but -1.0
                         rel_scaled_clamped_copy = np.clip(rel_scaled, -1.0, 1.0)
-                        # if 0 == ori_index:
+                        # if 0 == bone_i:
                         #     # [0.0, 0.0, -0.0003662333, 0.0]
                         #     self.printm(rel_scaled_clamped_copy)
                         # dbg 0 0 1.34127e-007 0.000366233  # only last coord is set to sqrt
@@ -704,12 +710,12 @@ class ManisFile(InfoHeader, IoFile):
                         # self.printm(final_inter)
                         # quat aka recon_quat is set to last key of curve for the next loop, todo verify
                         quat_pos = final_inter
-                        # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
-                        segment_ori_bones[out_frame_i, ori_index, ] = final_inter
+                        # logging.info(f"INTER {out_frame_i}: {final_inter}, {bone_i}")
+                        segment_ori_bones[out_frame_i, bone_i, ] = final_inter
                     # break
             else:
                 # set all keyframes
-                segment_ori_bones[:, ori_index] = quat
+                segment_ori_bones[:, bone_i] = quat
         logging.debug(f"Segment[{segment_i}] rot finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
 
     def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):

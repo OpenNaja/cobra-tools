@@ -239,7 +239,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			try:
 				self.manis_file.load(filepath)
-				print(self.manis_file)
+				# print(self.manis_file)
 			except:
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()
