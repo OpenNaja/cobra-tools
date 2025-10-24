@@ -547,6 +547,7 @@ class ManisFile(InfoHeader, IoFile):
                         if mani_info.name == "acrocanthosaurus@walk" and segment_i == 0 and bone_i == 142:
                             #  motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
                             logging.debug(f"{out_frame_i}, {out}")
+                            # scale_pack = scale * 1.25
                         #  maybe create a dedicated copy that includes just that bone?
                         last_key_delta = 2 * last_key_b - last_key_a
                         if out_frame_i == trg_frame_i:
@@ -565,12 +566,26 @@ class ManisFile(InfoHeader, IoFile):
                             last_key_b = identity
                             # update scale_pack here, todo check if / what norm is used with conditional breakpoint
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
-                            scale_pack = self.get_pack_scale(mani_info)
+                            # scale_pack = self.get_pack_scale(mani_info)
                         segment_pos_bones[out_frame_i, bone_i] = final
             else:
                 # set all keyframes
                 segment_pos_bones[:, bone_i] = vec
         logging.debug(f"Segment[{segment_i}] loc finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
+
+    @staticmethod
+    def quat_multiply(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
+        """
+        Performs Hamilton product multiplication of two quaternions (q1 * q2).
+        """
+        x1, y1, z1, w1 = q1
+        x2, y2, z2, w2 = q2
+        return np.array([
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+        ], dtype=np.float32)
 
     @staticmethod
     def printm(v):
@@ -579,7 +594,6 @@ class ManisFile(InfoHeader, IoFile):
 
     def read_ori_keys(self, context, segment_i, mani_info, segment_frames_count, segment_ori_bones):
         q_scale = 2 * math.pi  # 6.283185
-        epsilon = 1.1920929E-7  # 1 / 8388608 (=2**23)
         zeros = np.zeros(4, dtype=np.float32)
         identity = zeros.copy()
         identity[3] = 1.0
@@ -592,15 +606,7 @@ class ManisFile(InfoHeader, IoFile):
             scale_pack = float(scale)
             # vec *= scale_pack * q_scale
             vec *= scale * q_scale
-            norm = np.linalg.norm(vec)
-            # logging.info(f"{bone_i} {bone_name} {vec} {norm}")
-            if norm < epsilon:
-                quat = identity.copy()
-            else:
-                q, scale_fac = get_quat_scale_fac(norm * 0.5)
-                quat = vec / norm
-                quat *= scale_fac
-                quat[3] = q
+            quat = self.axis_angle_to_quaternion(identity, vec)
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, keys_flag)
                 # logging.info(f"key {i} = {rel_key_masked}")
@@ -641,18 +647,14 @@ class ManisFile(InfoHeader, IoFile):
                         rel_scaled_q = out.copy()
                         rel_scaled_q[3] = q
 
-                        rel_inter = out.copy()
-                        rel_inter[0] = (quat_pos[0] * q + quat_pos[1] * rel_scaled_q[2]) - (quat_pos[2] * rel_scaled_q[1] - quat_pos[3] * rel_scaled_q[0])
-                        rel_inter[1] = quat_pos[2] * q + quat_pos[3] * rel_scaled_q[2] + (quat_pos[0] * rel_scaled_q[1] - quat_pos[1] * rel_scaled_q[0])
-                        rel_inter[2] = (q * quat_pos[3] - rel_scaled_q[2] * quat_pos[2]) - (rel_scaled_q[1] * quat_pos[1] + rel_scaled_q[0] * quat_pos[0])
-                        rel_inter[3] = (q * quat_pos[1] - rel_scaled_q[2] * quat_pos[0]) + rel_scaled_q[1] * quat_pos[3] + rel_scaled_q[0] * quat_pos[2]
+                        rel_inter = self.quat_multiply(quat_pos, rel_scaled_q)
                         norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
                             scaled_inter = identity.copy()
                         else:
-                            # normalize and swizzle the quat
-                            scaled_inter = rel_inter[[0, 3, 1, 2]] / norm
+                            # normalize
+                            scaled_inter = rel_inter / norm
                         # if 0 == bone_i:
                         #     # self.printm(rel_inter)
                         #     # print(norm)
@@ -717,6 +719,18 @@ class ManisFile(InfoHeader, IoFile):
                 # set all keyframes
                 segment_ori_bones[:, bone_i] = quat
         logging.debug(f"Segment[{segment_i}] rot finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
+
+    def axis_angle_to_quaternion(self, identity, vec):
+        norm = np.linalg.norm(vec)
+        # logging.info(f"{bone_i} {bone_name} {vec} {norm}")
+        if norm < 1.1920929E-7:  # 1 / 8388608 (=2**23)
+            quat = identity.copy()
+        else:
+            c, s = get_quat_scale_fac(norm * 0.5)
+            quat = vec / norm
+            quat *= s
+            quat[3] = c
+        return quat
 
     def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):
         # the default initial scale seems to be for loc and rot
