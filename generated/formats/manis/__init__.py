@@ -88,16 +88,16 @@ srb_name = "srb"
 
 
 class KeysContext:
-    def __init__(self, stream, wavelet_byte_offset, segment_frames_count):
+    def __init__(self, stream, golomb_rice_byte_offset, segment_frames_count):
         self.stream = stream
-        logging.debug(f"wavelet_byte_offset {wavelet_byte_offset}")
-        self.stream.seek(wavelet_byte_offset * 8)
+        logging.debug(f"golomb_rice_byte_offset {golomb_rice_byte_offset}")
+        self.stream.seek(golomb_rice_byte_offset * 8)
         if segment_frames_count == 1:
             # JWE2 carcharo standtorun - points to end of stream
-            if self.stream.data.nbytes == wavelet_byte_offset:
+            if self.stream.data.nbytes == golomb_rice_byte_offset:
                 logging.debug(f"Stream has no context")
             else:
-                # stream can have 00 00 at wavelet_byte_offset for a segment with 1 frame = no relative keys
+                # stream can have 00 00 at golomb_rice_byte_offset for a segment with 1 frame = no relative keys
                 empty = self.stream.read_uint(16)
                 assert empty == 0, "Stream with no relative keys must have 00 00 context"
             self.do_increment = self.runs_remaining = self.init_k_a = self.init_k_b = 0
@@ -113,10 +113,12 @@ class KeysContext:
             self.begun = True
             self.i_in_run = 0
 
-    def read_wavelet_table(self, frame_map, segment_frames_count):
-        # logging.info(f"wavelets at bit {self.stream.pos}")
-        new_wavelets_offset = 0
-        for wave_frame_i in range(1, segment_frames_count):
+    def read_golomb_rice_data(self, segment_frames_count, f, keys_flag):
+        raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
+        frame_map = np.zeros(32, dtype=np.uint32)
+        # logging.info(f"golomb_rice at bit {self.stream.pos}")
+        keyframe_count = 0
+        for frame_i in range(1, segment_frames_count):
             if self.i_in_run == 0:
                 assert self.runs_remaining != 0
                 self.runs_remaining -= 1
@@ -133,17 +135,43 @@ class KeysContext:
                 assert k_size + init_k < 32
                 self.i_in_run = k_key + k_flag_out
             # logging.info(
-            # 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+            # 	f"golomb_rice[{frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
             # logging.info(f"pos after read {self.stream.pos}")
             self.i_in_run -= 1
             if self.do_increment:
-                frame_map[new_wavelets_offset] = wave_frame_i
-                new_wavelets_offset += 1
+                frame_map[keyframe_count] = frame_i
+                keyframe_count += 1
 
-        # logging.info(frame_map)
-        # logging.info(f"wavelets finished at bit {self.stream.pos}, byte {self.stream.pos / 8}, out_count {new_wavelets_offset}")
-        return new_wavelets_offset
-    
+        for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
+            if is_active:
+                # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
+                # define the minimal key size for this channel
+                ch_key_size = f.read_uint_reversed(4)
+                ch_key_size_masked = ch_key_size & 31
+                assert ch_key_size <= 32
+                # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
+                for trg_frame_i in frame_map[:keyframe_count]:
+                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (32 - ch_key_size_masked)
+                    # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
+                    rel_key_size = f.read_bit_size_flag(32)
+                    # todo this may have to be shifted only with the corresponding clamp applied
+                    rel_key_base = f.interpret_as_shift(rel_key_size, rel_key_flag)
+                    ch_rel_key_size = ch_key_size + rel_key_size
+                    # clamp key size to 0-15 bits
+                    ch_rel_key_size = min(ch_rel_key_size, 15)
+                    # ensure the final key size is valid
+                    assert ch_rel_key_size <= 32
+                    # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
+                    # read the key, if it has a size
+                    if ch_rel_key_size:
+                        ch_rel_key = f.read_uint_reversed(ch_rel_key_size)
+                    else:
+                        ch_rel_key = 0
+                    # logging.info(f"key = {ch_rel_key}")
+                    rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+                    raw_keys_storage[trg_frame_i, channel_i] = f.make_signed(rel_key_masked)[0]
+        return raw_keys_storage, frame_map
+
     def __repr__(self):
         return f"Context: do_increment {self.do_increment}, runs_remaining {self.runs_remaining}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
 
@@ -469,8 +497,8 @@ class ManisFile(InfoHeader, IoFile):
             segment_ori_bones = ck.ori_bones[frame_offset:frame_offset + segment_frames_count]
             try:
                 # this is a jump to the end of the compressed keys
-                wavelet_byte_offset = f.read_uint_reversed(16)
-                context = KeysContext(f2, wavelet_byte_offset, segment_frames_count)
+                golomb_rice_byte_offset = f.read_uint_reversed(16)
+                context = KeysContext(f2, golomb_rice_byte_offset, segment_frames_count)
                 self.read_pos_keys(context, f, segment_i, mani_info, segment_frames_count, segment_pos_bones)
                 self.read_ori_keys(context, f, segment_i, mani_info, segment_frames_count, segment_ori_bones)
             except:
@@ -487,8 +515,6 @@ class ManisFile(InfoHeader, IoFile):
         identity = np.zeros(3, np.float32)
         scale = self.get_pack_scale(mani_info)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-            frame_map = np.zeros(32, dtype=np.uint32)
-            raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
             # defines basic loc value; not byte aligned
             vec = self.read_vec3(f)[:3]
             vec *= scale
@@ -498,8 +524,7 @@ class ManisFile(InfoHeader, IoFile):
             keys_flag = f.read_uint(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset)
+                raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, f, keys_flag)
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # set base keyframe
@@ -553,8 +578,6 @@ class ManisFile(InfoHeader, IoFile):
         scale = self.get_pack_scale(mani_info)
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
-            frame_map = np.zeros(32, dtype=np.uint32)
-            raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
             # defines basic rot values
             # logging.info(f"ori[{ori_index}] {ori_name} at bit {f.pos}")
             vec = self.read_vec3(f)
@@ -575,8 +598,7 @@ class ManisFile(InfoHeader, IoFile):
             keys_flag = f.read_uint(3)
             keys_flag = StoreKeys.from_value(keys_flag)
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                new_wavelets_offset = context.read_wavelet_table(frame_map, segment_frames_count)
-                self.read_rel_keys(f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset)
+                raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, f, keys_flag)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
@@ -706,36 +728,6 @@ class ManisFile(InfoHeader, IoFile):
         quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
         # update the packed scale
         return 1 / quant_fac_clamped
-
-    def read_rel_keys(self, f, frame_map, keys_flag, raw_keys_storage, new_wavelets_offset):
-        for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
-            if is_active:
-                # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
-                # define the minimal key size for this channel
-                ch_key_size = f.read_uint_reversed(4)
-                ch_key_size_masked = ch_key_size & 31
-                assert ch_key_size <= 32
-                # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
-                for trg_frame_i in frame_map[:new_wavelets_offset]:
-                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (32 - ch_key_size_masked)
-                    # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
-                    rel_key_size = f.read_bit_size_flag(32)
-                    # todo this may have to be shifted only with the corresponding clamp applied
-                    rel_key_base = f.interpret_as_shift(rel_key_size, rel_key_flag)
-                    ch_rel_key_size = ch_key_size + rel_key_size
-                    # clamp key size to 0-15 bits
-                    ch_rel_key_size = min(ch_rel_key_size, 15)
-                    # ensure the final key size is valid
-                    assert ch_rel_key_size <= 32
-                    # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
-                    # read the key, if it has a size
-                    if ch_rel_key_size:
-                        ch_rel_key = f.read_uint_reversed(ch_rel_key_size)
-                    else:
-                        ch_rel_key = 0
-                    # logging.info(f"key = {ch_rel_key}")
-                    rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-                    raw_keys_storage[trg_frame_i, channel_i] = f.make_signed(rel_key_masked)[0]
 
     def read_vec3(self, f):
         if self.context.version > 259:
