@@ -109,8 +109,7 @@ class KeysContext:
             self.do_increment = not self.do_increment
             self.begun = True
             self.frames_left = 0
-        self.golomb_rice_offset = stream.pos
-        # self.keys_offset = 16
+        self.frame_map_offset = stream.pos
         # seek to start of base keys
         stream.seek(16)
 
@@ -119,9 +118,8 @@ class KeysContext:
         frame_map = np.zeros(32, dtype=np.uint32)
         # logging.info(f"golomb_rice at bit {self.stream.pos}")
         keyframe_count = 0
-
         keys_offset = self.stream.pos
-        self.stream.seek(self.golomb_rice_offset)
+        self.stream.seek(self.frame_map_offset)
         for frame_i in range(1, segment_frames_count):
             if self.frames_left == 0:
                 assert self.runs_left != 0
@@ -134,7 +132,7 @@ class KeysContext:
             if self.do_increment:
                 frame_map[keyframe_count] = frame_i
                 keyframe_count += 1
-        self.golomb_rice_offset = self.stream.pos
+        self.frame_map_offset = self.stream.pos
         self.stream.seek(keys_offset)
         for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
             if is_active:
