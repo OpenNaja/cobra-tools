@@ -166,11 +166,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for buffer_info, modelstream_name in zip(self.external_streams(), self.modelstream_names):
 			buffer_info.name = modelstream_name
 			self.attach_streams(buffer_info, stream, dump=dump)
+		# ZT rabbit_.ms2 doesn't have modelstreams and consequently doesn't get a stream attached
+		if self.context.version == 13:
+			for buffer_info in self.buffer_infos:
+				if not buffer_info.name:
+					buffer_info.name = "STATIC"
+					stream.seek(self.buffer_2_offset)
+					self.attach_streams(buffer_info, stream, dump=dump)
 
 	def init_buffers(self):
 		for i, buffer_info in enumerate(self.buffer_infos):
 			buffer_info.name = None
 			buffer_info.index = i
+			buffer_info.uvs_offsets = set()
 
 	def external_streams(self):
 		return [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
