@@ -52,15 +52,11 @@ try:
             bits.reverse()
             return bitarray.util.ba2int(bits, signed=False)
 
-        @staticmethod
-        def interpret_as_shift(size: int, flag: int):
-            return flag * ((1 << size) - 1)
-
-        def read_bit_size_flag(self, max_size: int):
-            for rel_key_size in range(max_size):
+        def read_unary_count(self, max_size: int):
+            for rel_size in range(max_size):
                 new_bit = self.read_uint(1)
                 if not new_bit:
-                    return rel_key_size
+                    return rel_size
             return -1
 
         @staticmethod
@@ -132,7 +128,6 @@ class KeysContext:
                 self.runs_left -= 1
                 self.do_increment = not self.do_increment
                 init_k = self.init_k_a if self.do_increment else self.init_k_b
-                assert init_k < 32
                 # logging.info(f"do_increment {do_increment} init_k {init_k} at {self.stream.pos}")
                 self.frames_left = self.decode_adaptive_golomb(init_k, 32 - init_k)
             self.frames_left -= 1
@@ -145,31 +140,29 @@ class KeysContext:
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {context.stream.pos}")
                 # define the minimal key size for this channel
-                ch_key_size = self.stream.read_uint_reversed(4)
-                assert ch_key_size <= 32
-                # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {context.stream.pos}")
+                base_size = self.stream.read_uint_reversed(4)
+                # logging.info(f"channel[{channel_i}] base_size {base_size} at bit {context.stream.pos}")
                 for trg_frame_i in frame_map[:keyframe_count]:
-                    result = self.decode_adaptive_golomb(ch_key_size, 32)
-                    rel_key_masked = result & 0xffff
-                    raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(rel_key_masked)[0]
+                    # clamp to ushort max
+                    result = self.decode_adaptive_golomb(base_size, 32) & 0xffff
+                    raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(result)[0]
         return raw_keys_storage, frame_map
 
-    def decode_adaptive_golomb(self, ch_key_size, rel_size_limit):
-        k_flag = 1 << (ch_key_size & 31)
-        rel_key_size = self.stream.read_bit_size_flag(rel_size_limit)
-        rel_key_base = self.stream.interpret_as_shift(rel_key_size, k_flag)
-        ch_rel_key_size = ch_key_size + rel_key_size
+    def decode_adaptive_golomb(self, base_size, rel_size_limit):
+        assert base_size < 32
+        rel_size = self.stream.read_unary_count(rel_size_limit)
+        offset = (1 << (base_size & 31)) * ((1 << rel_size) - 1)
+        total_size = base_size + rel_size
         # clamp key size to 0-15 bits
-        ch_rel_key_size = min(ch_rel_key_size, 15)
+        total_size = min(total_size, 15)
         # ensure the final key size is valid
-        assert ch_rel_key_size <= 32
-        # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
-        # read the key, if it has a size
-        if ch_rel_key_size:
-            ch_rel_key = self.stream.read_uint_reversed(ch_rel_key_size)
+        assert total_size <= 32
+        # read the key if it has a size
+        if total_size:
+            rel_key = self.stream.read_uint_reversed(total_size)
         else:
-            ch_rel_key = 0
-        return rel_key_base + ch_rel_key
+            rel_key = 0
+        return offset + rel_key
 
     def __repr__(self):
         return f"Context: do_increment {self.do_increment}, runs_left {self.runs_left}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
