@@ -539,6 +539,7 @@ class ManisFile(InfoHeader, IoFile):
                             logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                             # scale_pack = scale * 1.25
                         if mani_info.name == "acrocanthosaurus@socialinteractionb" and segment_i == 1 and bone_i == 141:
+                            # discontinuities for several mostly static bones e.g. 48, 49 at 185-186
                             # motionextracted.maniset8be90845.manis, def_horselink_joint_IKBlend.L, Z; other segments fine
                             logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         #  maybe create a dedicated copy that includes just that bone?
@@ -560,6 +561,7 @@ class ManisFile(InfoHeader, IoFile):
                             # update scale_pack here, todo check if / what norm is used with conditional breakpoint
                             # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
                             # scale_pack = self.get_pack_scale(mani_info)
+                        # scale_pack = self.get_pack_scale(mani_info, norm=np.linalg.norm(out))
                         segment_pos_bones[out_frame_i, bone_i] = final
             else:
                 # set all keyframes
