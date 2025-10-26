@@ -2,17 +2,17 @@ import time
 import logging
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MenuItem
+from gui.widgets import window, MenuItem
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.versions import games
 from typing import Optional
 from PyQt5 import QtWidgets
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
-		widgets.MainWindow.__init__(self, "MS2 Editor", opts=opts)
+		window.MainWindow.__init__(self, "MS2 Editor", opts=opts)
 		self.setAcceptDrops(True)
 
 		self.ms2_file = Ms2File()

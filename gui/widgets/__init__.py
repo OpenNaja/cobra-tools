@@ -5,7 +5,6 @@ from gui.widgets.logger import *
 from gui.widgets.menu import *
 from gui.widgets.ovldata import *
 from gui.widgets.table import *
-from gui.widgets.window import *
 from gui.app_utils import *
 
 from gui.tasks import Reporter

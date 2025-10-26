@@ -3,7 +3,7 @@ import time
 import logging
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SeparatorMenuItem
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import games
 from typing import Optional
@@ -18,10 +18,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationTool
 from gui.widgets import get_icon
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
-		widgets.MainWindow.__init__(self, "Manis Editor", opts=opts)
+		window.MainWindow.__init__(self, "Manis Editor", opts=opts)
 		self.setAcceptDrops(True)
 
 		self.manis_file = ManisFile()

@@ -6,7 +6,7 @@ import tempfile
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.app_utils import get_icon
-from gui.widgets import MenuItem, GameSelectorWidget
+from gui.widgets import window, MenuItem, GameSelectorWidget
 from generated.formats.bnk import BnkFile
 from generated.formats.ovl import OvlFile
 from constants import ConstantsProvider
@@ -110,10 +110,10 @@ class EventTree(QtWidgets.QTreeWidget):
 			all_items.extend(self.get_subtree_nodes(top_item))
 		return all_items
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
-		widgets.MainWindow.__init__(self, "BNK Editor", opts=opts)
+		window.MainWindow.__init__(self, "BNK Editor", opts=opts)
 		self.bnk_media = BnkFile()
 		self.bnk_events = BnkFile()
 		self.tmp_dir = os.path.join(os.path.dirname(__file__), "bnk")

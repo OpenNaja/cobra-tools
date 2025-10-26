@@ -31,7 +31,15 @@ try:
 	win_available = True
 except ImportError:
 	win_available = False
-from qframelesswindow import FramelessMainWindow, StandardTitleBar
+
+FRAMELESS = True
+try:
+	from qframelesswindow import FramelessMainWindow, StandardTitleBar
+except ImportError:
+	FRAMELESS = False
+	from PyQt5.QtWidgets import QMainWindow as FramelessMainWindow
+	StandardTitleBar = object
+
 from __version__ import VERSION, COMMIT_HASH
 
 
@@ -180,6 +188,7 @@ class MainWindow(FramelessMainWindow):
 
 	def __init__(self, name: str, opts: GuiOptions, central_widget: Optional[QWidget] = None) -> None:
 		self.opts = opts
+		self.opts.frameless = self.opts.frameless and FRAMELESS
 		if self.opts.frameless:
 			FramelessMainWindow.__init__(self)
 		else:

@@ -1,7 +1,7 @@
 import logging
 import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SeparatorMenuItem
 from modules.formats.FGM import FgmContext
 from ovl_util.config import read_str_dict
 from typing import Any, Optional
@@ -22,7 +22,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
@@ -31,7 +31,7 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "FGM Editor", opts=opts, central_widget=self.scrollarea)
+		window.MainWindow.__init__(self, "FGM Editor", opts=opts, central_widget=self.scrollarea)
 
 		self.setAcceptDrops(True)
 

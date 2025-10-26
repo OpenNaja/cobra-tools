@@ -2,6 +2,7 @@ import logging
 import sys
 import time
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import window
 from ovl_util.config import read_str_dict, read_list
 
 from generated.formats.matcol.structs.MatcolRoot import MatcolRoot
@@ -10,7 +11,7 @@ from generated.formats.ovl_base import OvlContext
 from PyQt5 import QtWidgets
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
@@ -20,7 +21,7 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "Matcol Editor", opts=opts, central_widget=self.scrollarea)
+		window.MainWindow.__init__(self, "Matcol Editor", opts=opts, central_widget=self.scrollarea)
 
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)

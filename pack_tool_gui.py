@@ -5,7 +5,7 @@ import shutil
 import pathlib
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MainWindow, MenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SeparatorMenuItem
 from ovl_util.config import read_str_dict, write_str_dict
 from ovl_util.logs import HtmlFormatter, AnsiFormatter
 from generated.formats.ovl import games, OvlFile
@@ -19,7 +19,7 @@ __version__ = '0.1'
 __author__ = 'Open-Naja'
 
 
-class PackToolGUI(MainWindow):
+class PackToolGUI(window.MainWindow):
 	"""Main's View (GUI)."""
 
 	def __init__(self, opts: GuiOptions):

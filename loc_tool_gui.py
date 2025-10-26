@@ -3,17 +3,17 @@ import shutil
 import sys
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import Reporter
+from gui.widgets import window, Reporter
 from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Any, Optional
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
-		widgets.MainWindow.__init__(self, "LOC Tool", opts=opts)
+		window.MainWindow.__init__(self, "LOC Tool", opts=opts)
 		self.setAcceptDrops(True)
 
 		self.reporter = Reporter()

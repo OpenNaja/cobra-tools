@@ -6,7 +6,7 @@ import tempfile
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import MenuItem, SubMenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SubMenuItem, SeparatorMenuItem
 from modules import walker
 import modules.formats.shared
 from generated.formats.ovl import games, OvlFile
@@ -15,12 +15,12 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Optional
 
 
-class MainWindow(widgets.MainWindow):
+class MainWindow(window.MainWindow):
 
 	search_files = QtCore.pyqtSignal(list)
 
 	def __init__(self, opts: GuiOptions):
-		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
+		window.MainWindow.__init__(self, "OVL Tool", opts=opts)
 		self.setAcceptDrops(True)
 		self.suppress_popups = False
 
