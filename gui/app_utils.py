@@ -69,7 +69,7 @@ def get_exe_from_ovldata(ovldata_path: str) -> str:
                 exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)]
         if exes:
             return os.path.join(game_dir, exes[0])
-        logging.debug("EXE not found in manually added game folder")
+        logging.debug(f"EXE not found in {game_dir}")
     else:
         logging.debug(f"Game folder {game_dir} does not exist")
     return ""
