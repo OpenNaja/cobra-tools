@@ -13,6 +13,12 @@ class FXChunk(BaseStruct):
 		self.fx_i_d = name_type_map['Uint'](self.context, 0, None)
 		self.b_is_share_set = name_type_map['Byte'](self.context, 0, None)
 		self.b_is_rendered = name_type_map['Byte'](self.context, 0, None)
+
+		# elem.U8x('bitVector') \
+		# .bit('bBypass', obj.lastval, 0) \
+		# .bit('bShareSet', obj.lastval, 1) \
+		# .bit('bRendered', obj.lastval, 2)
+		self.bit_vector = name_type_map['Byte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -21,13 +27,17 @@ class FXChunk(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'u_f_x_index', name_type_map['Byte'], (0, None), (False, None), (None, None)
 		yield 'fx_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'b_is_share_set', name_type_map['Byte'], (0, None), (False, None), (None, None)
-		yield 'b_is_rendered', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'b_is_share_set', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version <= 145, None)
+		yield 'b_is_rendered', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version <= 145, None)
+		yield 'bit_vector', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 146, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_f_x_index', name_type_map['Byte'], (0, None), (False, None)
 		yield 'fx_i_d', name_type_map['Uint'], (0, None), (False, None)
-		yield 'b_is_share_set', name_type_map['Byte'], (0, None), (False, None)
-		yield 'b_is_rendered', name_type_map['Byte'], (0, None), (False, None)
+		if instance.context.version <= 145:
+			yield 'b_is_share_set', name_type_map['Byte'], (0, None), (False, None)
+			yield 'b_is_rendered', name_type_map['Byte'], (0, None), (False, None)
+		if instance.context.version >= 146:
+			yield 'bit_vector', name_type_map['Byte'], (0, None), (False, None)

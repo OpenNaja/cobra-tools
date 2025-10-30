@@ -208,8 +208,14 @@
     <struct name="FXChunk">
         <field name="uFXIndex" type="byte"/>
         <field name="fxID" type="uint"/>
-        <field name="bIsShareSet" type="byte"/>
-        <field name="bIsRendered" type="byte" />
+        <field name="bIsShareSet" type="byte" until="145"/>
+        <field name="bIsRendered" type="byte" until="145"/>
+        <field name="bitVector" type="byte" since="146">
+                elem.U8x('bitVector') \
+                    .bit('bBypass', obj.lastval, 0) \
+                    .bit('bShareSet', obj.lastval, 1) \
+                    .bit('bRendered', obj.lastval, 2)
+        </field>
     </struct>
 
     <struct name="FXChunkBase">
@@ -359,7 +365,7 @@
         <field name="bIsOverrideParentMetadata" type="byte" since="140"/>
         <field name="uNumFx" type="byte" since="140"/>
         <field name="fx" type="FXChunkBase" arr1="uNumFx" since="140"/>
-        <field name="bOverrideAttachmentParams" type="byte"/>
+        <field name="bOverrideAttachmentParams" type="byte" until="145"/>
         <field name="OverrideBusId" type="uint"/>
         <field name="DirectParentID" type="uint"/>
         <field name="byBitVector" type="ubyte"/>
@@ -390,6 +396,7 @@
         <field name="raw" type="byte" arr1="#ARG# - ( 11 + (NodeInitialParams\io_size))" cond="action_type != 4"/>
         <field name="byBitVector" type="ubyte" default="4" cond="action_type #EQ# 4" />
         <field name="bankID" type="uint" cond="action_type #EQ# 4" />
+        <field name="bankType" type="uint" cond="action_type #EQ# 4" since="144"/>
     </struct>
 
     <struct name="AkPlaylistItem">

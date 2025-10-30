@@ -34,7 +34,7 @@ class NodeBaseParams(BaseStruct):
 		yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 140, None)
 		yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 140, None)
 		yield 'fx', Array, (0, None, (None,), name_type_map['FXChunkBase']), (False, None), (lambda context: context.version >= 140, None)
-		yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version <= 145, None)
 		yield 'override_bus_id', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'direct_parent_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'by_bit_vector', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
@@ -53,7 +53,8 @@ class NodeBaseParams(BaseStruct):
 			yield 'b_is_override_parent_metadata', name_type_map['Byte'], (0, None), (False, None)
 			yield 'u_num_fx', name_type_map['Byte'], (0, None), (False, None)
 			yield 'fx', Array, (0, None, (instance.u_num_fx,), name_type_map['FXChunkBase']), (False, None)
-		yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None)
+		if instance.context.version <= 145:
+			yield 'b_override_attachment_params', name_type_map['Byte'], (0, None), (False, None)
 		yield 'override_bus_id', name_type_map['Uint'], (0, None), (False, None)
 		yield 'direct_parent_i_d', name_type_map['Uint'], (0, None), (False, None)
 		yield 'by_bit_vector', name_type_map['Ubyte'], (0, None), (False, None)

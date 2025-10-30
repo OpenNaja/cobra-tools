@@ -18,6 +18,7 @@ class EventAction(HircObject):
 		self.raw = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		self.by_bit_vector = name_type_map['Ubyte'].from_value(4)
 		self.bank_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.bank_type = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -32,6 +33,7 @@ class EventAction(HircObject):
 		yield 'raw', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, True)
 		yield 'by_bit_vector', name_type_map['Ubyte'], (0, None), (False, 4), (None, True)
 		yield 'bank_i_d', name_type_map['Uint'], (0, None), (False, None), (None, True)
+		yield 'bank_type', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 144, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,3 +48,5 @@ class EventAction(HircObject):
 		if instance.action_type == 4:
 			yield 'by_bit_vector', name_type_map['Ubyte'], (0, None), (False, 4)
 			yield 'bank_i_d', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 144 and instance.action_type == 4:
+			yield 'bank_type', name_type_map['Uint'], (0, None), (False, None)
