@@ -11,7 +11,7 @@ class NodeInitialParams(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.c_props_1 = name_type_map['Ubyte'](self.context, 0, None)
-		self.p_props_1 = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+		self.p_props_1 = Array(self.context, 0, None, (0,), name_type_map['AkPropID'])
 		self.p_values_1 = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.c_props_2 = name_type_map['Ubyte'](self.context, 0, None)
 		self.p_props_2 = Array(self.context, 0, None, (0,), name_type_map['AkPropMinMax'])
@@ -22,7 +22,7 @@ class NodeInitialParams(BaseStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'c_props_1', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'p_props_1', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
+		yield 'p_props_1', Array, (0, None, (None,), name_type_map['AkPropID']), (False, None), (None, None)
 		yield 'p_values_1', Array, (0, None, (None,), name_type_map['Float']), (False, None), (None, None)
 		yield 'c_props_2', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'p_props_2', Array, (0, None, (None,), name_type_map['AkPropMinMax']), (False, None), (None, None)
@@ -31,7 +31,7 @@ class NodeInitialParams(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'c_props_1', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'p_props_1', Array, (0, None, (instance.c_props_1,), name_type_map['Ubyte']), (False, None)
+		yield 'p_props_1', Array, (0, None, (instance.c_props_1,), name_type_map['AkPropID']), (False, None)
 		yield 'p_values_1', Array, (0, None, (instance.c_props_1,), name_type_map['Float']), (False, None)
 		yield 'c_props_2', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'p_props_2', Array, (0, None, (instance.c_props_2,), name_type_map['AkPropMinMax']), (False, None)

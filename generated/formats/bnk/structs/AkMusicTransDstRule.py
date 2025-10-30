@@ -9,9 +9,7 @@ class AkMusicTransDstRule(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.transition_time = name_type_map['Int'](self.context, 0, None)
-		self.e_fade_curve = name_type_map['Uint'](self.context, 0, None)
-		self.i_fade_offset = name_type_map['Int'](self.context, 0, None)
+		self.fade_params = name_type_map['FadeParams'](self.context, 0, None)
 		self.u_cue_filter_hash = name_type_map['Uint'](self.context, 0, None)
 		self.u_jump_to_i_d = name_type_map['Uint'](self.context, 0, None)
 		self.e_jump_to_type = name_type_map['Ushort'](self.context, 0, None)
@@ -24,9 +22,7 @@ class AkMusicTransDstRule(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'transition_time', name_type_map['Int'], (0, None), (False, None), (None, None)
-		yield 'e_fade_curve', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'i_fade_offset', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'fade_params', name_type_map['FadeParams'], (0, None), (False, None), (None, None)
 		yield 'u_cue_filter_hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'u_jump_to_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -37,9 +33,7 @@ class AkMusicTransDstRule(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'transition_time', name_type_map['Int'], (0, None), (False, None)
-		yield 'e_fade_curve', name_type_map['Uint'], (0, None), (False, None)
-		yield 'i_fade_offset', name_type_map['Int'], (0, None), (False, None)
+		yield 'fade_params', name_type_map['FadeParams'], (0, None), (False, None)
 		yield 'u_cue_filter_hash', name_type_map['Uint'], (0, None), (False, None)
 		yield 'u_jump_to_i_d', name_type_map['Uint'], (0, None), (False, None)
 		yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None)

@@ -238,8 +238,7 @@
 
     <struct name="NodeInitialParams">
         <field name="cProps1" type="ubyte"/>
-<!--        <field name="pProps1" type="AkPropValue" arr1="cProps1"/>-->
-        <field name="pProps1" type="ubyte" arr1="cProps1"/>
+        <field name="pProps1" type="AkPropID" arr1="cProps1"/>
         <field name="pValues1" type="float" arr1="cProps1"/>
         <field name="cProps2" type="ubyte"/>
         <field name="pProps2" type="AkPropMinMax" arr1="cProps2"/>
@@ -254,7 +253,8 @@
 
     <struct name="PositioningParams">
         <field name="uBitsPositioning" type="uBitsPositioning"/>
-        <field name="PositioningData" type="PositioningData" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+        <field name="uBits3d" type="ubyte" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+        <field name="PositioningAutomation" type="PositioningAutomation" cond="uBitsPositioning\e3DPositionType #AND# uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
     </struct>
 
     <struct name="Vec">
@@ -272,12 +272,11 @@
         <field name="iNumVertices" type="uint"/>
     </struct>
 
-    <struct name="PositioningData">
-        <field name="uBits3d" type="ubyte" />
+    <struct name="PositioningAutomation">
         <field name="ePathMode" type="ubyte"/>
         <field name="TransitionTime" type="int"/>
-        <field name="ulNumVertices" type="uint"/>
-        <field name="vertices" type="AkPathVertex" arr1="ulNumVertices"/>
+        <field name="ulNumVertices" type="uint" />
+        <field name="vertices" type="AkPathVertex" arr1="ulNumVertices" />
         <field name="ulNumPlayListItem" type="uint"/>
         <field name="pPlayListItems" type="AkPathListItemOffset" arr1="ulNumPlayListItem"/>
         <field name="Ak3DAutomationParams" type="Vec" arr1="ulNumPlayListItem"/>
@@ -507,6 +506,15 @@
         <field name="pMarkerName" type="ZString"/>
     </struct>
 
+    <struct name="CAkStinger">
+        <field type="uint" name="TriggerID" />
+        <field type="uint" name="SegmentID" />
+        <field type="uint" name="SyncPlayAt" />
+        <field type="uint" name="uCueFilterHash" />
+        <field type="int" name="DontRepeatTime" />
+        <field type="uint" name="numSegmentLookAhead" />
+    </struct>
+
     <struct name="MusicNodeParams" >
         <field name="uFlags" type="ubyte"/>
         <field name="NodeBaseParams" type="NodeBaseParams"/>
@@ -515,8 +523,7 @@
         <field name="AkMeterInfo" type="AkMeterInfo"/>
         <field name="bMeterInfoFlag" type="ubyte"/>
         <field name="NumStingers" type="uint"/>
-<!--        todo-->
-        <field name="Stingers" type="uint" arr1="NumStingers"/>
+        <field name="Stingers" type="CAkStinger" arr1="NumStingers"/>
     </struct>
 
     <struct name="MusicSegment" inherit="HircObject">
@@ -526,25 +533,35 @@
         <field name="markers" type="AkMusicMarkerWwise" arr1="ulNumMarkers"/>
     </struct>
 
-    <struct name="AkMusicTransSrcRule" >
+    <struct name="fadeParams">
         <field name="transitionTime" type="int"/>
         <field name="eFadeCurve" type="uint"/>
         <field name="iFadeOffset" type="int"/>
+    </struct>
+    
+    <struct name="AkMusicTransSrcRule" >
+        <field name="fadeParams" type="fadeParams"/>
         <field name="eSyncType" type="uint"/>
         <field name="uCueFilterHash" type="uint"/>
         <field name="bPlayPostExit" type="ubyte"/>
     </struct>
 
     <struct name="AkMusicTransDstRule" >
-        <field name="transitionTime" type="int"/>
-        <field name="eFadeCurve" type="uint"/>
-        <field name="iFadeOffset" type="int"/>
+        <field name="fadeParams" type="fadeParams"/>
         <field name="uCueFilterHash" type="uint"/>
         <field name="uJumpToID" type="uint"/>
         <field name="eJumpToType" type="ushort"/>
         <field name="eEntryType" type="ushort"/>
         <field name="bPlayPreEntry" type="ubyte"/>
         <field name="bDestMatchSourceCueName" type="ubyte"/>
+    </struct>
+    
+    <struct name="AkMusicTransitionObject" >
+        <field type="uint" name="segmentID"/>
+        <field name="fadeInParams" type="fadeParams"/>
+        <field name="fadeOutParams" type="fadeParams"/>
+        <field type="ubyte" name="bPlayPreEntry" />
+        <field type="ubyte" name="bPlayPostExit" />
     </struct>
 
     <struct name="AkMusicTransitionRule" >
@@ -555,14 +572,40 @@
         <field name="src_rule" type="AkMusicTransSrcRule"/>
         <field name="dst_rule" type="AkMusicTransDstRule"/>
         <field name="AllocTransObjectFlag" type="ubyte" />
+        <field name="transition_object" type="AkMusicTransitionObject" cond="AllocTransObjectFlag"/>
+    </struct>
+
+    <struct name="AkGameSync" >
+        <field type="uint" name="ulGroup" />
+        <field type="ubyte" name="eGroupType" />
     </struct>
 
     <struct name="MusicSwitch" inherit="HircObject">
-<!--        todo - partial and still crashy-->
         <field name="MusicNodeParams" type="MusicNodeParams"/>
         <field name="numRules" type="uint" />
         <field name="rules" type="AkMusicTransitionRule" arr1="numRules"/>
         <field name="bIsContinuePlayback" type="ubyte" />
+        <field name="uTreeDepth" type="uint" />
+        <field name="Arguments" type="AkGameSync" arr1="uTreeDepth"/>
+        <field name="uTreeDataSize" type="uint" />
+        <field name="uMode" type="ubyte" />
+        <field name="uTreeData" type="ubyte" arr1="uTreeDataSize"/>
+<!--todo-->
+<!--					<obj na="AkDecisionTree">-->
+<!--						<lst na="pNodes" co="1">-->
+<!--							<obj na="Node" ix="0">-->
+<!--								<fld ty="tid" na="key" va="0"/>-->
+<!--								<fld ty="u16" na="children.uIdx" va="1"/>-->
+<!--								<fld ty="u16" na="children.uCount" va="5"/>-->
+<!--								<fld ty="u16" na="uWeight" va="50"/>-->
+<!--								<fld ty="u16" na="uProbability" va="100"/>-->
+<!--								<lst na="pNodes" co="5">-->
+<!--									<obj na="Node" ix="0">-->
+<!--										<fld ty="tid" na="key" va="332944859"/>-->
+<!--										<fld ty="tid" na="audioNodeId" va="80303063"/>-->
+<!--										<fld ty="u16" na="uWeight" va="50"/>-->
+<!--										<fld ty="u16" na="uProbability" va="100"/>-->
+<!--									</obj>-->
     </struct>
 
     <struct name="MusicTrack" inherit="HircObject">

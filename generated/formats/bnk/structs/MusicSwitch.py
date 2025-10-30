@@ -14,6 +14,11 @@ class MusicSwitch(HircObject):
 		self.num_rules = name_type_map['Uint'](self.context, 0, None)
 		self.rules = Array(self.context, 0, None, (0,), name_type_map['AkMusicTransitionRule'])
 		self.b_is_continue_playback = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_tree_depth = name_type_map['Uint'](self.context, 0, None)
+		self.arguments = Array(self.context, 0, None, (0,), name_type_map['AkGameSync'])
+		self.u_tree_data_size = name_type_map['Uint'](self.context, 0, None)
+		self.u_mode = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_tree_data = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		if set_default:
 			self.set_defaults()
 
@@ -24,6 +29,11 @@ class MusicSwitch(HircObject):
 		yield 'num_rules', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'rules', Array, (0, None, (None,), name_type_map['AkMusicTransitionRule']), (False, None), (None, None)
 		yield 'b_is_continue_playback', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'u_tree_depth', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'arguments', Array, (0, None, (None,), name_type_map['AkGameSync']), (False, None), (None, None)
+		yield 'u_tree_data_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'u_mode', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'u_tree_data', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +42,8 @@ class MusicSwitch(HircObject):
 		yield 'num_rules', name_type_map['Uint'], (0, None), (False, None)
 		yield 'rules', Array, (0, None, (instance.num_rules,), name_type_map['AkMusicTransitionRule']), (False, None)
 		yield 'b_is_continue_playback', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'u_tree_depth', name_type_map['Uint'], (0, None), (False, None)
+		yield 'arguments', Array, (0, None, (instance.u_tree_depth,), name_type_map['AkGameSync']), (False, None)
+		yield 'u_tree_data_size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_mode', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'u_tree_data', Array, (0, None, (instance.u_tree_data_size,), name_type_map['Ubyte']), (False, None)

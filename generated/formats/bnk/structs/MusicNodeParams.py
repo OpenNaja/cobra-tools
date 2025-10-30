@@ -17,7 +17,7 @@ class MusicNodeParams(BaseStruct):
 		self.ak_meter_info = name_type_map['AkMeterInfo'](self.context, 0, None)
 		self.b_meter_info_flag = name_type_map['Ubyte'](self.context, 0, None)
 		self.num_stingers = name_type_map['Uint'](self.context, 0, None)
-		self.stingers = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.stingers = Array(self.context, 0, None, (0,), name_type_map['CAkStinger'])
 		if set_default:
 			self.set_defaults()
 
@@ -31,7 +31,7 @@ class MusicNodeParams(BaseStruct):
 		yield 'ak_meter_info', name_type_map['AkMeterInfo'], (0, None), (False, None), (None, None)
 		yield 'b_meter_info_flag', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'num_stingers', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'stingers', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'stingers', Array, (0, None, (None,), name_type_map['CAkStinger']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,4 +43,4 @@ class MusicNodeParams(BaseStruct):
 		yield 'ak_meter_info', name_type_map['AkMeterInfo'], (0, None), (False, None)
 		yield 'b_meter_info_flag', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'num_stingers', name_type_map['Uint'], (0, None), (False, None)
-		yield 'stingers', Array, (0, None, (instance.num_stingers,), name_type_map['Uint']), (False, None)
+		yield 'stingers', Array, (0, None, (instance.num_stingers,), name_type_map['CAkStinger']), (False, None)
