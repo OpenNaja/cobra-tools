@@ -254,7 +254,7 @@ class MainWindow(widgets.MainWindow):
 					cp_map = {}
 					cp_name = os.path.basename(cp)
 					self.bnk_map[cp_name] = cp_map
-					if game == "Planet Coaster 2":
+					if game in ("Planet Coaster 2", "Jurassic World Evolution 3"):
 						# todo better logic for finding paths
 						# PC2: misses loc ovls?
 						# subfolder and separate ovls
