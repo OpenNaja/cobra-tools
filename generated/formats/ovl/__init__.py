@@ -5,7 +5,7 @@ import os
 import re
 import zlib
 import math
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 from collections import Counter
 from contextlib import contextmanager
@@ -31,7 +31,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
 def oodle_compress_chunk(args):
-	"""Picklable function for ProcessPoolExecutor"""
+	"""Picklable function for ThreadPoolExecutor"""
 	uncompressed_bytes, oodle_codec, oodle_level = args
 	return oodle_compressor.compress(uncompressed_bytes, oodle_codec, level=oodle_level)
 
@@ -109,7 +109,7 @@ class OvsFile(OvsHeader):
 				logging.debug(f"Oodle compression using {num_processes} cores")
 
 				if use_threads:
-					with ProcessPoolExecutor(max_workers=num_processes) as executor:
+					with ThreadPoolExecutor(max_workers=num_processes) as executor:
 						compressed = b"".join(executor.map(oodle_compress_chunk, chunks))
 				else:
 					compressed = b""
