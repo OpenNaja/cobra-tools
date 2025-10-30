@@ -315,9 +315,16 @@
         <field name="inDb" type="ubyte" />
     </struct>
 
+    <struct name="AkPropBundleUshortFloat">
+        <field name="pID" type="ushort" />
+        <field name="pValue" type="float" />
+    </struct>
+
     <struct name="AkState">
         <field name="ulStateID" type="uint"/>
-        <field name="ulStateInstanceID" type="uint"/>
+        <field name="ulStateInstanceID" type="uint" until="145"/>
+        <field name="nProps" type="ushort" since="146"/>
+        <field name="pProps" type="AkPropBundleUshortFloat" arr1="nProps" since="146"/>
     </struct>
 
     <struct name="AkStateGroupChunk">

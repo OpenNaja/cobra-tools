@@ -71,6 +71,7 @@ type_module_name_map = {
 	'AuxParams': 'generated.formats.bnk.structs.AuxParams',
 	'AdvSettingsParams': 'generated.formats.bnk.structs.AdvSettingsParams',
 	'AkStatePropertyInfo': 'generated.formats.bnk.structs.AkStatePropertyInfo',
+	'AkPropBundleUshortFloat': 'generated.formats.bnk.structs.AkPropBundleUshortFloat',
 	'AkState': 'generated.formats.bnk.structs.AkState',
 	'AkStateGroupChunk': 'generated.formats.bnk.structs.AkStateGroupChunk',
 	'StateChunk': 'generated.formats.bnk.structs.StateChunk',
