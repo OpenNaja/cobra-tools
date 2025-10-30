@@ -590,26 +590,35 @@ def get_manis_values(gui, dir_walk, walk_ovls=True, official_only=True):
 
 
 def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
-	names = {}
+	out_dir = get_game_constants_dir(dir_walk)
+	game = os.path.basename(out_dir)
+	constants = ConstantsProvider()
+	try:
+		names = constants[game]["audio"]
+		logging.info(f"Adding to {len(names)} existing audio names")
+	except:
+		names = {}
+		logging.info(f"No existing audio names")
+
 	used_fmts = (".motiongraph", ".cinematic")
 	if dir_walk:
 		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, used_fmts):
 			if official_only and not filter_accept_official(ovl_path):
 				continue
-			ovl_name = os.path.basename(ovl_path)
-			ovl_name = os.path.splitext(ovl_name)[0]
 			try:
 				for loader in ovl_data.loaders.values():
-					# print(loader.name)
 					if loader.ext in used_fmts:
-						for s in loader.get_audio_strings():
-							h = fnv1_32(s.lower().encode())
-							names[h] = s
-							# print(s)
+						for audio_event in loader.get_audio_strings():
+							suffixes = ("", "_oc", "_oc_stop", "_oc_start", "_start", "_stop")
+							for suffix in suffixes[1:]:
+								audio_event = audio_event.removesuffix(suffix)
+							for suffix in suffixes:
+								s = audio_event + suffix
+								h = fnv1_32(s.lower().encode())
+								names[h] = s
 			except:
 				logging.exception(f"Failed")
 
-		out_dir = get_game_constants_dir(dir_walk)
 		os.makedirs(out_dir, exist_ok=True)
 		write_audio_dict(os.path.join(out_dir, "audio.py"), names)
 
