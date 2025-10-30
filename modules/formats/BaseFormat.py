@@ -137,7 +137,9 @@ class BaseFile:
 	@name.setter
 	def name(self, n):
 		self._name = n.lower()
-		self.basename, self.ext = os.path.splitext(self._name)
+		# os.path.splitext fails on /ymaiotriqnd03i9/.texel
+		self.basename, ext = self._name.lower().rsplit(".", 1)
+		self.ext = f".{ext}"
 		self.file_hash = djb2(self.basename)
 		self.ext_hash = djb2(self.ext[1:])
 

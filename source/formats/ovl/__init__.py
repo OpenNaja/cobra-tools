@@ -10,8 +10,6 @@ from collections import Counter
 from contextlib import contextmanager
 from io import BytesIO
 
-import numpy as np
-
 from constants import ConstantsProvider
 from generated.formats.ovl.structs.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.structs.BufferGroup import BufferGroup
