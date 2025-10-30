@@ -112,9 +112,7 @@ class OvsFile(OvsHeader):
 					with ThreadPoolExecutor(max_workers=num_processes) as executor:
 						compressed = b"".join(executor.map(oodle_compress_chunk, chunks))
 				else:
-					compressed = b""
-					for chunk in chunks:
-						compressed += oodle_compress_chunk(chunk)
+					compressed = b"".join(oodle_compress_chunk(chunk) for chunk in chunks)
 
 				return len(uncompressed_bytes), len(compressed), compressed
 		except:
