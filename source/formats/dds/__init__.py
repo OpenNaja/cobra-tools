@@ -128,6 +128,9 @@ class DdsFile(Header, IoFile):
         if is_pc_2:
             mips_per_tile = self.calculate_mip_sizes()
             for tile_i, tiles_per_mip in enumerate(mips_per_tile):
+                # todo - array textures for PC2 and JWE3 - dino swatches break after tile 38
+                # if tile_i > 38:
+                #     tiles_per_mip = list(tiles_per_mip[3:]) + list(tiles_per_mip[:3])
                 for mip_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
                     yield from self.mip_generator_inner(height, tile_byte_size, mip_i, tile_i)
         else:
