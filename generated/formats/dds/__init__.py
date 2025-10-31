@@ -124,49 +124,35 @@ class DdsFile(Header, IoFile):
         #               f"block_len_pixels_1d: {self.block_len_pixels_1d}, "
         #               f"block_byte_size: {self.block_byte_size}")
 
-    def mip_pack_generator(self):
+    def mip_pack_generator(self, is_pc_2):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
-        tiles_per_mips = zip(*self.calculate_mip_sizes())
-        for mip_i, tiles_per_mip in enumerate(tiles_per_mips):
-            for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
-                # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
-                num_lines = self.pad_block(height) // self.block_len_pixels_1d
-                bytes_per_line = tile_byte_size // num_lines
-                # logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
-                # anything with less than LINE_BYTES gets padding
-                padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
-                # logging.debug(
-                #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
-                # write the bytes for each line
-                for _ in range(num_lines):
-                    # get the bytes that represent the blocks of this line and fill the line with padding blocks
-                    yield mip_i, tile_i, bytes_per_line, padding_per_line
+        if is_pc_2:
+            mips_per_tile = self.calculate_mip_sizes()
+            for tile_i, tiles_per_mip in enumerate(mips_per_tile):
+                for mip_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
+                    yield from self.mip_generator_inner(height, tile_byte_size, mip_i, tile_i)
+        else:
+            tiles_per_mips = zip(*self.calculate_mip_sizes())
+            for mip_i, tiles_per_mip in enumerate(tiles_per_mips):
+                for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
+                    yield from self.mip_generator_inner(height, tile_byte_size, mip_i, tile_i)
 
-                # add one fully blank line as padding for odd line counts (ie. last mip)
-                if num_lines < 2:
-                    yield mip_i, tile_i, 0, LINE_BYTES
-
-    def mip_pack_generator_pc2(self):
-        """Yields data size to be read from stream + amount of padding applied for packed representation)"""
-        mips_per_tile = self.calculate_mip_sizes()
-        for tile_i, tiles_per_mip in enumerate(mips_per_tile):
-            for mip_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
-                # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
-                num_lines = self.pad_block(height) // self.block_len_pixels_1d
-                bytes_per_line = tile_byte_size // num_lines
-                # logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
-                # anything with less than LINE_BYTES gets padding
-                padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
-                # logging.debug(
-                #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
-                # write the bytes for each line
-                for _ in range(num_lines):
-                    # get the bytes that represent the blocks of this line and fill the line with padding blocks
-                    yield mip_i, tile_i, bytes_per_line, padding_per_line
-
-                # add one fully blank line as padding for odd line counts (ie. last mip)
-                if num_lines < 2:
-                    yield mip_i, tile_i, 0, LINE_BYTES
+    def mip_generator_inner(self, height, tile_byte_size, mip_i, tile_i):
+        # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
+        num_lines = self.pad_block(height) // self.block_len_pixels_1d
+        bytes_per_line = tile_byte_size // num_lines
+        # logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
+        # anything with less than LINE_BYTES gets padding
+        padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
+        # logging.debug(
+        #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
+        # write the bytes for each line
+        for _ in range(num_lines):
+            # get the bytes that represent the blocks of this line and fill the line with padding blocks
+            yield mip_i, tile_i, bytes_per_line, padding_per_line
+        # add one fully blank line as padding for odd line counts (ie. last mip)
+        if num_lines < 2:
+            yield mip_i, tile_i, 0, LINE_BYTES
 
     def get_packed_mips(self, mip_infos):
         """From a standard (non-array) DDS, return a list of all mip levels for a TEX, with padding if needed"""
@@ -188,38 +174,22 @@ class DdsFile(Header, IoFile):
                 out[mip_i].append(data + b"\x00" * padding_size)
         return [b"".join(mip) for mip in out]
 
-    def unpack_mips(self, tex_buffer_data, debug=False):
+    def unpack_mips(self, tex_buffer_data, debug=False, is_pc_2=False):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
-        # logging.info("Unpacking mip maps")
+        logging.info(f"Unpacking mip maps, is_pc_2={is_pc_2}")
         out = [[] for _ in range(self.dx_10.num_tiles)]
         with io.BytesIO(tex_buffer_data) as tex:
-            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
+            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(is_pc_2=is_pc_2):
                 data = tex.read(data_size)
                 # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
                 out[tile_i].append(data)
                 if len(data) != data_size:
                     logging.warning(f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}")
-                # assert len(data) == data_size, f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}"
+                    # if debug:
+                    #     raise AttributeError
                 padding = tex.read(padding_size)
                 if debug and padding != b"\x00" * len(padding):
-                    logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")
-            return [b"".join(tile) for tile in out]
-
-    def unpack_mips_pc2(self, tex_buffer_data, debug=False):
-        """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
-        # logging.info("Unpacking mip maps")
-        out = [[] for _ in range(self.dx_10.num_tiles)]
-        with io.BytesIO(tex_buffer_data) as tex:
-            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator_pc2():
-                data = tex.read(data_size)
-                # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
-                out[tile_i].append(data)
-                if len(data) != data_size:
-                    logging.warning(f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}")
-                # assert len(data) == data_size, f"Tex buffer does not match expected size, ends at {tex.tell()}: {len(data)} == {data_size}"
-                padding = tex.read(padding_size)
-                if debug and padding != b"\x00" * len(padding):
-                    logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")
+                    logging.warning(f"Tex padding is non-zero at MIP {mip_i}, tile{tile_i}, byte {tex.tell()-padding_size}, padding_size {padding_size}")
             return [b"".join(tile) for tile in out]
 
     def pack_mips_pc(self, buffer_infos):
