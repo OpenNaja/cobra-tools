@@ -161,7 +161,7 @@ class DdsFile(Header, IoFile):
         out = [[] for _ in mip_infos]
         for mip_info in mip_infos:
             mip_info.size_data = 0
-        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
+        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(False):
             # logging.debug(f"Reading mip {mip_i} {data_size} bytes at {dds.tell()}")
             data = dds.read(data_size)
             # texconv produces all mips, we truncate to what we want
@@ -179,7 +179,12 @@ class DdsFile(Header, IoFile):
         logging.info(f"Unpacking mip maps, is_pc_2={is_pc_2}")
         out = [[] for _ in range(self.dx_10.num_tiles)]
         with io.BytesIO(tex_buffer_data) as tex:
+            prev_mip = None
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(is_pc_2=is_pc_2):
+                if is_pc_2 and debug:
+                    if mip_i != prev_mip:
+                        logging.info(f"MIP {mip_i}, tile{tile_i}, byte {tex.tell()}, padding_size {padding_size}")
+                    prev_mip = mip_i
                 data = tex.read(data_size)
                 # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
                 out[tile_i].append(data)
