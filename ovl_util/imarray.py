@@ -133,25 +133,28 @@ def get_split_mode(game, png_name, compression):
 		all_tex_channels_lower = {tex_type.lower(): tex_channels for tex_type, tex_channels in all_tex_channels.items()}
 		tex_id = tex_type[1:].split("_")[0]  # strip the leading . and remove any array suffices
 		tex_channels_map = all_tex_channels_lower.get(tex_id)
-		suggested_channels = set(tex_channels_map.keys())
-		# remove empty channel ids
-		valid_channels = [channel_id for channel_id in suggested_channels if channel_id]
-		out_channels = []
-		# clamping of channel IDs according to compression type to select the correct subtype
-		for channel_id in valid_channels:
-			if check_any(("BC5",), compression):
-				# supports only two channels - only accept RG or R_G
-				if channel_id not in ("RG", "R", "G"):
-					continue
-			else:
-				if channel_id in ("RG", "R", "G"):
-					# prefer RGB(A) if it is available
-					if check_any(("RGB", "RGBA"), valid_channels):
+		if tex_channels_map is None:
+			logging.warning(f"No texchannels map provided for {png_name}, falling back to legacy splitting")
+		else:
+			suggested_channels = set(tex_channels_map.keys())
+			# remove empty channel ids
+			valid_channels = [channel_id for channel_id in suggested_channels if channel_id]
+			out_channels = []
+			# clamping of channel IDs according to compression type to select the correct subtype
+			for channel_id in valid_channels:
+				if check_any(("BC5",), compression):
+					# supports only two channels - only accept RG or R_G
+					if channel_id not in ("RG", "R", "G"):
 						continue
-			out_channels.append(channel_id)
-		# sort the output to be in RGBA order
-		out_channels = sorted(out_channels, key=lambda k: "RGBA".index(k[0]))
-		return "_".join(out_channels)  # ignore empty identifiers = RGBA
+				else:
+					if channel_id in ("RG", "R", "G"):
+						# prefer RGB(A) if it is available
+						if check_any(("RGB", "RGBA"), valid_channels):
+							continue
+				out_channels.append(channel_id)
+			# sort the output to be in RGBA order
+			out_channels = sorted(out_channels, key=lambda k: "RGBA".index(k[0]))
+			return "_".join(out_channels)  # ignore empty identifiers = RGBA
 	except:
 		logging.exception(f"Game based splitting failed, falling back on legacy splitting rules")
 
