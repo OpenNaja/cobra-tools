@@ -18,7 +18,7 @@ texchannels = {
 	# 'pFoamMapTexture': {"": ""},
 	# 'pFoamyAreasDistantMap': {"": ""},
 	# 'pGradHeightArray': {"RG": "", "B": "", "A": ""},
-	# 'pHeightTexture': {"": ""},
+	'pHeightTexture': {"": "HE"},
 	# 'pLayered_BaseColourTexture': {"": ""},
 	# 'pLayered_BlendWeights': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pLayered_HeightTexture': {"R": "", "G": "", "B": "", "A": ""},

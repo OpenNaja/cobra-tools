@@ -33,7 +33,7 @@ texchannels = {
 	# 'pFoamyAreasDistantMap': {"": ""},
 	# 'pFullScaleDiffuseAndSpecial': {"": ""},
 	# 'pGradHeightArray': {"RG": "", "B": "", "A": ""},
-	# 'pHeightTexture': {"": ""},
+	'pHeightTexture': {"": "HE"},
 	# 'pHyperloops_AlphaEmissiveMaskTexture': {"": ""},
 	# 'pHyperloops_DiffuseTexture': {"": ""},
 	'pIridescenceMaskTexture': {"": "IM"},  # used on UV1 for feathers
