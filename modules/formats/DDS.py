@@ -496,7 +496,7 @@ class DdsLoader(MemStructLoader):
 			tile_datas = (image_buffer,)
 		else:
 			# PC2 swaps nesting of tiles and mips
-			tile_datas = dds_file.unpack_mips(image_buffer, is_pc_2=self.context.is_pc_2)
+			tile_datas = dds_file.unpack_mips(image_buffer, debug=self.ovl.do_debug, is_pc_2=self.context.is_pc_2)
 		# set to no tiles for dds export
 		dds_file.dx_10.num_tiles = 1
 		# export all tiles as separate dds files

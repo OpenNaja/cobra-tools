@@ -160,7 +160,7 @@ class DdsFile(Header, IoFile):
         out = [[] for _ in mip_infos]
         for mip_info in mip_infos:
             mip_info.size_data = 0
-        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
+        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(False):
             # logging.debug(f"Reading mip {mip_i} {data_size} bytes at {dds.tell()}")
             data = dds.read(data_size)
             # texconv produces all mips, we truncate to what we want
