@@ -179,6 +179,8 @@ def load(reporter, filepath=""):
 			heightBlendScaleB = 1.0
 		height = get_group_node(tree, "MatcolHeight")
 		height.parent = slot_frame
+		# todo triplanar projection / generated UV coords in tex coords input of matcol slot / box coords on tex node
+		# lut["uvenableprojection"]
 		height.inputs["heightScale"].default_value = lut["heightscale"]
 		height.inputs["heightOffset"].default_value = lut["heightoffset"]
 		height.inputs["heightBlendScaleA"].default_value = heightBlendScaleA
