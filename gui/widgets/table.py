@@ -162,6 +162,14 @@ class TableModel(QAbstractTableModel):
 				return True
 		return False
 
+	def append_rows(self, new_rows) -> None:
+		self.beginInsertRows(QModelIndex(),
+			len(self._data),
+			len(self._data) + len(new_rows)-1
+		)
+		self._data.extend(new_rows)
+		self.endInsertRows()
+
 	def row(self, row_index: int) -> Any:
 		return self._data[row_index]
 
@@ -354,6 +362,10 @@ class TableView(QTableView):
 		self.table_model.beginResetModel()
 		self.table_model._data = data
 		self.table_model.endResetModel()
+		self.resizeColumnsToContents()
+
+	def append_rows(self, new_rows) -> None:
+		self.table_model.append_rows(new_rows)
 		self.resizeColumnsToContents()
 
 	def accept_ignore(self, e: QDropEvent) -> None:

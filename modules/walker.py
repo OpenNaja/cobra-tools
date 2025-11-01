@@ -56,21 +56,21 @@ def filter_accept_all(filepath):
 def search_for_files_in_ovls(gui, dir_walk, search_str):
 	if dir_walk:
 		with gui.reporter.log_duration(f"Searching"):
-			res = []
 			with gui.log_level_override("WARNING"):
 				ovl_files = walk_type(dir_walk, extension=".ovl")
 				ovl_data = OvlFile()
 				for ovl_path in gui.reporter.iter_progress(ovl_files, "Searching"):
 					try:
 						file_names = ovl_data.load(ovl_path, commands={"generate_names": True, "game": gui.ovl_game_choice.entry.currentText()})
-						res.extend([
+						matches = [
 							# remove the leading slash for ovl path, else it is interpreted as relative to C:
 							[file_name, os.path.splitext(file_name)[1], os.path.relpath(ovl_path, dir_walk)]
 							for file_name in file_names if search_str in file_name
-						])
+						]
+						if matches:
+							gui.search_files.emit([search_str, matches])
 					except:
 						logging.warning(f"Couldn't read {ovl_path}")
-				gui.search_files.emit([search_str, res])
 
 
 def generate_hash_table(gui, dir_walk):

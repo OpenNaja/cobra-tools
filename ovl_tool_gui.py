@@ -212,10 +212,10 @@ class MainWindow(widgets.MainWindow):
 		self.finfo_sep.show()
 
 	def show_search_results(self, tup):
-		search_str, results = tup
+		search_str, matches = tup
 		results_container = self.search_views.get(search_str)
 		if results_container:
-			results_container.set_data(results)
+			results_container.table.append_rows(matches)
 
 	def search_ovl_contents(self, search_str):
 		search_str = search_str.lower()
@@ -229,6 +229,7 @@ class MainWindow(widgets.MainWindow):
 			results_container.table.file_double_clicked.connect(self.search_result_open)
 			results_container.setWindowTitle(f"Results for: {search_str}")
 			results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+			results_container.set_data([])
 			results_container.show()
 
 			def remove_view():
