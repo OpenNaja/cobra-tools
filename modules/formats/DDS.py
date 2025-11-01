@@ -543,23 +543,26 @@ class TexelLoader(MemStructLoader):
 
 	def get_mip_bytes(self, mips, dds_file, texbuffer):
 		mip_data = []
+		offset = 0
 		dds_file.get_pixel_fmt()
-		height = texbuffer.height
-		width = texbuffer.width
-		for mip_i, mip in enumerate(mips):
-			if mip.size == 0:
-				continue
-			mip_bytes = self.get_aux_data("", mip.offset, mip.size * texbuffer.num_tiles)
-			out_bytes = bytearray(mip_bytes)
-			for unpacked_offset, shuffled_offset, size in self.shuffle_mip_offsets(dds_file,
-																				   mip,
-																				   texbuffer,
-																				   height, width):
-				out_bytes[unpacked_offset: unpacked_offset + size] = mip_bytes[shuffled_offset: shuffled_offset + size]
+		for tile_i in range(texbuffer.num_tiles):
+			height = texbuffer.height
+			width = texbuffer.width
+			for mip_i, mip in enumerate(mips):
+				if mip.size == 0:
+					continue
+				mip_bytes = self.get_aux_data("", offset, mip.size)
+				offset += mip.size
+				out_bytes = bytearray(mip_bytes)
+				for unpacked_offset, shuffled_offset, size in self.shuffle_mip_offsets(dds_file,
+																					   mip,
+																					   texbuffer,
+																					   height, width):
+					out_bytes[unpacked_offset: unpacked_offset + size] = mip_bytes[shuffled_offset: shuffled_offset + size]
 
-			mip_data.append(out_bytes)
-			height //= 2
-			width //= 2
+				mip_data.append(out_bytes)
+				height //= 2
+				width //= 2
 		return mip_data
 
 	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
