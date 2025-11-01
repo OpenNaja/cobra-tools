@@ -543,7 +543,8 @@ class TexelLoader(MemStructLoader):
 
 	def get_mip_bytes(self, mips, dds_file, texbuffer):
 		mip_data = []
-		offset = 0
+		# start at first offset of the first mip, increment using size from that
+		offset = mips[0].offset
 		dds_file.get_pixel_fmt()
 		for tile_i in range(texbuffer.num_tiles):
 			height = texbuffer.height
