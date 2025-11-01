@@ -522,6 +522,25 @@ class DdsLoader(MemStructLoader):
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files + dds_paths
 
+	def get_extract_paths(self, out_dir):
+		if self.header:
+			out_path = out_dir(self.name)
+			out_files = [out_path, ]
+		else:
+			return ()
+		dds_paths = []
+		tex_name = self.name
+		basename = os.path.splitext(tex_name)[0]
+		size_info = self.get_tex_structs()
+		tiles = self.get_tiles(size_info)
+		for tile_name in self.get_tile_names(tiles, basename):
+			dds_path = out_dir(f"{tile_name}.dds")
+			dds_paths.append(dds_path)
+		for dds_path in dds_paths:
+			png_path = os.path.splitext(dds_path)[0] + ".png"
+			out_files.extend(imarray.get_extract_paths(png_path, self.ovl, self.compression_name))
+		return out_files + dds_paths
+
 	@property
 	def compression_name(self):
 		name = self.header.compression_type.name

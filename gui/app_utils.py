@@ -423,3 +423,54 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
     return False
 
 # endregion
+
+
+
+
+# -------------------------------------------------------------------------- #
+#                              DELAY DRAGGING                                #
+# region ------------------------------------------------------------------- #
+
+# from https://stackoverflow.com/questions/64252654/pyqt5-drag-and-drop-into-system-file-explorer-with-delayed-encoding?noredirect=1&lq=1
+
+import time
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
+
+import tempfile
+import os
+
+# Use win32api on Windows because the pynput and mouse packages cause lag
+# https://github.com/moses-palmer/pynput/issues/390
+if os.name == 'nt':
+    import win32api
+
+
+    def mouse_pressed():
+        return win32api.GetKeyState(0x01) not in [0, 1]
+else:
+    import mouse
+
+
+    def mouse_pressed():
+        return mouse.is_pressed()
+
+
+class DelayedMimeData(QtCore.QMimeData):
+    def __init__(self):
+        super().__init__()
+        self.callbacks = []
+
+    def add_callback(self, callback):
+        self.callbacks.append(callback)
+
+    def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
+        if not mouse_pressed():
+            for callback in self.callbacks.copy():
+                self.callbacks.remove(callback)
+                callback()
+
+        return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
+
+# endregion

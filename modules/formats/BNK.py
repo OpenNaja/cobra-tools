@@ -90,3 +90,18 @@ class BnkLoader(BaseFile):
 					f.write(b)
 		return out_files
 
+	def get_extract_paths(self, out_dir):
+		out_path = out_dir(self.name)
+		out_files = [out_path, ]
+		buffer_datas = self.data_entry.buffer_datas
+		for aux_suffix in self.aux_external:
+			aux_suffix = aux_suffix.lower()
+			aux_path = self.get_aux_path(aux_suffix)
+			copy_aux_path = out_dir(os.path.basename(aux_path))
+			out_files.append(copy_aux_path)
+		if len(buffer_datas) > 1:
+			aux_name = self.get_aux_name("b")
+			aux_path = out_dir(aux_name)
+			out_files.append(aux_path)
+		return out_files
+

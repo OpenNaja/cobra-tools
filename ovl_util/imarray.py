@@ -115,6 +115,25 @@ def split_png(png_file_path, ovl, compression=None):
 		out_files.append(png_file_path)
 	return out_files
 
+def get_extract_paths(png_file_path, ovl, compression=None):
+	"""Fixes normals and splits channels of one PNG file if needed"""
+	out_files = []
+	flip = has_vectors(png_file_path, compression)
+	channels = get_split_mode(ovl.game, png_file_path, compression)
+	if is_ztuac(ovl):
+		flip = False
+	if flip or channels:
+		if not channels:
+			out_files.append(png_file_path)
+		else:
+			path_basename, ext = os.path.splitext(png_file_path)
+			for ch_name, ch_slice in channel_iter(channels):
+				file_path = f"{path_basename}_{ch_name}{ext}"
+				out_files.append(file_path)
+	else:
+		out_files.append(png_file_path)
+	return out_files
+
 
 constants = ConstantsProvider(("texchannels",))
 

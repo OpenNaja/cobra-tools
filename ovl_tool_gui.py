@@ -3,9 +3,11 @@ import os
 import shutil
 import logging
 import tempfile
+import time
 from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.app_utils import DelayedMimeData
 from gui.widgets import MenuItem, SubMenuItem, SeparatorMenuItem
 from modules import walker
 import modules.formats.shared
@@ -345,30 +347,38 @@ class MainWindow(widgets.MainWindow):
 		# logging.debug(f"Dragging {file_names}")
 		with self.no_popups():
 			drag = QtGui.QDrag(self)
-			data = QtCore.QMimeData()
+			mime = DelayedMimeData()
 			temp_dir = tempfile.mkdtemp("-cobra")
-			try:
-				out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
-				if out_paths:
-					# make relative to output folder
-					pure_paths = (PurePath(os.path.relpath(path, temp_dir)) for path in out_paths)
-					rel_out_paths = set()
-					for p in pure_paths:
-						# get the first dir in the path
-						if len(p.parents) > 1:
-							rel_out_paths.add(str(p.parents[-2]))
-						# no dir, just the file itself
-						else:
-							rel_out_paths.add(str(p))
-					# join the children back to the temp_dir
-					out_paths = set(os.path.join(temp_dir, p) for p in rel_out_paths)
-					# set paths to mime
-					data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
-					drag.setMimeData(data)
-					drag.exec_()
-			except:
-				self.handle_error("Dragging failed, see log!")
+			out_paths = self.ovl_data.get_extract_paths(temp_dir, only_names=file_names)
+			out_paths = self.handle_flattened_folders(out_paths, temp_dir)
+			def extract_callback():
+				try:
+					self.ovl_data.extract(temp_dir, only_names=file_names)
+				except:
+					self.handle_error("Dragging failed, see log!")
+			if out_paths:
+				# set paths to mime
+				mime.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+				mime.add_callback(extract_callback)
+				drag.setMimeData(mime)
+				drag.exec_()
 			shutil.rmtree(temp_dir)
+
+	def handle_flattened_folders(self, out_paths, temp_dir):
+		"""Takes list of file paths and replaces any folders containing sub-paths in temp_dir with their relative base folder so that the subfolder is returned instead of the loose files"""
+		rel_out_paths = set()
+		for out_path in out_paths:
+			# make out_paths relative to output folder
+			rel_path = PurePath(os.path.relpath(out_path, temp_dir))
+			# get the first dir in the path, files are nested inside
+			if len(rel_path.parents) > 1:
+				# parents are reversed, so this gets the first subfolder ['components/render', 'components', '.']
+				rel_out_paths.add(str(rel_path.parents[-2]))
+			# no dir, just a file itself
+			else:
+				rel_out_paths.add(str(rel_path))
+		# join the relative paths back to temp_dir
+		return set(os.path.join(temp_dir, p) for p in rel_out_paths)
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""

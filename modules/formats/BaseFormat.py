@@ -699,6 +699,13 @@ class MemStructLoader(BaseFile):
 			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
 			return ()
 
+	def get_extract_paths(self, out_dir):
+		if self.header:
+			out_path = out_dir(self.name)
+			return out_path,
+		else:
+			return ()
+
 	def collect(self):
 		super().collect()
 		pool, offset = self.root_ptr
