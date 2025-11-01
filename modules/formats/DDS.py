@@ -106,6 +106,8 @@ class DdsLoader(MemStructLoader):
 			dds_file = self.get_dummy_dds_file()
 			height = self.texbuffer.height
 			width = self.texbuffer.width
+			# todo support tiles here to mirror extracting
+			# for tile_i in range(texbuffer.num_tiles):
 			# do inverse of swizzling transform from get_mip_bytes
 			for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
 				# only set size + offset on valid mips
@@ -567,6 +569,7 @@ class TexelLoader(MemStructLoader):
 		return mip_data
 
 	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
+		"""Shuffle a single mip at a time"""
 		# logging.debug(f"MIP{mip_i}")
 		if mip.num_weaves_x > 1 and mip.num_weaves_y > 1:
 			seek = 0
@@ -592,21 +595,14 @@ class TexelLoader(MemStructLoader):
 			# logging.debug(f"tile_row_size = {tile_row_size}")
 			# logging.debug(f"tile_size = {tile_size}")
 			# logging.debug(f"scanline_size = {scanline_size}")
-			for array_i in range(texbuffer.num_tiles):
-				for block_row_i in range(tile_row_count):
-					for block_col_i in range(tile_col_count):
-						for row_i in range(tile_scanline_count):
-							for col_i in range(tile_col_count):
-								# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-								target_offset = (mip.size * array_i) + (tile_row_size * block_row_i) + (
-										row_i * tile_size) + (
-														col_i * scanline_size) + (block_col_i * tile_scanline_size)
-								yield target_offset, seek, tile_scanline_size
-								seek += tile_scanline_size
-		# if len(mip_bytes) != len(out):
-		# 	logging.warning(f"Mip {mip_i} failed {len(mip_bytes)} vs {len(out)}")
-
-	# return out
+			for block_row_i in range(tile_row_count):
+				for block_col_i in range(tile_col_count):
+					for row_i in range(tile_scanline_count):
+						for col_i in range(tile_col_count):
+							# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+							target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (col_i * scanline_size) + (block_col_i * tile_scanline_size)
+							yield target_offset, seek, tile_scanline_size
+							seek += tile_scanline_size
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""
