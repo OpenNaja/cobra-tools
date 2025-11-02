@@ -172,7 +172,7 @@ class MainWindow(window.MainWindow):
 		self.preferences_widget = None
 
 	def open_cfg_editor(self):
-		self.preferences_widget = widgets.ConfigWindow(self)
+		self.preferences_widget = window.ConfigWindow(self)
 		self.preferences_widget.setWindowTitle(f"Preferences")
 		self.preferences_widget.show()
 
