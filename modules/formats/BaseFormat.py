@@ -545,7 +545,9 @@ class BaseFile:
 		if self.temp_extensions and not self.show_temp_files:
 			paths_to_remove = [p for p in paths if os.path.splitext(p)[1].lower() in self.temp_extensions]
 			for p in paths_to_remove:
-				os.remove(p)
+				# ensure it's not been deleted already
+				if os.path.isfile(p):
+					os.remove(p)
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
 
