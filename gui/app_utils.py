@@ -301,6 +301,7 @@ def launch_game(game: str, cfg: Config):
         args.extend(["-disableprint", "-level", "modelviewer"])  # only works on JWE2, crashes PC, PZ
     # try steam launch
     id_map = {
+        "Jurassic World Evolution 3": 2958130,
         "Jurassic World Evolution 2": 1244460,
         "Jurassic World Evolution": 648350,
         "Planet Coaster 2": 2688950,
