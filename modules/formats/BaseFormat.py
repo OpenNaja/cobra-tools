@@ -51,6 +51,10 @@ class BaseFile:
 		self.same = False
 		self.aux_handles = {}
 
+
+	def get_extract_paths(self, out_dir):
+		return ()
+
 	def flush_to_aux(self):
 		pass
 
