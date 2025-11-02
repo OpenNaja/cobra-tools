@@ -5,7 +5,9 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 class Locomotion2ActivityData(MemStruct):
 
 	"""
-	? bytes
+	differs between games, not mime version
+	PZ 88 bytes
+	JWE2 112 bytes
 	"""
 
 	__name__ = 'Locomotion2ActivityData'
@@ -19,6 +21,7 @@ class Locomotion2ActivityData(MemStruct):
 		self.flags = name_type_map['Uint'](self.context, 0, None)
 		self.stopping_distance = name_type_map['Float'].from_value(0.0)
 		self.strafe_turn_blend = name_type_map['Float'].from_value(0.2)
+		self._padding = name_type_map['Uint'](self.context, 0, None)
 		self.turn_blend_limit = name_type_map['Float'].from_value(1.0)
 		self.turn_speed_multiplier = name_type_map['Float'].from_value(1.0)
 		self.flex_speed_multiplier = name_type_map['Float'].from_value(1.0)
@@ -40,13 +43,14 @@ class Locomotion2ActivityData(MemStruct):
 		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'stopping_distance', name_type_map['Float'], (0, None), (False, 0.0), (None, None)
 		yield 'strafe_turn_blend', name_type_map['Float'], (0, None), (False, 0.2), (None, None)
-		yield 'turn_blend_limit', name_type_map['Float'], (0, None), (False, 1.0), (None, None)
-		yield 'turn_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (None, None)
-		yield 'flex_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (None, None)
+		yield '_padding', name_type_map['Uint'], (0, None), (False, None), (lambda context: (not context.user_version.use_djb) and (context.version >= 19), None)
+		yield 'turn_blend_limit', name_type_map['Float'], (0, None), (False, 1.0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'turn_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'flex_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 		yield 'blend_space', name_type_map['Locomotion2BlendSpace'], (0, None), (False, None), (None, None)
 		yield 'output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'speed_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'orientation_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'speed_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'orientation_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 		yield 'data_streams_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'data_streams', name_type_map['ArrayPointer'], (None, name_type_map['DataStreamResourceDataList']), (False, None), (None, None)
 
@@ -58,12 +62,16 @@ class Locomotion2ActivityData(MemStruct):
 		yield 'flags', name_type_map['Uint'], (0, None), (False, None)
 		yield 'stopping_distance', name_type_map['Float'], (0, None), (False, 0.0)
 		yield 'strafe_turn_blend', name_type_map['Float'], (0, None), (False, 0.2)
-		yield 'turn_blend_limit', name_type_map['Float'], (0, None), (False, 1.0)
-		yield 'turn_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0)
-		yield 'flex_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0)
+		if (not instance.context.user_version.use_djb) and (instance.context.version >= 19):
+			yield '_padding', name_type_map['Uint'], (0, None), (False, None)
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
+			yield 'turn_blend_limit', name_type_map['Float'], (0, None), (False, 1.0)
+			yield 'turn_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0)
+			yield 'flex_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0)
 		yield 'blend_space', name_type_map['Locomotion2BlendSpace'], (0, None), (False, None)
 		yield 'output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'speed_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'orientation_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
+			yield 'speed_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'orientation_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'data_streams_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'data_streams', name_type_map['ArrayPointer'], (instance.data_streams_count, name_type_map['DataStreamResourceDataList']), (False, None)

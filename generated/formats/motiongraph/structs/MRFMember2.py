@@ -14,7 +14,7 @@ class MRFMember2(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float_0 = name_type_map['Float'](self.context, 0, None)
+		self.curve_length = name_type_map['Float'].from_value(-1.0)
 		self.count_3_c = name_type_map['Int'](self.context, 0, None)
 		self.num_activities = name_type_map['Uint64'](self.context, 0, None)
 		self.count_6_a = name_type_map['Short'](self.context, 0, None)
@@ -36,7 +36,7 @@ class MRFMember2(MemStruct):
 		yield 'curve', name_type_map['Pointer'], (0, name_type_map['CurveData']), (False, None), (None, None)
 		yield 'trigger', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'activities', name_type_map['Pointer'], (None, name_type_map['ActivityReference']), (False, None), (None, None)
-		yield 'float_0', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'curve_length', name_type_map['Float'], (0, None), (False, -1.0), (None, None)
 		yield 'count_3_c', name_type_map['Int'], (0, None), (False, None), (None, None)
 		yield 'num_activities', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'other_mrf', name_type_map['Pointer'], (0, name_type_map['MRFMember2']), (False, None), (None, None)
@@ -52,7 +52,7 @@ class MRFMember2(MemStruct):
 		yield 'curve', name_type_map['Pointer'], (0, name_type_map['CurveData']), (False, None)
 		yield 'trigger', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'activities', name_type_map['Pointer'], (instance.num_activities, name_type_map['ActivityReference']), (False, None)
-		yield 'float_0', name_type_map['Float'], (0, None), (False, None)
+		yield 'curve_length', name_type_map['Float'], (0, None), (False, -1.0)
 		yield 'count_3_c', name_type_map['Int'], (0, None), (False, None)
 		yield 'num_activities', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'other_mrf', name_type_map['Pointer'], (0, name_type_map['MRFMember2']), (False, None)

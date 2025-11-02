@@ -408,8 +408,9 @@
     </bitstruct>
 
     <struct name="RagdollPhysicsActivityData" inherit="MemStruct">
+        differs by game
         152 bytes
-        <field name="Weight" type="FloatInputData"/>
+        <field name="Weight" type="FloatInputData" vercond="!#PZ#"/>
         <field name="flag" type="RagdollPhysicsActivityFlags" />
         <field name="_flag_pad" type="uint" />
         <field name="RootBoneName" type="Pointer" template="ZString"/>
@@ -446,19 +447,22 @@
     </struct>
 
     <struct name="Locomotion2ActivityData" inherit="MemStruct">
-        ? bytes
+        differs between games, not mime version
+        PZ 88 bytes
+        JWE2 112 bytes
         <field name="animation_count" type="uint64"/>
         <field name="animations" type="ArrayPointer" template="Locomotion2AnimationInfo" arg="animation_count"/>
         <field name="flags" type="uint">Locomotion2Flags</field>
         <field name="StoppingDistance" type="float" default="0.0"/>
         <field name="StrafeTurnBlend" type="float" default="0.2"/>
-        <field name="TurnBlendLimit" type="float" default="1.0"/>
-        <field name="TurnSpeedMultiplier" type="float" default="1.0"/>
-        <field name="FlexSpeedMultiplier" type="float" default="1.0"/>
+        <field name="_padding" type="uint" vercond="#PZ#"/>
+        <field name="TurnBlendLimit" type="float" default="1.0" vercond="!#PZ#"/>
+        <field name="TurnSpeedMultiplier" type="float" default="1.0" vercond="!#PZ#"/>
+        <field name="FlexSpeedMultiplier" type="float" default="1.0" vercond="!#PZ#"/>
         <field name="BlendSpace" type="Locomotion2BlendSpace" />
         <field name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
-        <field name="SpeedVariable" type="Pointer" template="ZString"/>
-        <field name="OrientationVariable" type="Pointer" template="ZString"/>
+        <field name="SpeedVariable" type="Pointer" template="ZString" vercond="!#PZ#"/>
+        <field name="OrientationVariable" type="Pointer" template="ZString" vercond="!#PZ#"/>
         <field name="DataStreams_count" type="uint64"/>
         <field name="DataStreams" type="ArrayPointer" template="DataStreamResourceDataList" arg="DataStreams_count"/>
     </struct>
@@ -504,10 +508,12 @@
     </struct>
 
     <struct name="FootPlantActivityData" inherit="MemStruct">
-        48 bytes
+        differs by game
+        PZ 40 bytes
+        <field name="flags" type="uint64" vercond="#PZ#"/>
         <field name="Weight" type="FloatInputData"/>
         <field name="RotationNoIKWeight" type="FloatInputData"/>
-        <field name="StickyFeetWeight" type="FloatInputData"/>
+        <field name="StickyFeetWeight" type="FloatInputData" vercond="!#PZ#"/>
     </struct>
 
     <enum name="TimeLimitMode" numbytes="4" storage="uint" default="0">
@@ -535,13 +541,14 @@
     </struct>
 
     <struct name="TriggeredActivityActivityData" inherit="MemStruct">
+        differs by game version
         <field name="Trigger" type="Pointer" template="ZString"/>
         <field name="activity" type="Pointer" template="Activity" />  <!-- doesn't show up in xml somehow -->
         <field name="BlendInTime" type="float"/>
         <field name="BlendOutTime" type="float"/>
-        <field name="m_autoStart" type="ubyte" default="0"/>
-        <field name="m_allowRestart" type="ubyte" default="0"/>
-        <field name="m_allowMortal" type="ubyte" default="0"/>
+        <field name="m_autoStart" type="ubyte" default="0" vercond="!#PZ#"/>
+        <field name="m_allowRestart" type="ubyte" default="0" vercond="!#PZ#"/>
+        <field name="m_allowMortal" type="ubyte" default="0" vercond="!#PZ#"/>
     </struct>
 
     <struct name="RandomSelectActivityActivityData" inherit="MemStruct">
@@ -611,7 +618,7 @@ WARNING | Pointer at 50 | 9648 to 57 | 1200 is missing for MotiongraphVars (rel 
 -->
         <field name="ptr" type="ArrayPointer" template="MotiongraphVar" arg="count" cond="#ARG# #EQ# 7"/>
         <field name="count" type="uint64" cond="#ARG# #EQ# 7"/>
-        <field name="transition" templatetype="Transition" cond="#ARG# #EQ# 8"/>
+        <field name="transition" type="Transition" cond="#ARG# #EQ# 8"/>
     </struct>
 
     <struct name="Something" inherit="MemStruct">

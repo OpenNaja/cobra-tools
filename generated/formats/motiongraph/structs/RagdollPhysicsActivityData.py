@@ -5,6 +5,7 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 class RagdollPhysicsActivityData(MemStruct):
 
 	"""
+	differs by game
 	152 bytes
 	"""
 
@@ -40,7 +41,7 @@ class RagdollPhysicsActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
+		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 		yield 'flag', name_type_map['RagdollPhysicsActivityFlags'], (0, None), (False, None), (None, None)
 		yield '_flag_pad', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'root_bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
@@ -65,7 +66,8 @@ class RagdollPhysicsActivityData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None)
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
+			yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None)
 		yield 'flag', name_type_map['RagdollPhysicsActivityFlags'], (0, None), (False, None)
 		yield '_flag_pad', name_type_map['Uint'], (0, None), (False, None)
 		yield 'root_bone_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)

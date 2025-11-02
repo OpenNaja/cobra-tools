@@ -10,7 +10,7 @@ class MRFMember2(MemStruct):
     curve: Pointer[CurveData]
     trigger: Pointer[str]
     activities: Pointer[ActivityReference]
-    float_0: float
+    curve_length: float
     count_3_c: int
     num_activities: int
     other_mrf: Pointer[MRFMember2]
