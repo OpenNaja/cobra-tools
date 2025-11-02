@@ -53,7 +53,7 @@ class DdsLoader(MemStructLoader):
 		if self.context.is_pc_2:
 			self.check([m.offset for m in self.texbuffer.mip_maps], [m.offset for m in other.texbuffer.mip_maps],
 					   "Mip map offsets")
-			self.check(self.mip_data, other.mip_data, "Mip map data in texel")
+			self.check(self.raw_bytes, other.raw_bytes, "Texture data")
 		return self.same
 
 	def get_dummy_dds_file(self):
@@ -67,13 +67,13 @@ class DdsLoader(MemStructLoader):
 		super(DdsLoader, self).collect()
 
 		if self.context.is_pc_2:
-			dds_file = self.get_dummy_dds_file()
 			# texbuffer data is in the second buffer (index 2)
 			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 			with io.BytesIO(buffer_data) as f:
 				self.texbuffer = Pc2TexBuffer.from_stream(f, self.context, self.header)
 				texel_loader = self.get_texel()
-				self.mip_data = texel_loader.get_mip_bytes(self.texbuffer.mip_maps, dds_file, self.texbuffer)
+				# packed, weaved
+				self.raw_bytes = texel_loader.get_aux_data("", self.texbuffer.mip_maps[0].offset, self.texbuffer.buffer_size)
 			# t = self.texbuffer
 			# print(t.num_mips, t.num_mips_low, t.num_mips_high, dds_file.block_byte_size, t.width, t.height, self.name)
 			# print(t.flag, len(set((t.num_mips, t.num_mips_low, t.num_mips_high))))
@@ -83,6 +83,21 @@ class DdsLoader(MemStructLoader):
 			# print(t.can_weave, t.num_mips, self.name)
 			# print(t.flag, t.can_weave, t.weave_width, t.weave_height, t.width, t.height, dds_file.block_byte_size, self.name)
 			# print(self.header.texel, t.mip_maps[0].offset, self.file_hash, self.name)
+
+	def unweave(self, dds_file):
+		logging.info(f"Unweaving {self.name}")
+		dds_file.get_pixel_fmt()
+		unweaved_bytes = bytearray(self.raw_bytes)
+		for unpacked_offset, shuffled_offset, size in self.weave_generator(dds_file):
+			unweaved_bytes[unpacked_offset: unpacked_offset + size] = self.raw_bytes[shuffled_offset: shuffled_offset + size]
+		return unweaved_bytes
+
+	def weave(self, dds_file, unweaved_bytes):
+		logging.info(f"Weaving {self.name}")
+		dds_file.get_pixel_fmt()
+		self.raw_bytes = bytearray(unweaved_bytes)
+		for unpacked_offset, shuffled_offset, size in self.weave_generator(dds_file):
+			self.raw_bytes[shuffled_offset: shuffled_offset + size] = unweaved_bytes[unpacked_offset: unpacked_offset + size]
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
@@ -103,47 +118,13 @@ class DdsLoader(MemStructLoader):
 		"""Writes PC2 mips to texel's aux and updates sizes and offsets"""
 		if self.context.is_pc_2:
 			texel_loader = self.get_texel()
-			dds_file = self.get_dummy_dds_file()
-			height = self.texbuffer.height
-			width = self.texbuffer.width
-			# todo support tiles here to mirror extracting
-			# for tile_i in range(texbuffer.num_tiles):
+			offset, self.texbuffer.buffer_size = texel_loader.write_aux_data("", self.raw_bytes)
 			# do inverse of swizzling transform from get_mip_bytes
-			for mip_i, (mip_bytes, mip_info) in enumerate(zip(self.mip_data, self.texbuffer.mip_maps)):
-				# only set size + offset on valid mips
+			for mip_i, mip_info in enumerate(self.texbuffer.mip_maps):
+				# only update offset on valid mips
 				if mip_i < self.texbuffer.num_mips:
-					out_bytes = bytearray(mip_bytes)
-					# UI mip 0 ignores the settings from the header
-					if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height:
-						mip_info.num_weaves_x = width // self.texbuffer.weave_width
-						mip_info.num_weaves_y = height // self.texbuffer.weave_height
-						if mip_info.num_weaves_x and mip_info.num_weaves_y:
-							mip_info.do_weave = 1
-						else:
-							# e.g. PC2 aflegs04.pbasecolourtexture, set all to 0 if one of them is 0
-							mip_info.num_weaves_x = mip_info.num_weaves_y = mip_info.do_weave = 0
-					for unpacked_offset, shuffled_offset, size in texel_loader.shuffle_mip_offsets(dds_file,
-																								   mip_info,
-																								   self.texbuffer,
-																								   height, width):
-						out_bytes[shuffled_offset: shuffled_offset + size] = mip_bytes[
-																			 unpacked_offset: unpacked_offset + size]
-					mip_info.offset, mip_info.size = texel_loader.write_aux_data("", out_bytes)
-					# account for num_tiles
-					mip_info.size //= self.texbuffer.num_tiles
-					height //= 2
-					width //= 2
-				mip_info.ff = -1
-			for lod, mip_offset in zip(self.texbuffer.main,
-									   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
-				first_index = self.texbuffer.num_mips - mip_offset
-				mip0 = self.texbuffer.mip_maps[first_index]
-				lod.offset = mip0.offset
-				lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
-				lod.num_weaves_x = mip0.num_weaves_x
-				lod.num_weaves_y = mip0.num_weaves_y
-				lod.do_weave = mip0.do_weave
-				lod.ff = 0
+					mip_info.offset = offset
+					offset += mip_info.size
 			# update buffer data of tex
 			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
 			# both root and data are in the same ovs
@@ -153,11 +134,7 @@ class DdsLoader(MemStructLoader):
 				data_entry.size_1 = data_entry.size_2 = 0
 
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
-		if self.context.is_pc_2:
-			logging.warning("Tex editing in PC2 is experimental")
-			# store mip_bytes data on tex loader and then flush to texel's aux on ovl saving
-			self.mip_data = buffer_bytes
-		else:
+		if not self.context.is_pc_2:
 			# there's one empty buffer at the end!
 			buffers = [b"" for _ in range(self.header.stream_count + 1)]
 			# decide where to store the buffers
@@ -309,8 +286,39 @@ class DdsLoader(MemStructLoader):
 				for mip_level in zip(*mips_per_tiles):
 					mip_bytes = b"".join(mip_level)
 					packed_mips.append(mip_bytes)
-				self.texbuffer.buffer_size = sum(len(mip_bytes) for mip_bytes in packed_mips)
-				return packed_mips
+				# update mip data
+				height = self.texbuffer.height
+				width = self.texbuffer.width
+				for mip_i, (mip_bytes, mip_info) in enumerate(zip(mips_per_tiles[0], self.texbuffer.mip_maps)):
+					# only set size + offset on valid mips
+					if mip_i < self.texbuffer.num_mips:
+						# UI mip 0 ignores the settings from the header
+						if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height:
+							mip_info.num_weaves_x = width // self.texbuffer.weave_width
+							mip_info.num_weaves_y = height // self.texbuffer.weave_height
+							if mip_info.num_weaves_x and mip_info.num_weaves_y:
+								mip_info.do_weave = 1
+							else:
+								# e.g. PC2 aflegs04.pbasecolourtexture, set all to 0 if one of them is 0
+								mip_info.num_weaves_x = mip_info.num_weaves_y = mip_info.do_weave = 0
+						mip_info.size = len(mip_bytes)
+						height //= 2
+						width //= 2
+					mip_info.ff = -1
+				for lod, mip_offset in zip(self.texbuffer.main,
+										   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
+					first_index = self.texbuffer.num_mips - mip_offset
+					mip0 = self.texbuffer.mip_maps[first_index]
+					lod.offset = mip0.offset
+					lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
+					lod.num_weaves_x = mip0.num_weaves_x
+					lod.num_weaves_y = mip0.num_weaves_y
+					lod.do_weave = mip0.do_weave
+					lod.ff = 0
+				unweaved_bytes = b"".join(packed_mips)
+				self.weave(dds_file, unweaved_bytes)
+				self.texbuffer.buffer_size = len(self.raw_bytes)
+				return self.raw_bytes
 			else:
 				# padding depends on io_size being updated
 				size_info.io_size = size_info.get_size(size_info, size_info.context)
@@ -441,6 +449,56 @@ class DdsLoader(MemStructLoader):
 			self.ovl.register_loader(texel_loader)
 		return texel_loader
 
+
+	def weave_generator(self, dds_file):
+		"""Shuffle a single mip at a time"""
+		offset = 0
+		dds_file.get_pixel_fmt()
+		for tile_i in range(self.texbuffer.num_tiles):
+			height = self.texbuffer.height
+			width = self.texbuffer.width
+			for mip_i, mip in enumerate(self.texbuffer.mip_maps):
+				if mip.size == 0:
+					continue
+
+				# logging.debug(f"MIP{mip_i}")
+				if mip.num_weaves_x > 1 and mip.num_weaves_y > 1:
+					seek = 0
+					tile_row_count = height // self.texbuffer.weave_height  # or mip.num_weaves_y?
+					tile_col_count = width // self.texbuffer.weave_width  # or mip.num_weaves_x?
+					if tile_row_count != mip.num_weaves_y:
+						logging.warning(f"tile_row_count {tile_row_count} != mip.num_weaves_y {mip.num_weaves_y}")
+					if tile_col_count != mip.num_weaves_x:
+						logging.warning(f"tile_col_count {tile_col_count} != mip.num_weaves_x {mip.num_weaves_x}")
+
+					tile_scanline_count = self.texbuffer.weave_height // tile_col_count // dds_file.block_len_pixels_1d
+					tile_scanline_size = int(round(self.texbuffer.weave_width / 4 * dds_file.block_byte_size))
+					scanline_size = tile_col_count * tile_scanline_size
+
+					tile_size = scanline_size * tile_col_count
+					tile_row_size = tile_size * tile_scanline_count
+
+					# logging.debug(f"tile_row_count = {tile_row_count}")
+					# logging.debug(f"tile_col_count = {tile_col_count}")
+					# logging.debug(f"tile_col_count = {tile_col_count}")
+					# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
+					# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
+					# logging.debug(f"tile_row_size = {tile_row_size}")
+					# logging.debug(f"tile_size = {tile_size}")
+					# logging.debug(f"scanline_size = {scanline_size}")
+					for block_row_i in range(tile_row_count):
+						for block_col_i in range(tile_col_count):
+							for row_i in range(tile_scanline_count):
+								for col_i in range(tile_col_count):
+									# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
+									target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (
+												col_i * scanline_size) + (block_col_i * tile_scanline_size)
+									yield offset + target_offset, offset + seek, tile_scanline_size
+									seek += tile_scanline_size
+				offset += mip.size
+				height //= 2
+				width //= 2
+
 	def extract(self, out_dir):
 		# override super to store ovs name for PC2
 		# out_files = list(super().extract(out_dir))
@@ -483,7 +541,7 @@ class DdsLoader(MemStructLoader):
 			image_buffer = buffer_data
 		else:
 			# take the unweaved mip data
-			image_buffer = b"".join(self.mip_data)
+			image_buffer = self.unweave(dds_file)
 			if self.ovl.do_debug:
 				texbuffer_path = out_dir(f"{self.basename}.texbuffer")
 				with self.texbuffer.to_xml_file(self.texbuffer, texbuffer_path, debug=self.ovl.do_debug) as xml_root:
@@ -491,7 +549,7 @@ class DdsLoader(MemStructLoader):
 				out_files.append(texbuffer_path)
 				img_path = out_dir(f"{self.basename}.img")
 				with open(img_path, "wb") as img:
-					img.write(image_buffer)
+					img.write(self.raw_bytes)
 				out_files.append(img_path)
 		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 			# not sure how / if texture arrays are packed for PC - this works for flat textures
@@ -539,6 +597,12 @@ class DdsLoader(MemStructLoader):
 		for dds_path in dds_paths:
 			png_path = os.path.splitext(dds_path)[0] + ".png"
 			out_files.extend(imarray.get_extract_paths(png_path, self.ovl, self.compression_name))
+		if self.context.is_pc_2:
+			if self.ovl.do_debug:
+				texbuffer_path = out_dir(f"{self.basename}.texbuffer")
+				out_files.append(texbuffer_path)
+				img_path = out_dir(f"{self.basename}.img")
+				out_files.append(img_path)
 		return out_files + dds_paths
 
 	@property
@@ -561,67 +625,6 @@ class TexelLoader(MemStructLoader):
 	extension = ".texel"
 	can_extract = False
 	target_class = TexelHeader
-
-	def get_mip_bytes(self, mips, dds_file, texbuffer):
-		mip_data = []
-		# start at first offset of the first mip, increment using size from that
-		offset = mips[0].offset
-		dds_file.get_pixel_fmt()
-		for tile_i in range(texbuffer.num_tiles):
-			height = texbuffer.height
-			width = texbuffer.width
-			for mip_i, mip in enumerate(mips):
-				if mip.size == 0:
-					continue
-				mip_bytes = self.get_aux_data("", offset, mip.size)
-				offset += mip.size
-				out_bytes = bytearray(mip_bytes)
-				for unpacked_offset, shuffled_offset, size in self.shuffle_mip_offsets(dds_file,
-																					   mip,
-																					   texbuffer,
-																					   height, width):
-					out_bytes[unpacked_offset: unpacked_offset + size] = mip_bytes[shuffled_offset: shuffled_offset + size]
-
-				mip_data.append(out_bytes)
-				height //= 2
-				width //= 2
-		return mip_data
-
-	def shuffle_mip_offsets(self, dds_file, mip, texbuffer, height, width):
-		"""Shuffle a single mip at a time"""
-		# logging.debug(f"MIP{mip_i}")
-		if mip.num_weaves_x > 1 and mip.num_weaves_y > 1:
-			seek = 0
-			tile_row_count = height // texbuffer.weave_height  # or mip.num_weaves_y?
-			tile_col_count = width // texbuffer.weave_width  # or mip.num_weaves_x?
-			if tile_row_count != mip.num_weaves_y:
-				logging.warning(f"tile_row_count {tile_row_count} != mip.num_weaves_y {mip.num_weaves_y}")
-			if tile_col_count != mip.num_weaves_x:
-				logging.warning(f"tile_col_count {tile_col_count} != mip.num_weaves_x {mip.num_weaves_x}")
-
-			tile_scanline_count = texbuffer.weave_height // tile_col_count // dds_file.block_len_pixels_1d
-			tile_scanline_size = int(round(texbuffer.weave_width / 4 * dds_file.block_byte_size))
-			scanline_size = tile_col_count * tile_scanline_size
-
-			tile_size = scanline_size * tile_col_count
-			tile_row_size = tile_size * tile_scanline_count
-
-			# logging.debug(f"tile_row_count = {tile_row_count}")
-			# logging.debug(f"tile_col_count = {tile_col_count}")
-			# logging.debug(f"tile_col_count = {tile_col_count}")
-			# logging.debug(f"tile_scanline_count = {tile_scanline_count}")
-			# logging.debug(f"tile_scanline_size = {tile_scanline_size}")
-			# logging.debug(f"tile_row_size = {tile_row_size}")
-			# logging.debug(f"tile_size = {tile_size}")
-			# logging.debug(f"scanline_size = {scanline_size}")
-			for block_row_i in range(tile_row_count):
-				for block_col_i in range(tile_col_count):
-					for row_i in range(tile_scanline_count):
-						for col_i in range(tile_col_count):
-							# print(f"block_row {block_row_i} block_col {block_col_i} row {row_i} col {col_i} ")
-							target_offset = (tile_row_size * block_row_i) + (row_i * tile_size) + (col_i * scanline_size) + (block_col_i * tile_scanline_size)
-							yield target_offset, seek, tile_scanline_size
-							seek += tile_scanline_size
 
 	def get_aux_name(self, aux_suffix, aux_size=0):
 		"""Get path of aux file from ovl name and texel name"""

@@ -214,8 +214,10 @@
     </struct>
 
     <struct name="Pc2TexMip" inherit="MemStruct">
+		Data is stored per tile and this only stores the offset and size for the first tile
+		To get to the next tile take the first offset and accumulate the sizes of all mips
 		<field name="offset" type="uint"/>
-		<field name="size" type="uint"/> <!-- this is for a single array tile, multiply with num_tiles for complete mip -->
+		<field name="size" type="uint"/>
 		<field name="num_weaves_x" type="ushort"/>
 		<field name="num_weaves_y" type="ushort"/>
 		<field name="do_weave" type="short"/>

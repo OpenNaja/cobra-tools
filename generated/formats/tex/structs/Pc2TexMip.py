@@ -4,6 +4,11 @@ from generated.formats.tex.imports import name_type_map
 
 class Pc2TexMip(MemStruct):
 
+	"""
+	Data is stored per tile and this only stores the offset and size for the first tile
+	To get to the next tile take the first offset and accumulate the sizes of all mips
+	"""
+
 	__name__ = 'Pc2TexMip'
 
 
