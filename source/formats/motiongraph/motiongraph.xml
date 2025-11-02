@@ -77,13 +77,6 @@
         <field name="value" type="Pointer" template="MRFMember1"/>
     </struct>
 
-    <struct name="MotiongraphVar" inherit="MemStruct">
-        24 bytes (?)
-        <field name="var_name" type="Pointer" template="ZString"/>
-        <field name="target_name" type="Pointer" template="ZString"/>
-        <field name="unk" type="uint64"/>
-    </struct>
-
     <struct name="MRFMember1" inherit="MemStruct">
         72 bytes / 144 bytes ?
         <field name="LuaMethod" type="Pointer" template="ZString"/>
@@ -118,16 +111,15 @@
         only used if transition is in 'id'
 
         <field name="transition" type="Pointer" template="Transition"/>
-        <field name="count_0" type="uint64"/>
+        <field name="curve" type="Pointer" template="CurveData"/>
         <field name="trigger" type="Pointer" template="ZString"/>
         <field name="activities" type="Pointer" template="ActivityReference" arg="num_activities"/>
 
-        <field name="count_3a" type="short"/>
-        <field name="count_3b" type="short"/>
+        <field name="curve_length" type="float" default="-1.0"/>
         <field name="count_3c" type="int"/>
         <field name="num_activities" type="uint64"/>
 
-        <field name="count_5" type="uint64" />
+        <field name="other_mrf" type="Pointer" template="MRFMember2"/>
 
         <field name="count_6a" type="short"/>
         <field name="count_6b" type="short"/>
@@ -202,12 +194,24 @@
         <bits name="SuppressResourceDataStreams" numbits="1" />
     </bitstruct>
 
+    <struct name="CurveKey" inherit="MemStruct">
+        12 bytes
+        <field name="time" type="float" />
+        <field name="x" type="float" />
+        <field name="y" type="float" />
+    </struct>
+
+    <struct name="OptionalVarAndCurve" inherit="MemStruct">
+        24 bytes
+        <field name="var_name" type="Pointer" template="ZString"/>
+        <field name="Curve" type="CurveData" />
+    </struct>
+
     <struct name="FloatInputData" inherit="MemStruct">
         16 bytes
         <field name="float" type="float"/>
         <field name="OptionalVarAndCurve count" type="uint" />
-        <!-- todo - check presence and layout -->
-        <field name="OptionalVarAndCurve" type="uint64" />
+        <field name="OptionalVarAndCurve" type="ArrayPointer" template="OptionalVarAndCurve" arg="OptionalVarAndCurve count" />
     </struct>
 
     <enum name="SubCurveType" numbytes="2" storage="ushort" default="0">
@@ -594,10 +598,20 @@
         <field name="ptrs" type="SinglePtr" arr1="#ARG#" template="#T#"/>
     </struct>
 
+    <struct name="MotiongraphVar" inherit="MemStruct">
+        24 bytes (?)
+        <field name="var_name" type="Pointer" template="ZString"/>
+        <field name="target_name" type="Pointer" template="ZString"/>
+        <field name="unk" type="uint64"/>
+    </struct>
+
     <struct name="MotiongraphVars" inherit="MemStruct">
+<!--        todo - not correct for all dtype 8, sometimes there should be a pointer at the start, but Transition does not agree with that, may be the wrong template
+WARNING | Pointer at 50 | 9648 to 57 | 1200 is missing for MotiongraphVars (rel offset: 0)
+-->
         <field name="ptr" type="ArrayPointer" template="MotiongraphVar" arg="count" cond="#ARG# #EQ# 7"/>
         <field name="count" type="uint64" cond="#ARG# #EQ# 7"/>
-        <field name="transition" type="Transition" cond="#ARG# #EQ# 8"/>
+        <field name="transition" templatetype="Transition" cond="#ARG# #EQ# 8"/>
     </struct>
 
     <struct name="Something" inherit="MemStruct">

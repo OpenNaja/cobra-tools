@@ -65,6 +65,8 @@ type_module_name_map = {
 	'State': 'generated.formats.motiongraph.structs.State',
 	'XMLEntry': 'generated.formats.motiongraph.structs.XMLEntry',
 	'AnimationFlags': 'generated.formats.motiongraph.bitstructs.AnimationFlags',
+	'CurveKey': 'generated.formats.motiongraph.structs.CurveKey',
+	'OptionalVarAndCurve': 'generated.formats.motiongraph.structs.OptionalVarAndCurve',
 	'FloatInputData': 'generated.formats.motiongraph.structs.FloatInputData',
 	'SubCurveType': 'generated.formats.motiongraph.enums.SubCurveType',
 	'CurveDataPoint': 'generated.formats.motiongraph.structs.CurveDataPoint',
