@@ -115,7 +115,7 @@ class DdsLoader(MemStructLoader):
 		self.prepare_buffers_and_streams(basename, buffer_bytes, name_ext)
 
 	def flush_to_aux(self):
-		"""Writes PC2 mips to texel's aux and updates sizes and offsets"""
+		"""Writes PC2 and JWE3 mips to texel's aux and updates their offsets"""
 		if self.context.is_pc_2:
 			texel_loader = self.get_texel()
 			offset, self.texbuffer.buffer_size = texel_loader.write_aux_data("", self.raw_bytes)
