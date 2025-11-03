@@ -589,6 +589,31 @@ def get_manis_values(gui, dir_walk, walk_ovls=True, official_only=True):
 		logging.exception(f"Failed")
 
 
+def get_tex_values(gui, dir_walk, walk_ovls=True, official_only=True):
+	dtype_to_files = {}
+	if dir_walk:
+		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, (".tex", ".texel", ".texturestream")):
+			if official_only and not filter_accept_official(ovl_path):
+				continue
+			ovl_name = os.path.basename(ovl_path)
+			ovl_name = os.path.splitext(ovl_name)[0]
+			try:
+				for loader in ovl_data.loaders.values():
+					# print(loader.name)
+					if loader.ext == ".tex":
+						if ovl_data.is_pc_2:
+							t = loader.texbuffer
+							add_key(dtype_to_files, (t.num_mips, t.num_mips_low, t.num_mips_high), f"{loader.basename} ({t.compression_type.name})")
+			except:
+				logging.exception(f"Failed")
+	try:
+		logging.info(f"mips - tex files map")
+		for dtype, files in sorted(dtype_to_files.items()):
+			logging.info(f"mips {dtype} - tex {sorted(files)[:10]}")
+	except:
+		logging.exception(f"Failed")
+
+
 def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 	out_dir = get_game_constants_dir(dir_walk)
 	game = os.path.basename(out_dir)

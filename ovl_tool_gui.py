@@ -139,6 +139,7 @@ class MainWindow(widgets.MainWindow):
 						MenuItem("Inspect MS2", self.inspect_models, icon="ms2"),
 						MenuItem("Inspect FGM", self.walker_fgm, icon="fgm"),
 						MenuItem("Inspect MANIS", self.walker_manis, icon="manis"),
+						MenuItem("Inspect TEX", self.walker_tex, icon="tex"),
 						MenuItem("Generate Audio Events", self.walker_audio, icon="bnk"),
 						MenuItem("Generate Hash Table", self.walker_hash),
 						MenuItem("Dump Debug Data", self.dump_debug_data, icon="dump_debug"),
@@ -671,6 +672,15 @@ class MainWindow(widgets.MainWindow):
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_manis_values, (), self, dir_walk=dialog.dir_walk,
+				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
+			)
+
+	def walker_tex(self, ):
+		self.change_log_speed.emit("slow")
+		dialog = widgets.WalkerDialog(self, "Inspect Tex", self.walk_root())
+		if dialog.exec():
+			self.run_in_threadpool(
+				walker.get_tex_values, (), self, dir_walk=dialog.dir_walk,
 				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 

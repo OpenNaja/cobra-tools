@@ -255,23 +255,31 @@ class DdsLoader(MemStructLoader):
 					# RGB
 					else:
 						self.texbuffer.flag = 96
-				# todo - improve rules for mip truncation
-				# surprisingly, incorrect values for num_mips_low and num_mips_high crash
-				# to keep it safe, only update them for creating rather than saving
-				self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
-				if self.texbuffer.num_mips > 7:
-					delta_high = 3
-					delta_low = 5
-					if dds_file.block_byte_size == 8:
-						delta_high -= 1
-						delta_low -= 1
-						if self.texbuffer.width == 512:
-							delta_high -= 1
-							delta_low -= 1
-					self.texbuffer.num_mips_high = self.texbuffer.num_mips - delta_high
-					self.texbuffer.num_mips_low = self.texbuffer.num_mips - delta_low
-					if self.texbuffer.width == 256:
-						self.texbuffer.num_mips_low = self.texbuffer.num_mips
+				# these appear not to be easily predictable, so retrieve those manually added to tex
+				self.texbuffer.num_mips_high = int(self.header.num_mips_high)
+				self.texbuffer.num_mips_low = int(self.header.num_mips_low)
+				# # surprisingly, incorrect values for num_mips_low and num_mips_high crash
+				# # to keep it safe, only update them for creating rather than saving
+				# self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
+				# if self.texbuffer.num_mips > 7:
+				# 	delta_high = 3
+				# 	delta_low = 5
+				# 	if dds_file.block_byte_size == 8:
+				# 		delta_high -= 1
+				# 		delta_low -= 1
+				# 		if self.texbuffer.width == 512:
+				# 			# JWE2: 7 = 64; 9 = 256
+				# 			delta_high -= 1
+				# 			delta_low -= 1
+				# 		if self.texbuffer.width == 2048:
+				# 			# JWE2: 7 = 64; 9 = 256
+				# 			delta_high += 1
+				# 			delta_low += 1
+				# 	self.texbuffer.num_mips_high = self.texbuffer.num_mips - delta_high
+				# 	self.texbuffer.num_mips_low = self.texbuffer.num_mips - delta_low
+				# 	if self.texbuffer.width == 256:
+				# 		self.texbuffer.num_mips_low = self.texbuffer.num_mips
+
 				# weaving
 				# 512 is used for 8 bytes, 256 for 16 bytes
 				if dds_file.block_byte_size == 8:
@@ -512,6 +520,8 @@ class DdsLoader(MemStructLoader):
 					xml_root.set("_size", f"{pool.size_map.get(offset, -1)}")
 				if self.context.is_pc_2:
 					xml_root.set("ovs", self.ovs.arg.name)
+					xml_root.set("num_mips_low", str(self.texbuffer.num_mips_low))
+					xml_root.set("num_mips_high", str(self.texbuffer.num_mips_high))
 			out_files = [out_path, ]
 		else:
 			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
