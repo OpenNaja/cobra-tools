@@ -71,7 +71,7 @@ def import_shapekeys(b_ob, mesh, unique_indices):
 		b_me["whatever_range"] = float(mesh.whatever_range)
 
 
-def ob_postpro(use_mirror_mesh):
+def ob_postpro(use_mirror_mesh, quadrify):
 	logging.debug("Postprocessing geometry")
 	bpy.ops.object.mode_set(mode='EDIT')
 	if use_mirror_mesh:
@@ -79,7 +79,8 @@ def ob_postpro(use_mirror_mesh):
 		bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.uv.select_all(action='SELECT')
 	bpy.ops.uv.seams_from_islands()
-	bpy.ops.mesh.tris_convert_to_quads(uvs=True, vcols=True, seam=True, sharp=True)
+	if quadrify:
+		bpy.ops.mesh.tris_convert_to_quads(uvs=True, vcols=True, seam=True, sharp=True)
 	bpy.ops.object.mode_set(mode='OBJECT')
 
 
