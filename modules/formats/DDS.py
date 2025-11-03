@@ -125,6 +125,11 @@ class DdsLoader(MemStructLoader):
 				if mip_i < self.texbuffer.num_mips:
 					mip_info.offset = offset
 					offset += mip_info.size
+			for lod, mip_offset in zip(self.texbuffer.main,
+									   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
+				first_index = self.texbuffer.num_mips - mip_offset
+				mip0 = self.texbuffer.mip_maps[first_index]
+				lod.offset = mip0.offset
 			# update buffer data of tex
 			texbuffer_bytes = [b"", as_bytes(self.texbuffer)]
 			# both root and data are in the same ovs
@@ -318,7 +323,6 @@ class DdsLoader(MemStructLoader):
 										   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
 					first_index = self.texbuffer.num_mips - mip_offset
 					mip0 = self.texbuffer.mip_maps[first_index]
-					lod.offset = mip0.offset
 					lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
 					lod.num_weaves_x = mip0.num_weaves_x
 					lod.num_weaves_y = mip0.num_weaves_y
