@@ -126,7 +126,7 @@ class FlowWidget(QWidget):
 		self.perm_widgets: deque[QWidget] = deque()      # Permanently visible widgets
 		self.flow_spacers: deque[QLayoutItem] = deque()  # Spacer widgets
 		# Dummy widget to pad non-consecutive hide indices
-		self.dummy = QWidget()
+		self.dummy = QWidget(self)
 		self.dummy.setMaximumWidth(0)
 		self.dummy.setHidden(True)
 		self.dummy.setObjectName("dummy")
@@ -547,6 +547,11 @@ class SnapCollapseSplitter(QSplitter):
 	def __init__(self, orientation: Qt.Orientation, parent: QWidget | None = None):
 		super().__init__(orientation, parent)
 		self._snap_widgets = {}
+		self._is_shutting_down = False
+		self._set_sizes_timer = QTimer(self)
+		self._set_sizes_timer.setSingleShot(True)
+		self._set_sizes_timer.timeout.connect(self._apply_new_sizes)
+		self._pending_sizes: list[int] = []
 
 	def addWidget(self, widget: QWidget):
 		"""
@@ -559,12 +564,20 @@ class SnapCollapseSplitter(QSplitter):
 			self.setCollapsible(index, False)
 			widget.snapped.connect(self._on_child_snapped)
 
+	def _apply_new_sizes(self) -> None:
+		"""Helper slot to apply deferred splitter sizes"""
+		if self._is_shutting_down:
+			return
+		if self._pending_sizes:
+			self.setSizes(self._pending_sizes)
+			self._pending_sizes.clear()
+
 	def _on_child_snapped(self, is_collapsed: bool):
 		"""
 		When a child snaps collapsed, this slot enforces the splitter size,
 		forcing the widget to its minimum and giving the extra space to another widget.
 		"""
-		if not is_collapsed:
+		if self._is_shutting_down or not is_collapsed:
 			return
 
 		sender_widget = self.sender()
@@ -612,4 +625,11 @@ class SnapCollapseSplitter(QSplitter):
 
 		# Use a zero-delay QTimer to apply the sizes. This breaks potential
 		# recursive event loops where setSizes -> resizeEvent -> snapped -> _on_child_snapped.
-		QTimer.singleShot(0, lambda: self.setSizes(new_sizes))
+		self._pending_sizes = new_sizes
+		self._set_sizes_timer.start(0)
+
+	def shutdown(self):
+		"""Stops timers and prevents further actions during shutdown"""
+		self._is_shutting_down = True
+		if self._set_sizes_timer.isActive():
+			self._set_sizes_timer.stop()

@@ -882,7 +882,14 @@ class LoggerWidget(SnapCollapseWidget):
 		self.details_pane: QTextBrowser = self.create_detail_view()
 		self._details_pane_shown = False
 		self._details_pane_sizes = self.DetailsPaneSizes()
-		QTimer.singleShot(0, lambda: self.close_detail_pane(init_mode=True))
+		# Detail Pane timers
+		self._close_detail_pane_timer = QTimer(self)
+		self._close_detail_pane_timer.setSingleShot(True)
+		self._close_detail_pane_timer.timeout.connect(lambda: self.close_detail_pane(init_mode=True))
+		self._close_detail_pane_timer.start(0)
+		self._open_detail_pane_timer = QTimer(self)
+		self._open_detail_pane_timer.setSingleShot(True)
+		self._open_detail_pane_timer.timeout.connect(self.open_detail_pane)
 		# Logger | Detail splitter
 		self.log_display_splitter = QSplitter(Qt.Orientation.Horizontal, self)
 		self.log_display_splitter.addWidget(self.list_widget)
@@ -967,12 +974,19 @@ class LoggerWidget(SnapCollapseWidget):
 			self.reset_errors()
 
 	def shutdown(self) -> None:
+		if self._is_shutting_down:  # Prevent re-entry
+			return
+		self.handler.close()
 		self.errors.close()
 		self.warnings.close()
 		self.log_display_splitter.close()
 		self._is_shutting_down = True
 		if self._handler_poll_timer.isActive():
 			self._handler_poll_timer.stop()
+		if self._close_detail_pane_timer.isActive():
+			self._close_detail_pane_timer.stop()
+		if self._open_detail_pane_timer.isActive():
+			self._open_detail_pane_timer.stop()
 		# Stop any immediate activity in children if necessary
 		if self.list_widget:
 			# list_widget's own closeEvent will handle its timer,
@@ -1151,14 +1165,14 @@ class LoggerWidget(SnapCollapseWidget):
 			self.log_display_splitter.setSizes([list_size, detail_size])
 
 	def open_detail_pane(self) -> None:
-		if self._details_pane_shown:
+		if self._is_shutting_down or self._details_pane_shown:
 			return
 
 		current_sizes = self.log_display_splitter.sizes()
 		if len(current_sizes) == 2:
 			total_size = sum(current_sizes)
 			if total_size == 0:  # Splitter not yet sized
-				QTimer.singleShot(50, self.open_detail_pane)  # Try again shortly
+				self._open_detail_pane_timer.start(50)  # Try again shortly
 				return
 			
 			list_size, detail_size = self.log_splitter_sizes(total_size)
@@ -1171,6 +1185,8 @@ class LoggerWidget(SnapCollapseWidget):
 				self.close_detail_pane()  # Ensure it's marked closed
 
 	def close_detail_pane(self, init_mode: bool = False) -> None:
+		if self._is_shutting_down:
+			return
 		if not self._details_pane_shown and not init_mode:
 			return
 		current_sizes = self.log_display_splitter.sizes()

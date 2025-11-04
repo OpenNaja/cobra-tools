@@ -310,11 +310,22 @@ class OvlDataTreeView(QTreeView):
 		self.main_window = main_window
 		# Store cacher worker to cancel it if necessary
 		self.current_cacher_worker: Optional['WorkerRunnable'] = None
+		self.background_timer = QTimer(self)
+		self.background_timer.setSingleShot(True)
+		# Connect the timeout signal to a lambda that calls the scan function
+		self.background_timer.timeout.connect(lambda: self.start_background_scan(self.file_model.rootPath()))
 		# State for the expansion process
 		self._is_expanding = False
 		self._expand_retry_counter = 0
 		# Store filter text to restore on game change
 		self.filter_text = ""
+
+		self._expand_start_timer = QTimer(self)
+		self._expand_start_timer.setSingleShot(True)
+		self._expand_start_timer.timeout.connect(self._start_iterative_expand)
+		self._expand_step_timer = QTimer(self)
+		self._expand_step_timer.setSingleShot(True)
+		self._expand_step_timer.timeout.connect(self._iterative_expand_step)
 
 	def start_background_scan(self, dir_game: str):
 		"""Cancels any previous scan and asks the MainWindow to start a new one"""
@@ -381,8 +392,8 @@ class OvlDataTreeView(QTreeView):
 		self.proxy.invalidate()
 		self.setRootIndex(root_index)
 		self.proxy.update_root(root_index)
-		# Trigger a new scan in the background thread after a small delay
-		QTimer.singleShot(50, lambda: self.start_background_scan(dir_game))
+		# Trigger a new scan in the background after a small delay
+		self.background_timer.start(50)
 
 	def get_root(self) -> str:
 		return self.file_model.rootPath()
@@ -413,7 +424,7 @@ class OvlDataTreeView(QTreeView):
 		)
 		if filter_str:
 			# Start expanding on a small delay
-			QTimer.singleShot(50, self._start_iterative_expand)
+			self._expand_start_timer.start(50)
 		else:
 			# Simply collapse all on filter clear
 			self.collapseAll()
@@ -468,14 +479,14 @@ class OvlDataTreeView(QTreeView):
 		# If we made progress, reset the retry counter and continue the loop
 		if items_were_expanded:
 			self._expand_retry_counter = 0
-			QTimer.singleShot(50, self._iterative_expand_step)
+			self._expand_step_timer.start(50)
 		else:
 			# If no progress was made, increment the counter
 			self._expand_retry_counter += 1
 			# The loop continues if the cache isn't ready OR if we haven't
 			# exhausted our attempts. This gives the model time to load.
 			if not self.cache_ready or self._expand_retry_counter < 5:
-				QTimer.singleShot(200, self._iterative_expand_step)
+				self._expand_step_timer.start(200)
 			else:
 				# No progress for several consecutive passes
 				self._is_expanding = False
@@ -779,5 +790,7 @@ class OvlManagerWidget(QWidget):
 		if dir_game:
 			self.dirs.set_root(dir_game)
 			self.dirs.set_selected_path(self.cfg.get("last_ovl_in", None))
+			self.game_choice.entry.blockSignals(True)
 			self.game_choice.entry.setText(game)
+			self.game_choice.entry.blockSignals(False)
 

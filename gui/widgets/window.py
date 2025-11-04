@@ -51,6 +51,20 @@ class StatusSpacer(QWidget):
 		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 		self.widget: QWidget | None = None
 		self._preferred_width = 0
+		self._resize_timer = QTimer(self)
+		self._resize_timer.setSingleShot(True)
+		self._resize_timer.timeout.connect(self._on_resize_timeout)
+
+	def _on_resize_timeout(self) -> None:
+		"""Helper slot for the single-shot resize timer"""
+		if self.widget:
+			self.resize(self.widget.size())
+
+	def closeEvent(self, event: QCloseEvent) -> None:
+		"""Ensure the timer is stopped when the widget is closed"""
+		if self._resize_timer.isActive():
+			self._resize_timer.stop()
+		super().closeEvent(event)
 
 	def sizeHint(self) -> QSize:
 		"""
@@ -67,7 +81,7 @@ class StatusSpacer(QWidget):
 	def showEvent(self, a0):
 		super().showEvent(a0)
 		if self.widget:
-			QTimer.singleShot(0, lambda: self.resize(self.widget.size()))
+			self._resize_timer.start(0)
 
 	def resize(self, size: Union[QSize, int] = QSize(-1, -1), _h: int = 0) -> None:
 		"""
@@ -728,6 +742,7 @@ class MainWindow(FramelessMainWindow):
 				self._current_batch_start_time = None
 
 			self.enable_gui_options(True)
+			worker.signals.finished.disconnect(worker_cleanup_slot)
 
 		# Connect the cleanup slot to run when the worker is done
 		worker.signals.finished.connect(worker_cleanup_slot)
@@ -763,6 +778,7 @@ class MainWindow(FramelessMainWindow):
 			if worker in self.active_workers:
 				self.active_workers.remove(worker)
 			logging.debug(f"Background task '{func.__name__}' finished. Active workers: {len(self.active_workers)}")
+			worker.signals.finished.disconnect(worker_cleanup_slot)
 
 		worker.signals.finished.connect(worker_cleanup_slot)
 		
@@ -809,6 +825,13 @@ class MainWindow(FramelessMainWindow):
 				return
 		# Cancel batch operations
 		self.cancel_workers()
+
+		# Shut down log splitter
+		if self.log_splitter and isinstance(self.log_splitter, SnapCollapseSplitter):
+			self.log_splitter.shutdown()
+		# Stop the status timer
+		if self.status_timer.isActive():
+			self.status_timer.stop()
 		# Close logger widget
 		if self.logger:
 			self.logger.close()

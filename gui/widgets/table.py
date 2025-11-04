@@ -424,7 +424,7 @@ class SortableTable(QWidget):
 		self.button_count = 0
 		self.btn_layout = QHBoxLayout()
 		self.btn_layout.setContentsMargins(0, 0, 0, 0)
-		self.btn_frame = QFrame()
+		self.btn_frame = QFrame(self)
 		self.btn_frame.setLayout(self.btn_layout)
 
 		filter_bar = FlowWidget(self)
