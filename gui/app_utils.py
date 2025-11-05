@@ -15,6 +15,7 @@ from PyQt5.QtGui import QColor, QFont, QIcon, QPainter
 from PyQt5.QtWidgets import QFileIconProvider
 
 from ovl_util.config import Config
+from ovl_util.logs import shorten_str
 
 import vdf
 
@@ -192,6 +193,7 @@ def truncate_tooltip(text: str, character_index: int=5000, line_count: int=100) 
             n -= 1
         return start
 
+    text = shorten_str(text)
     truncation_indices = []
     # Find the nth newline
     line_limit_index = find_nth_occurrence(text, '\n', line_count)

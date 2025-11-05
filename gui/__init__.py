@@ -31,13 +31,9 @@ if old_widgets_file.is_file() and new_widgets_package.is_dir():
 from ovl_util import auto_updater, logs
 from ovl_util.config import save_config
 
-from gui.tools.layout_visualizer import install_layout_visualizer
 if TYPE_CHECKING:
 	from gui.widgets import MainWindow
-
-from PyQt5.QtCore import Qt, qVersion
-from PyQt5.QtGui import QFontDatabase
-from PyQt5.QtWidgets import QApplication, QStyleFactory
+	from PyQt5.QtWidgets import QApplication
 
 
 def check_64bit_env() -> None:
@@ -55,6 +51,7 @@ def register_fonts(directory: Path):
 		print(f"Error: Font directory not found at '{directory}'")
 		return
 
+	from PyQt5.QtGui import QFontDatabase
 	# Iterate over all files in the directory with a .ttf extension
 	for font_file in directory.glob("*.ttf"):
 		try:
@@ -86,8 +83,9 @@ class GuiOptions:
 	size: Size = Size(800, 600)
 	logger_width: int = 320
 	logger_height: int = 200
-	qapp: Optional[QApplication] = None
+	qapp: Optional['QApplication'] = None
 	frameless: bool = True
+	check_update: bool = True
 	style: str = "Fusion"
 	qss_file: str = ""
 	stylesheet: str = R"""
@@ -101,15 +99,22 @@ class GuiOptions:
 			self.size = Size(*self.size)
 
 
-def init(cls: type['MainWindow'], opts: GuiOptions) -> tuple['MainWindow', QApplication]:
+def create_window(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple['MainWindow', 'QApplication']:
 	"""Initialize the window class, logs, and QApplication if necessary"""
 	handler = logs.logging_setup(opts.log_name,
 								 log_to_file=opts.log_to_file,
 								 log_to_stdout=opts.log_to_stdout,
 								 backup_count=opts.log_backup_count)
+	from PyQt5.QtCore import Qt, qVersion
+	from PyQt5.QtWidgets import QApplication
 	check_64bit_env()
 	app = opts.qapp
 	if app is None:
+		if platform.system() == "Windows":
+			import ctypes
+			myappid = 'Open Naja OVL Tools'
+			ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
 		if qVersion().startswith("5."):
 			QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 			QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
@@ -119,36 +124,113 @@ def init(cls: type['MainWindow'], opts: GuiOptions) -> tuple['MainWindow', QAppl
 	# Register Fonts
 	font_dir = root_dir / 'gui' / 'fonts'
 	register_fonts(font_dir)
-
-	win = cls(opts=opts)
-	win.set_log_name(opts.log_name)
-	win.stdout_handler = handler
-	win.activateWindow()
+	# Create MainWindow instance
+	win = cls(opts=opts, **kwargs)
 	return win, app
 
 
-def startup(cls: type['MainWindow'], opts: GuiOptions) -> None:
-	"""Startup the window, set the theme, handle config and logs on application exit"""
-	auto_updater.run_update_check(tool_name=opts.log_name)
-	if platform.system() == "Windows":
-		import ctypes
-		myappid = 'Open Naja OVL Tools'  # arbitrary string
-		ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-	win, app_qt = init(cls, opts)
+def setup_app(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple['MainWindow', 'QApplication']:
+	"""
+	Contains all the non-blocking setup logic
+	"""
+	if opts.check_update:
+		auto_updater.run_update_check(tool_name=opts.log_name)
 
-	app_qt.setStyle(QStyleFactory.create(opts.style))
-	app_qt.setPalette(win.get_palette_from_cfg())
-	if opts.qss_file:
-		with open(opts.qss_file, "r") as qss:
-			app_qt.setStyleSheet(qss.read())
-	elif opts.stylesheet:
-		app_qt.setStyleSheet(opts.stylesheet)
+	# Check if existing qapp passed here, before create_window
+	do_init = not opts.qapp
 
-	if opts.debug_layout:
-		install_layout_visualizer(win)
+	win, app_qt = create_window(cls, opts, **kwargs)
+	if do_init:
+		from PyQt5.QtWidgets import QStyleFactory
+		from gui.tools.layout_visualizer import install_layout_visualizer
+		app_qt.setStyle(QStyleFactory.create(opts.style))
+		app_qt.setPalette(win.get_palette_from_cfg())
+		if opts.qss_file:
+			with open(opts.qss_file, "r") as qss:
+				app_qt.setStyleSheet(qss.read())
+		elif opts.stylesheet:
+			app_qt.setStyleSheet(opts.stylesheet)
+		if opts.debug_layout:
+			install_layout_visualizer(win)
+	return win, app_qt
+
+
+def startup(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> None:
+	"""
+	The application entry point
+	"""
+	win, app_qt = setup_app(cls, opts, **kwargs)
+
+	import signal
+	def sigint_handler(*args):
+		"""Custom handler for the SIGINT signal."""
+		# Safely tell the Qt application to quit.
+		logging.warning("RECEIVED SIGINT")
+		if app_qt:
+			app_qt.quit()
+
+	signal.signal(signal.SIGINT, sigint_handler)
+
+	def graceful_shutdown():
+		"""
+		Runs before Qt objects are destroyed
+		"""
+		if win.SHUTDOWN_RUN:
+			return
+		import atexit
+		logging.info("SHUTTING DOWN")
+		win.SHUTDOWN_RUN = True
+		try:
+			cfg_path = root_dir / "config.json"
+			save_config(cfg_path, win.cfg)
+		except Exception as e:
+			logging.error(f"Error saving config during shutdown: {e}")
+
+		listener = logs.get_global_listener()
+		if listener:
+			listener.stop()
+
+		atexit.unregister(logging.shutdown)
+		logging.shutdown()
+
+		if win.RESTART_ON_EXIT:
+			import subprocess
+			if sys.platform == "win32":
+				subprocess.Popen([sys.executable] + sys.argv, creationflags=subprocess.CREATE_NEW_CONSOLE)
+			else:
+				os.execv(sys.executable, [sys.executable] + sys.argv)
+
+	# Attempt to use aboutToQuit, with fallback in `finally`
+	app_qt.aboutToQuit.connect(graceful_shutdown)
 
 	win.show()
-	app_qt.exec_()
-	cfg_path = Path(__file__).resolve().parent.parent / "config.json"
-	save_config(cfg_path, win.cfg)
-	logging.shutdown()
+	win.activateWindow()
+	# Assume failure by default
+	exit_code = 1
+	try:
+		exit_code = app_qt.exec_()
+	finally:
+		graceful_shutdown()  # Try again for abnormal exits
+		# ENV var for keeping console open for debugging without an attached IDE
+		import os
+		if os.environ.get("DEBUG_WAIT_ON_EXIT") == "1":
+			print(f"\n--- [DEBUG] (PID: {os.getpid()}) GUI has closed. Pausing before final cleanup. ---")
+			print("--- Press Enter to exit console. ---")
+			try:
+				input() 
+			except EOFError:
+				print(f"\n--- [DEBUG] (PID: {os.getpid()}) stdin not available. Pausing... ---")
+				import time
+				try:
+					time.sleep(900)  # 15 minutes
+				except KeyboardInterrupt:
+					pass
+			except KeyboardInterrupt:
+				pass
+
+		if 'app_qt' in locals():
+			app_qt.deleteLater()
+		if 'win' in locals():
+			win.deleteLater()
+
+	sys.exit(exit_code)

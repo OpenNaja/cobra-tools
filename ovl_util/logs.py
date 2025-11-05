@@ -7,7 +7,8 @@ import sys
 import tempfile
 from functools import partialmethod, partial
 from logging import StreamHandler
-from logging.handlers import RotatingFileHandler
+from logging.handlers import RotatingFileHandler, QueueHandler, QueueListener
+from queue import Queue
 from typing import TextIO
 
 from ovl_util.config import load_config
@@ -120,6 +121,22 @@ class ColoredFormatter(logging.Formatter):
 		return formatter.format(record)
 
 
+class LoggerFormatter(ColoredFormatter):
+	"""A ColoredFormatter for rich text usage"""
+	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
+		super().__init__(fmt, datefmt, *args, **kwargs)
+		fmt_n = "%(levelname)s | %(message)s\n%(details)s"
+		self.FORMATS = {
+			logging.DEBUG: fmt_n,
+			logging.INFO: fmt_n,
+			logging.INFO + 5: fmt_n, # SUCCESS
+			logging.WARNING: fmt_n,
+			logging.ERROR: fmt_n,
+			logging.CRITICAL: fmt_n,
+		}
+		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
+
+
 class HtmlFormatter(ColoredFormatter):
 	"""A ColoredFormatter for rich text usage"""
 	# Special char for finding end of message
@@ -127,7 +144,6 @@ class HtmlFormatter(ColoredFormatter):
 
 	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
 		super().__init__(fmt, datefmt, *args, **kwargs)
-		# <img src='icons/%(levelname)s.svg' height='16' width='16' />
 		fmt_n = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span>%(message)s</span></div>{self.eol}%(details)s"
 		fmt_b = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span><b>%(message)s</b></span></div>{self.eol}%(details)s"
 		self.FORMATS = {
@@ -154,6 +170,14 @@ class AnsiFormatter(ColoredFormatter):
 			logging.CRITICAL: f"{ANSI.LIGHT_RED}{self._fmt}{ANSI.END}"
 		}
 		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
+
+
+_global_listener: QueueListener | None = None
+def get_global_listener() -> QueueListener | None:
+	"""
+	Returns the application-wide QueueListener instance
+	"""
+	return _global_listener
 
 
 def addLoggingLevel(levelName, levelNum, methodName=None):
@@ -212,43 +236,40 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 	# Colored logging for all platforms but Windows 7/8
 	colored_formatter = AnsiFormatter('%(levelname)s | %(message)s')
 
+	handlers: list[StreamHandler] = []
 	stdout_handler: StreamHandler | None = None
 	if log_to_stdout:
 		stdout_handler = StreamHandler(sys.stdout)
 		stdout_handler.setLevel(logging.INFO)
 		stdout_handler.setFormatter(colored_formatter)
 		stdout_handler.set_name(log_name)
+		handlers.append(stdout_handler)
 
 	file_handler: LogBackupFileHandler | None = None
 	if log_to_file:
 		log_path = f'{os.path.join(root_dir, log_name)}.log'
-		file_handler = LogBackupFileHandler(log_path, mode="w", backupCount=backup_count, delay=True)
+		file_handler = LogBackupFileHandler(log_path, mode="w", backupCount=backup_count, delay=True, encoding="utf-8")
 		file_handler.setLevel(logging.DEBUG) # always write all levels to file log
 		file_handler.setFormatter(formatter)
 		file_handler.set_name(log_name)
 		file_handler.doRollover()
+		handlers.append(file_handler)
 
-	# Do not infinitely add handlers, attempt to keep one File and one Stream handler
-	removed_handlers: list[logging.Handler] = []
-	for handler in logger.handlers:
-		if isinstance(handler, StreamHandler) and handler.stream == sys.stderr:
-			# These handlers are auto-added if any logging is attempted before logging_setup addHandler
-			removed_handlers.append(handler)
-		elif isinstance(handler, StreamHandler) and handler.name and handler.name != log_name:
-			# If launching multiple GUI from the same process (e.g. pytest), remove previous GUI handlers
-			removed_handlers.append(handler)
-		elif isinstance(handler, LogBackupFileHandler) and handler.name and handler.name != log_name:
-			# If launching multiple GUI from the same process (e.g. pytest), remove previous GUI handlers
-			removed_handlers.append(handler)
-	
-	for handler in removed_handlers:
-		logger.removeHandler(handler)
-		handler.close()
+	# Setup the async queue
+	log_queue = Queue(-1)  # -1 == inf
+	# Only QueueHandler on root logger
+	queue_handler = QueueHandler(log_queue)
 
-	if log_to_file:
-		logger.addHandler(file_handler)
-	if log_to_stdout:
-		logger.addHandler(stdout_handler)
+	logger = logging.getLogger()
+	logger.setLevel(logging.DEBUG)
+	# Remove any existing handlers and add only the queue handler
+	logger.handlers.clear()
+	logger.addHandler(queue_handler)
+
+	# Distribute the logs to the real handlers
+	global _global_listener
+	_global_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
+	_global_listener.start()
 
 	logger.info(f"Running python {sys.version}")
 	logger.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
@@ -256,9 +277,15 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 
 
 def get_stdout_handler(name: str) -> StreamHandler | None:
-	for handler in logging.getLogger().handlers:
-		if isinstance(handler, StreamHandler) and handler.stream == sys.stdout and handler.name == name:
-			return handler
+	"""
+	Finds the named stdout handler by searching the global QueueListener.
+	"""
+	listener = get_global_listener()
+	if listener:
+		# Search its list of handlers
+		for handler in listener.handlers:
+			if isinstance(handler, StreamHandler) and handler.stream == sys.stdout and handler.name == name:
+				return handler
 	return None
 
 

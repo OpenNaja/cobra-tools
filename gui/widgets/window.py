@@ -270,6 +270,9 @@ class MainWindow(FramelessMainWindow):
 
 		self.cfg: Config[str, Any] = Config(ROOT_DIR)
 		self.cfg.load()
+		# Flags for managing application lifecycle, controlled externally
+		self.RESTART_ON_EXIT: bool = False
+		self.SHUTDOWN_RUN: bool = False
 
 		if self.opts.frameless:
 			# Frameless titlebar
@@ -430,9 +433,15 @@ class MainWindow(FramelessMainWindow):
 						   log_level_changed_fn: Optional[Callable] = None,
 						   resize_requested_fn: Optional[Callable] = None) -> tuple[LoggerWidget, QSplitter]:
 		logger = LoggerWidget(self, orientation)
-		logger.handler.setFormatter(logs.HtmlFormatter('%(levelname)s | %(message)s'))
+		logger.handler.setFormatter(logs.LoggerFormatter('%(levelname)s | %(message)s'))
 		logger.handler.setLevel(logging.INFO)
-		logging.getLogger().addHandler(logger.handler)
+		# Replace QueueListener.handlers
+		listener = logs.get_global_listener()
+		if listener:
+			handlers = list(listener.handlers)
+			handlers.append(logger.handler)
+			listener.handlers = tuple(handlers)
+
 		log_splitter = SnapCollapseSplitter(orientation)
 		log_splitter.addWidget(topleft)
 		log_splitter.addWidget(logger)
@@ -835,8 +844,7 @@ class MainWindow(FramelessMainWindow):
 		# Close logger widget
 		if self.logger:
 			self.logger.close()
-		# Close logging handlers
-		self.close_logs()
+
 		event.accept()
 		# Last resort workaround for console hanging
 		# NOTE: Left as documentation in case it happens again.
@@ -867,37 +875,26 @@ class MainWindow(FramelessMainWindow):
 				self.log_splitter.setSizes([self.opts.size.width, 0])
 
 	def on_log_level_changed(self, level: str) -> None:
+		"""
+		This is the single source of truth for log levels. It receives the
+		user's choice and applies the correct levels to all handlers.
+		"""
+		# Determine the actual numeric level to set on the handlers
+		actual_level = level
+		if level == "WARNING":
+			actual_level = "SUCCESS"
+
 		if self.stdout_handler:
-			self.stdout_handler.setLevel(level)
-		level = level if level != "SUCCESS" else "WARNING"  # So SUCCESS is still shown at "WARNING" level
+			# Set the level on the console handler
+			self.stdout_handler.setLevel(actual_level)
+		if self.logger:
+			# Set the level on the GUI's handler
+			self.logger.handler.setLevel(actual_level)
+			# Update the logger's combo box to reflect the choice
+			self.logger.log_level_choice.entry.setText(level)
+
+		# Persist the user's choice (not the effective level) to the config
 		self.cfg["logger_level"] = level
-
-	def close_logs(self) -> None:
-		if self.log_name:
-			root_logger = logging.getLogger()
-			handlers_to_process = []
-			for handler in list(root_logger.handlers):
-				# Identify LoggerWidget.Handler
-				if self.logger and handler is self.logger.handler:
-					handlers_to_process.append(handler)
-				# Identify LogBackupFileHandler
-				elif isinstance(handler, logs.LogBackupFileHandler) and handler.name and handler.name == self.log_name:
-					handlers_to_process.append(handler)
-
-			if not handlers_to_process:
-				print("close_logs: No specific handlers (LoggerWidget.Handler, LogBackupFileHandler) found to remove.")
-
-			for handler in reversed(handlers_to_process):
-				handler_id_str = f"{type(handler).__name__} (name: {getattr(handler, 'name', 'N/A')}, id: {id(handler)})"
-				try:
-					root_logger.removeHandler(handler)
-				except Exception as e:
-					print(f"ERROR: Failed to remove handler {handler_id_str}: {e}")
-					# Continue to try closing it anyway
-				try:
-					handler.close()
-				except Exception as e:
-					print(f"ERROR: Exception during close() for handler {handler_id_str}: {e}")
 
 	def dragEnterEvent(self, event: QDragEnterEvent) -> None:
 		if not self.file_widget:

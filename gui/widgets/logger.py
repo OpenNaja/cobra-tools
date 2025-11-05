@@ -1,6 +1,6 @@
 import threading
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple, Literal
 
@@ -403,18 +403,18 @@ class LogViewDelegate(QStyledItemDelegate):
 
 		painter.restore()
 
-
-class LogListData(NamedTuple):
+@dataclass
+class LogListData:
 	level: str
 	text: str
-	html: str
 	detail: str
+	short_text: str | None = field(default=None, init=False, repr=False)
 
 	@staticmethod
 	def from_str(text: str) -> 'LogListData':
-		message, detail = text.split(logs.HtmlFormatter.eol, 1)
-		level, plaintext, html = message.split(" | ", 2)
-		return LogListData(level, plaintext, html, detail)
+		message, detail = text.split("\n", 1)
+		level, plaintext= message.split(" | ", 1)
+		return LogListData(level, plaintext, detail)
 
 
 class LogModel(QAbstractListModel):
@@ -431,7 +431,6 @@ class LogModel(QAbstractListModel):
 	resize_requested = pyqtSignal(int)
 
 	TEXT = Qt.ItemDataRole.EditRole
-	HTML = Qt.ItemDataRole.DisplayRole
 	DETAIL = Qt.ItemDataRole.UserRole
 	ICON = Qt.ItemDataRole.DecorationRole
 	INFO = Qt.ItemDataRole.ToolTipRole
@@ -463,7 +462,7 @@ class LogModel(QAbstractListModel):
 	def rowCount(self, _parent: QModelIndex = QModelIndex()) -> int:
 		return self._row_count
 
-	def setData(self, index: QModelIndex, value: Any, role: int = HTML) -> bool:
+	def setData(self, index: QModelIndex, value: Any, role: int = TEXT) -> bool:
 		if not index.isValid():
 			return False
 		if role == LogModel.TOGGLED:
@@ -471,21 +470,22 @@ class LogModel(QAbstractListModel):
 			return True
 		return False
 
-	def data(self, index: QModelIndex, role: int = HTML) -> Any:
+	def data(self, index: QModelIndex, role: int = TEXT) -> Any:
 		if not index.isValid():
 			return None
 		row = index.row()
 		log = self.log_data[index.row()]
 		if row < 0 or row >= self.data_count:
 			return None
-		if role == LogModel.HTML:
-			return log.html
-		elif role == LogModel.ICON:
+		if role == LogModel.ICON:
 			return get_icon(log.level).pixmap(16, 16)
 		elif role == LogModel.DETAIL:
-			return log.detail
+			return logs.shorten_str(log.detail)
 		elif role == LogModel.TEXT:
-			return log.text
+			# If the shortened text isn't cached yet, compute and store it.
+			if log.short_text is None:
+				log.short_text = logs.shorten_str(log.text)
+			return log.short_text
 		elif role == LogModel.INFO:
 			return truncate_tooltip(f"{log.text}\n\n{dedent(log.detail).strip()}".strip(), line_count=100)
 		elif role == LogModel.TOGGLED:
@@ -818,8 +818,8 @@ class LoggerWidget(SnapCollapseWidget):
 		def emit(self, record: logging.LogRecord) -> None:
 			try:
 				if not hasattr(record, "details"):
-					record.__dict__["details"] = ""
-				log_list_data = LogListData.from_str(logs.shorten_str(self.format(record)))
+					record.details = ""
+				log_list_data = LogListData.from_str(self.format(record))
 				with self._buffer_lock:
 					self._buffer.append(log_list_data)
 			except Exception as e:
@@ -1066,6 +1066,7 @@ class LoggerWidget(SnapCollapseWidget):
 
 		output_html_lines = []
 		is_trace = raw_detail_str.strip().startswith("Traceback")
+		is_structured = False
 		self._is_details_trace = is_trace
 		if is_trace:
 			# Regex to identify file paths and line numbers in traceback lines
@@ -1075,8 +1076,6 @@ class LoggerWidget(SnapCollapseWidget):
 														   # Group 2: Path within quotes
 														   # Group 3: Line number digits
 			""", re.VERBOSE)
-			self.details_pane.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
-			self.details_pane.setWordWrapMode(QTextOption.WrapMode.NoWrap)
 			for raw_line in raw_detail_str.splitlines():
 				# Separate leading whitespace from the actual content of the raw_line
 				indent_raw = ""
@@ -1119,10 +1118,23 @@ class LoggerWidget(SnapCollapseWidget):
 		else:
 			self.details_pane.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
 			self.details_pane.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+			prev_indent = None
 			for raw_line in raw_detail_str.splitlines():
+				# Minimally check if indentation change occurs
+				if not is_structured:
+					curr_indent = len(raw_line) - len(raw_line.lstrip())
+					if prev_indent is not None and curr_indent != prev_indent:
+						# Flag the details text as structured
+						is_structured = True
+					prev_indent = curr_indent
 				output_html_lines.append(url_to_html(raw_line))
 
 		full_content_html = "<br>".join(output_html_lines)
+		if is_structured:
+			full_content_html = full_content_html.replace(' ', '\u00A0').replace('\t', '\u00A0\u00A0')
+		if is_structured or is_trace:
+			self.details_pane.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+			self.details_pane.setWordWrapMode(QTextOption.WrapMode.NoWrap)
 		div_class = 'traceback' if is_trace else 'detail'
 
 		return f"<div class='{div_class}'>{full_content_html}</div>"
@@ -1200,15 +1212,8 @@ class LoggerWidget(SnapCollapseWidget):
 	@pyqtSlot(str)
 	def on_log_level_changed(self, level: str) -> None:
 		"""Slot for log level set internally (combo box) or externally (initial value from cfg)"""
-		# Show successes still for "WARNING"
-		actual_level = level if level != "SUCCESS" else "WARNING"
-		if level == "WARNING":
-			actual_level = "SUCCESS"
-		# Set internally
-		self.handler.setLevel(actual_level)
-		self.log_level_choice.entry.setText(level)
 		# Inform listeners
-		self.log_level_changed.emit(actual_level)
+		self.log_level_changed.emit(level)
 
 	@pyqtSlot(QModelIndex, QModelIndex)
 	def on_log_selection_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
