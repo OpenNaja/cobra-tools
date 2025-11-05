@@ -1,3 +1,4 @@
+from functools import lru_cache
 import json
 import logging
 import os
@@ -52,7 +53,17 @@ class Shader:
 	# 	return f".{self.name.split(':')[2]}"
 
 
-class ConstantsProvider(dict):
+@lru_cache(maxsize=None)
+def ConstantsProvider(only_types=()) -> '_ConstantsProvider':
+	"""
+	A thread-safe factory function for creating and caching ConstantsProvider instances.
+	This is largely for pytest run GC issues.
+	NOTE: Do not convert to ConstantsProvider.__new__ without guarding reinit in __init__
+	"""
+	return _ConstantsProvider(only_types=only_types)
+
+
+class _ConstantsProvider(dict):
 
 	def __init__(self, only_types=()):
 		super().__init__()
