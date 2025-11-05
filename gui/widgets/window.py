@@ -945,7 +945,7 @@ class MainWindow(FramelessMainWindow):
 
 class ConfigWindow(QWidget):
 
-	def __init__(self, main_window):
+	def __init__(self, main_window: 'MainWindow') -> None:
 		super().__init__()
 		self.main_window = main_window
 		self.cfg = main_window.cfg
@@ -957,8 +957,9 @@ class ConfigWindow(QWidget):
 				cfg_manager2 = cfg_manager
 
 				def set_key(v):
-					# nonlocal cfg_key
 					cfg_manager2.update(self.cfg, cfg_key2, v)
+					if isinstance(cfg_manager2, RestartSetting):
+						self.needs_restart()
 
 				return set_key
 
@@ -967,8 +968,6 @@ class ConfigWindow(QWidget):
 						   editable=not bool(cfg_manager.options), activated_fn=set_key)
 			c.setToolTip(cfg_manager.tooltip)
 			c.entry.setText(str(self.cfg.get(cfg_key, cfg_manager.default)))
-			if isinstance(cfg_manager, RestartSetting):
-				c.entry.currentTextChanged.connect(self.needs_restart)
 			# if isinstance(cfg_manager, ImmediateSetting):
 			# 	logging.debug(f"Saved '{self.name}' after storing '{k}'")
 			# 	self.cfg.save()
@@ -976,8 +975,14 @@ class ConfigWindow(QWidget):
 		self.setLayout(self.vlayout)
 
 	def needs_restart(self):
-		if self.main_window.showconfirmation(f"Close tools now and then manually restart to apply the changes", title="Restart Tools"):
+		from gui import root_dir
+		from ovl_util.config import save_config
+		if self.main_window.showconfirmation(
+			"The application must restart for changes to take effect. If you have "
+			"any unsaved changes, cancel and restart manually.",
+			title="Restart Required"
+		):
+			save_config(root_dir / "config.json", self.cfg)
+			self.main_window.RESTART_ON_EXIT = True
 			self.close()
 			self.main_window.close()
-		# just close the gui, actually restarting from code is hard
-
