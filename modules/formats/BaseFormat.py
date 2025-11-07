@@ -53,7 +53,8 @@ class BaseFile:
 
 
 	def get_extract_paths(self, out_dir):
-		return ()
+		out_path = out_dir(self.name)
+		return out_path,
 
 	def flush_to_aux(self):
 		pass
