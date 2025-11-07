@@ -643,7 +643,7 @@ class MainWindow(window.MainWindow):
 
 	def walker_fgm(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = widgets.WalkerDialog(self, "Inspect FGMs", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect FGMs", self.walk_root())
 		chk_full_report = widgets.QCheckBox("Full Report")
 		chk_full_report.setChecked(self.walk_root() == self.game_root())
 		dialog.options.addWidget(chk_full_report)
@@ -656,7 +656,7 @@ class MainWindow(window.MainWindow):
 
 	def walker_manis(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_manis_values, (), self, dir_walk=dialog.dir_walk,
@@ -665,7 +665,7 @@ class MainWindow(window.MainWindow):
 
 	def inspect_models(self):
 		self.change_log_speed.emit("slow")
-		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.bulk_test_models, (), self, self.game_root(), dir_walk=dialog.dir_walk,
