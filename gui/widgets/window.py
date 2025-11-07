@@ -44,53 +44,60 @@ from __version__ import VERSION, COMMIT_HASH
 
 
 class StatusSpacer(QWidget):
-	"""Right aligns permanent status widgets to another widget by providing a dynamic,
-	preferred-size space."""
+	"""Right aligns permanent status widgets by providing a dynamic space."""
 	def __init__(self, parent: Optional[QWidget] = None) -> None:
 		super().__init__(parent)
 		self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-		self.widget: QWidget | None = None
+		self.splitter: QSplitter | None = None
 		self._preferred_width = 0
-		self._resize_timer = QTimer(self)
-		self._resize_timer.setSingleShot(True)
-		self._resize_timer.timeout.connect(self._on_resize_timeout)
+		# Add a timer to defer the geometry update
+		self._update_timer = QTimer(self)
+		self._update_timer.setSingleShot(True)
+		self._update_timer.timeout.connect(self._do_update_width)
+		self._update_timer.setInterval(0)
 
-	def _on_resize_timeout(self) -> None:
-		"""Helper slot for the single-shot resize timer"""
-		if self.widget:
-			self.resize(self.widget.size())
-
-	def closeEvent(self, event: QCloseEvent) -> None:
-		"""Ensure the timer is stopped when the widget is closed"""
-		if self._resize_timer.isActive():
-			self._resize_timer.stop()
-		super().closeEvent(event)
+	def set_splitter(self, splitter: QSplitter) -> None:
+		"""Stores a reference to the log splitter."""
+		self.splitter = splitter
 
 	def sizeHint(self) -> QSize:
-		"""
-		Overrides the default sizeHint to report our dynamic preferred width.
-		"""
+		"""Reports the dynamic preferred width."""
 		return QSize(self._preferred_width, super().sizeHint().height())
 
-	def set_widget(self, widget: QWidget) -> None:
-		"""Connects to the signal that provides the width for alignment."""
-		self.widget = widget
-		if hasattr(widget, "current_size"):
-			widget.current_size.connect(self.resize)
+	def initial_update(self) -> None:
+		"""A safe, public method to perform the initial size calculation."""
+		if self.splitter:
+			# Just trigger the timer
+			self._update_timer.start()
 
-	def showEvent(self, a0):
-		super().showEvent(a0)
-		if self.widget:
-			self._resize_timer.start(0)
-
-	def resize(self, size: Union[QSize, int] = QSize(-1, -1), _h: int = 0) -> None:
+	@pyqtSlot(int, int)
+	def update_width(self, pos: int, index: int) -> None:
 		"""
-		This slot receives the new size, updates the preferred width, and tells
-		the layout to re-evaluate everything safely.
+		Public slot to be connected to the a splitterMoved signal.
+		This just schedules the update to happen on the next event loop tick.
+		"""
+		# Just trigger the timer
+		self._update_timer.start()
+
+	@pyqtSlot()
+	def _do_update_width(self) -> None:
+		"""
+		This slot is connected to the timer and does the actual work
+		when the event loop is stable.
 		"""
 		parent = self.parent()
-		if isinstance(size, QSize) and isinstance(parent, QStatusBar):
-			new_width = max(1, size.width() - 20)
+		if not self.splitter:
+			return
+
+		target_widget = self.splitter.widget(1)
+		if isinstance(parent, QStatusBar) and target_widget:
+			# If the widget isn't ready (width 0), try again
+			if not target_widget.isVisible() or target_widget.width() == 0:
+				self._update_timer.start(10)
+				return
+
+			new_width = max(1, target_widget.width() - 20)
+			
 			sibling_width = 0
 			for item in parent.children():
 				if isinstance(item, QWidget) and not isinstance(item, StatusSpacer) and item.isVisible():
@@ -289,7 +296,42 @@ class MainWindow(FramelessMainWindow):
 		log_level = self.cfg.get("logger_level", "INFO")
 		self.set_log_level.emit(log_level)
 		super().showEvent(a0)
+		# Defer layout until after the event loop finishes
+		QTimer.singleShot(0, self.perform_initial_layout)
 
+	def perform_initial_layout(self) -> None:
+		"""
+		This function should be called deferred (e.g., from showEvent)
+		to finalize layout when geometry is stable.
+		"""
+		if self.logger and self.log_splitter:
+			if not hasattr(self, "status_spacer"):
+				self.status_spacer = StatusSpacer(self)
+				self.status_spacer.set_splitter(self.log_splitter)
+				self.status_bar.addPermanentWidget(self.status_spacer)
+				self.log_splitter.splitterMoved.connect(self.status_spacer.update_width)
+
+			# This is the deferred call to setSizes
+			self._set_initial_logger_sizes()
+
+			style = ""
+			if self.logger.orientation == LOGGER_BOTTOM:
+				style = R"""
+					SnapCollapseSplitter::handle:vertical {
+						padding: 0px 0px 4px 0px;
+					}
+				"""
+			elif self.logger.orientation == LOGGER_RIGHT:
+				style = R"""
+					SnapCollapseSplitter::handle:horizontal {
+						width: 5px; /* Make handle visible */
+					}
+				"""
+			self.log_splitter.setStyleSheet(style)
+
+			if hasattr(self, "status_spacer"):
+				self.status_spacer.initial_update()
+	
 	def create_main_splitter(self, top_layout: QLayout, left_widget: QWidget, right_widget: QWidget,
 							 sizes: list[int] = [200,400]) -> None:
 		"""Helper to create a basic layout with a top layout + a left/right splitter"""
@@ -313,31 +355,104 @@ class MainWindow(FramelessMainWindow):
 		self.main_content_widget.setObjectName("mainContentWidget")
 
 		enable_logger = self.cfg.get("enable_logger_widget", True)
-		if enable_logger:
-			# Layout for Logger
-			logger_orientation = LOGGER_BOTTOM if self.cfg.get("logger_orientation", "V") == "V" else LOGGER_RIGHT
-			if logger_orientation == LOGGER_BOTTOM:
-				self.main_content_widget.setContentsMargins(5, 0, 5, 5)
-			else:
-				self.main_content_widget.setContentsMargins(5, 0, 0, 0)
-			self.layout_logger(self.main_content_widget, logger_orientation)
+		if enable_logger and self.opts.logger_enabled:
+			# This creates the logger, splitter, applies styles,
+			# and performs the one-time window resize.
+			self.layout_logger(self.main_content_widget)
 		else:
-			# Layout for no Logger
+			# No logger, just add the main content widget directly.
 			self.central_layout.addWidget(self.main_content_widget)
 
-	def layout_logger(self, topleft: QWidget, orientation: Qt.Orientation) -> None:
-		self.logger, self.log_splitter = self.make_logger_widget(topleft=topleft,
-																 orientation=orientation,
-																 log_level_changed_fn=self.on_log_level_changed,
-																 resize_requested_fn=self.resize_logger)
+	def layout_logger(self, main_content: QWidget, orientation = None) -> None:
+		"""
+		Creates, configures, and lays out the logger and its splitter.
+		This is called once from create_main_splitter during initialization.
+		"""
+		logger_orientation = orientation
+		if orientation is None:
+			logger_orientation = LOGGER_BOTTOM if self.cfg.get("logger_orientation", "V") == "V" else LOGGER_RIGHT
+
+		# Create LoggerWidget
+		self.logger = LoggerWidget(self, logger_orientation)
+		self.logger.handler.setFormatter(logs.LoggerFormatter('%(levelname)s | %(message)s'))
+		self.logger.handler.setLevel(logging.INFO)
+		
+		listener = logs.get_global_listener()
+		if listener:
+			handlers = list(listener.handlers)
+			handlers.append(self.logger.handler)
+			listener.handlers = tuple(handlers)
+
+		# Connect signals
+		self.change_log_speed.connect(self.logger.set_logging_speed)
+		self.logger.log_level_changed.connect(self.on_log_level_changed)
+		self.logger.resize_requested.connect(self.resize_logger)
+
+		#  Create Splitter
+		self.log_splitter = SnapCollapseSplitter(logger_orientation)
+		self.log_splitter.addWidget(main_content)
+		self.log_splitter.addWidget(self.logger)
+
+		# Apply Styles
+		self.log_splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+		self.log_splitter.setContentsMargins(0, 0, 0, 0)
+		self.log_splitter.setCollapsible(0, True)
+		self.log_splitter.setCollapsible(1, False)
 		self.log_splitter.setHandleWidth(8)
+		self.log_splitter.setStretchFactor(0, 1)  # Main content
+		self.log_splitter.setStretchFactor(1, 0)  # Logger
+
+		style = ""
+		if logger_orientation == LOGGER_BOTTOM:
+			# Set margins on the content widget
+			main_content.setContentsMargins(5, 0, 5, 5)
+			
+			# Initial size
+			self.resize(self.opts.size.width, self.opts.size.height + self.opts.logger_height)
+
+		elif logger_orientation == LOGGER_RIGHT:
+			# Set margins on the content widget
+			main_content.setContentsMargins(5, 0, 0, 0)
+			
+			# Initial size
+			self.resize(self.opts.size.width + self.opts.logger_width, self.opts.size.height)
+
+		# Add Splitter to Central Layout
 		self.central_layout.addWidget(self.log_splitter)
-		# Hide at start if configured
+
+		# Handle Initial Visibility
 		self.show_logger = self.cfg.get("show_logger_widget", True)
 		if not self.show_logger:
 			self.logger.close()
-			# Ensure default size
+			# Reset to non-logger size if starting hidden
 			self.resize(*self.opts.size)
+
+	def _set_initial_logger_sizes(self) -> None:
+		"""
+		Sets the initial sizes of the log_splitter's panes.
+		This is separate from setup and should be called deferred
+		(e.g., from perform_initial_layout) when geometry is stable.
+		"""
+		if not self.logger or not self.log_splitter:
+			return  # No logger to size
+
+		splitter_size = self.log_splitter.size()
+		if splitter_size.width() == 0 or splitter_size.height() == 0:
+			return  # Splitter not ready, abort.
+
+		if self.logger.orientation == LOGGER_BOTTOM:
+			logger_height = self.opts.logger_height
+			main_content_height = splitter_size.height() - logger_height
+			if main_content_height < 0: main_content_height = 0
+			
+			self.log_splitter.setSizes([main_content_height, logger_height])
+
+		elif self.logger.orientation == LOGGER_RIGHT:
+			logger_width = self.opts.logger_width
+			main_content_width = splitter_size.width() - logger_width
+			if main_content_width < 0: main_content_width = 0
+			
+			self.log_splitter.setSizes([main_content_width, logger_width])
 
 	def get_palette_from_cfg(self):
 		theme_name = self.cfg.get("theme", "dark")
@@ -398,70 +513,6 @@ class MainWindow(FramelessMainWindow):
 		file_widget.filepath_changed.connect(self.set_window_filepath)
 
 		return file_widget
-	
-	def style_logger_widget(self, logger: LoggerWidget, log_splitter: QSplitter):
-		log_splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-		log_splitter.setContentsMargins(0, 0, 0, 0)
-		log_splitter.setCollapsible(0, True)
-		log_splitter.setCollapsible(1, False)
-		style = ""
-		if logger.orientation == LOGGER_BOTTOM:
-			style = R"""
-				QSplitter::handle:vertical {
-					padding: 0px 0px 4px 0px;
-				}
-			"""
-			# Make MainWindow larger
-			self.resize(self.opts.size.width, self.opts.size.height + self.opts.logger_height)
-			log_splitter.setSizes([self.opts.size.height, self.opts.logger_height])
-		elif logger.orientation == LOGGER_RIGHT:
-			style = R"""
-				QSplitter::handle:horizontal {
-					width: 5px; /* Make handle visible */
-				}
-			"""
-			# Make MainWindow larger
-			self.resize(self.opts.size.width + self.opts.logger_width, self.opts.size.height)
-			log_splitter.setSizes([self.opts.size.width, self.opts.logger_width])
-
-		log_splitter.setStyleSheet(style)
-		log_splitter.setStretchFactor(0, 1)
-		log_splitter.setStretchFactor(1, 0)
-
-	def make_logger_widget(self, topleft: QWidget, orientation: Qt.Orientation = LOGGER_BOTTOM,
-						   sizes: tuple[int, int] = (600, 200),
-						   log_level_changed_fn: Optional[Callable] = None,
-						   resize_requested_fn: Optional[Callable] = None) -> tuple[LoggerWidget, QSplitter]:
-		logger = LoggerWidget(self, orientation)
-		logger.handler.setFormatter(logs.LoggerFormatter('%(levelname)s | %(message)s'))
-		logger.handler.setLevel(logging.INFO)
-		# Replace QueueListener.handlers
-		listener = logs.get_global_listener()
-		if listener:
-			handlers = list(listener.handlers)
-			handlers.append(logger.handler)
-			listener.handlers = tuple(handlers)
-
-		log_splitter = SnapCollapseSplitter(orientation)
-		log_splitter.addWidget(topleft)
-		log_splitter.addWidget(logger)
-
-		self.change_log_speed.connect(logger.set_logging_speed)
-
-		if log_level_changed_fn:
-			logger.log_level_changed.connect(log_level_changed_fn)
-		if resize_requested_fn:
-			logger.resize_requested.connect(resize_requested_fn)
-
-		self.style_logger_widget(logger, log_splitter)
-
-		if not hasattr(self, "status_spacer"):
-			self.status_spacer = StatusSpacer(self)
-			# Keep status widgets right-aligned with main layout, ignoring logger.
-			self.status_bar.addPermanentWidget(self.status_spacer)
-			self.status_spacer.set_widget(logger)
-
-		return logger, log_splitter
 
 	def setWindowTitle(self, title: str = "", file: str = "", modified: bool = False) -> None:
 		if not title:
@@ -844,6 +895,12 @@ class MainWindow(FramelessMainWindow):
 		# Close logger widget
 		if self.logger:
 			self.logger.close()
+		# Custom splitter style has strange error with QSS on pytest teardown
+		if hasattr(self, 'log_splitter') and self.log_splitter:
+			try:
+				self.log_splitter.setStyleSheet("")
+			except RuntimeError:
+				pass
 
 		event.accept()
 		# Last resort workaround for console hanging
@@ -876,8 +933,7 @@ class MainWindow(FramelessMainWindow):
 
 	def on_log_level_changed(self, level: str) -> None:
 		"""
-		This is the single source of truth for log levels. It receives the
-		user's choice and applies the correct levels to all handlers.
+		It receives the user's choice and applies the correct levels to all handlers
 		"""
 		# Determine the actual numeric level to set on the handlers
 		actual_level = level
@@ -893,7 +949,7 @@ class MainWindow(FramelessMainWindow):
 			# Update the logger's combo box to reflect the choice
 			self.logger.log_level_choice.entry.setText(level)
 
-		# Persist the user's choice (not the effective level) to the config
+		# Persist the user's choice to the config
 		self.cfg["logger_level"] = level
 
 	def dragEnterEvent(self, event: QDragEnterEvent) -> None:

@@ -393,8 +393,8 @@ class OvlDataTreeView(QTreeView):
 		self.proxy.invalidate()
 		self.setRootIndex(root_index)
 		self.proxy.update_root(root_index)
-		# Trigger a new scan in the background after a small delay
-		self.background_timer.start(50)
+		# Trigger a new scan in the background after the event loop finishes
+		self.background_timer.start(0)
 
 	def get_root(self) -> str:
 		return self.file_model.rootPath()

@@ -2,7 +2,7 @@ import sys
 import logging
 import platform
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional, TypeVar
 from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
@@ -34,6 +34,7 @@ from ovl_util.config import save_config
 if TYPE_CHECKING:
 	from gui.widgets import MainWindow
 	from PyQt5.QtWidgets import QApplication
+	WindowT = TypeVar('WindowT', bound='MainWindow')
 
 
 def check_64bit_env() -> None:
@@ -83,6 +84,7 @@ class GuiOptions:
 	size: Size = Size(800, 600)
 	logger_width: int = 320
 	logger_height: int = 200
+	logger_enabled: bool = True
 	qapp: Optional['QApplication'] = None
 	frameless: bool = True
 	check_update: bool = True
@@ -99,7 +101,7 @@ class GuiOptions:
 			self.size = Size(*self.size)
 
 
-def create_window(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple['MainWindow', 'QApplication']:
+def create_window(cls: type['WindowT'], opts: GuiOptions, **kwargs) -> tuple['WindowT', 'QApplication']:
 	"""Initialize the window class, logs, and QApplication if necessary"""
 	handler = logs.logging_setup(opts.log_name,
 								 log_to_file=opts.log_to_file,
@@ -129,7 +131,7 @@ def create_window(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple[
 	return win, app
 
 
-def setup_app(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple['MainWindow', 'QApplication']:
+def setup_app(cls: type['WindowT'], opts: GuiOptions, **kwargs) -> tuple['WindowT', 'QApplication']:
 	"""
 	Contains all the non-blocking setup logic
 	"""
@@ -155,7 +157,7 @@ def setup_app(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> tuple['Mai
 	return win, app_qt
 
 
-def startup(cls: type['MainWindow'], opts: GuiOptions, **kwargs) -> None:
+def startup(cls: type['WindowT'], opts: GuiOptions, **kwargs) -> None:
 	"""
 	The application entry point
 	"""

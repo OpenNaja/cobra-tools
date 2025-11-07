@@ -543,8 +543,6 @@ class LogView(QListView):
 	increment_error = pyqtSignal(int, str)
 	increment_warning = pyqtSignal(int, str)
 
-	FETCH_TIMER_INTERVAL = 250
-
 	DEBUG_COLOR = "#808080"
 	INFO_COLOR = "#ddd"
 	SUCCESS_COLOR = "#2fff5d"
@@ -578,7 +576,6 @@ class LogView(QListView):
 		self.setFrameStyle(QFrame.Shape.NoFrame)
 		self.setStyle(QStyleFactory.create('windows'))
 		self.setUniformItemSizes(True)
-		# pal is only valid after getting it again from self
 		self.setPalette(parent.parent().get_palette_from_cfg())
 		pal = self.palette()
 		base_col = pal.base().color()
@@ -617,43 +614,26 @@ class LogView(QListView):
 		# Item delegate
 		self.delegate = LogViewDelegate(self)
 		self.setItemDelegate(self.delegate)
-
-		# Timer for fetchMore
-		self.fetchTimer = QTimer()
-		self.fetchTimer.setInterval(self.FETCH_TIMER_INTERVAL)
-		self.fetchTimer.setSingleShot(True)
-		self.fetchTimer.timeout.connect(self.fetchMore)
-
-		self._doFetches: bool = self.isVisible()  # Control fetching based on visibility
-		if self.canFetch():  # Initial fetch if possible
-			self.fetchTimer.start()
 		self.list_model.number_fetched.connect(self.on_model_number_fetched)
 
-	def _get_unhandled_item_count(self) -> int:
-		"""Helper to get the number of items in the model's store not yet in the view."""
-		if not self.list_model:
-			return 0
-		return self.list_model.data_count - self.list_model.rowCount()
-
-	@pyqtSlot(int)
-	def set_fetch_interval(self, interval_ms: int) -> None:
-		"""Sets the interval for the timer that fetches from LogModel"""
-		logging.debug(f"LogView: Setting fetch interval to {interval_ms}ms.")
-		self._current_fetch_interval = interval_ms
-		was_active = self.fetchTimer.isActive()
-		if was_active:
-			self.fetchTimer.stop()
-		self.fetchTimer.setInterval(interval_ms)
-		if was_active:  # If it was running, restart it to apply new interval for next timeout
-			self.fetchTimer.start()
-		# If it wasn't active, it will pick up the new interval when next started by startFetches.
-
-	def append_log_batch(self, log_data_list: list[LogListData]) -> None:
-		if self.logger.is_shutting_down or not log_data_list:
+	def append_log_batch_and_fetch(self, log_data_list: list[LogListData]) -> None:
+		"""
+		Appends new log data, processes it for warnings/errors, and fetches it into the view.
+		"""
+		if not log_data_list:
 			return
+
+		# Update LogStatus error/warning counts before adding to the model
+		base_index_for_signals = self.list_model.data_count
+		for i, data_item in enumerate(log_data_list):
+			if data_item.level in ("ERROR", "CRITICAL"):
+				self.increment_error.emit(base_index_for_signals + i, data_item.text)
+			if data_item.level == "WARNING":
+				self.increment_warning.emit(base_index_for_signals + i, data_item.text)
+
 		self.list_model.append_log_batch(log_data_list)
-		if self.list_model.canFetchMore() and self.canFetch():
-			self.startFetches()
+		if self.list_model.canFetchMore():
+			self.list_model.fetchMore()
 
 	def clear(self) -> None:
 		self.clearSelection()
@@ -665,54 +645,6 @@ class LogView(QListView):
 	def fetched_count(self) -> int:
 		"""Items currently fetched and shown by the view"""
 		return self.list_model.rowCount()
-
-	def canFetch(self) -> bool:
-		"""Determines if fetching should occur (view is visible and allowed)."""
-		return self._doFetches  # and self.isVisible()
-
-	def startFetches(self) -> None:
-		"""Allow fetching of more data."""
-		self._doFetches = True
-		if self.list_model:  # and self.isVisible():
-			# Before starting the timer loop, try an initial pull from handler
-			# This makes it more responsive when there's already buffered data
-			self._pull_logs()
-			if self.list_model.canFetchMore():
-				if not self.fetchTimer.isActive():
-					self.fetchTimer.start()
-
-	def stopFetches(self) -> None:
-		"""Disallow fetching of more data."""
-		self._doFetches = False
-		if self.fetchTimer.isActive():
-			self.fetchTimer.stop()
-
-	def fetchMore(self) -> None:
-		if self.logger.is_shutting_down:
-			return
-		self._pull_logs()
-		if self.list_model and self.list_model.canFetchMore() and self.canFetch():
-			if self.state() != self.State.EditingState:
-				# Calls LogModel's fetchMore()
-				# This internally calls begin/endInsertRows and emits number_fetched
-				self.list_model.fetchMore()
-			# After model fetch, check if there are more items for the next fetch
-			if self.list_model.canFetchMore() and self.canFetch():
-				self.fetchTimer.start()  # Schedule the next fetch iteration
-
-	def _pull_logs(self) -> None:
-		"""Pulls logs from Handler's buffer and appends them to LogModel"""
-		buffered_logs = self.logger.handler.get_and_clear_buffer()
-		if buffered_logs:
-			# Update LogStatus error/warning counts
-			base_index_for_signals = self.list_model.data_count
-			for i, data_item in enumerate(buffered_logs):
-				if data_item.level in ("ERROR", "CRITICAL"):
-					self.increment_error.emit(base_index_for_signals + i, data_item.text)
-				if data_item.level == "WARNING":
-					self.increment_warning.emit(base_index_for_signals + i, data_item.text)
-
-			self.append_log_batch(buffered_logs)
 
 	@pyqtSlot(int)
 	def on_model_number_fetched(self, newly_fetched_count: int) -> None:
@@ -738,22 +670,6 @@ class LogView(QListView):
 		"""Scroll to bottom when new items are fetched, if appropriate."""
 		if newly_fetched > 0:
 			self.scrollToBottom()
-
-	def hideEvent(self, event: QHideEvent) -> None:
-		"""Stop fetching data when the widget is hidden."""
-		#self.stopFetches()
-		super().hideEvent(event)
-
-	def showEvent(self, event: QShowEvent) -> None:
-		"""Start fetching data when the widget is shown."""
-		self.startFetches()
-		super().showEvent(event)
-
-	def closeEvent(self, event: QCloseEvent) -> None:
-		"""Ensure timer is stopped when the widget is closing"""
-		if self.fetchTimer.isActive():
-			self.fetchTimer.stop()
-		super().closeEvent(event)
 
 
 class LoggerWidget(SnapCollapseWidget):
@@ -863,10 +779,16 @@ class LoggerWidget(SnapCollapseWidget):
 		self.handler = LoggerWidget.Handler(self)
 		self.orientation = orientation
 		self._is_shutting_down = False
+		self._is_active = False
 		self._clear_logs = True
 		self._is_details_trace = True
 
 		self.setPalette(parent.get_palette_from_cfg())
+
+		# --- UNIFIED TIMER ---
+		self._tick_timer = QTimer(self)
+		self._tick_timer.setInterval(self.HANDLER_POLL_INTERVAL)
+		self._tick_timer.timeout.connect(self._tick)
 
 		# --- CONTENT SECTION ---
 		# Logger list
@@ -886,7 +808,6 @@ class LoggerWidget(SnapCollapseWidget):
 		self._close_detail_pane_timer = QTimer(self)
 		self._close_detail_pane_timer.setSingleShot(True)
 		self._close_detail_pane_timer.timeout.connect(lambda: self.close_detail_pane(init_mode=True))
-		self._close_detail_pane_timer.start(0)
 		self._open_detail_pane_timer = QTimer(self)
 		self._open_detail_pane_timer.setSingleShot(True)
 		self._open_detail_pane_timer.timeout.connect(self.open_detail_pane)
@@ -944,27 +865,64 @@ class LoggerWidget(SnapCollapseWidget):
 		self.set_content(self.log_display_splitter)
 		# --- END TOOLBAR SECTION ---
 
-		self._handler_poll_timer = QtCore.QTimer(self)
-		self._handler_poll_timer.setInterval(self.HANDLER_POLL_INTERVAL)
-		self._handler_poll_timer.timeout.connect(self.poll_log_handler)
-
+		# --- Final Signal Connections ---
 		if parent.file_widget:
 			parent.file_widget.file_clear_logger.connect(self.clear)
 		parent.set_log_level.connect(self.on_log_level_changed)
 
-		#self.snapped.connect(lambda collapsed: self.set_logging_speed("slow" if collapsed else "normal"))
+	def start_logging(self) -> None:
+		"""Starts the unified timer and sets the widget to an active state."""
+		if self._is_active:
+			return
+		self._is_active = True
+		self._is_shutting_down = False
+		if not self._tick_timer.isActive():
+			self._tick_timer.start()
+		logging.debug("LoggerWidget: Activity started.")
+
+	def stop_logging(self) -> None:
+		"""Stops the unified timer and sets the widget to an inactive state."""
+		if not self._is_active:
+			return
+		self._is_active = False
+		self._is_shutting_down = True
+		if self._tick_timer.isActive():
+			self._tick_timer.stop()
+		logging.debug("LoggerWidget: Activity stopped.")
+
+	@pyqtSlot()
+	def _tick(self) -> None:
+		"""The single slot for the unified timer, performs all periodic tasks."""
+		if not self._is_active or self._is_shutting_down or not self.list_widget:
+			return
+
+		# Poll the handler for new logs
+		buffered_logs = self.handler.get_and_clear_buffer()
+		if buffered_logs:
+			# Push the data to the LogView
+			self.list_widget.append_log_batch_and_fetch(buffered_logs)
 
 	def showEvent(self, event: QShowEvent) -> None:
-		self._is_shutting_down = False
-		if not self._handler_poll_timer.isActive():
-			self._handler_poll_timer.start()
+		"""Activates logging when the widget is shown."""
 		super().showEvent(event)
+		self.start_logging()
+		# Start the initial "close detail pane" timer only on the first show event
+		if not self._close_detail_pane_timer.isActive() and not self._details_pane_shown:
+			self._close_detail_pane_timer.start(0)
+
+	def hideEvent(self, event: QHideEvent) -> None:
+		"""Deactivates logging when the widget is hidden."""
+		super().hideEvent(event)
+		self.stop_logging()
 
 	def closeEvent(self, event: QCloseEvent) -> None:
+		"""Ensures a full shutdown on close."""
 		self.shutdown()
 		super().closeEvent(event)
 
 	def clear(self) -> None:
+		if self._is_shutting_down or not self.list_widget:
+			return
 		if self._clear_logs:
 			self.handler.clear()
 			self.list_widget.clear()
@@ -974,24 +932,26 @@ class LoggerWidget(SnapCollapseWidget):
 			self.reset_errors()
 
 	def shutdown(self) -> None:
-		if self._is_shutting_down:  # Prevent re-entry
+		"""A shutdown method to stop all activity and clean up."""
+		if self._is_shutting_down:
 			return
-		self.handler.close()
-		self.errors.close()
-		self.warnings.close()
-		self.log_display_splitter.close()
-		self._is_shutting_down = True
-		if self._handler_poll_timer.isActive():
-			self._handler_poll_timer.stop()
+		# Explicitly stop all activity
+		self.stop_logging()
+		# Stop any pending single-shot timers
 		if self._close_detail_pane_timer.isActive():
 			self._close_detail_pane_timer.stop()
 		if self._open_detail_pane_timer.isActive():
 			self._open_detail_pane_timer.stop()
-		# Stop any immediate activity in children if necessary
+		# Clear state
 		if self.list_widget:
-			# list_widget's own closeEvent will handle its timer,
-			# but we can tell it to stop fetching explicitly too.
-			self.list_widget.stopFetches()
+			self.list_widget.clearSelection()
+			self.list_widget.clear()
+		if self.details_pane:
+			self.details_pane.clear()
+		if self.errors:
+			self.errors.clear()
+		if self.warnings:
+			self.warnings.clear()
 
 	@property
 	def is_shutting_down(self) -> bool:
@@ -1007,6 +967,8 @@ class LoggerWidget(SnapCollapseWidget):
 
 	def make_visible(self) -> None:
 		"""Resize the logger to ensure the log console can be visible at min dimensions"""
+		if self._is_shutting_down or not self.log_display_splitter:
+			return
 		if not self.log_display_splitter.isVisible():
 			self.set_logging_speed("normal")
 			size = 0
@@ -1217,6 +1179,8 @@ class LoggerWidget(SnapCollapseWidget):
 
 	@pyqtSlot(QModelIndex, QModelIndex)
 	def on_log_selection_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
+		if self._is_shutting_down or not self.details_pane:
+			return
 		if not current.isValid():
 			self.close_detail_pane()
 			self.details_pane.clear()  # Clear on no selection
@@ -1249,39 +1213,26 @@ class LoggerWidget(SnapCollapseWidget):
 				# If user drags it very small, consider it closed for next programmatic open.
 				# but don't set _details_pane_size to this small value.
 
-	@pyqtSlot()
-	def poll_log_handler(self) -> None:
-		"""Periodically called by _handler_poll_timer to check for new logs."""
-		# Tell LogView to start fetching if it's not already running its timer and if it's in a state to fetch.
-		if self.list_widget.canFetch() and self.handler.has_buffered_logs():
-			#print("LoggerWidget: Handler has buffered logs. Triggering LogView to fetch.")
-			if not self.list_widget.fetchTimer.isActive():
-				self.list_widget.fetchTimer.start()
-		if not self._handler_poll_timer.isActive():
-			self._handler_poll_timer.start()
-
 	@pyqtSlot(str)
 	def set_logging_speed(self, speed_mode: Literal["fast", "normal", "slow"]) -> None:
-		# Define your intervals
+		"""Adjusts the polling interval of the single unified timer."""
+		if not self._is_active:
+			return
+
 		intervals = {
-			"fast"  : {"handler_poll": 100,  "view_fetch": 50},
-			"normal": {"handler_poll": 500,  "view_fetch": 250},
-			"slow"  : {"handler_poll": 2000, "view_fetch": 1000}
+			"fast": 100,
+			"normal": 300,
+			"slow": 2000
 		}
-		selected_intervals = intervals.get(speed_mode.lower(), intervals["normal"])
+		interval = intervals.get(speed_mode.lower(), intervals["normal"])
 
-		# Update Handler Poll Timer in LoggerWidget
-		self._current_handler_poll_interval = selected_intervals["handler_poll"]
-		was_active = self._handler_poll_timer.isActive()
+		# Safely restart the timer with the new interval
+		was_active = self._tick_timer.isActive()
 		if was_active:
-			self._handler_poll_timer.stop()
-		self._handler_poll_timer.setInterval(self._current_handler_poll_interval)
+			self._tick_timer.stop()
+		self._tick_timer.setInterval(interval)
 		if was_active:
-			self._handler_poll_timer.start()
-		#print(f"LoggerWidget: Handler poll interval set to {self._current_handler_poll_interval}ms.")
-
-		if self.list_widget:
-			self.list_widget.set_fetch_interval(selected_intervals["view_fetch"])
+			self._tick_timer.start()
 
 	@pyqtSlot(QUrl)
 	def on_detail_link_clicked(self, url: QUrl) -> None:

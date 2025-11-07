@@ -451,10 +451,10 @@ class SnapCollapseWidget(QWidget):
 
 	def set_toolbar(self, toolbar: QWidget):
 		"""Sets or replaces the toolbar widget."""
-		# Remove and delete the existing toolbar, if any
+		# Remove the existing toolbar, if any
 		if self._toolbar:
 			self._layout.removeWidget(self._toolbar)
-			self._toolbar.deleteLater()
+			self._toolbar.setParent(None)
 
 		self._toolbar = toolbar
 		if self._toolbar:
@@ -463,10 +463,10 @@ class SnapCollapseWidget(QWidget):
 
 	def set_content(self, content: QWidget):
 		"""Sets or replaces the content widget."""
-		# Remove and delete the existing content, if any
+		# Remove the existing content, if any
 		if self._content:
 			self._layout.removeWidget(self._content)
-			self._content.deleteLater()
+			self._content.setParent(None)
 
 		self._content = content
 		if self._content:
@@ -505,6 +505,8 @@ class SnapCollapseWidget(QWidget):
 
 	def collapse(self):
 		"""Hides the content and updates the layout for the collapsed state."""
+		if not self._toolbar or not self._content:
+			return
 		self._is_collapsed = True
 		self._content.hide()
 		if self._orientation == Qt.Orientation.Horizontal and hasattr(self._toolbar, "setOrientation"):
@@ -515,6 +517,8 @@ class SnapCollapseWidget(QWidget):
 
 	def expand(self):
 		"""Shows the content and restores the layout for the expanded state."""
+		if not self._toolbar or not self._content:
+			return
 		self._is_collapsed = False
 		self._content.show()
 		if self._orientation == Qt.Orientation.Horizontal and hasattr(self._toolbar, "setOrientation"):
@@ -527,6 +531,8 @@ class SnapCollapseWidget(QWidget):
 		"""
 		Calculates the minimum size hint for the parent QSplitter.
 		"""
+		if not self._toolbar or not self._content:
+			return QSize(0, 0)
 		if self._is_collapsed:
 			return self._toolbar.minimumSizeHint()
 		# When expanded, the layout is always QVBoxLayout.
