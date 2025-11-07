@@ -310,6 +310,7 @@ class OvlDataTreeView(QTreeView):
 		self.main_window = main_window
 		# Store cacher worker to cancel it if necessary
 		self.current_cacher_worker: Optional['WorkerRunnable'] = None
+		self.cache_ready = False
 		self.background_timer = QTimer(self)
 		self.background_timer.setSingleShot(True)
 		# Connect the timeout signal to a lambda that calls the scan function
