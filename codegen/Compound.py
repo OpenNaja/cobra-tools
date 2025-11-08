@@ -1,3 +1,4 @@
+import os
 from itertools import groupby
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -115,6 +116,9 @@ class Compound(BaseClass):
 
     def write_pyi(self) -> None:
         """Writes the .pyi type stub file for this class."""
+        if os.path.exists(self.out_pyi_file):
+            return  # Do not overwrite the hand-written stub file.
+
         # Initialization
         pyi_imports = Imports(self.parser, self.struct, self.gen_dir, for_pyi=True)
         pyi_imports.add(self.class_basename)
