@@ -45,8 +45,8 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
 	'WmetasbRoot': 'generated.formats.wmeta.structs.WmetasbRoot',
-	'Jwe2WmetasbMain': 'generated.formats.wmeta.structs.Jwe2WmetasbMain',
-	'WmetasbMain': 'generated.formats.wmeta.structs.WmetasbMain',
+	'BnkMetaNew': 'generated.formats.wmeta.structs.BnkMetaNew',
+	'BnkMeta': 'generated.formats.wmeta.structs.BnkMeta',
 	'MediaEntry': 'generated.formats.wmeta.structs.MediaEntry',
 	'EventEntry': 'generated.formats.wmeta.structs.EventEntry',
 }

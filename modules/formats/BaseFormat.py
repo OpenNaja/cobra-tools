@@ -8,7 +8,7 @@ from copy import copy
 from io import BytesIO
 import shutil
 
-from generated.formats.ovl import UNK_HASH, is_jwe2
+from generated.formats.ovl import UNK_HASH, is_jwe2, is_pz, is_pz16
 from generated.formats.ovl.structs.BufferEntry import BufferEntry
 from generated.formats.ovl.structs.MemPool import MemPool
 from generated.formats.ovl.structs.DataEntry import DataEntry
@@ -727,11 +727,14 @@ class MemStructLoader(BaseFile):
 
 
 class MimeContext:
-	def __init__(self, v):
+	def __init__(self, v, ovl):
 		self.version = v
+		self.is_pc_2 = ovl.is_pc_2
+		self.is_pz = (is_pz(ovl) or is_pz16(ovl)) and not self.is_pc_2
+		self.ovl = ovl
 
 	def __repr__(self):
-		return f"MimeContext v={self.version}"
+		return f"MimeContext v={self.version}, is_pc_2={self.is_pc_2}, is_pz={self.is_pz}"
 
 
 class MimeVersionedLoader(MemStructLoader):
@@ -739,5 +742,6 @@ class MimeVersionedLoader(MemStructLoader):
 	def __init__(self, ovl, file_name, mime_version):
 		super().__init__(ovl, file_name, mime_version)
 		# self.get_constants_entry()
-		self.context = MimeContext(self.mime_version)
+		self.context = MimeContext(self.mime_version, self.ovl)
+		print(file_name, self.context)
 	# logging.debug(self.context)

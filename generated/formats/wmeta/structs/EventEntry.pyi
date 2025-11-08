@@ -4,15 +4,14 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class EventEntry(MemStruct):
     hash: int
-    zero: int
-    block_name: Pointer[str]
-    zero_2: int
-    size: int
+    padding: int
+    event_name: Pointer[str]
+    float: float
     flag_0: int
     flag_1: int
     flag_2: int
-    zero_3: int
-    flag_3: int
+    start_name: Pointer[str]
+    zero_2: int
     hash_b: int
     hash_c: int
     zero_4: int

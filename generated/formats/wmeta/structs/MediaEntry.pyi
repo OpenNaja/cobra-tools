@@ -4,8 +4,8 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class MediaEntry(MemStruct):
     hash: int
-    zero: int
-    block_name: Pointer[str]
+    padding: int
+    type_name: Pointer[str]
     wav_name: Pointer[str]
     wem_name: Pointer[str]
 
