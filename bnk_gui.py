@@ -246,7 +246,7 @@ class MainWindow(window.MainWindow):
 		self.bnk_map = {}
 		game = self.game_choice.get_selected_game()
 		if game:
-			game_dir = self.cfg.get("games").get(game)
+			game_dir = self.get_game_path(game)
 			# content packs
 			for cp in self.get_subfolders(game_dir):
 				audio_dir = os.path.join(cp, "Audio")
@@ -278,6 +278,11 @@ class MainWindow(window.MainWindow):
 				bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
 				bnk_item.setText(0, bnk_name)
 				bnk_item.setIcon(0, get_icon("bnk"))
+
+	def get_game_path(self, game):
+		game_info = self.cfg.get("games").get(game)
+		game_dir = game_info["path"]
+		return game_dir
 
 	def store_ovl_paths(self, ovl_path, bnk_name, cp_map):
 		if bnk_name not in cp_map:
@@ -319,7 +324,7 @@ class MainWindow(window.MainWindow):
 			# get folder path to open
 			game = self.game_choice.get_selected_game()
 			if game:
-				game_dir = self.cfg.get("games").get(game)
+				game_dir = self.get_game_path(game)
 				cp_name = names[0]
 				audio_dir = os.path.join(game_dir, cp_name, "Audio")
 				os.startfile(audio_dir)

@@ -178,6 +178,8 @@ class FileWidget(FileDirWidget):
 
 			game = self.cfg["current_game"]
 			recent_files = self.cfg["games"][game]["recent"]
+			# todo - generalize recent files for more formats depending on game, eg. ovl and bnk
+			# recent_files = self.cfg["games"][game][f"{self.ftype_lower}_recent"]
 			if self.filepath in recent_files:
 				recent_files.remove(self.filepath)
 			recent_files.insert(0, self.filepath)
