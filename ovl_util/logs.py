@@ -5,11 +5,15 @@ import os
 import platform
 import sys
 import tempfile
+import inspect
+import pprint
+import threading
 from functools import partialmethod, partial
 from logging import StreamHandler
 from logging.handlers import RotatingFileHandler, QueueHandler, QueueListener
 from queue import Queue
-from typing import TextIO
+from contextlib import contextmanager, nullcontext
+from typing import TextIO, Generator, Any
 
 from ovl_util.config import load_config
 # TODO: log_dir and config_path used in this file should be parameterized instead of hardcoded based on root_dir
@@ -121,20 +125,10 @@ class ColoredFormatter(logging.Formatter):
 		return formatter.format(record)
 
 
-class LoggerFormatter(ColoredFormatter):
-	"""A ColoredFormatter for rich text usage"""
-	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
+class LoggerFormatter(logging.Formatter):
+
+	def __init__(self, fmt: str = "%(levelname)s | %(message)s\n%(details)s", datefmt: str = None, *args, **kwargs):
 		super().__init__(fmt, datefmt, *args, **kwargs)
-		fmt_n = "%(levelname)s | %(message)s\n%(details)s"
-		self.FORMATS = {
-			logging.DEBUG: fmt_n,
-			logging.INFO: fmt_n,
-			logging.INFO + 5: fmt_n, # SUCCESS
-			logging.WARNING: fmt_n,
-			logging.ERROR: fmt_n,
-			logging.CRITICAL: fmt_n,
-		}
-		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 
 
 class HtmlFormatter(ColoredFormatter):
@@ -170,6 +164,162 @@ class AnsiFormatter(ColoredFormatter):
 			logging.CRITICAL: f"{ANSI.LIGHT_RED}{self._fmt}{ANSI.END}"
 		}
 		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
+
+
+class DelegatingFormatter(logging.Formatter):
+	def __init__(self, initial_formatter: logging.Formatter):
+		self._delegate = initial_formatter
+		self._lock = threading.Lock()
+
+	def format(self, record: logging.LogRecord) -> str:
+		# Check if a temporary formatter was attached to this specific record.
+		if hasattr(record, "temporary_formatter"):
+			# Use the record-specific formatter.
+			return record.temporary_formatter.format(record)
+		
+		# Otherwise, use the handler's default delegate formatter.
+		with self._lock:
+			return self._delegate.format(record)
+
+	def set_delegate(self, new_delegate: logging.Formatter):
+		with self._lock:
+			self._delegate = new_delegate
+
+	@property
+	def delegate(self) -> logging.Formatter:
+		with self._lock:
+			return self._delegate
+
+
+# A simple filter that attaches a formatter to a record.
+class TemporaryFormatFilter(logging.Filter):
+	def __init__(self, formatter: logging.Formatter):
+		super().__init__()
+		self.formatter = formatter
+
+	def filter(self, record: logging.LogRecord) -> bool:
+		record.temporary_formatter = self.formatter
+		return True
+
+
+@contextmanager
+def temporary_formatter(
+	formatter: str | logging.Formatter
+) -> Generator[None, Any, None]:
+	"""
+	Thread-safe, race-free context manager that uses a filter to attach a temporary
+	formatter directly to LogRecords.
+	"""
+	if isinstance(formatter, str):
+		new_formatter = logging.Formatter(formatter)
+	else:
+		new_formatter = formatter
+
+	temp_filter = TemporaryFormatFilter(new_formatter)
+	
+	logger = logging.getLogger()
+	try:
+		logger.addFilter(temp_filter)
+		yield
+	finally:
+		logger.removeFilter(temp_filter)
+
+
+_trace_counter = 0
+
+def tracepoint(log_locals: bool = True, fprint: bool = True, fmt: str = "%(message)s"):
+	"""
+	Logs a detailed trace point with the file, line number, function name,
+	and optionally the local variables of the caller.
+
+	Args:
+		locals (bool): If True, logs the local variables of the caller.
+		fprint (bool): If True, default `fmt` removes `DEBUG | ` from each line.
+		fmt (str):  The default format for fprint.
+	"""
+	
+	global _trace_counter
+	_trace_counter += 1
+	
+	# --- Trace Info ---
+	caller_frame = inspect.stack()[1]
+	filename = caller_frame.filename
+	line_number = caller_frame.lineno
+	function_name = caller_frame.function
+	try:
+		rel_filename = os.path.relpath(filename, root_dir).replace("\\", "/")
+	except ValueError:
+		rel_filename = filename.replace("\\", "/")
+
+	# --- Conditional Setup ---
+	context = temporary_formatter(fmt) if fprint else nullcontext()
+
+	# --- Execution ---
+	with context:
+		# The first line is always logged
+		log_message = (
+			f"[📍 TRACE {_trace_counter:03}] {rel_filename}:{line_number} "
+			f"in {function_name}()"
+		)
+		logging.debug(log_message)
+
+		if log_locals:
+			local_vars = caller_frame.frame.f_locals
+			formatted_locals = pprint.pformat(local_vars, indent=2, width=100)
+
+			logging.debug("--- Local Variables ---")
+			for line in formatted_locals.splitlines():
+				logging.debug(line)
+			logging.debug("-----------------------")
+
+
+def toggle_timestamps(enable: bool, date_format: str = "%H:%M:%S") -> None:
+	"""
+	Adds or removes timestamps (including milliseconds) from all handlers 
+	managed by the global listener.
+
+	This function inspects the delegate formatter of each handler's 
+	DelegatingFormatter. It preserves the original formatter class (e.g., 
+	AnsiFormatter, ShorteningFormatter) and prepends the timestamp format.
+
+	Args:
+		enable (bool): If True, adds timestamps. If False, removes them.
+		date_format (str): The date format for the asctime part of the timestamp.
+	"""
+	listener = get_global_listener()
+	if not listener:
+		logging.warning("Cannot toggle timestamps: Global QueueListener not found.")
+		return
+
+	for handler in listener.handlers:
+		if not hasattr(handler, "formatter") or not isinstance(handler.formatter, DelegatingFormatter):
+			continue
+
+		delegating_formatter = handler.formatter
+		current_delegate = delegating_formatter.delegate
+
+		is_timestamped = hasattr(current_delegate, "_original_fmt")
+
+		if enable and not is_timestamped:
+			# --- ADD TIMESTAMPS ---
+			original_fmt = current_delegate._style._fmt
+			original_datefmt = current_delegate.datefmt
+			
+			new_fmt = f"%(asctime)s.%(msecs)03d | {original_fmt}"
+
+			new_delegate = type(current_delegate)(fmt=new_fmt, datefmt=date_format)
+			new_delegate._original_fmt = original_fmt
+			new_delegate._original_datefmt = original_datefmt
+			
+			delegating_formatter.set_delegate(new_delegate)
+		elif not enable and is_timestamped:
+			# --- REMOVE TIMESTAMPS ---
+			original_fmt = current_delegate._original_fmt
+			original_datefmt = current_delegate._original_datefmt
+
+			restored_delegate = type(current_delegate)(fmt=original_fmt, datefmt=original_datefmt)
+			
+			delegating_formatter.set_delegate(restored_delegate)
 
 
 _global_listener: QueueListener | None = None
@@ -241,7 +391,7 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 	if log_to_stdout:
 		stdout_handler = StreamHandler(sys.stdout)
 		stdout_handler.setLevel(logging.INFO)
-		stdout_handler.setFormatter(colored_formatter)
+		stdout_handler.setFormatter(DelegatingFormatter(colored_formatter))
 		stdout_handler.set_name(log_name)
 		handlers.append(stdout_handler)
 
@@ -250,7 +400,7 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 		log_path = f'{os.path.join(root_dir, log_name)}.log'
 		file_handler = LogBackupFileHandler(log_path, mode="w", backupCount=backup_count, delay=True, encoding="utf-8")
 		file_handler.setLevel(logging.DEBUG) # always write all levels to file log
-		file_handler.setFormatter(formatter)
+		file_handler.setFormatter(DelegatingFormatter(formatter))
 		file_handler.set_name(log_name)
 		file_handler.doRollover()
 		handlers.append(file_handler)

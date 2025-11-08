@@ -374,7 +374,7 @@ class MainWindow(FramelessMainWindow):
 
 		# Create LoggerWidget
 		self.logger = LoggerWidget(self, logger_orientation)
-		self.logger.handler.setFormatter(logs.LoggerFormatter('%(levelname)s | %(message)s'))
+		self.logger.handler.setFormatter(logs.DelegatingFormatter(logs.LoggerFormatter()))
 		self.logger.handler.setLevel(logging.INFO)
 		
 		listener = logs.get_global_listener()
