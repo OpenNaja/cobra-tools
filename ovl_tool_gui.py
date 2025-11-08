@@ -5,7 +5,14 @@ import logging
 import tempfile
 from pathlib import PurePath
 
-from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+if __name__ == "__main__":
+	# Guard to hide from pytest or other imports
+	from gui.tools.dev_tools import setup_dev_diagnostics
+	setup_dev_diagnostics()
+	from ovl_util.auto_updater import run_update_check
+	run_update_check("ovl_tool_gui")
+
+from gui import widgets, GuiOptions
 from gui.widgets import window, MenuItem, SubMenuItem, SeparatorMenuItem
 from modules import walker
 import modules.formats.shared
@@ -674,4 +681,15 @@ class MainWindow(window.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="ovl_tool_gui", size=(800, 600)))
+	from gui import startup
+	#from gui.tools.qt_debug import install_signal_tracer, install_qtimer_tracer
+	#install_signal_tracer(ignore=["LogModel.number_fetched", "QTimer.timeout"])
+	#install_qtimer_tracer(ignore=["LogView.startFetches", "_handler_poll_timer"])
+
+	startup(MainWindow,
+		GuiOptions(
+			log_name="ovl_tool_gui",
+			size=(800, 600),
+			check_update=False  # Check update happens at top now
+		)
+	)
