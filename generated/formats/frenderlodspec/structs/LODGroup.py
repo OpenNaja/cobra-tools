@@ -5,7 +5,7 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 class LODGroup(MemStruct):
 
 	"""
-	PC 40 bytes
+	PC, JWE1 40 bytes
 	PZ, JWE2, PC2 56 bytes
 	"""
 
@@ -30,8 +30,8 @@ class LODGroup(MemStruct):
 		yield 'unk_float_1', name_type_map['Float'], (0, None), (True, 0.0), (None, None)
 		yield 'max_model_bounding_sphere_radius', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'lod_points', name_type_map['LODPoints'], (0, None), (False, None), (None, None)
-		yield 'sub_lod_points_count', name_type_map['Uint'], (0, None), (False, 0), (lambda context: not (context.version == 18), None)
-		yield 'sub_lod_points', name_type_map['ArrayPointer'], (None, name_type_map['LODPoints']), (False, None), (lambda context: not (context.version == 18), None)
+		yield 'sub_lod_points_count', name_type_map['Uint'], (0, None), (False, 0), (lambda context: not ((context.version == 18) or (context.user_version.use_djb and (context.version == 19))), None)
+		yield 'sub_lod_points', name_type_map['ArrayPointer'], (None, name_type_map['LODPoints']), (False, None), (lambda context: not ((context.version == 18) or (context.user_version.use_djb and (context.version == 19))), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,6 +40,6 @@ class LODGroup(MemStruct):
 		yield 'unk_float_1', name_type_map['Float'], (0, None), (True, 0.0)
 		yield 'max_model_bounding_sphere_radius', name_type_map['Float'], (0, None), (False, None)
 		yield 'lod_points', name_type_map['LODPoints'], (0, None), (False, None)
-		if not (instance.context.version == 18):
+		if not ((instance.context.version == 18) or (instance.context.user_version.use_djb and (instance.context.version == 19))):
 			yield 'sub_lod_points_count', name_type_map['Uint'], (0, None), (False, 0)
 			yield 'sub_lod_points', name_type_map['ArrayPointer'], (instance.sub_lod_points_count, name_type_map['LODPoints']), (False, None)
