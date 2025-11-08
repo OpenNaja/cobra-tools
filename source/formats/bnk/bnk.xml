@@ -464,6 +464,31 @@
         <field name="SwitchNodeParams" type="AkSwitchNodeParams" arr1="ulNumSwitchParams"/>
     </struct>
 
+    <struct name="CAssociatedChildData">
+        <field name="ulLayerID" type="uint"/>
+        <field name="ulCurveSize" type="uint"/>
+        <field name="pRTPCMgr" type="AkRTPCGraphPoint" arr1="ulCurveSize"/>
+    </struct>
+
+    <struct name="CAkLayer">
+        <field name="ulLayerID" type="uint"/>
+        <field name="InitialRTPC" type="InitialRTPC"/>
+        <field name="rtpcID" type="uint"/>
+        <field name="rtpcType" type="ubyte"/>
+        <field name="ulNumAssoc" type="uint"/>
+        <field name="assocs" type="CAssociatedChildData" arr1="ulNumAssoc"/>
+    </struct>
+
+    <struct name="BlendContainer" inherit="HircObject">
+
+        <field name="NodeBaseParams" type="NodeBaseParams"/>
+        <field name="Num_Children" type="uint"/>
+        <field name="Children" type="uint" arr1="Num_Children"/>
+        <field name="ulNumLayers" type="uint"/>
+        <field name="Layers" type="CAkLayer" arr1="ulNumLayers"/>
+        <field name="bIsContinuousValidation" type="ubyte"/>
+    </struct>
+
     <struct name="AkMediaInformation">
         <field name="sourceID" type="uint"/>
         <field name="uInMemoryMediaSize" type="uint"/>
@@ -649,10 +674,11 @@
         <field name="data" arg="length" type="Event" cond="id == 4"/>
         <field name="data" arg="length" type="RanSeqContainer" cond="id == 5"/>
         <field name="data" arg="length" type="SwitchContainer" cond="id == 6"/>
+        <field name="data" arg="length" type="BlendContainer" cond="id == 9"/>
         <field name="data" arg="length" type="MusicSegment" cond="id == 10"/>
         <field name="data" arg="length" type="MusicTrack" cond="id == 11"/>
         <field name="data" arg="length" type="MusicSwitch" cond="id == 12"/>
-        <field name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 10) #AND# (id != 11) #AND# (id != 12)"/>
+        <field name="data" arg="length" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 5) #AND# (id != 6) #AND# (id != 9) #AND# (id != 10) #AND# (id != 11) #AND# (id != 12)"/>
     </struct>
 
     <struct name="HIRCSection">
