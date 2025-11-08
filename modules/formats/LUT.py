@@ -32,6 +32,14 @@ class LutLoader(MemStructLoader):
 				text.write(f"{color[0]:.6f} {color[1]:.6f} {color[2]:.6f}\n")
 		return paths
 
+	def get_extract_paths(self, out_dir):
+		out_files = super().get_extract_paths(out_dir)
+		paths = [*out_files]
+		file_name = f"{self.basename}.cube"
+		file_path = out_dir(file_name)
+		paths.append(file_path)
+		return paths
+
 	def create(self, file_path):
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		file_dir = os.path.dirname(file_path)

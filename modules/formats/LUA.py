@@ -76,6 +76,24 @@ class LuaLoader(MemStructLoader):
 			out_files.append(lua_path)
 		return out_files
 
+	def get_extract_paths(self, out_dir):
+		if self.lua_flatten:
+			split_path = self.name.split(".")
+			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
+			lua_path = out_dir(new_path)
+		else:
+			lua_path = out_dir(self.name)
+		out_files = []
+		buffer_data = self.data_entry.buffer_datas[0]
+		if buffer_data[1:4] == b"Lua":
+			out_files.append(lua_path)
+
+		bin_path = lua_path + ".bin"
+		if self.show_temp_files:
+			out_files.append(bin_path)
+		out_files.append(lua_path)
+		return out_files
+
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a LUA"""
 		buffer_0 = self.get_content(file_path)

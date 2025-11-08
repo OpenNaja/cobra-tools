@@ -56,21 +56,21 @@ def filter_accept_all(filepath):
 def search_for_files_in_ovls(gui, dir_walk, search_str):
 	if dir_walk:
 		with gui.reporter.log_duration(f"Searching"):
-			res = []
 			with gui.log_level_override("WARNING"):
 				ovl_files = walk_type(dir_walk, extension=".ovl")
 				ovl_data = OvlFile()
 				for ovl_path in gui.reporter.iter_progress(ovl_files, "Searching"):
 					try:
 						file_names = ovl_data.load(ovl_path, commands={"generate_names": True, "game": gui.ovl_game_choice.entry.currentText()})
-						res.extend([
+						matches = [
 							# remove the leading slash for ovl path, else it is interpreted as relative to C:
 							[file_name, os.path.splitext(file_name)[1], os.path.relpath(ovl_path, dir_walk)]
 							for file_name in file_names if search_str in file_name
-						])
+						]
+						if matches:
+							gui.search_files.emit([search_str, matches])
 					except:
 						logging.warning(f"Couldn't read {ovl_path}")
-				gui.search_files.emit([search_str, res])
 
 
 def generate_hash_table(gui, dir_walk):
@@ -589,11 +589,10 @@ def get_manis_values(gui, dir_walk, walk_ovls=True, official_only=True):
 		logging.exception(f"Failed")
 
 
-def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
-	names = {}
-	used_fmts = (".motiongraph", ".cinematic")
+def get_tex_values(gui, dir_walk, walk_ovls=True, official_only=True):
+	dtype_to_files = {}
 	if dir_walk:
-		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, used_fmts):
+		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, (".tex", ".texel", ".texturestream")):
 			if official_only and not filter_accept_official(ovl_path):
 				continue
 			ovl_name = os.path.basename(ovl_path)
@@ -601,15 +600,50 @@ def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 			try:
 				for loader in ovl_data.loaders.values():
 					# print(loader.name)
+					if loader.ext == ".tex":
+						if ovl_data.is_pc_2:
+							t = loader.texbuffer
+							add_key(dtype_to_files, (t.num_mips, t.num_mips_low, t.num_mips_high), f"{loader.basename} ({t.compression_type.name})")
+			except:
+				logging.exception(f"Failed")
+	try:
+		logging.info(f"mips - tex files map")
+		for dtype, files in sorted(dtype_to_files.items()):
+			logging.info(f"mips {dtype} - tex {sorted(files)[:10]}")
+	except:
+		logging.exception(f"Failed")
+
+
+def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
+	out_dir = get_game_constants_dir(dir_walk)
+	game = os.path.basename(out_dir)
+	constants = ConstantsProvider()
+	try:
+		names = constants[game]["audio"]
+		logging.info(f"Adding to {len(names)} existing audio names")
+	except:
+		names = {}
+		logging.info(f"No existing audio names")
+
+	used_fmts = (".motiongraph", ".cinematic")
+	if dir_walk:
+		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, used_fmts):
+			if official_only and not filter_accept_official(ovl_path):
+				continue
+			try:
+				for loader in ovl_data.loaders.values():
 					if loader.ext in used_fmts:
-						for s in loader.get_audio_strings():
-							h = fnv1_32(s.lower().encode())
-							names[h] = s
-							# print(s)
+						for audio_event in loader.get_audio_strings():
+							suffixes = ("", "_oc", "_oc_stop", "_oc_start", "_start", "_stop")
+							for suffix in suffixes[1:]:
+								audio_event = audio_event.removesuffix(suffix)
+							for suffix in suffixes:
+								s = audio_event + suffix
+								h = fnv1_32(s.lower().encode())
+								names[h] = s
 			except:
 				logging.exception(f"Failed")
 
-		out_dir = get_game_constants_dir(dir_walk)
 		os.makedirs(out_dir, exist_ok=True)
 		write_audio_dict(os.path.join(out_dir, "audio.py"), names)
 

@@ -106,6 +106,10 @@ class ImportMS2(BulkImportOp):
 		name="Use MS2 Normals",
 		description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
 		default=True)
+	quadrify: BoolProperty(
+		name="Quadrify Tris",
+		description="Convert tris to quads for easier editing. May change edges in quads, so turn this off when a regular edge grid matters (some cases of hard surface modeling).",
+		default=True)
 	mirror_mesh: BoolProperty(
 		name="Mirror Meshes",
 		description="Mirrors models. Careful, sometimes bones don't match",

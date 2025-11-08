@@ -142,7 +142,8 @@ def check_lua_syntax(lua_path):
 		lua_name = os.path.basename(lua_path)
 		# capture the console output
 		bytes_output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		output = bytes_output.decode(sys.getdefaultencoding())
+		# luacheck doesn't seem to handle non-ASCII chars when printing lua_path, so just escape them
+		output = bytes_output.decode(sys.getdefaultencoding(), errors="surrogateescape")
 		lines = [line.strip() for line in output.split("\r\n")]
 		for line in lines:
 			if line.startswith(lua_path):

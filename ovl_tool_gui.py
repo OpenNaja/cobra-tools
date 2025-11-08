@@ -3,6 +3,7 @@ import os
 import shutil
 import logging
 import tempfile
+import time
 from pathlib import PurePath
 
 if __name__ == "__main__":
@@ -13,6 +14,7 @@ if __name__ == "__main__":
 	run_update_check("ovl_tool_gui")
 
 from gui import widgets, GuiOptions
+from gui.app_utils import DelayedMimeData
 from gui.widgets import window, MenuItem, SubMenuItem, SeparatorMenuItem
 from modules import walker
 import modules.formats.shared
@@ -144,6 +146,7 @@ class MainWindow(window.MainWindow):
 						MenuItem("Inspect MS2", self.inspect_models, icon="ms2"),
 						MenuItem("Inspect FGM", self.walker_fgm, icon="fgm"),
 						MenuItem("Inspect MANIS", self.walker_manis, icon="manis"),
+						MenuItem("Inspect TEX", self.walker_tex, icon="tex"),
 						MenuItem("Generate Audio Events", self.walker_audio, icon="bnk"),
 						MenuItem("Generate Hash Table", self.walker_hash),
 						MenuItem("Dump Debug Data", self.dump_debug_data, icon="dump_debug"),
@@ -217,10 +220,10 @@ class MainWindow(window.MainWindow):
 		self.finfo_sep.show()
 
 	def show_search_results(self, tup):
-		search_str, results = tup
+		search_str, matches = tup
 		results_container = self.search_views.get(search_str)
 		if results_container:
-			results_container.set_data(results)
+			results_container.table.append_rows(matches)
 
 	def search_ovl_contents(self, search_str):
 		search_str = search_str.lower()
@@ -234,6 +237,7 @@ class MainWindow(window.MainWindow):
 			results_container.table.file_double_clicked.connect(self.search_result_open)
 			results_container.setWindowTitle(f"Results for: {search_str}")
 			results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+			results_container.set_data([])
 			results_container.show()
 
 			def remove_view():
@@ -352,30 +356,38 @@ class MainWindow(window.MainWindow):
 		# logging.debug(f"Dragging {file_names}")
 		with self.no_popups():
 			drag = QtGui.QDrag(self)
-			data = QtCore.QMimeData()
+			mime = DelayedMimeData()
 			temp_dir = tempfile.mkdtemp("-cobra")
-			try:
-				out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
-				if out_paths:
-					# make relative to output folder
-					pure_paths = (PurePath(os.path.relpath(path, temp_dir)) for path in out_paths)
-					rel_out_paths = set()
-					for p in pure_paths:
-						# get the first dir in the path
-						if len(p.parents) > 1:
-							rel_out_paths.add(str(p.parents[-2]))
-						# no dir, just the file itself
-						else:
-							rel_out_paths.add(str(p))
-					# join the children back to the temp_dir
-					out_paths = set(os.path.join(temp_dir, p) for p in rel_out_paths)
-					# set paths to mime
-					data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
-					drag.setMimeData(data)
-					drag.exec_()
-			except:
-				self.handle_error("Dragging failed, see log!")
+			out_paths = self.ovl_data.get_extract_paths(temp_dir, only_names=file_names)
+			out_paths = self.handle_flattened_folders(out_paths, temp_dir)
+			def extract_callback():
+				try:
+					self.ovl_data.extract(temp_dir, only_names=file_names)
+				except:
+					self.handle_error("Dragging failed, see log!")
+			if out_paths:
+				# set paths to mime
+				mime.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+				mime.add_callback(extract_callback)
+				drag.setMimeData(mime)
+				drag.exec_()
 			shutil.rmtree(temp_dir)
+
+	def handle_flattened_folders(self, out_paths, temp_dir):
+		"""Takes list of file paths and replaces any folders containing sub-paths in temp_dir with their relative base folder so that the subfolder is returned instead of the loose files"""
+		rel_out_paths = set()
+		for out_path in out_paths:
+			# make out_paths relative to output folder
+			rel_path = PurePath(os.path.relpath(out_path, temp_dir))
+			# get the first dir in the path, files are nested inside
+			if len(rel_path.parents) > 1:
+				# parents are reversed, so this gets the first subfolder ['components/render', 'components', '.']
+				rel_out_paths.add(str(rel_path.parents[-2]))
+			# no dir, just a file itself
+			else:
+				rel_out_paths.add(str(rel_path))
+		# join the relative paths back to temp_dir
+		return set(os.path.join(temp_dir, p) for p in rel_out_paths)
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
@@ -667,6 +679,15 @@ class MainWindow(window.MainWindow):
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_manis_values, (), self, dir_walk=dialog.dir_walk,
+				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
+			)
+
+	def walker_tex(self, ):
+		self.change_log_speed.emit("slow")
+		dialog = widgets.WalkerDialog(self, "Inspect Tex", self.walk_root())
+		if dialog.exec():
+			self.run_in_threadpool(
+				walker.get_tex_values, (), self, dir_walk=dialog.dir_walk,
 				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 

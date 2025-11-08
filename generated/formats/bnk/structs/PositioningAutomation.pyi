@@ -5,8 +5,7 @@ from generated.formats.bnk.structs.AkPathVertex import AkPathVertex
 from generated.formats.bnk.structs.Vec import Vec
 
 
-class PositioningData(BaseStruct):
-    u_bits_3_d: int
+class PositioningAutomation(BaseStruct):
     e_path_mode: int
     transition_time: int
     ul_num_vertices: int

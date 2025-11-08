@@ -6,5 +6,6 @@ class FXChunk(BaseStruct):
     fx_i_d: int
     b_is_share_set: int
     b_is_rendered: int
+    bit_vector: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

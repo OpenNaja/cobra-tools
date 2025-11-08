@@ -12,6 +12,7 @@ class Locomotion2ActivityData(MemStruct):
     flags: int
     stopping_distance: float
     strafe_turn_blend: float
+    _padding: int
     turn_blend_limit: float
     turn_speed_multiplier: float
     flex_speed_multiplier: float

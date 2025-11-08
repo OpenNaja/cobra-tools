@@ -70,7 +70,7 @@ def get_exe_from_ovldata(ovldata_path: str) -> str:
                 exe.lower().endswith(".exe") and exe.lower() not in ("crash_reporter.exe",)]
         if exes:
             return os.path.join(game_dir, exes[0])
-        logging.debug("EXE not found in manually added game folder")
+        logging.debug(f"EXE not found in {game_dir}")
     else:
         logging.debug(f"Game folder {game_dir} does not exist")
     return ""
@@ -303,6 +303,7 @@ def launch_game(game: str, cfg: Config):
         args.extend(["-disableprint", "-level", "modelviewer"])  # only works on JWE2, crashes PC, PZ
     # try steam launch
     id_map = {
+        "Jurassic World Evolution 3": 2958130,
         "Jurassic World Evolution 2": 1244460,
         "Jurassic World Evolution": 648350,
         "Planet Coaster 2": 2688950,
@@ -423,5 +424,56 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
         logging.info(f"Error launching {editor_name} ('{command_to_run}'): {e}.")
     
     return False
+
+# endregion
+
+
+
+
+# -------------------------------------------------------------------------- #
+#                              DELAY DRAGGING                                #
+# region ------------------------------------------------------------------- #
+
+# from https://stackoverflow.com/questions/64252654/pyqt5-drag-and-drop-into-system-file-explorer-with-delayed-encoding?noredirect=1&lq=1
+
+import time
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
+
+import tempfile
+import os
+
+# Use win32api on Windows because the pynput and mouse packages cause lag
+# https://github.com/moses-palmer/pynput/issues/390
+if os.name == 'nt':
+    import win32api
+
+
+    def mouse_pressed():
+        return win32api.GetKeyState(0x01) not in [0, 1]
+else:
+    import mouse
+
+
+    def mouse_pressed():
+        return mouse.is_pressed()
+
+
+class DelayedMimeData(QtCore.QMimeData):
+    def __init__(self):
+        super().__init__()
+        self.callbacks = []
+
+    def add_callback(self, callback):
+        self.callbacks.append(callback)
+
+    def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
+        if not mouse_pressed():
+            for callback in self.callbacks.copy():
+                self.callbacks.remove(callback)
+                callback()
+
+        return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
 
 # endregion

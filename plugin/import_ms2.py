@@ -18,7 +18,7 @@ from plugin.utils.object import create_ob, create_scene, create_collection, set_
 from generated.formats.ms2 import Ms2File
 
 
-def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False):
+def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False, quadrify = True):
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
@@ -116,7 +116,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						append_armature_modifier(b_ob, b_armature_obj)
 						if mirror_mesh:
 							append_mirror_modifier(b_ob)
-						ob_postpro(mirror_mesh)
+						ob_postpro(mirror_mesh, quadrify)
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:

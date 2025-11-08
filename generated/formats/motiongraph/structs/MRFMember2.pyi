@@ -1,4 +1,5 @@
 from generated.formats.motiongraph.structs.ActivityReference import ActivityReference
+from generated.formats.motiongraph.structs.CurveData import CurveData
 from generated.formats.motiongraph.structs.Transition import Transition
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
 from generated.formats.ovl_base.structs.Pointer import Pointer
@@ -6,14 +7,13 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class MRFMember2(MemStruct):
     transition: Pointer[Transition]
-    count_0: int
+    curve: Pointer[CurveData]
     trigger: Pointer[str]
     activities: Pointer[ActivityReference]
-    count_3_a: int
-    count_3_b: int
+    curve_length: float
     count_3_c: int
     num_activities: int
-    count_5: int
+    other_mrf: Pointer[MRFMember2]
     count_6_a: int
     count_6_b: int
     count_6_c: int

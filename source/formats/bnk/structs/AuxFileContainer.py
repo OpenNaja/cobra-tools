@@ -68,7 +68,7 @@ class AuxFileContainer(BaseStruct):
 				for pointer in instance.didx.data_pointers:
 					pointer.data = bytes(instance.data.wem_datas[pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
 					pointer.hash = fmt_hash(pointer.wem_id)
-					logging.debug(f"Pointer {pointer.hash} has {pointer.data_section_offset} bytes {pointer.wem_filesize}")
+					# logging.debug(f"Pointer {pointer.hash} has {pointer.data_section_offset} bytes {pointer.wem_filesize}")
 		except:
 			raise
 
@@ -77,11 +77,12 @@ class AuxFileContainer(BaseStruct):
 		logging.info(f"Injecting audio for {wem_id}")
 		for pointer in self.didx.data_pointers:
 			if pointer.hash == wem_id:
-				logging.info(f"{pointer.hash} before injection - {len(pointer.data)} bytes, reading wem data")
+				logging.info(f"found a match {pointer.hash}, injecting audio")
+				# logging.info(f"{pointer.hash} before injection - {len(pointer.data)} bytes, reading wem data")
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
 				pointer.wem_filesize = len(pointer.data)
-				logging.info(f"{pointer.hash} after injection - {len(pointer.data)} bytes")
+				# logging.info(f"{pointer.hash} after injection - {len(pointer.data)} bytes")
 				break
 
 	def inject_hirc(self, wem_path, wem_id):
@@ -91,7 +92,7 @@ class AuxFileContainer(BaseStruct):
 			for pointer in self.hirc.hirc_pointers:
 				if pointer.id == HircType.SOUND:
 					if pointer.hash == wem_id:
-						logging.info(f"found a match {pointer.hash}, updating wem data size")
+						logging.debug(f"found a match {pointer.hash}, updating wem data size")
 						bank = pointer.data.ak_bank_source_data
 						bank.size = bank.ak_media_information.u_in_memory_media_size = os.path.getsize(wem_path)
 						break

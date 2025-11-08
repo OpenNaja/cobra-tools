@@ -134,6 +134,21 @@ class VoxelskirtLoader(MemStructLoader):
 				out_files.append(p)
 		return out_files
 
+	def get_extract_paths(self, out_dir):
+		out_files = list(super().get_extract_paths(out_dir))
+		basepath = out_dir(self.basename)
+		if is_pc(self.ovl):
+			p = f"{basepath}_height.tiff"
+			out_files.append(p)
+			for i in range(4):
+				p = f"{basepath}_mask{i}.png"
+				out_files.append(p)
+		else:
+			for layer in self.header.layers.data:
+				p = self.get_file_path(layer, basepath)
+				out_files.append(p)
+		return out_files
+
 	def get_dtype(self, layer):
 		if layer.dtype == 0:
 			return Ubyte

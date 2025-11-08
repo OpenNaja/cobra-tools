@@ -4,6 +4,10 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
 class TriggeredActivityActivityData(MemStruct):
 
+	"""
+	differs by game version
+	"""
+
 	__name__ = 'TriggeredActivityActivityData'
 
 
@@ -26,9 +30,9 @@ class TriggeredActivityActivityData(MemStruct):
 		yield 'activity', name_type_map['Pointer'], (0, name_type_map['Activity']), (False, None), (None, None)
 		yield 'blend_in_time', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'blend_out_time', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'm_auto_start', name_type_map['Ubyte'], (0, None), (False, 0), (None, None)
-		yield 'm_allow_restart', name_type_map['Ubyte'], (0, None), (False, 0), (None, None)
-		yield 'm_allow_mortal', name_type_map['Ubyte'], (0, None), (False, 0), (None, None)
+		yield 'm_auto_start', name_type_map['Ubyte'], (0, None), (False, 0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'm_allow_restart', name_type_map['Ubyte'], (0, None), (False, 0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
+		yield 'm_allow_mortal', name_type_map['Ubyte'], (0, None), (False, 0), (lambda context: not ((not context.user_version.use_djb) and (context.version >= 19)), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,6 +41,7 @@ class TriggeredActivityActivityData(MemStruct):
 		yield 'activity', name_type_map['Pointer'], (0, name_type_map['Activity']), (False, None)
 		yield 'blend_in_time', name_type_map['Float'], (0, None), (False, None)
 		yield 'blend_out_time', name_type_map['Float'], (0, None), (False, None)
-		yield 'm_auto_start', name_type_map['Ubyte'], (0, None), (False, 0)
-		yield 'm_allow_restart', name_type_map['Ubyte'], (0, None), (False, 0)
-		yield 'm_allow_mortal', name_type_map['Ubyte'], (0, None), (False, 0)
+		if not ((not instance.context.user_version.use_djb) and (instance.context.version >= 19)):
+			yield 'm_auto_start', name_type_map['Ubyte'], (0, None), (False, 0)
+			yield 'm_allow_restart', name_type_map['Ubyte'], (0, None), (False, 0)
+			yield 'm_allow_mortal', name_type_map['Ubyte'], (0, None), (False, 0)

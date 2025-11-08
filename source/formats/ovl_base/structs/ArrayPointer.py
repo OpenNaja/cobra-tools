@@ -48,7 +48,11 @@ class ArrayPointer(Pointer):
 		if callable(getattr(instance.template, "_to_xml_array", None)):
 			instance.template._to_xml_array(instance.data, elem, debug)
 			return
-		Array._to_xml(instance.data, elem, debug)
+		# assert isinstance(instance.data, Array)
+		try:
+			Array._to_xml(instance.data, elem, debug)
+		except:
+			logging.warning(f"Could not convert array '{instance.data}' to XML")
 
 	@classmethod
 	def _from_xml(cls, instance, elem):

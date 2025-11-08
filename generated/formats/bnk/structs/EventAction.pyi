@@ -14,5 +14,6 @@ class EventAction(HircObject):
     raw: Array[int]
     by_bit_vector: int
     bank_i_d: int
+    bank_type: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

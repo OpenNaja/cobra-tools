@@ -4,13 +4,11 @@ import os
 import re
 import zlib
 import math
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 from collections import Counter
 from contextlib import contextmanager
 from io import BytesIO
-
-import numpy as np
 
 from constants import ConstantsProvider
 from generated.formats.ovl.structs.ArchiveEntry import ArchiveEntry
@@ -32,7 +30,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
 def oodle_compress_chunk(args):
-	"""Picklable function for ProcessPoolExecutor"""
+	"""Picklable function for ThreadPoolExecutor"""
 	uncompressed_bytes, oodle_codec, oodle_level = args
 	return oodle_compressor.compress(uncompressed_bytes, oodle_codec, level=oodle_level)
 
@@ -110,12 +108,10 @@ class OvsFile(OvsHeader):
 				logging.debug(f"Oodle compression using {num_processes} cores")
 
 				if use_threads:
-					with ProcessPoolExecutor(max_workers=num_processes) as executor:
+					with ThreadPoolExecutor(max_workers=num_processes) as executor:
 						compressed = b"".join(executor.map(oodle_compress_chunk, chunks))
 				else:
-					compressed = b""
-					for chunk in chunks:
-						compressed += oodle_compress_chunk(chunk)
+					compressed = b"".join(oodle_compress_chunk(chunk) for chunk in chunks)
 
 				return len(uncompressed_bytes), len(compressed), compressed
 		except:
@@ -671,6 +667,37 @@ class OvlFile(Header):
 				except:
 					logging.exception(f"An exception occurred while extracting {loader.name}")
 					error_files.append(loader.name)
+		return out_paths
+
+	def get_extract_paths(self, out_dir, only_names=(), only_types=()):
+		"""Extract the files, after all archives have been read"""
+
+		def out_dir_func(n):
+			"""Helper function to generate temporary output file name"""
+			out_path = os.path.normpath(os.path.join(out_dir, escape_path(n)))
+			# create output dir
+			os.makedirs(os.path.dirname(out_path), exist_ok=True)
+			return out_path
+
+		out_paths = []
+		loaders_for_extract = []
+		_only_types = [s.lower() for s in only_types]
+		_only_names = [s.lower() for s in only_names]
+		for loader in self.loaders.values():
+			# for batch operations, only export those that we need
+			if _only_types and loader.ext not in _only_types:
+				continue
+			if _only_names and loader.name not in _only_names:
+				continue
+			# ignore types in the count that we export from inside other type exporters
+			if loader.ext in self.formats_dict.ignore_types:
+				continue
+			loaders_for_extract.append(loader)
+		logging.info(f"Extracting {len(loaders_for_extract)} / {len(self.files)} files")
+		for loader in loaders_for_extract:
+			ret_paths = loader.get_extract_paths(out_dir_func)
+			ret_paths = loader.handle_paths(ret_paths)
+			out_paths.extend(ret_paths)
 		return out_paths
 
 	def create_file(self, file_path, file_name, ovs_name="STATIC"):

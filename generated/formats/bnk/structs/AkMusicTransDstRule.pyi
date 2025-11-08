@@ -1,10 +1,9 @@
 from generated.base_struct import BaseStruct
+from generated.formats.bnk.structs.FadeParams import FadeParams
 
 
 class AkMusicTransDstRule(BaseStruct):
-    transition_time: int
-    e_fade_curve: int
-    i_fade_offset: int
+    fade_params: FadeParams
     u_cue_filter_hash: int
     u_jump_to_i_d: int
     e_jump_to_type: int

@@ -17,6 +17,7 @@ class AkMusicTransitionRule(BaseStruct):
 		self.src_rule = name_type_map['AkMusicTransSrcRule'](self.context, 0, None)
 		self.dst_rule = name_type_map['AkMusicTransDstRule'](self.context, 0, None)
 		self.alloc_trans_object_flag = name_type_map['Ubyte'](self.context, 0, None)
+		self.transition_object = name_type_map['AkMusicTransitionObject'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -30,6 +31,7 @@ class AkMusicTransitionRule(BaseStruct):
 		yield 'src_rule', name_type_map['AkMusicTransSrcRule'], (0, None), (False, None), (None, None)
 		yield 'dst_rule', name_type_map['AkMusicTransDstRule'], (0, None), (False, None), (None, None)
 		yield 'alloc_trans_object_flag', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'transition_object', name_type_map['AkMusicTransitionObject'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -41,3 +43,5 @@ class AkMusicTransitionRule(BaseStruct):
 		yield 'src_rule', name_type_map['AkMusicTransSrcRule'], (0, None), (False, None)
 		yield 'dst_rule', name_type_map['AkMusicTransDstRule'], (0, None), (False, None)
 		yield 'alloc_trans_object_flag', name_type_map['Ubyte'], (0, None), (False, None)
+		if instance.alloc_trans_object_flag:
+			yield 'transition_object', name_type_map['AkMusicTransitionObject'], (0, None), (False, None)

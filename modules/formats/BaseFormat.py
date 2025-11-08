@@ -51,6 +51,11 @@ class BaseFile:
 		self.same = False
 		self.aux_handles = {}
 
+
+	def get_extract_paths(self, out_dir):
+		out_path = out_dir(self.name)
+		return out_path,
+
 	def flush_to_aux(self):
 		pass
 
@@ -137,7 +142,9 @@ class BaseFile:
 	@name.setter
 	def name(self, n):
 		self._name = n.lower()
-		self.basename, self.ext = os.path.splitext(self._name)
+		# os.path.splitext fails on /ymaiotriqnd03i9/.texel
+		self.basename, ext = self._name.lower().rsplit(".", 1)
+		self.ext = f".{ext}"
 		self.file_hash = djb2(self.basename)
 		self.ext_hash = djb2(self.ext[1:])
 
@@ -543,7 +550,9 @@ class BaseFile:
 		if self.temp_extensions and not self.show_temp_files:
 			paths_to_remove = [p for p in paths if os.path.splitext(p)[1].lower() in self.temp_extensions]
 			for p in paths_to_remove:
-				os.remove(p)
+				# ensure it's not been deleted already
+				if os.path.isfile(p):
+					os.remove(p)
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
 
@@ -695,6 +704,13 @@ class MemStructLoader(BaseFile):
 			return out_path,
 		else:
 			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
+			return ()
+
+	def get_extract_paths(self, out_dir):
+		if self.header:
+			out_path = out_dir(self.name)
+			return out_path,
+		else:
 			return ()
 
 	def collect(self):
