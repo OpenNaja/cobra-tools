@@ -224,10 +224,10 @@ class BaseStruct(metaclass=StructMetaClass):
                 if "version" in f_name:
                     setattr(instance.context, f_name, getattr(instance, f_name))
             except:
-                logging.warning(f"Failed reading '{cls.__name__}.{f_name}' at {stream.tell()}")
-                # stop reading this struct
-                break
-                # raise BufferError(f"Failed reading '{cls.__name__}.{f_name}' at {stream.tell()}")
+                # logging.warning(f"Failed reading '{cls.__name__}.{f_name}' at {stream.tell()}")
+                # # stop reading this struct
+                # break
+                raise BufferError(f"Failed reading '{cls.__name__}.{f_name}' at {stream.tell()}")
 
     @classmethod
     def write_fields(cls, stream, instance):
