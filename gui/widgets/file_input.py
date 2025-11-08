@@ -37,7 +37,6 @@ class FileDirWidget(QWidget):
 		self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
 		self.cfg.setdefault(self.cfg_last_dir_save, "C:/")
 		self.cfg.setdefault(self.cfg_last_file_open, "C:/")
-		self.cfg.setdefault(self.cfg_recent_files, [])
 
 		self.ask_user = ask_user
 		self.check_exists = check_exists
@@ -94,10 +93,6 @@ class FileDirWidget(QWidget):
 	@property
 	def cfg_last_file_open(self) -> str:
 		return f"last_{self.cfg_key}_in"
-
-	@property
-	def cfg_recent_files(self) -> str:
-		return f"recent_{self.cfg_key}_in"
 
 	def cfg_path(self, cfg_str: str) -> str:
 		return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -180,7 +175,9 @@ class FileWidget(FileDirWidget):
 			self.set_file_path(filepath)
 			self.cfg[self.cfg_last_dir_open] = self.dir
 			self.cfg[self.cfg_last_file_open] = self.filepath
-			recent_files = self.cfg[self.cfg_recent_files]
+
+			game = self.cfg["current_game"]
+			recent_files = self.cfg["games"][game]["recent"]
 			if self.filepath in recent_files:
 				recent_files.remove(self.filepath)
 			recent_files.insert(0, self.filepath)

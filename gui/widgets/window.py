@@ -694,11 +694,12 @@ class MainWindow(FramelessMainWindow):
 			return
 		recent_menu.clear()
 		# Fetch from config only once
-		recent_files_from_cfg = self.cfg.get(self.file_widget.cfg_recent_files, [])
+		game = self.cfg["current_game"]
+		recent_files_from_cfg = self.cfg["games"][game]["recent"]
 		valid_files = [fp for fp in recent_files_from_cfg if os.path.isfile(fp)]
 		# If stale paths were removed, update the configuration
 		if len(valid_files) != len(recent_files_from_cfg):
-			self.cfg[self.file_widget.cfg_recent_files] = valid_files
+			self.cfg["games"][game]["recent"] = valid_files
 		# Add a placeholder if the list is empty
 		if not valid_files:
 			action = QAction("(No Recent Files)", self)
@@ -720,7 +721,7 @@ class MainWindow(FramelessMainWindow):
 		recent_menu.addSeparator()
 		clear_action = QAction("Clear Recent Files", self)
 		def clear_list():
-			self.cfg[self.file_widget.cfg_recent_files] = []
+			self.cfg["games"][game]["recent"] = []
 
 		clear_action.triggered.connect(clear_list)
 		recent_menu.addAction(clear_action)

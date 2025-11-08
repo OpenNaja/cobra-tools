@@ -581,7 +581,8 @@ class GameSelectorWidget(QWidget):
 		icon_size = style.pixelMetric(QStyle.PM_SmallIconSize)
 
 		self.entry.clear()
-		for game, ovldata in sorted_games:
+		for game, game_info in sorted_games:
+			ovldata = game_info["path"]
 			icon = get_exe_icon(game, get_exe_from_ovldata(ovldata), icon_size)
 			if not icon.isNull():
 				self.entry.addItem(icon, game)
@@ -607,8 +608,18 @@ class GameSelectorWidget(QWidget):
 	def set_games(self) -> None:
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
-		self.cfg["games"].update(get_steam_games(self.games_list))
+		for game, path in get_steam_games(self.games_list).items():
+			self.init_game_in_cfg(game, path)
 		self.set_data(self.cfg["games"])
+
+	def init_game_in_cfg(self, game, path):
+		if game not in self.cfg["games"]:
+			self.cfg["games"][game] = {}
+		game_info = self.cfg["games"][game]
+		if "path" not in game_info:
+			game_info["path"] = path
+		if "recent" not in game_info:
+			game_info["recent"] = []
 
 	def game_chosen(self, game: str) -> None:
 		"""Run after choosing a game from dropdown of installed games"""
@@ -625,16 +636,16 @@ class GameSelectorWidget(QWidget):
 			# try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
 			pattern = re.compile(r"\\win64\\ovldata", re.IGNORECASE)
 			without_suffix = pattern.sub("", dir_game)
-			current_game = os.path.basename(without_suffix)
+			game = os.path.basename(without_suffix)
 			# suffix the dir without suffix again and store that if it exists
 			added_suffix = os.path.join(without_suffix, "win64", "ovldata")
 			if os.path.isdir(added_suffix):
 				dir_game = added_suffix
 			# store this newly chosen game in cfg
-			self.cfg["games"][current_game] = dir_game
+			self.init_game_in_cfg(game, dir_game)
 			# update available games
 			self.set_data(self.cfg["games"])
-			self.game_chosen(current_game)
+			self.game_chosen(game)
 
 
 class OvlSearchWidget(QWidget):
@@ -786,10 +797,10 @@ class OvlManagerWidget(QWidget):
 		# if current_game hasn't been set (no config.json), fall back on currently selected game
 		if not game:
 			game = self.game_choice.get_selected_game()
-		dir_game = self.cfg["games"].get(game, None)
+		dict_game = self.cfg["games"].get(game, None)
 		# if current_game has been set, assume it exists in the games dict too (from steam)
-		if dir_game:
-			self.dirs.set_root(dir_game)
+		if dict_game:
+			self.dirs.set_root(dict_game["path"])
 			self.dirs.set_selected_path(self.cfg.get("last_ovl_in", None))
 			self.game_choice.entry.blockSignals(True)
 			self.game_choice.entry.setText(game)

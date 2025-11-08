@@ -45,7 +45,6 @@ class TransientSetting(BaseSetting):
 
 class Config(dict):
 
-	# recent_ovls = ImmediateSetting("Recent OVLs", "The last OVL files that have been accessed", [])
 	# current_ovl = TransientSetting("Current OVL", "The last OVL file that has been accessed", "some_ovl.ovl", (), lambda x: x.endswith(".ovl"))
 	oodle_level = TransientSetting("Oodle Level", "Higher numbers compress better, while lower numbers compress faster", 6, list(range(10)))
 	debug_mode = TransientSetting("Debug Mode", "Enables debugging when checked:\n"
