@@ -578,3 +578,60 @@ def _trace_pyqt_signals(
 	monkeypatch.setattr(pyqtBoundSignal, "connect", patched_connect)
 
 # endregion
+
+
+# -------------------------------------------------------------------------- #
+#                           QMainWindow Orphans                              #
+# region ------------------------------------------------------------------- #
+
+import gc
+import logging
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from PyQt5.QtWidgets import QWidget
+
+def log_orphan_widgets(main_window: 'QWidget'):
+	"""
+	Finds all QWidget objects tracked by Python's garbage collector that are
+	not part of the main window's child hierarchy and have no parent. It then
+	logs information about these potential orphans.
+
+	Args:
+		main_window: The main QWidget of the application to use as the root.
+	"""
+	from PyQt5.QtWidgets import QWidget
+	logging.warning("--- Starting Orphan Widget Check ---")
+
+	# Get all widgets that are correctly part of the main window's hierarchy
+	known_widgets = set(main_window.findChildren(QWidget))
+	known_widgets.add(main_window)
+	# Find all QWidget instances currently being tracked by the garbage collector
+	all_widget_instances = [obj for obj in gc.get_objects() if isinstance(obj, QWidget)]
+
+	orphan_found = False
+	# Find any widgets in sets that are alive but unparented
+	for widget in all_widget_instances:
+		if widget not in known_widgets and widget.parent() is None:
+			# This widget is not a descendant of the main window and has no parent.
+			# To reduce noise, we can skip widgets that appear to be properly closed
+			if not widget.isVisible():
+				continue
+
+			orphan_found = True
+			info = (
+				f"Potential Orphan QWidget Found -> "
+				f"Class: {type(widget).__name__}, "
+				f"ObjectName: '{widget.objectName()}', "
+				f"WindowTitle: '{widget.windowTitle()}', "
+				f"Is Visible: {widget.isVisible()}, "
+				f"Children: {widget.findChildren(QWidget)}"
+			)
+			logging.warning(info)
+			widget.setParent(main_window)
+
+	if not orphan_found:
+		logging.info("[Orphan Widget Check] No unparented widgets found")
+	else:
+		logging.warning("[Orphan Widget Check] Finished. Potential orphans were logged above")
+
+# endregion
