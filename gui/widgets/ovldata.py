@@ -284,6 +284,7 @@ class OvlDataTreeView(QTreeView):
 
 	def __init__(self, parent: Optional[QWidget] = None, main_window: 'MainWindow' = None, actions={}, filters=()) -> None:
 		super().__init__(parent)
+		self.current_file_path = None
 		self.actions = actions
 		self.file_model = OvlDataFilesystemModel()
 		self.file_model.setNameFilters(filters)
@@ -360,6 +361,9 @@ class OvlDataTreeView(QTreeView):
 
 		# Restore existing filter text
 		self.set_filter(self.filter_text)
+
+		# qt crashes if the cfg dict is queried here, so just use current_file_path that has been set before
+		self.set_selected_path(self.current_file_path)
 
 	def item_clicked(self, idx: QModelIndex) -> None:
 		if not self.isExpanded(idx):
@@ -801,7 +805,8 @@ class OvlManagerWidget(QWidget):
 		# if current_game has been set, assume it exists in the games dict too (from steam)
 		if dict_game:
 			self.dirs.set_root(dict_game["path"])
-			self.dirs.set_selected_path(self.cfg.get("last_ovl_in", None))
+			last_ovls = dict_game["recent"]
+			self.dirs.current_file_path = last_ovls[0] if last_ovls else None
 			self.game_choice.entry.blockSignals(True)
 			self.game_choice.entry.setText(game)
 			self.game_choice.entry.blockSignals(False)
