@@ -768,7 +768,7 @@ def get_quat_scale_fac(norm_half_abs: float):
 
 
 if __name__ == "__main__":
-    from ovl_util.logs import logging_setup
+    from utils.logs import logging_setup
     logging_setup("mani")
     for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
         print(ManisDtype.from_value(k))

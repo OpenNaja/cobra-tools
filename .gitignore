@@ -194,10 +194,10 @@ OVL Tools.lnk
 plugin/**/*.blend1
 
 # Compressonator
-ovl_util/compressonator/**.png
-ovl_util/compressonator/**.dds
-ovl_util/compressonator/**_analysis.xml
-ovl_util/compressonator/process_results.txt
+compressonator/**.png
+compressonator/**.dds
+compressonator/**_analysis.xml
+compressonator/process_results.txt
 
 # Experimentals that shouldn't be committed
 /playground/*

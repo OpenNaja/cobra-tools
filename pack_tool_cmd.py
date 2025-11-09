@@ -10,8 +10,8 @@ import shutil
 import pathlib
 import logging
 
-from ovl_util.config import read_str_dict
-from ovl_util.logs import logging_setup
+from utils.config import read_str_dict
+from utils.logs import logging_setup
 
 logging_setup("pack_tool_cmd")
 

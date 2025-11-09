@@ -7,8 +7,8 @@ from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
 
-from ovl_util import auto_updater, logs
-from ovl_util.config import save_config
+from utils import auto_updater, logs
+from utils.config import save_config
 
 if TYPE_CHECKING:
 	from gui.widgets import MainWindow

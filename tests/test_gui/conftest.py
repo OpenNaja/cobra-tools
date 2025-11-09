@@ -79,7 +79,7 @@ def _bypass_app_logging_setup_for_session(monkeypatch: MonkeyPatch):
 	print("\n--- Bypassing application logging setup ---")
 
 	# Null the main logging setup function
-	monkeypatch.setattr("ovl_util.logs.logging_setup", lambda *args, **kwargs: None)
+	monkeypatch.setattr("utils.logs.logging_setup", lambda *args, **kwargs: None)
 
 	yield
 

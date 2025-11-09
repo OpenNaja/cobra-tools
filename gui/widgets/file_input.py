@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple, Literal
 
-from ovl_util.config import Config
+from utils.config import Config
 
 from gui.widgets.event_filters import ClickGuard, DragDropPassthrough
 from gui.app_utils import *

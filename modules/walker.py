@@ -7,7 +7,7 @@ from pathlib import Path
 
 from modules.formats.FGM import FgmContext
 from modules.formats.shared import walk_type, fnv1_32, splitext_safe
-from ovl_util.logs import ANSI
+from utils.logs import ANSI
 from constants.converter import write_mimes_dict, write_hashes_dict, write_audio_dict
 from generated.array import Array
 from generated.formats.fgm.structs.FgmHeader import FgmHeader

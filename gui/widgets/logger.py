@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple, Literal
 
-from ovl_util import logs
+from utils import logs
 
 from gui import qt_theme
 from gui.widgets.input import LabelCombo

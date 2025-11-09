@@ -10,7 +10,7 @@ def should_increment():
         "generated",
         "source",
         "modules",
-        "ovl_util",
+        "utils",
         "dumps",
         "sql_commands",
         "gui",

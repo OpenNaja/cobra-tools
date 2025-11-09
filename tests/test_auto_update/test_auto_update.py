@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 from importlib.metadata import PackageNotFoundError
 
 # Functions we want to test
-from ovl_util.auto_updater import check_dependencies, extract_package_name, get_modules_for_package
+from utils.auto_updater import check_dependencies, extract_package_name, get_modules_for_package
 
 
 # Mock distribution class to simulate installed packages
@@ -224,7 +224,7 @@ def test_pip_install_builds_correct_command(monkeypatch):
 	monkeypatch.setattr("subprocess.check_call", spy_check_call)
 
 	# Import and run the function to be tested
-	from ovl_util.auto_updater import pip_install
+	from utils.auto_updater import pip_install
 	pip_install(packages_to_install)
 
 	expected_command = [sys.executable, "-m", "pip", "install"] + packages_to_install
@@ -247,7 +247,7 @@ def test_pip_upgrade_builds_correct_command(monkeypatch):
 	monkeypatch.setattr("subprocess.check_call", spy_check_call)
 
 	# Import and run the function to be tested
-	from ovl_util.auto_updater import pip_upgrade
+	from utils.auto_updater import pip_upgrade
 	pip_upgrade(packages_to_upgrade)
 
 	expected_command = [sys.executable, "-m", "pip", "install", "--upgrade"] + packages_to_upgrade
@@ -261,12 +261,12 @@ def test_run_update_check_orchestration(monkeypatch):
 	# Mock the pure logic functions to return a known state
 	missing_deps = {"numpy": "numpy~=1.22"}
 	outdated_deps = {"PyQt5": "PyQt5~=5.15.4"}
-	monkeypatch.setattr("ovl_util.auto_updater.check_dependencies", lambda *args: (missing_deps, outdated_deps))
-	monkeypatch.setattr("ovl_util.auto_updater.get_modules_for_package", lambda *args: [])
+	monkeypatch.setattr("utils.auto_updater.check_dependencies", lambda *args: (missing_deps, outdated_deps))
+	monkeypatch.setattr("utils.auto_updater.get_modules_for_package", lambda *args: [])
 	monkeypatch.setattr("tomllib.load", lambda *args: MOCK_PYPROJECT_DATA)
 
 	# Mock user input
-	monkeypatch.setattr("ovl_util.auto_updater.install_prompt", lambda *args: True)
+	monkeypatch.setattr("utils.auto_updater.install_prompt", lambda *args: True)
 
 	# Create spies for the pip_* helper functions
 	installed_packages = []
@@ -277,13 +277,13 @@ def test_run_update_check_orchestration(monkeypatch):
 	def spy_pip_upgrade(packages: list[str]):
 		upgraded_packages.append(packages)
 		return 0
-	monkeypatch.setattr("ovl_util.auto_updater.pip_install", spy_pip_install)
-	monkeypatch.setattr("ovl_util.auto_updater.pip_upgrade", spy_pip_upgrade)
+	monkeypatch.setattr("utils.auto_updater.pip_install", spy_pip_install)
+	monkeypatch.setattr("utils.auto_updater.pip_upgrade", spy_pip_upgrade)
 	# Patch out the restart logic so the test doesn't exit.
-	monkeypatch.setattr("ovl_util.auto_updater._relaunch_application", lambda: None)
+	monkeypatch.setattr("utils.auto_updater._relaunch_application", lambda: None)
 	# Patch file I/O and run the main function
-	with patch("ovl_util.auto_updater.open", MagicMock()):
-		from ovl_util.auto_updater import run_update_check
+	with patch("utils.auto_updater.open", MagicMock()):
+		from utils.auto_updater import run_update_check
 		run_update_check("manis_tool_gui")
 
 	# Assert the orchestration was correct
@@ -315,7 +315,7 @@ def test_get_all_deps(tool_name, expected_tool_specific_deps):
 	Tests that the dependency aggregation logic correctly combines the base,
 	gui, and tool-specific dependency lists.
 	"""
-	from ovl_util.auto_updater import get_all_deps
+	from utils.auto_updater import get_all_deps
 
 	result = get_all_deps(MOCK_PYPROJECT_DATA, tool_name)
 	expected_deps = (

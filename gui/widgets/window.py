@@ -7,8 +7,8 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple, Literal
 
-from ovl_util import logs
-from ovl_util.config import Config, ImmediateSetting, RestartSetting
+from utils import logs
+from utils.config import Config, ImmediateSetting, RestartSetting
 
 from gui import GuiOptions, qt_theme
 from gui.widgets.file_input import DirWidget, FileWidget
@@ -1043,7 +1043,7 @@ class ConfigWindow(QWidget):
 
 	def needs_restart(self):
 		from gui import root_dir
-		from ovl_util.config import save_config
+		from utils.config import save_config
 		if self.main_window.showconfirmation(
 			"The application must restart for changes to take effect. If you have "
 			"any unsaved changes, cancel and restart manually.",

@@ -14,8 +14,8 @@ from PyQt5.QtCore import QDir, QFileInfo, QSize
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter
 from PyQt5.QtWidgets import QFileIconProvider
 
-from ovl_util.config import Config
-from ovl_util.logs import shorten_str
+from utils.config import Config
+from utils.logs import shorten_str
 
 import vdf
 

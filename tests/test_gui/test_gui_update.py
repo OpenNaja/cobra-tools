@@ -102,7 +102,7 @@ def update_harness(
 		called_install_packages = []
 		called_upgrade_packages = []
 		# Spy wrapper for update_check
-		from ovl_util import auto_updater
+		from utils import auto_updater
 		original_run_update_check = auto_updater.run_update_check
 		def spy_wrapper_run_update_check(tool_name: str):
 			called_tools.append(tool_name)
@@ -111,28 +111,28 @@ def update_harness(
 
 		# Mock dependency data
 		monkeypatch.setattr(
-			"ovl_util.auto_updater.check_dependencies",
+			"utils.auto_updater.check_dependencies",
 			lambda *args, **kwargs: (missing_deps, outdated_deps)
 		)
 
 		# Mock user choice
-		monkeypatch.setattr("ovl_util.auto_updater.install_prompt", lambda *args: user_response)
+		monkeypatch.setattr("utils.auto_updater.install_prompt", lambda *args: user_response)
 		# Patch out the restart logic so the test doesn't exit.
-		monkeypatch.setattr("ovl_util.auto_updater._relaunch_application", lambda: None)
+		monkeypatch.setattr("utils.auto_updater._relaunch_application", lambda: None)
 
 		# Spies for pip actions
 		def spy_pip_install(packages: list[str]):
 			called_install_packages.extend(packages)
 			return 0
-		monkeypatch.setattr("ovl_util.auto_updater.pip_install", spy_pip_install)
+		monkeypatch.setattr("utils.auto_updater.pip_install", spy_pip_install)
 
 		def spy_pip_upgrade(packages: list[str]):
 			called_upgrade_packages.extend(packages)
 			return 0
-		monkeypatch.setattr("ovl_util.auto_updater.pip_upgrade", spy_pip_upgrade)
+		monkeypatch.setattr("utils.auto_updater.pip_upgrade", spy_pip_upgrade)
 		# Mock all other external dependencies
 		monkeypatch.setattr("tomllib.load", lambda *args: MOCK_PYPROJECT_DATA)
-		monkeypatch.setattr("ovl_util.auto_updater.get_modules_for_package", lambda *args: ["mock_module"])
+		monkeypatch.setattr("utils.auto_updater.get_modules_for_package", lambda *args: ["mock_module"])
 		monkeypatch.setattr("importlib.import_module", lambda *args: MagicMock())
 
 		# Setup app, calling patched auto_updater

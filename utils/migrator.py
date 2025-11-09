@@ -4,8 +4,8 @@ from pathlib import Path
 from packaging.version import parse, Version
 from typing import TYPE_CHECKING, Callable, TypeAlias
 
-from ovl_util.auto_updater import install_prompt, pip_install, pip_upgrade
-from ovl_util.config import load_config, save_config
+from utils.auto_updater import install_prompt, pip_install, pip_upgrade
+from utils.config import load_config, save_config
 
 
 MigrationFunc: TypeAlias = Callable[[dict], None]

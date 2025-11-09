@@ -66,3 +66,7 @@ def restructure_game_config(config):
 			print(f"     - Deleted '{key}'")
 	else:
 		print("   - No old 'recent_' keys found.")
+
+@Migrator.register("1.0.2")
+def remove_old_files_1_0_2(config):
+	Migrator.delete_paths(["ovl_util"])

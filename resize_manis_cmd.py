@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from ovl_util.logs import logging_setup
+from utils.logs import logging_setup
 from generated.formats.manis import ManisFile
 from generated.formats.ms2 import Ms2File
 from generated.formats.wsm.structs.WsmHeader import WsmHeader

@@ -3,7 +3,7 @@ import sys
 import time
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import window
-from ovl_util.config import read_str_dict, read_list
+from utils.config import read_str_dict, read_list
 
 from generated.formats.matcol.structs.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext

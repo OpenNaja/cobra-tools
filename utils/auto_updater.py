@@ -10,7 +10,7 @@ import logging
 import subprocess
 from typing import Callable
 
-from ovl_util.logs import ANSI
+from utils.logs import ANSI
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 

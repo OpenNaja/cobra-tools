@@ -54,7 +54,7 @@ if bpy_available:
         if not plugin_dir in sys.path:
             sys.path.append(plugin_dir)
 
-        from ovl_util.logs import logging_setup
+        from utils.logs import logging_setup
         logging_setup("blender_plugin")
         logging.info(f"Running blender {fmt_version(bpy.app.version)}")
 

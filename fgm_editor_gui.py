@@ -3,7 +3,7 @@ import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import window, MenuItem, SeparatorMenuItem
 from modules.formats.FGM import FgmContext
-from ovl_util.config import read_str_dict
+from utils.config import read_str_dict
 from typing import Any, Optional
 
 from constants import ConstantsProvider

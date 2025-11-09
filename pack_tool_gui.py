@@ -6,8 +6,8 @@ import pathlib
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import window, MenuItem, SeparatorMenuItem
-from ovl_util.config import read_str_dict, write_str_dict
-from ovl_util.logs import HtmlFormatter, AnsiFormatter
+from utils.config import read_str_dict, write_str_dict
+from utils.logs import HtmlFormatter, AnsiFormatter
 from generated.formats.ovl import games, OvlFile
 
 from PyQt5 import QtCore

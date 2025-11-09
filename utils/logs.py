@@ -15,7 +15,7 @@ from queue import Queue
 from contextlib import contextmanager, nullcontext
 from typing import TextIO, Generator, Any
 
-from ovl_util.config import load_config
+from utils.config import load_config
 # TODO: log_dir and config_path used in this file should be parameterized instead of hardcoded based on root_dir
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 cfg_path = os.path.join(root_dir, "config.json")
