@@ -73,6 +73,8 @@ class Config(dict):
 		super().__init__(**kwargs)
 		self.dir = dir
 		self.name = name
+		if "games" not in self:
+			self["games"] = {}
 
 	@property
 	def settings(self):
@@ -83,8 +85,6 @@ class Config(dict):
 		return os.path.join(self.dir, self.name)
 
 	def init_game_in_cfg(self, game, path):
-		if "games" not in self:
-			self["games"] = {}
 		if game not in self["games"]:
 			self["games"][game] = {}
 		game_info = self["games"][game]
