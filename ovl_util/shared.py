@@ -74,3 +74,8 @@ def hex_dump_generator(in_file: io.BufferedReader, show_offset=True, show_txt=Tr
 		yield f"{indent * TAB}{offset_line}{hex_format.format(*line_data)}{txt_line}\n"
 
 		offset += line_width
+
+def splitext_safe(fp: str) -> tuple[str, str]:
+	# os.path.splitext fails on /ymaiotriqnd03i9/.texel
+	name, ext = fp.rsplit(".", 1)
+	return name, f".{ext}"

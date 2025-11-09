@@ -13,7 +13,7 @@ from generated.formats.ovl.structs.BufferEntry import BufferEntry
 from generated.formats.ovl.structs.MemPool import MemPool
 from generated.formats.ovl.structs.DataEntry import DataEntry
 from modules.formats.shared import djb2
-from ovl_util.shared import hex_dump
+from ovl_util.shared import hex_dump, splitext_safe
 
 TAB = '  '
 
@@ -142,9 +142,7 @@ class BaseFile:
 	@name.setter
 	def name(self, n):
 		self._name = n.lower()
-		# os.path.splitext fails on /ymaiotriqnd03i9/.texel
-		self.basename, ext = self._name.lower().rsplit(".", 1)
-		self.ext = f".{ext}"
+		self.basename, self.ext = splitext_safe(self._name)
 		self.file_hash = djb2(self.basename)
 		self.ext_hash = djb2(self.ext[1:])
 

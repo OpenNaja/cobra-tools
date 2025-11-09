@@ -18,6 +18,7 @@ from generated.formats.ms2 import Ms2File, is_pc
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
 from constants import Mime, Shader, ConstantsProvider
+from ovl_util.shared import splitext_safe
 
 # get this huge dict from fgm walker, use in ms2 walker
 shader_map = {}
@@ -64,7 +65,7 @@ def search_for_files_in_ovls(search_dialog, dir_walk, search_str):
 						file_names = ovl_data.load(ovl_path, commands={"generate_names": True, "game": search_dialog.ovl_game_choice.entry.currentText()})
 						matches = [
 							# remove the leading slash for ovl path, else it is interpreted as relative to C:
-							[file_name, os.path.splitext(file_name)[1], os.path.relpath(ovl_path, dir_walk)]
+							[file_name, splitext_safe(file_name)[1], os.path.relpath(ovl_path, dir_walk)]
 							for file_name in file_names if search_str in file_name
 						]
 						if matches:
