@@ -42,14 +42,13 @@ def set_jwe2dev(context):
 
 
 def is_jwe3(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
+	if context.version == 262 and context.mani_version == 282:
 		return True
 
 
 def set_jwe3(context):
-	context.version = 20
-	context.user_version._value = 24724
-	context.is_dev = 0
+	context.version = 262
+	context.mani_version = 282
 
 
 def is_pc(context):
@@ -187,7 +186,7 @@ dla = ManisVersion(id='DLA', version=(256,), primary_games=[], all_games=[games.
 jwe = ManisVersion(id='JWE', version=(258,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = ManisVersion(id='JWE2DEV', version=(261,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
-jwe3 = ManisVersion(id='JWE3', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_3])
+jwe3 = ManisVersion(id='JWE3', version=(262,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_3])
 pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PLANET_COASTER])
 pc2 = ManisVersion(id='PC2', version=(262,), primary_games=[], all_games=[games.PLANET_COASTER_2])
 pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PLANET_ZOO])

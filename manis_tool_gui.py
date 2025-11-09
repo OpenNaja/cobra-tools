@@ -265,10 +265,10 @@ class MainWindow(window.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
+		self.tree.clear()
+		self.tree.itemChanged.disconnect(self.edit_handle)
 		try:
 			logging.info(f"Loading {len(self.manis_file.mani_infos)} files into GUI")
-			self.tree.clear()
-			self.tree.itemChanged.disconnect(self.edit_handle)
 			# addition data to the tree
 			for m in self.manis_file.mani_infos:
 				mani_item = QtWidgets.QTreeWidgetItem(self.tree)
@@ -292,13 +292,13 @@ class MainWindow(window.MainWindow):
 							bone_item.setText(1, str(i))
 			header = self.tree.header()
 			header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-			self.tree.itemChanged.connect(self.edit_handle)
 			self.game_choice.entry.setText(self.manis_file.game)
 			self.stream_entry.setText(self.manis_file.stream)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 			self.set_progress_message("Operation completed!")
 		except:
 			self.handle_error("GUI update failed, see log!")
+		self.tree.itemChanged.connect(self.edit_handle)
 
 	def save(self, filepath) -> None:
 		try:
