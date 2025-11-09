@@ -7,7 +7,7 @@ from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.structs.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.structs.CondPointer import CondPointer
 from generated.formats.ovl_base.structs.Pointer import Pointer
-from ovl_util.shared import check_any
+from modules.formats.shared import check_any
 
 DEPENDENCY_TAG = "dependency"
 

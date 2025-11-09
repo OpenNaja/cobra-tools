@@ -6,6 +6,12 @@ import time
 import re
 from pathlib import Path
 
+
+def check_any(iterable, string):
+	"""Returns true if any of the entries of the iterable occur in string"""
+	return any([i in string for i in iterable])
+
+
 def get_padding_size(size, alignment=16):
 	mod = size % alignment
 	if mod:
