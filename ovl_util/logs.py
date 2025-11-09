@@ -25,13 +25,32 @@ shorten_paths = {
 	tempfile.gettempdir(): "TEMP",
 	os.path.expanduser('~'): "USER",
 }
-# TODO: This needs to stop executing on import
-for game_name, game_info in load_config(cfg_path).get("games", {}).items():
-	game_path = game_info["path"]
-	prefix, suffix = game_path.split(game_name)
-	pre_path = os.path.normpath(os.path.join(prefix, game_name))
-	shorten_paths[pre_path] = game_name
 
+_shortener_lock = threading.Lock()
+_shortener_initialized = False
+
+def _initialize_path_shortener():
+	"""
+	Populates the global shorten_paths dict from the config file.
+	"""
+	global _shortener_initialized
+	global shorten_paths
+	with _shortener_lock:
+		if _shortener_initialized:
+			return
+		try:
+			config = load_config(cfg_path)
+			for game_name, game_info in config.get("games", {}).items():
+				game_path = game_info.get("path")
+				if not game_path:
+					continue
+				if game_name in game_path:
+					prefix, suffix = game_path.split(game_name)
+					pre_path = os.path.normpath(os.path.join(prefix, game_name))
+					shorten_paths[pre_path] = game_name
+		except Exception as e:
+			logging.warning(f"Could not populate path shortener from config: {e}")
+		_shortener_initialized = True
 
 def shorten_str(msg):
 	for k, v in shorten_paths.items():
@@ -376,6 +395,9 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 	This should be called before any logging statements, and logging statements in this
 	function until after logger.addHandler().
 	"""
+	# Run before any formatters are created
+	_initialize_path_shortener()
+
 	# Custom SUCCESS level
 	addLoggingLevel('SUCCESS', logging.INFO + 5)
 
