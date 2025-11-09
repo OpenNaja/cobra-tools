@@ -4,6 +4,9 @@ import math
 import os
 import time
 from copy import copy
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import matplotlib
 
 import numpy as np
 
@@ -13,7 +16,6 @@ np.seterr(all='warn')
 # np.seterr(all='print')
 np.set_printoptions(precision=4, suppress=True)
 
-from ovl_util.logs import logging_setup
 from generated.io import IoFile
 from generated.formats.manis.versions import get_game, set_game
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
@@ -767,6 +769,7 @@ def get_quat_scale_fac(norm_half_abs: float):
 
 
 if __name__ == "__main__":
+    from ovl_util.logs import logging_setup
     logging_setup("mani")
     for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
         print(ManisDtype.from_value(k))
