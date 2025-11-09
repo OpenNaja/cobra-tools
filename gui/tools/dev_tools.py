@@ -2,6 +2,8 @@ import sys
 from pathlib import PurePath
 from typing import TYPE_CHECKING
 
+from utils import is_dev_environment
+
 try:
 	import faulthandler
 	from PyQt5.QtCore import qInstallMessageHandler, QtMsgType
@@ -11,19 +13,6 @@ except ImportError:
 
 if TYPE_CHECKING:
 	from PyQt5.QtCore import QMessageLogContext, QtMsgType
-
-def is_dev_environment():
-	"""
-	Checks if running in a development environment
-	"""
-	from gui import root_dir
-	from importlib.util import find_spec
-	try:
-		has_git = (root_dir / ".git").is_dir()
-		has_pytest = find_spec("pytest")
-		return has_git and has_pytest
-	except Exception as e:
-		return False
 
 
 def _qt_message_handler(mode: 'QtMsgType', context: 'QMessageLogContext', message: str) -> None:
@@ -51,6 +40,9 @@ def setup_dev_diagnostics():
 	"""
 	if not is_dev_environment():
 		return
+	import logging
+	logging.basicConfig(level=logging.DEBUG)
+
 	# Enable faulthandler
 	try:
 		faulthandler.enable(all_threads=True)
