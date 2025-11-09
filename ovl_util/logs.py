@@ -25,6 +25,7 @@ shorten_paths = {
 	tempfile.gettempdir(): "TEMP",
 	os.path.expanduser('~'): "USER",
 }
+# TODO: This needs to stop executing on import
 for game_name, game_info in load_config(cfg_path).get("games", {}).items():
 	game_path = game_info["path"]
 	prefix, suffix = game_path.split(game_name)

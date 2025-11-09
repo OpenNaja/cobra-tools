@@ -7,27 +7,6 @@ from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
 
-# --- widgets.py migration ---
-# This code will run before the 'from gui import widgets'
-# statement can look for the 'widgets' submodule.
-gui_dir = root_dir / "gui"
-old_widgets_file = gui_dir / "widgets.py"
-new_widgets_package = gui_dir / "widgets"
-pycache_path = gui_dir / "__pycache__"
-
-if old_widgets_file.is_file() and new_widgets_package.is_dir():
-	try:
-		logging.warning(f"Old '{old_widgets_file}' found. Attempting to remove it.")
-		old_widgets_file.unlink()
-		if pycache_path.is_dir():
-			for old_pyc in pycache_path.glob("widgets.*.pyc"):
-				logging.warning(f"Removing orphaned bytecode file: {old_pyc.name}")
-				old_pyc.unlink()
-	except (OSError, PermissionError) as e:
-		logging.critical(f"CRITICAL ERROR: Could not remove conflicting file {old_widgets_file}. Please check permissions.", file=sys.stderr)
-		sys.exit(1)
-# --- End widgets.py migration ---
-
 from ovl_util import auto_updater, logs
 from ovl_util.config import save_config
 
