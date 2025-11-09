@@ -34,9 +34,7 @@ class FileDirWidget(QWidget):
 		self.cfg_key = cfg_key.lower()
 		self.root = root
 		self.cfg: 'Config' = cfg
-		self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
 		self.cfg.setdefault(self.cfg_last_dir_save, "C:/")
-		self.cfg.setdefault(self.cfg_last_file_open, "C:/")
 
 		self.ask_user = ask_user
 		self.check_exists = check_exists
@@ -84,15 +82,17 @@ class FileDirWidget(QWidget):
 
 	@property
 	def cfg_last_dir_open(self) -> str:
-		return f"dir_{self.cfg_key}s_in"
+		# todo - only pass game when it makes sense to store per-game
+		game = self.cfg["current_game"]
+		last_file = self.cfg.get_last_file(self.ftype_lower, game=game)
+		if last_file:
+			return os.path.dirname(last_file)
+		else:
+			return "C://"
 
 	@property
 	def cfg_last_dir_save(self) -> str:
 		return f"dir_{self.cfg_key}s_out"
-
-	@property
-	def cfg_last_file_open(self) -> str:
-		return f"last_{self.cfg_key}_in"
 
 	def cfg_path(self, cfg_str: str) -> str:
 		return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -173,18 +173,9 @@ class FileWidget(FileDirWidget):
 		if self.may_open_new_file(filepath):
 			self.file_clear_logger.emit(filepath)
 			self.set_file_path(filepath)
-			self.cfg[self.cfg_last_dir_open] = self.dir
-			self.cfg[self.cfg_last_file_open] = self.filepath
-
+			# todo - only pass game when it makes sense to store per-game
 			game = self.cfg["current_game"]
-			recent_files = self.cfg["games"][game]["recent"]
-			# todo - generalize recent files for more formats depending on game, eg. ovl and bnk
-			# recent_files = self.cfg["games"][game][f"{self.ftype_lower}_recent"]
-			if self.filepath in recent_files:
-				recent_files.remove(self.filepath)
-			recent_files.insert(0, self.filepath)
-			while len(recent_files) > self.cfg.get("num_recent", 5):
-				recent_files.pop(-1)
+			self.cfg.add_recent_file(filepath, self.ftype_lower, game=game)
 			self.file_opened.emit(filepath)
 			return True
 		return False
@@ -231,19 +222,19 @@ class FileWidget(FileDirWidget):
 	def get_open_file_name(self, title: Optional[str] = None):
 		title = title if title else f'Load {self.ftype}'
 		filepath = QFileDialog.getOpenFileName(
-			self, title, self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
+			self, title, self.cfg_last_dir_open, self.files_filter_str)[0]
 		return filepath
 
 	def ask_open_dir(self) -> None:
 		# TODO: This is generally confusing for something named FileWidget
 		#       although it is no longer hardcoded for OVL Tool
-		dirpath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
+		dirpath = QFileDialog.getExistingDirectory(directory=self.cfg_last_dir_open)
 		if self.accept_dir(dirpath):
 			self.file_clear_logger.emit(dirpath)
 			self.dir_opened.emit(dirpath)
 			# Store the parent directory so that the next File > New
 			# opens in root to allow selection of sibling folders.
-			self.cfg[self.cfg_last_dir_open], _ = os.path.split(dirpath)
+			# self.cfg[self.cfg_last_dir_open], _ = os.path.split(dirpath)
 			# just set the name, do not trigger a loading event
 			self.set_file_path(f"{dirpath}.{self.ftype_lower}")
 
@@ -291,14 +282,14 @@ class DirWidget(FileDirWidget):
 			logging.warning(f"{filepath} could not be opened as a directory.")
 
 	def ask_open_dir(self) -> None:
-		filepath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
+		filepath = QFileDialog.getExistingDirectory(directory=self.cfg_last_dir_open)
 		if self.accept_dir(filepath):
 			pass
 
 	def accept_dir(self, dirpath: str) -> bool:
 		if os.path.isdir(dirpath):
 			self.filepath = dirpath
-			self.cfg[self.cfg_last_dir_open], self.basename = os.path.split(dirpath)
+			# self.cfg[self.cfg_last_dir_open], self.basename = os.path.split(dirpath)
 			self.setText(dirpath)
 			self.dir_opened.emit(dirpath)
 			return True

@@ -610,20 +610,9 @@ class GameSelectorWidget(QWidget):
 		return QFileDialog.getExistingDirectory(self, "Open game folder")
 
 	def set_games(self) -> None:
-		if "games" not in self.cfg:
-			self.cfg["games"] = {}
 		for game, path in get_steam_games(self.games_list).items():
-			self.init_game_in_cfg(game, path)
+			self.cfg.init_game_in_cfg(game, path)
 		self.set_data(self.cfg["games"])
-
-	def init_game_in_cfg(self, game, path):
-		if game not in self.cfg["games"]:
-			self.cfg["games"][game] = {}
-		game_info = self.cfg["games"][game]
-		if "path" not in game_info:
-			game_info["path"] = path
-		if "recent" not in game_info:
-			game_info["recent"] = []
 
 	def game_chosen(self, game: str) -> None:
 		"""Run after choosing a game from dropdown of installed games"""
@@ -646,7 +635,7 @@ class GameSelectorWidget(QWidget):
 			if os.path.isdir(added_suffix):
 				dir_game = added_suffix
 			# store this newly chosen game in cfg
-			self.init_game_in_cfg(game, dir_game)
+			self.cfg.init_game_in_cfg(game, dir_game)
 			# update available games
 			self.set_data(self.cfg["games"])
 			self.game_chosen(game)
@@ -805,8 +794,7 @@ class OvlManagerWidget(QWidget):
 		# if current_game has been set, assume it exists in the games dict too (from steam)
 		if dict_game:
 			self.dirs.set_root(dict_game["path"])
-			last_ovls = dict_game["recent"]
-			self.dirs.current_file_path = last_ovls[0] if last_ovls else None
+			self.dirs.current_file_path = self.cfg.get_last_file("ovl", game)
 			self.game_choice.entry.blockSignals(True)
 			self.game_choice.entry.setText(game)
 			self.game_choice.entry.blockSignals(False)

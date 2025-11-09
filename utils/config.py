@@ -82,6 +82,45 @@ class Config(dict):
 	def cfg_path(self):
 		return os.path.join(self.dir, self.name)
 
+	def init_game_in_cfg(self, game, path):
+		if "games" not in self:
+			self["games"] = {}
+		if game not in self["games"]:
+			self["games"][game] = {}
+		game_info = self["games"][game]
+		if "path" not in game_info:
+			game_info["path"] = path
+
+	def get_recent_files(self, ext, game=None):
+		"""Generalized access to recent files for more formats depending on game, e.g. ovl and bnk"""
+		recent_key = f"{ext}_recent"
+		if game:
+			target = self["games"][game]
+		else:
+			target = self
+		if recent_key not in target:
+			target[recent_key] = []
+		recent_files = target[recent_key]
+		# remove stale paths
+		recent_files[:] = [fp for fp in recent_files if os.path.isfile(fp)]
+		return recent_files
+
+	def get_last_file(self, ext, game=None):
+		recent_files = self.get_recent_files(ext, game)
+		if recent_files:
+			return recent_files[0]
+		else:
+			return None
+
+	def add_recent_file(self, filepath, ext, game=None):
+		recent_files = self.get_recent_files(ext, game=game)
+		if filepath in recent_files:
+			recent_files.remove(filepath)
+		recent_files.insert(0, filepath)
+		while len(recent_files) > self.get("num_recent", 5):
+			recent_files.pop(-1)
+		return recent_files
+
 	def save(self):
 		logging.debug(f"Saving config")
 		try:
