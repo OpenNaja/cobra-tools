@@ -11,7 +11,7 @@ from generated.formats.bnk import BnkFile
 from generated.formats.ovl import OvlFile
 from constants import ConstantsProvider
 from generated.formats.bnk.enums.HircType import HircType
-from ovl_util.texconv import write_riff_file
+from modules.formats.utils.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
 
 from PyQt5.QtWidgets import QApplication, QTreeWidgetItem, QPushButton

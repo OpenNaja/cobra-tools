@@ -2,7 +2,7 @@ import logging
 from generated.formats.base.structs.PadAlign import get_padding
 from generated.formats.lua.structs.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
-from ovl_util import texconv
+from modules.formats.utils import texconv
 
 error_flag = b"DECOMPILER ERROR"
 

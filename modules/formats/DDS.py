@@ -14,7 +14,7 @@ from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.formats.shared import fnv64, encode_int64_base32
 from modules.helpers import as_bytes
 
-from ovl_util import texconv, imarray
+from modules.formats.utils import texconv, imarray
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 

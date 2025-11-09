@@ -22,7 +22,7 @@ from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path
 
 try:
-	from ovl_util.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
+	from modules.formats.utils.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
 except:
 	oodle_compressor = OodleDecompressEnum = None
 
