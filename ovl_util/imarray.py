@@ -6,7 +6,7 @@ import numpy as np
 import PIL
 
 from constants import ConstantsProvider
-from ovl_util.shared import check_any
+from utils.shared import check_any
 from generated.formats.ovl.versions import is_ztuac
 
 logging.getLogger('PIL').setLevel(logging.WARNING)

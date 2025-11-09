@@ -10,7 +10,7 @@ from generated.formats.fgm.structs.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl import get_game
 from modules.formats.FGM import FgmContext
-from ovl_util.shared import check_any
+from modules.formats.shared import check_any
 from plugin.utils import texture_settings
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node

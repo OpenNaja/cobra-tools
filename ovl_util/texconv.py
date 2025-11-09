@@ -5,7 +5,7 @@ import subprocess
 import struct
 import sys
 
-from ovl_util.shared import check_any
+from utils.shared import check_any
 
 util_dir = os.path.dirname(__file__)
 BINARY = os.path.normpath(os.path.join(util_dir, "texconv/texconv.exe"))

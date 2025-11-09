@@ -6,7 +6,7 @@ from collections import Counter
 from pathlib import Path
 
 from modules.formats.FGM import FgmContext
-from modules.formats.shared import walk_type, fnv1_32
+from modules.formats.shared import walk_type, fnv1_32, splitext_safe
 from ovl_util.logs import ANSI
 from constants.converter import write_mimes_dict, write_hashes_dict, write_audio_dict
 from generated.array import Array
@@ -18,7 +18,7 @@ from generated.formats.ms2 import Ms2File, is_pc
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
 from constants import Mime, Shader, ConstantsProvider
-from ovl_util.shared import splitext_safe
+
 
 # get this huge dict from fgm walker, use in ms2 walker
 shader_map = {}

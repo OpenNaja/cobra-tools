@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Panel
 
-from ovl_util.shared import check_any
+from modules.formats.shared import check_any
 from plugin import addon_updater_ops
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
