@@ -32,9 +32,47 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Optional
 
 
-class MainWindow(window.MainWindow):
+class SearchWindow(window.MainWindow):
 
-	search_files = QtCore.pyqtSignal(list)
+	found_matches = QtCore.pyqtSignal(list)
+
+	def __init__(self, main_window, search_str):
+		opt = GuiOptions(
+			log_name="ovl_tool_gui",
+			size=(800, 600),
+			check_update=False  # Check update happens at top now
+		)
+		super().__init__(f"Results for: {search_str}", opt)
+		self.main_window = main_window
+		self.search_str = search_str
+		self.ovl_game_choice = main_window.ovl_game_choice
+		self.results_container = widgets.SortableTable(
+			["Name", "File Type", "OVL"], main_window.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
+			actions={
+				QtWidgets.QAction("Open in OVL Tool"): main_window.search_result_open,
+				QtWidgets.QAction("Show in Explorer"): main_window.search_result_show,
+			}, editable_columns=())
+		self.setCentralWidget(self.results_container)
+		self.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+		self.results_container.set_data([])
+		self.reporter = widgets.Reporter()
+		reporter = self.reporter
+		reporter.progress_percentage.connect(self.set_progress)
+		reporter.progress_total.connect(self.set_progress_total)
+		reporter.success_msg.connect(self.set_progress_message)
+		reporter.current_action.connect(self.set_progress_message)
+
+		self.found_matches.connect(self.show_found_matches)
+
+	def show_found_matches(self, matches):
+		self.results_container.table.append_rows(matches)
+
+	def close(self):
+		self.main_window.search_views.pop(self.search_str)
+		super().close()
+
+
+class MainWindow(window.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
 		window.MainWindow.__init__(self, "OVL Tool", opts=opts)
@@ -175,7 +213,6 @@ class MainWindow(window.MainWindow):
 		self.status_bar.insertPermanentWidget(2, self.finfo_sep)
 		self.status_bar.insertPermanentWidget(3, self.file_info)
 
-		self.search_files.connect(self.show_search_results)
 		self.search_views = {}
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
@@ -227,38 +264,21 @@ class MainWindow(window.MainWindow):
 		self.file_info.setText(text)
 		self.finfo_sep.show()
 
-	def show_search_results(self, tup):
-		search_str, matches = tup
-		results_container = self.search_views.get(search_str)
-		if results_container:
-			results_container.table.append_rows(matches)
-
 	def search_ovl_contents(self, search_str):
 		search_str = search_str.lower()
 		if search_str not in self.search_views:
-			results_container = widgets.SortableTable(
-				["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
-				actions={
-					QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
-					QtWidgets.QAction("Show in Explorer"): self.search_result_show,
-				}, editable_columns=())
-			results_container.table.file_double_clicked.connect(self.search_result_open)
-			results_container.setWindowTitle(f"Results for: {search_str}")
-			results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
-			results_container.set_data([])
-			results_container.show()
+			results_window = SearchWindow(self, search_str)
+			results_window.results_container.table.file_double_clicked.connect(self.search_result_open)
+			results_window.show()
 
-			def remove_view():
-				self.search_views.pop(search_str)
-
-			results_container.closed.connect(remove_view)
-			self.search_views[search_str] = results_container
+			self.search_views[search_str] = results_window
 
 			start_dir = self.ovl_manager.dirs.get_root()
 			# thread this to immediately show the window
-			self.run_in_threadpool(walker.search_for_files_in_ovls, (), self, start_dir, search_str)
+			self.run_in_threadpool(walker.search_for_files_in_ovls, (), results_window, start_dir, search_str)
 		else:
 			logging.warning(f"Search results for '{search_str}' are still open")
+
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
@@ -314,15 +334,6 @@ class MainWindow(window.MainWindow):
 	def set_ovl_game_choice_game(self, game=None):
 		# logging.debug(f"Setting OVL game to {game}")
 		self.ovl_game_choice.entry.setText(game)
-
-	@contextlib.contextmanager
-	def log_level_override(self, level):
-		# temporarily disable spamming the log widget
-		log_level = self.cfg.get("logger_level", "INFO")
-		self.set_log_level.emit(level)
-		yield
-		# go back to original log level
-		self.set_log_level.emit(log_level)
 
 	def handle_path(self, save_over=True, batch=False):
 		if batch:

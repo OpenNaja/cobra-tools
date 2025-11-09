@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 import time
@@ -290,6 +291,15 @@ class MainWindow(FramelessMainWindow):
 		self.resize(*opts.size)
 
 		QApplication.instance().aboutToQuit.connect(self.aboutToQuit)
+
+	@contextlib.contextmanager
+	def log_level_override(self, level):
+		# temporarily disable spamming the log widget
+		log_level = self.cfg.get("logger_level", "INFO")
+		self.set_log_level.emit(level)
+		yield
+		# go back to original log level
+		self.set_log_level.emit(log_level)
 
 	def showEvent(self, a0: QShowEvent) -> None:
 		"""Post-init setup on show"""
