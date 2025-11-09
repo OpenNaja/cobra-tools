@@ -199,6 +199,12 @@ ovl_util/compressonator/**.dds
 ovl_util/compressonator/**_analysis.xml
 ovl_util/compressonator/process_results.txt
 
+# Experimentals that shouldn't be committed
+/playground/*
+
+# pydeps graphs
+/cobra-tools*.svg
+
 # created mods should not be saved as part of this repo.
 Mods/
 
