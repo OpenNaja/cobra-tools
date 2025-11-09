@@ -77,5 +77,9 @@ def hex_dump_generator(in_file: io.BufferedReader, show_offset=True, show_txt=Tr
 
 def splitext_safe(fp: str) -> tuple[str, str]:
 	# os.path.splitext fails on /ymaiotriqnd03i9/.texel
-	name, ext = fp.rsplit(".", 1)
-	return name, f".{ext}"
+	# i.e. ('/ymaiotriqnd03i9/.texel', '')
+	if "." in fp:
+		name, ext = fp.rsplit(".", 1)
+		return name, f".{ext}"
+	# No dot found, so no extension
+	return fp, ""
