@@ -88,7 +88,7 @@
         288 bytes for JWE (last member is not padded at end in stock) / PZ
         304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
         320 bytes for war
-        304 bytes for PC2, possibly different manis dtype apparently use_ushort has moved
+        304 bytes for PC2, JWE3, possibly different manis dtype apparently use_ushort has moved
         <field name="ref" type="Empty"/>
         <field name="duration" type="float"/>
 		<field name="FrameCount" type="uint"/>
@@ -126,7 +126,7 @@
 		<field name="unk 7" type="ushort" vercond="#PC2#"/>
 		<field name="unk 8" type="ushort" vercond="#PC2#"/>
 		<field name="pointers" type="uint64" arr1="27" >216 bytes</field>
-		<field name="extra_for_use_ushort" type="ushort" arr1="7" cond="dtype\use_ushort"/> <!-- PC2 goes wrong here ig -->
+		<field name="extra_for_use_ushort" type="ushort" arr1="7" cond="dtype\use_ushort"/>
 		<field name="PosBoneMin" type="BoneIndex" arg="dtype"/>
 		<field name="PosBoneMax" type="BoneIndex" arg="dtype"/>
 		<field name="OriBoneMin" type="BoneIndex" arg="dtype"/>
@@ -154,6 +154,44 @@
 
     <struct name="KeysReader">
     </struct>
+    <struct name="CompressedHeaderReader">
+		<field name="data" type="CompressedHeader" abstract="True"/>
+    </struct>
+
+    <struct name="CompressedPointer">
+		<field name="a" type="uint"/>
+		<field name="b" type="uint">increments by multiples of 8</field>
+    </struct>
+
+    <struct name="CompressedHeader">
+		present at end of buffer 0 in JWE3 if any of the manis is compressed
+		<field name="ref" type="Empty"/>
+		<field name="size" type="uint"/>
+		<field name="u0" type="ubyte"/>
+		<field name="u1" type="ubyte"/>
+		<field name="u2" type="ubyte"/>
+		<field name="u3" type="ubyte"/>
+		<field name="const_0" type="ubyte" default="1"/>
+		<field name="const_1" type="ubyte" default="219"/>
+		<field name="const_2" type="ubyte" default="17"/>
+		<field name="const_3" type="ubyte" default="172"/>
+		<field name="a" type="uint" default="10"/>
+		<field name="b" type="uint" default="1"/>
+		<field name="unk_count" type="uint" default="1">or 2</field>
+		<field name="d" type="ushort" default="0"/>
+		<field name="e" type="ushort" default="16"/>
+		<field name="mani_count" type="uint" />
+		<field name="g" type="uint" />
+		<field name="h" type="uint" />
+		<field name="unka" type="uint" />
+		<field name="unkb" type="uint" />
+		<field name="minus_1" type="int64" default="-1"/>
+		<field name="x" type="int64"/>
+		<field name="y" type="int64"/>
+		<field name="pointers1" type="CompressedPointer" arr1="unk_count"/>
+		<field name="pointers2" type="CompressedPointer" arr1="mani_count"/>
+		<field name="pad" type="PadAlign" template="ref" arg="16"/>
+    </struct>
 
     <struct name="InfoHeader">
         Custom header struct
@@ -164,6 +202,7 @@
         <field name="names" type="ZString" arr1="mani count"/>
         <field name="header" type="ManisRoot"/>
         <field name="mani infos" type="ManiInfo" arr1="mani count"/>
+        <field name="compressed header" type="CompressedHeaderReader" arg="mani infos" vercond="#JWE3#"/>
         <field name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
         <field name="keys buffer" type="KeysReader" arg="#SELF#"/>
     </struct>

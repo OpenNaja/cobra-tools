@@ -21,6 +21,7 @@ class InfoHeader(BaseStruct):
 		self.names = Array(self.context, 0, None, (0,), name_type_map['ZString'])
 		self.header = name_type_map['ManisRoot'](self.context, 0, None)
 		self.mani_infos = Array(self.context, 0, None, (0,), name_type_map['ManiInfo'])
+		self.compressed_header = name_type_map['CompressedHeaderReader'](self.context, self.mani_infos, None)
 		self.name_buffer = name_type_map['Buffer1'](self.context, int(self.header.hash_block_size / 4), None)
 		self.keys_buffer = name_type_map['KeysReader'](self.context, self, None)
 		if set_default:
@@ -36,6 +37,7 @@ class InfoHeader(BaseStruct):
 		yield 'names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
 		yield 'header', name_type_map['ManisRoot'], (0, None), (False, None), (None, None)
 		yield 'mani_infos', Array, (0, None, (None,), name_type_map['ManiInfo']), (False, None), (None, None)
+		yield 'compressed_header', name_type_map['CompressedHeaderReader'], (None, None), (False, None), (lambda context: (context.version == 262) and (context.mani_version == 282), None)
 		yield 'name_buffer', name_type_map['Buffer1'], (None, None), (False, None), (None, None)
 		yield 'keys_buffer', name_type_map['KeysReader'], (None, None), (False, None), (None, None)
 
@@ -49,5 +51,7 @@ class InfoHeader(BaseStruct):
 		yield 'names', Array, (0, None, (instance.mani_count,), name_type_map['ZString']), (False, None)
 		yield 'header', name_type_map['ManisRoot'], (0, None), (False, None)
 		yield 'mani_infos', Array, (0, None, (instance.mani_count,), name_type_map['ManiInfo']), (False, None)
+		if (instance.context.version == 262) and (instance.context.mani_version == 282):
+			yield 'compressed_header', name_type_map['CompressedHeaderReader'], (instance.mani_infos, None), (False, None)
 		yield 'name_buffer', name_type_map['Buffer1'], (int(instance.header.hash_block_size / 4), None), (False, None)
 		yield 'keys_buffer', name_type_map['KeysReader'], (instance, None), (False, None)

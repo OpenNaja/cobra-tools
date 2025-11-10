@@ -9,7 +9,7 @@ class ManiInfo(BaseStruct):
 	288 bytes for JWE (last member is not padded at end in stock) / PZ
 	304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
 	320 bytes for war
-	304 bytes for PC2, possibly different manis dtype apparently use_ushort has moved
+	304 bytes for PC2, JWE3, possibly different manis dtype apparently use_ushort has moved
 	"""
 
 	__name__ = 'ManiInfo'
