@@ -210,11 +210,6 @@
 		<field name="pad" type="PadAlign" template="ref" arg="32"/>
     </struct>
 
-    <struct name="LocBound" >
-		<field name="loc min" type="Vector3"/>
-		<field name="loc extent" type="Vector3"/> <!-- might be extent, but not sure about how it is encoded -->
-    </struct>
-
     <struct name="SegmentsReader" >
     </struct>
 
