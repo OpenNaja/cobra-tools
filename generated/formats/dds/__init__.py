@@ -179,7 +179,7 @@ class DdsFile(Header, IoFile):
 
     def unpack_mips(self, tex_buffer_data, debug=False, is_pc_2=False):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
-        logging.info(f"Unpacking mip maps, is_pc_2={is_pc_2}")
+        logging.debug(f"Unpacking mip maps, is_pc_2={is_pc_2}")
         out = [[] for _ in range(self.dx_10.num_tiles)]
         with io.BytesIO(tex_buffer_data) as tex:
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(is_pc_2=is_pc_2):

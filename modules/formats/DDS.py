@@ -186,16 +186,20 @@ class DdsLoader(MemStructLoader):
 			# load all DDS files we need
 			dds_paths = []
 			png_paths = []
+			exceptions = []
 			# ignore num_tiles from tex
 			# try to get an image without array tile suffix
-			if not self.get_image_files(basename, in_dir, tmp_dir, dds_paths, png_paths):
+			if not self.get_image_files(basename, in_dir, tmp_dir, dds_paths, png_paths, exceptions):
 				# try to find array tiles
 				tile_i = 0
 				while True:
 					tile_name = f"{basename}_[{tile_i:02}]"
-					if not self.get_image_files(tile_name, in_dir, tmp_dir, dds_paths, png_paths):
+					if not self.get_image_files(tile_name, in_dir, tmp_dir, dds_paths, png_paths, exceptions):
 						break
 					tile_i += 1
+			if not png_paths and not dds_paths:
+				for exception in exceptions:
+					raise exception
 			if png_paths:
 				for png_path in self.ovl.reporter.iter_progress(png_paths, "Converting", cond=len(png_paths) > 1):
 					dds_path = self.convert_png(png_path, tmp_dir)
@@ -364,7 +368,7 @@ class DdsLoader(MemStructLoader):
 				# slice packed bytes according to tex header buffer specifications
 				return [packed[b.offset: b.offset + b.size] for b in texbuffers]
 
-	def get_image_files(self, tile_name, in_dir, tmp_dir, dds_paths, png_paths):
+	def get_image_files(self, tile_name, in_dir, tmp_dir, dds_paths, png_paths, exceptions):
 		"""Returns a valid dds file object, or None"""
 		bare_path = os.path.join(in_dir, tile_name)
 		dds_path = f"{bare_path}.dds"
@@ -378,8 +382,8 @@ class DdsLoader(MemStructLoader):
 				png_path = imarray.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
 				png_paths.append(png_path)
 				return True
-			except FileNotFoundError:
-				logging.exception("Could not convert to .dds due to missing .png")
+			except FileNotFoundError as exception:
+				exceptions.append(exception)
 		return False
 
 	def get_names(self, file_path):
@@ -389,8 +393,8 @@ class DdsLoader(MemStructLoader):
 		return in_dir, name_ext, basename, ext
 
 	def convert_png(self, png_path, tmp_dir):
-		logging.info(f"Converting {png_path}")
-		# convert the png into a dds
+		"""Convert the png into a dds"""
+		logging.info(f"Converting {png_path} to .dds")
 
 		# as of 2023-12-02, texconv does not seem to store or recognize an sRGB flag in the pngs in creates
 		# a PR that seems to touch that is open (407)

@@ -150,7 +150,7 @@ def get_split_mode(game, png_name, compression):
 		# prioritize game-based hand rolled dicts
 		all_tex_channels = constants[game]["texchannels"]
 		all_tex_channels_lower = {tex_type.lower(): tex_channels for tex_type, tex_channels in all_tex_channels.items()}
-		tex_id = tex_type[1:].split("_")[0]  # strip the leading . and remove any array suffices
+		tex_id = tex_type[1:].rsplit("_[", 1)[0]  # strip the leading . and remove any array suffices
 		tex_channels_map = all_tex_channels_lower.get(tex_id)
 		if tex_channels_map is None:
 			logging.warning(f"No texchannels map provided for {png_name}, falling back to legacy splitting")
@@ -216,8 +216,9 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 	logging.debug(f"Looking for .png for {path_basename}")
 	in_dir, basename = os.path.split(path_basename)
 	basename = basename.lower()
-	png_file_path = os.path.join(in_dir, f"{basename}.png")
-	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")
+	png_file_name = f"{basename}.png"
+	png_file_path = os.path.join(in_dir, png_file_name)
+	tmp_png_file_path = os.path.join(tmp_dir, png_file_name)
 	channels = get_split_mode(game, basename, compression)
 	flip = has_vectors(basename, compression)
 	# check if processing needs to be done
@@ -228,7 +229,6 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 		return png_file_path
 	# rebuild from channel pngs, but only if the un-split png does not already exist
 	if channels and not os.path.isfile(png_file_path):
-		logging.info(f"Joining {png_file_path} from {channels} channels")
 		im = None
 		for ch_name, ch_slice in channel_iter(channels):
 			tile_png_path = f"{path_basename}_{ch_name}{ext}"
@@ -247,6 +247,7 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 					tile = np.array(tile)
 			# take a slice, starting at the first channel of the tile
 			im[:, :, ch_slice] = tile[:, :, 0:len(ch_name)]
+		logging.info(f"Joining {png_file_name} from {channels} channels")
 	else:
 		# non-tiled files that need fixes - normal maps without channel packing
 		# just read the one input file

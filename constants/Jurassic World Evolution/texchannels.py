@@ -20,7 +20,7 @@ texchannels = {
 	# 'pGradHeightArray': {"RG": "", "B": "", "A": ""},
 	'pHeightTexture': {"": "HE"},
 	# 'pLayered_BaseColourTexture': {"": ""},
-	# 'pLayered_BlendWeights': {"R": "", "G": "", "B": "", "A": ""},
+	'pLayered_BlendWeights': {"R": "M0", "G": "M1", "B": "M2", "A": "M3"},
 	# 'pLayered_HeightTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pLayered_PackedTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pLayered_WarpOffset': {"": ""},

@@ -38,7 +38,7 @@ texchannels = {
 	# 'pHyperloops_DiffuseTexture': {"": ""},
 	'pIridescenceMaskTexture': {"": "IM"},  # used on UV1 for feathers
 	'pIridescenceTexture': {"": "IR"},  # a LUT for reflection coordinates
-	# 'pLayered_BlendWeights': {"R": "", "G": "", "B": "", "A": ""},
+	'pLayered_BlendWeights': {"R": "M0", "G": "M1", "B": "M2", "A": "M3"},
 	# 'pLayered_DiffuseTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pLayered_HeightTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pLayered_PackedTexture': {"R": "", "G": "", "B": "", "A": ""},
