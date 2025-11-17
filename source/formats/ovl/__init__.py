@@ -21,12 +21,11 @@ from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path
 
 try:
-	from modules.formats.utils.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC
+	from modules.formats.utils.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC_NAME
 except:
 	oodle_compressor = OodleDecompressEnum = None
 
 UNK_HASH = "UnknownHash"
-OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
 def oodle_compress_chunk(args):
@@ -52,9 +51,9 @@ class OvsFile(OvsHeader):
 		self.reset_field("buffer_groups")
 
 	@contextmanager
-	def unzipper(self, reporter, compressed_bytes, uncompressed_size):
-		self.compression_header = compressed_bytes[:2]
-		logging.debug(f"Compression magic bytes: {self.compression_header}, {len(compressed_bytes)} bytes total")
+	def decompress(self, reporter, compressed_bytes, uncompressed_size):
+		"""Decompress compressed_bytes according to ovl settings and yield the decompressed stream"""
+		# logging.debug(f"Compression magic bytes: {compressed_bytes[:2]}, {len(compressed_bytes)} bytes total")
 		# logging.debug(f"Compressed: {len(compressed_bytes)}")
 		try:
 			if self.ovl.user_version.compression == Compression.OODLE:
@@ -79,44 +78,36 @@ class OvsFile(OvsHeader):
 			yield stream
 
 	def compress(self, uncompressed_bytes, use_threads=True):
-		"""compress data with method according to ovl settings"""
-		try:
-			if self.ovl.user_version.compression == Compression.OODLE:
-				codec_raw = OODLE_CODEC  # Kraken
-				# TODO: compression_header may mistakenly have 0x8C read into it when saving uncompressed OVL as Oodle
-				# so, commenting this out for now
-				#if self.compression_header.startswith(OODLE_MAGIC):
-				#	_, comp_raw = struct.unpack("BB", self.compression_header)
-
+		"""Compress uncompressed_bytes according to ovl settings"""
+		if self.ovl.user_version.compression == Compression.OODLE:
+			try:
 				oodle_level = self.ovl.cfg.get("oodle_level", 5)
-
-				# Get compressor from raw decompression value
-				codec = OodleDecompressEnum(codec_raw)
-				logging.debug(f"Oodle compression: {codec.name} (Raw: {codec_raw})")
-				# Begin compression
-				uncompressed_size = len(uncompressed_bytes)
+				# todo - allow changing codec from cfg?
+				codec_name = OODLE_CODEC_NAME
 				# Compress in larger chunks, have each Oodle thread handle 256KB chunking
-				chunk_size = INPUT_CHUNK_SIZE if uncompressed_size >= INPUT_CHUNK_SIZE else uncompressed_size
+				uncompressed_size = len(uncompressed_bytes)
+				chunk_size = min(INPUT_CHUNK_SIZE, uncompressed_size)
 				num_chunks = math.ceil(uncompressed_size / chunk_size)
 
-				# Compress each chunk
+				# Split the input accordingly
 				chunks = []
 				for i in range(num_chunks):
 					start = i * chunk_size
-					chunks.append((uncompressed_bytes[start:start + chunk_size], codec.name, oodle_level))
-				num_processes = min(cpu_count(), len(chunks))
-				logging.debug(f"Oodle compression using {num_processes} cores")
+					chunks.append((uncompressed_bytes[start:start + chunk_size], codec_name, oodle_level))
 
 				if use_threads:
-					with ThreadPoolExecutor(max_workers=num_processes) as executor:
+					num_threads = min(cpu_count(), num_chunks)
+					logging.debug(f"Oodle compression: {codec_name} using {num_threads} threads")
+					with ThreadPoolExecutor(max_workers=num_threads) as executor:
 						compressed = b"".join(executor.map(oodle_compress_chunk, chunks))
 				else:
+					logging.debug(f"Oodle compression: {codec_name} using single thread")
 					compressed = b"".join(oodle_compress_chunk(chunk) for chunk in chunks)
 
 				return len(uncompressed_bytes), len(compressed), compressed
-		except:
-			logging.exception(f"Oodle compression failed, falling back to Zlib")
-			self.ovl.user_version.compression = Compression.ZLIB
+			except:
+				logging.exception(f"Oodle compression failed, falling back to Zlib")
+				self.ovl.user_version.compression = Compression.ZLIB
 
 		if self.ovl.user_version.compression == Compression.ZLIB:
 			compressed = zlib.compress(uncompressed_bytes)
@@ -160,7 +151,7 @@ class OvsFile(OvsHeader):
 		logging.debug(
 			f"Compressed stream {archive_entry.name} in {os.path.basename(archive_entry.ovs_path)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
-		with self.unzipper(self.ovl.reporter, compressed_bytes, archive_entry.uncompressed_size) as stream:
+		with self.decompress(self.ovl.reporter, compressed_bytes, archive_entry.uncompressed_size) as stream:
 			try:
 				super().read_fields(stream, self)
 				# print(self)

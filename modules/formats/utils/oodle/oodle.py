@@ -6,7 +6,7 @@ from enum import IntEnum
 
 
 # Default codec
-OODLE_CODEC = 6  # Kraken
+OODLE_CODEC_NAME = "Kraken"
 # Larger factors will send larger buffers to each Oodle thread
 INPUT_CHUNK_FACTOR = 32
 # Must be divisible by 256KB
