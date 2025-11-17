@@ -186,7 +186,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
 		logging.debug(f"Attaching streams to {buffer_info.name}")
-		logging.debug(buffer_info)
+		# logging.debug(buffer_info)
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
