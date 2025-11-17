@@ -13,7 +13,10 @@ class MotiongraphLoader(MemStructLoader):
 	@property
 	def motiongraph_rename_sound(self):
 		return self.ovl.cfg.get("motiongraph_rename_sound", False)
-	
+
+	def create(self, file_path):
+		raise NotImplementedError(f"Can't create {self.name}")
+
 	def collect(self):
 		self.context.recursion = {}
 		if self.ovl.version >= 19:
@@ -33,7 +36,6 @@ class MotiongraphLoader(MemStructLoader):
 		for data_stream_resource_data in self.header.get_condition_fields(cond):
 			if data_stream_resource_data.type.data in ("AudioEvent", "AudioLoopingEvent", "AudioBlend", "AudioRTPC"):
 				yield data_stream_resource_data.ds_name.data
-
 
 	def accept_string(self, in_str):
 		"""Return True if string should receive replacement"""
