@@ -80,6 +80,39 @@ class GuiOptions:
 			self.size = Size(*self.size)
 
 
+def sanitize_environment():
+	"""
+	Checks for Mojibake (corruption) in env variables.
+	Attempts to fix by restarting in UTF-8 mode, or falls back to temp redirection.
+	"""
+	import os
+	# Check common temp keys for question marks (corruption)
+	keys_to_check = ["TEMP", "TMP", "APPDATA", "LOCALAPPDATA"]
+	corrupt = False
+	for key in keys_to_check:
+		if "?" in os.environ.get(key, ""):
+			corrupt = True
+			break
+
+	if corrupt:
+		if "PYTHONUTF8" not in os.environ:
+			print("Detected corrupt environment paths. Attempting to set PYTHONUTF8=1...")
+			os.environ["PYTHONUTF8"] = "1"
+
+		safe_dir = root_dir / "safe_temp"
+		safe_dir.mkdir(exist_ok=True)
+		safe_path = str(safe_dir.resolve())
+
+		os.environ["TEMP"] = safe_path
+		os.environ["TMP"] = safe_path
+
+		try:
+			# Restart the process
+			os.execv(sys.executable, [sys.executable] + sys.argv)
+		except Exception as e:
+			print(f"Failed to restart: {e}")
+
+
 def create_window(cls: type['WindowT'], opts: GuiOptions, **kwargs) -> tuple['WindowT', 'QApplication']:
 	"""Initialize the window class, logs, and QApplication if necessary"""
 	handler = logs.logging_setup(opts.log_name,
@@ -140,6 +173,7 @@ def startup(cls: type['WindowT'], opts: GuiOptions, **kwargs) -> None:
 	"""
 	The application entry point
 	"""
+	sanitize_environment()
 	win, app_qt = setup_app(cls, opts, **kwargs)
 
 	import signal

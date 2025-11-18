@@ -290,6 +290,7 @@ class LogViewDelegate(QStyledItemDelegate):
 		icon_x_start = option.rect.left() + self.TEXT_PADDING
 		if icon_pixmap and isinstance(icon_pixmap, QtGui.QPixmap):
 			dpr = icon_pixmap.devicePixelRatioF()
+			if dpr <= 0.0: dpr = 1.0
 			logical_icon_height = int(icon_pixmap.height() / dpr)
 			icon_y = drawing_y + (drawing_height - logical_icon_height) // 2
 			painter.drawPixmap(icon_x_start, icon_y, icon_pixmap)
@@ -352,6 +353,7 @@ class LogViewDelegate(QStyledItemDelegate):
 
 			if indicator_pixmap:
 				dpr = indicator_pixmap.devicePixelRatioF()
+				if dpr <= 0.0: dpr = 1.0
 				logical_icon_height = int(indicator_pixmap.height() / dpr)
 				arrow_y = drawing_y + (drawing_height - logical_icon_height) // 2
 				painter.drawPixmap(details_txt_draw_x, arrow_y, indicator_pixmap)
@@ -369,6 +371,7 @@ class LogViewDelegate(QStyledItemDelegate):
 				indicator_block_x_start = text_summary_start_x + self.INDICATOR_SPACING
 			if indicator_pixmap:
 				dpr = indicator_pixmap.devicePixelRatioF()
+				if dpr <= 0.0: dpr = 1.0
 				logical_icon_height = int(indicator_pixmap.height() / dpr)
 				info_y = drawing_y + (drawing_height - logical_icon_height) // 2
 				painter.drawPixmap(indicator_block_x_start, info_y, indicator_pixmap)
