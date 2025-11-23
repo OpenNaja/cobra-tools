@@ -1,24 +1,19 @@
-#!/usr/bin/env python
 """
 ovl_tool_cmd.py
 
 Command-line OVL tool using the same OvlFile API as ovl_tool_gui.
 
 Subcommands:
-
   new      - create a new OVL from a folder
   extract  - extract files from an OVL
   inject   - inject/replace files into an OVL
 
 Examples:
-
   ovl_tool_cmd.py extract -i path/to/main.ovl 
   ovl_tool_cmd.py new -i this/folder/ -g "Planet Zoo" -o Main.ovl
   ovl_tool_cmd.py inject -f test/test.lua  -g "Jurassic World Evolution 3" --in-place path/to/main.ovl
 
-
 """
-
 from __future__ import annotations
 
 from utils.logs import logging_setup # type: ignore
@@ -129,7 +124,7 @@ def compression_choices() -> List[str]:
 
 
 # -----------------------------------------------------------------------------
-# Core operations using OvlFile (no custom reporter, just like your working extract)
+# Command line operations 
 # -----------------------------------------------------------------------------
 
 def cmd_new(args: argparse.Namespace) -> None:
@@ -250,7 +245,6 @@ def cmd_inject(args: argparse.Namespace) -> None:
     """
     ovl_src = os.path.abspath(args.ovl)
     ensure_exists(ovl_src, "file")
-
 
     game = resolve_game_label(args.game)
     commands = {}
