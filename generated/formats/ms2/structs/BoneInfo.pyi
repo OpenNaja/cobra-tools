@@ -51,7 +51,7 @@ class BoneInfo(BaseStruct):
     bones: Array[Bone]
     parents: Array[int]
     enumeration: Array[int]
-    jwe_3_a: Array[int]
+    jwe_3_nibbles: Array[int]
     parents_padding: PadAlign[object]
     enumeration: Union[Array[Array[int]], Array[int]]
     inventory_datas: Array[Array[int]]

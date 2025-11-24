@@ -20,6 +20,7 @@ class ZerosPadding(BaseStruct):
 
 		# 129 is the first with 24 bytes
 		self.padding_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.padding_3 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -29,6 +30,7 @@ class ZerosPadding(BaseStruct):
 		yield 'padding_0', name_type_map['Uint64'], (0, None), (False, None), (None, True)
 		yield 'padding_1', name_type_map['Uint64'], (0, None), (False, None), (None, True)
 		yield 'padding_2', name_type_map['Uint64'], (0, None), (False, None), (None, True)
+		yield 'padding_3', name_type_map['Uint64'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,3 +41,5 @@ class ZerosPadding(BaseStruct):
 			yield 'padding_1', name_type_map['Uint64'], (0, None), (False, None)
 		if 128 < instance.arg:
 			yield 'padding_2', name_type_map['Uint64'], (0, None), (False, None)
+		if 192 < instance.arg:
+			yield 'padding_3', name_type_map['Uint64'], (0, None), (False, None)

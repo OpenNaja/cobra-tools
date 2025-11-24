@@ -652,6 +652,7 @@
 		<field name="padding 0" type="uint64" cond="0 #LT# #ARG#"/>
 		<field name="padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</field>
 		<field name="padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</field>
+		<field name="padding 3" type="uint64" cond="192 #LT# #ARG#"/>
 	</struct>
 
 	<struct name="AbstractPointer" abstract="true">
@@ -1013,7 +1014,12 @@
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
-		<field name="jwe3 a" type="ubyte" arr1="bone_count / 2" since="55" >JWE3</field>
+<!--		JW2 male Allo:
+			bone info 0: 153 bones, 43 joints, 6 ik, 84 x00
+			bone info 1: 147 bones, 0 joints, 2 ik, 76 x00
+			looks like 4 bit per bone
+-->
+		<field name="jwe3 nibbles" type="ubyte" arr1="(bone_count + 1) / 2" since="55" >JWE3, use 4 bits for each bone</field>
 		<field name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</field>
 
 		<field name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</field>
@@ -1029,7 +1035,6 @@
 
 		<field name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</field>
 		<field name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</field>
-
 		<field name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data, probably changed in JWE3</field>
 		<field name="joints" type="JointData" cond="joint count" >joints</field>
 	</struct>

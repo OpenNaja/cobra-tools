@@ -87,8 +87,8 @@ class BoneInfo(BaseStruct):
 		# JWE3
 		self.enumeration = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
-		# JWE3
-		self.jwe_3_a = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+		# JWE3, use 4 bits for each bone
+		self.jwe_3_nibbles = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 
 		# align to 8 bytes
 		self.parents_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
@@ -166,7 +166,7 @@ class BoneInfo(BaseStruct):
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 52, None)
 		yield 'parents', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 53, None)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 55, True)
-		yield 'jwe_3_a', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version >= 55, None)
+		yield 'jwe_3_nibbles', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version >= 55, None)
 		yield 'parents_padding', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 13, True)
 		yield 'enumeration', Array, (0, None, (None, 2,), name_type_map['Uint']), (False, None), (lambda context: 32 <= context.version <= 54, True)
@@ -238,7 +238,7 @@ class BoneInfo(BaseStruct):
 		if instance.context.version >= 55 and instance.one:
 			yield 'enumeration', Array, (0, None, (instance.enum_count,), name_type_map['Ushort']), (False, None)
 		if instance.context.version >= 55:
-			yield 'jwe_3_a', Array, (0, None, (int(instance.bone_count / 2),), name_type_map['Ubyte']), (False, None)
+			yield 'jwe_3_nibbles', Array, (0, None, (int((instance.bone_count + 1) / 2),), name_type_map['Ubyte']), (False, None)
 		if instance.context.version >= 32:
 			yield 'parents_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 13 and instance.one:
