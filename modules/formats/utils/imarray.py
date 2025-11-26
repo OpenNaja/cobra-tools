@@ -84,7 +84,7 @@ def split_png(png_file_path, ovl, compression=None):
 	if is_ztuac(ovl):
 		flip = False
 	if flip or channels:
-		logging.info(f"Splitting {png_file_path} into {channels} channels")
+		logging.debug(f"Splitting {png_file_path} into {channels} channels")
 		im = imread(png_file_path)
 		if flip == "GB":
 			im = flip_gb(im)

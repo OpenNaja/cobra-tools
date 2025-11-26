@@ -85,16 +85,14 @@ class DdsLoader(MemStructLoader):
 			# print(self.header.texel, t.mip_maps[0].offset, self.file_hash, self.name)
 
 	def unweave(self, dds_file):
-		logging.info(f"Unweaving {self.name}")
-		dds_file.get_pixel_fmt()
+		logging.debug(f"Unweaving {self.name}")
 		unweaved_bytes = bytearray(self.raw_bytes)
 		for unpacked_offset, shuffled_offset, size in self.weave_generator(dds_file):
 			unweaved_bytes[unpacked_offset: unpacked_offset + size] = self.raw_bytes[shuffled_offset: shuffled_offset + size]
 		return unweaved_bytes
 
 	def weave(self, dds_file, unweaved_bytes):
-		logging.info(f"Weaving {self.name}")
-		dds_file.get_pixel_fmt()
+		logging.debug(f"Weaving {self.name}")
 		self.raw_bytes = bytearray(unweaved_bytes)
 		for unpacked_offset, shuffled_offset, size in self.weave_generator(dds_file):
 			self.raw_bytes[shuffled_offset: shuffled_offset + size] = unweaved_bytes[unpacked_offset: unpacked_offset + size]
@@ -129,7 +127,7 @@ class DdsLoader(MemStructLoader):
 					offset += mip_info.size
 			for lod, mip_offset in zip(self.texbuffer.main,
 									   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
-				first_index = self.texbuffer.num_mips - mip_offset
+				first_index = self.get_first_mip_index(mip_offset, self.texbuffer.num_mips_low > self.texbuffer.num_mips_high)
 				mip0 = self.texbuffer.mip_maps[first_index]
 				lod.offset = mip0.offset
 			# update buffer data of tex
@@ -139,6 +137,12 @@ class DdsLoader(MemStructLoader):
 			self.increment_buffers(1)
 			for data_entry in self.get_sorted_datas():
 				data_entry.size_1 = data_entry.size_2 = 0
+
+	def get_first_mip_index(self, mip_offset, flag):
+		if flag:
+			return 0
+		else:
+			return self.texbuffer.num_mips - mip_offset
 
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		if not self.context.is_pc_2:
@@ -259,16 +263,17 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.num_tiles = size_info.num_tiles
 				# mip maps
 				self.texbuffer.num_mips = size_info.num_mips
-				if self.texbuffer.num_mips > 1:
-					# single channel
-					if self.header.compression_type in (DdsType.BC4_UNORM, DdsType.BC4_SNORM):
-						self.texbuffer.flag = 32
-					# RGB
-					else:
-						self.texbuffer.flag = 96
+				# if self.texbuffer.num_mips > 1:
+				# 	# single channel
+				# 	if self.header.compression_type in (DdsType.BC4_UNORM, DdsType.BC4_SNORM):
+				# 		self.texbuffer.flag = 32
+				# 	# RGB
+				# 	else:
+				# 		self.texbuffer.flag = 96
 				# these appear not to be easily predictable, so retrieve those manually added to tex
 				self.texbuffer.num_mips_high = int(self.header.num_mips_high)
 				self.texbuffer.num_mips_low = int(self.header.num_mips_low)
+				self.texbuffer.flag = int(self.header.flag)
 				# # surprisingly, incorrect values for num_mips_low and num_mips_high crash
 				# # to keep it safe, only update them for creating rather than saving
 				# self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
@@ -313,7 +318,7 @@ class DdsLoader(MemStructLoader):
 					# only set size + offset on valid mips
 					if mip_i < self.texbuffer.num_mips:
 						# UI mip 0 ignores the settings from the header
-						if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height:
+						if self.texbuffer.num_mips > 1 and self.texbuffer.weave_width and self.texbuffer.weave_height and self.texbuffer.flag:
 							mip_info.num_weaves_x = width // self.texbuffer.weave_width
 							mip_info.num_weaves_y = height // self.texbuffer.weave_height
 							if mip_info.num_weaves_x and mip_info.num_weaves_y:
@@ -327,7 +332,7 @@ class DdsLoader(MemStructLoader):
 					mip_info.ff = -1
 				for lod, mip_offset in zip(self.texbuffer.main,
 										   (self.texbuffer.num_mips_low, self.texbuffer.num_mips_high)):
-					first_index = self.texbuffer.num_mips - mip_offset
+					first_index = self.get_first_mip_index(mip_offset, self.texbuffer.num_mips_low > self.texbuffer.num_mips_high)
 					mip0 = self.texbuffer.mip_maps[first_index]
 					lod.size = sum(mip.size for mip in self.texbuffer.mip_maps[first_index:])
 					lod.num_weaves_x = mip0.num_weaves_x
@@ -482,6 +487,7 @@ class DdsLoader(MemStructLoader):
 
 				# logging.debug(f"MIP{mip_i}")
 				if mip.num_weaves_x > 1 and mip.num_weaves_y > 1:
+					logging.debug(f"MIP{mip_i} weaves")
 					seek = 0
 					tile_row_count = height // self.texbuffer.weave_height  # or mip.num_weaves_y?
 					tile_col_count = width // self.texbuffer.weave_width  # or mip.num_weaves_x?
@@ -532,6 +538,7 @@ class DdsLoader(MemStructLoader):
 					xml_root.set("ovs", self.ovs.arg.name)
 					xml_root.set("num_mips_low", str(self.texbuffer.num_mips_low))
 					xml_root.set("num_mips_high", str(self.texbuffer.num_mips_high))
+					xml_root.set("flag", str(self.texbuffer.flag))
 			out_files = [out_path, ]
 		else:
 			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
