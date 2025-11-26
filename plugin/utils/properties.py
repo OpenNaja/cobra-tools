@@ -91,12 +91,14 @@ def make_material_callback(var_name):
 				variation_node = tree.nodes.get("AnimalVariation")
 				if variation_node:
 					variation_node.inputs[current_var_spaced].default_value = current_var
+
 	return show_material_callback
 
 
 class LodData(PropertyGroup):
 	distance: FloatProperty(min=0.0, precision=0, description="Distance to object for LOD")
-	ratio: FloatProperty(min=0.0, max=100.0, precision=1, description="Baseline reduction ratio - final decimation ratio also considers vertex count of L0 geometry")
+	ratio: FloatProperty(min=0.0, max=100.0, precision=1,
+						 description="Baseline reduction ratio - final decimation ratio also considers vertex count of L0 geometry")
 
 	def update_values(self, lod_i):
 		l_n = [100, 40, 26.666, 15, 8, 3.333]
@@ -187,12 +189,76 @@ class CobraCollisionSettings(VersionedPropertyGroup):
 			("Planet Coaster", "Classification", [e.name for e in PcCollision]),
 			("Jurassic World Evolution", "Surface", [e.name for e in Jwe1Surface]),
 			("Jurassic World Evolution", "Classification", [e.name for e in Jwe1Collision]),
-			("Planet Zoo", "Surface", ['Animal', 'Brick', 'Character', 'Cloth', 'Concrete', 'Default', 'Default_Legacy_DO_NOT_USE', 'Dirt', 'Foliage', 'Frictionless', 'Glass', 'Grass', 'Ice', 'Leaves', 'Litter', 'Metal', 'Mud', 'Plastic', 'Poo', 'Rubber', 'Sand', 'Snow', 'Stone', 'Tree', 'Trigger', 'Tyre', 'Wood']),
-			("Planet Zoo", "Classification", ['Animal', 'Animal_Bone', 'Animal_Box', 'Animal_Dead', 'Animal_Pouncing', 'Balloon', 'Bedding', 'Building', 'Character_InFlight', 'Character_Limb', 'Character_Limb_NoCollision', 'Character_Miscreant', 'Character_SoS', 'Climbable', 'Coaster', 'Coaster_Car', 'Coaster_Misc', 'Coaster_RacingCar', 'DevelopmentOnly_Ball', 'DevelopmentOnly_Character', 'Enrichment_Object', 'Facility', 'Kinetic_Object', 'Landscape', 'Navmesh', 'NoCollision', 'Poo', 'Prop', 'Ride', 'Scenery', 'Scenery_NoNavSource', 'Scenery_Vandalised', 'Structure', 'Track', 'TrackScenery', 'Track_Support', 'TreeBase', 'TreeBranch', 'TreeFoliage', 'TreeTrunk', 'Trigger_AnimalMemorialStaffThoughts', 'Trigger_AnimalObstruction', 'Trigger_EducationSource', 'Trigger_EscapedAnimal', 'Trigger_FacilityNegativeInfluence', 'Trigger_Grid', 'Trigger_GuestGate', 'Trigger_Inspector', 'Trigger_Presenter', 'Trigger_Queue', 'Trigger_Screen', 'Trigger_Security', 'UIElement', 'Water', 'WaterSpray', 'Wheel']),
-			("Jurassic World Evolution 2", "Surface", ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow', 'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb', 'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gyrosphere', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless', 'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePondBottom', 'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood', 'LandscapeWoodHollow', 'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal', 'PropPlastic', 'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault', 'SceneryTree', 'StructureFence', 'StructurePath', 'StructurePylon', 'StructureTrack', 'StructureWall', 'Water']),
-			("Jurassic World Evolution 2", "Classification", ['AIDrone', 'AIVehicle', 'AIVehicleFindGrid', 'AIVehicleObstacle', 'Audio', 'AviaryTourGate', 'Building', 'BuildingAIVehicleObstacle', 'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle', 'Character', 'Debris', 'Default', 'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy', 'DinosaurDinosaur', 'DinosaurNoBuilding', 'DinosaurNoCollision', 'DinosaurNoFence', 'DinosaurNoVehicle', 'DinosaurSelfCollision', 'Drone', 'Fence', 'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Guest', 'GuestAvoidance', 'GuestObstacle', 'GuestRagdoll', 'HatcheryGate', 'InvisibleWall', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'Landscape', 'MissionTrigger', 'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'Prop', 'PropNoCameraObstacle', 'Pylon', 'Rotor', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Tree', 'Vehicle', 'Wall', 'Water', 'WaterSplash', 'Wheel']),
-			("Planet Coaster 2", "Surface", ['Ball', 'Brick', 'BuildingMetal', 'BuildingWood', 'Car', 'Character', 'Coaster_DefaultDefault', 'Concrete', 'Default', 'Default_DefaultDefault', 'DevelopmentDefault', 'Dirt', 'FacilityDefault', 'Foliage', 'Gizmo', 'GizmoPrecise', 'Glass', 'Grass', 'Misc', 'NavMeshDefault', 'Plastic', 'PropMetal', 'PropStone', 'RideDefault', 'SceneryPlatformFinder', 'Scenery_DefaultDefault', 'Track_Default', 'Tree', 'Water', 'Wooden']),
-			("Planet Coaster 2", "Classification", ['Building', 'Coaster', 'Coaster_Car', 'Coaster_Default', 'Default', 'Default_Default', 'Development', 'Facility', 'Gizmo', 'GizmoPrecise', 'NavMesh', 'Prop', 'Ride', 'Scenery', 'Scenery_Default', 'Scenery_SceneryPlatformFinder', 'Scenery_Tree', 'Track', 'TreeBase', 'TreeFoliage', 'TreeTrunk']),
+			("Planet Zoo", "Surface",
+			 ['Animal', 'Brick', 'Character', 'Cloth', 'Concrete', 'Default', 'Default_Legacy_DO_NOT_USE', 'Dirt',
+			  'Foliage', 'Frictionless', 'Glass', 'Grass', 'Ice', 'Leaves', 'Litter', 'Metal', 'Mud', 'Plastic', 'Poo',
+			  'Rubber', 'Sand', 'Snow', 'Stone', 'Tree', 'Trigger', 'Tyre', 'Wood']),
+			("Planet Zoo", "Classification",
+			 ['Animal', 'Animal_Bone', 'Animal_Box', 'Animal_Dead', 'Animal_Pouncing', 'Balloon', 'Bedding', 'Building',
+			  'Character_InFlight', 'Character_Limb', 'Character_Limb_NoCollision', 'Character_Miscreant',
+			  'Character_SoS', 'Climbable', 'Coaster', 'Coaster_Car', 'Coaster_Misc', 'Coaster_RacingCar',
+			  'DevelopmentOnly_Ball', 'DevelopmentOnly_Character', 'Enrichment_Object', 'Facility', 'Kinetic_Object',
+			  'Landscape', 'Navmesh', 'NoCollision', 'Poo', 'Prop', 'Ride', 'Scenery', 'Scenery_NoNavSource',
+			  'Scenery_Vandalised', 'Structure', 'Track', 'TrackScenery', 'Track_Support', 'TreeBase', 'TreeBranch',
+			  'TreeFoliage', 'TreeTrunk', 'Trigger_AnimalMemorialStaffThoughts', 'Trigger_AnimalObstruction',
+			  'Trigger_EducationSource', 'Trigger_EscapedAnimal', 'Trigger_FacilityNegativeInfluence', 'Trigger_Grid',
+			  'Trigger_GuestGate', 'Trigger_Inspector', 'Trigger_Presenter', 'Trigger_Queue', 'Trigger_Screen',
+			  'Trigger_Security', 'UIElement', 'Water', 'WaterSpray', 'Wheel']),
+			("Jurassic World Evolution 2", "Surface",
+			 ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow',
+			  'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb',
+			  'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gyrosphere', 'LEGACY_DO_NOT_USE',
+			  'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless',
+			  'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePondBottom',
+			  'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood', 'LandscapeWoodHollow',
+			  'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal', 'PropPlastic',
+			  'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault', 'SceneryTree', 'StructureFence', 'StructurePath',
+			  'StructurePylon', 'StructureTrack', 'StructureWall', 'Water']),
+			("Jurassic World Evolution 2", "Classification",
+			 ['AIDrone', 'AIVehicle', 'AIVehicleFindGrid', 'AIVehicleObstacle', 'Audio', 'AviaryTourGate', 'Building',
+			  'BuildingAIVehicleObstacle', 'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle',
+			  'Character', 'Debris', 'Default', 'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy',
+			  'DinosaurDinosaur', 'DinosaurNoBuilding', 'DinosaurNoCollision', 'DinosaurNoFence', 'DinosaurNoVehicle',
+			  'DinosaurSelfCollision', 'Drone', 'Fence', 'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Guest',
+			  'GuestAvoidance', 'GuestObstacle', 'GuestRagdoll', 'HatcheryGate', 'InvisibleWall', 'LEGACY_DO_NOT_USE',
+			  'LagoonFloor', 'Landscape', 'MissionTrigger', 'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'Prop',
+			  'PropNoCameraObstacle', 'Pylon', 'Rotor', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Tree',
+			  'Vehicle', 'Wall', 'Water', 'WaterSplash', 'Wheel']),
+			("Planet Coaster 2", "Surface",
+			 ['Ball', 'Brick', 'BuildingMetal', 'BuildingWood', 'Car', 'Character', 'Coaster_DefaultDefault',
+			  'Concrete', 'Default', 'Default_DefaultDefault', 'DevelopmentDefault', 'Dirt', 'FacilityDefault',
+			  'Foliage', 'Gizmo', 'GizmoPrecise', 'Glass', 'Grass', 'Misc', 'NavMeshDefault', 'Plastic', 'PropMetal',
+			  'PropStone', 'RideDefault', 'SceneryPlatformFinder', 'Scenery_DefaultDefault', 'Track_Default', 'Tree',
+			  'Water', 'Wooden']),
+			("Planet Coaster 2", "Classification",
+			 ['Building', 'Coaster', 'Coaster_Car', 'Coaster_Default', 'Default', 'Default_Default', 'Development',
+			  'Facility', 'Gizmo', 'GizmoPrecise', 'NavMesh', 'Prop', 'Ride', 'Scenery', 'Scenery_Default',
+			  'Scenery_SceneryPlatformFinder', 'Scenery_Tree', 'Track', 'TreeBase', 'TreeFoliage', 'TreeTrunk']),
+			("Jurassic World Evolution 3", "Surface",
+			 ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow',
+			  'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb',
+			  'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gizmo', 'Gyrosphere', 'LEGACY_DO_NOT_USE',
+			  'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless',
+			  'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePath',
+			  'LandscapePondBottom', 'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood',
+			  'LandscapeWoodHollow', 'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal',
+			  'PropMetal_ReducedBounce', 'PropPlastic', 'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault',
+			  'SceneryTree', 'StructureFence', 'StructurePath', 'StructurePylon', 'StructureTrack', 'StructureWall',
+			  'Water']),
+			("Jurassic World Evolution 3", "Classification",
+			 ['AIDrone', 'AITourVehicle', 'AIVehicle', 'AIVehicleFindGrid', 'Audio', 'AviaryTourGate', 'Building',
+			  'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle', 'Debris', 'Default',
+			  'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy', 'DinosaurContainer',
+			  'DinosaurDinosaur', 'DinosaurLandscapeOnlyCollision', 'DinosaurNoBuilding', 'DinosaurNoCollision',
+			  'DinosaurNoFence', 'DinosaurNoVehicle', 'DinosaurSelfCollision', 'Drone', 'Fence',
+			  'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Gizmo', 'Guest', 'GuestAvoidance', 'GuestObstacle',
+			  'GuestRagdoll', 'HatcheryGate', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'Landscape', 'MissionTrigger',
+			  'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'PhysicsDisabledProp',
+			  'PhysicsDisabledPropNoCameraObstacle', 'PhysicsFootplant', 'Prop', 'PropNoCameraObstacle', 'Pylon',
+			  'Rotor', 'ScenerySelectionVolume', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Vehicle',
+			  'VehicleReserved', 'VehicleTrigger', 'Wall', 'Water', 'WaterSplash']
+			 ),
+
 	):
 		identifier = f"{dtype.lower()}{suffix_map.get(game, None)}"
 		__annotations__[identifier] = EnumProperty(
@@ -301,5 +367,3 @@ class MATCOL_ListItem(bpy.types.PropertyGroup):
 		description="A name for this item",
 		default="Untitled"
 	)
-
-
