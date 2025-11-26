@@ -125,7 +125,7 @@ class WalkerDialog(QDialog):
 		self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
 		# Directory selector
-		self.dir_widget = DirWidget(self, {})
+		self.dir_widget = DirWidget(self, parent.cfg)
 		self.dir_widget.entry.setMinimumWidth(480)
 		if dir_walk:
 			self.dir_widget.open_dir(dir_walk)

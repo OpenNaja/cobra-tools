@@ -83,7 +83,7 @@ class FileDirWidget(QWidget):
 	@property
 	def cfg_last_dir_open(self) -> str:
 		# todo - only pass game when it makes sense to store per-game
-		game = self.cfg["current_game"]
+		game = self.cfg.get("current_game", None)
 		last_file = self.cfg.get_last_file(self.ftype_lower, game=game)
 		if last_file:
 			return os.path.dirname(last_file)

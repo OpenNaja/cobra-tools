@@ -664,14 +664,20 @@ class MainWindow(window.MainWindow):
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 
 	def game_root(self):
-		if self.ovl_manager.dirs.get_root().endswith("ovldata"):
-			return self.ovl_manager.dirs.get_root()
+		root_path = self.ovl_manager.dirs.get_root()
+		if root_path.endswith("ovldata"):
+			return root_path
 		return ""
 	
 	def walk_root(self):
-		selected = self.ovl_manager.dirs.get_selected_dir()
-		# fall back on game root dir if selected dir is not child of current game's dir tree
-		return selected if PurePath(self.game_root()) in PurePath(selected).parents else self.game_root()
+		"""Choose a reasonable root path for walking the ovldata folder structure"""
+		selected_path = self.ovl_manager.dirs.get_selected_path()
+		# take sub-folders to allow for partial walking
+		if os.path.isdir(selected_path):
+			if PurePath(self.game_root()) in PurePath(selected_path).parents:
+				return selected_path
+		# fall back on game root dir
+		return self.game_root()
 
 	def walker_audio(self, ):
 		self.run_in_threadpool(walker.get_audio_names, (), self, self.game_root())

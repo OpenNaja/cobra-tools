@@ -410,10 +410,13 @@ class OvlDataTreeView(QTreeView):
 		except:
 			logging.exception("Setting dir failed")
 
+	def get_selected_path(self) -> str:
+		return self.file_model.filePath(self.currentIndex())
+
 	def get_selected_dir(self) -> str:
-		file_path = self.file_model.filePath(self.currentIndex())
+		selected_path = self.get_selected_path()
 		# if a file is selected, get its containing dir
-		return file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
+		return selected_path if os.path.isdir(selected_path) else os.path.dirname(selected_path)
 
 	def set_filter(self, filter_str: str) -> None:
 		"""Applies the filter and starts the view update process"""
