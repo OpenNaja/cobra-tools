@@ -123,7 +123,7 @@ def check_dependencies(all_deps: list[str], dist_finder: Callable) -> tuple[dict
                 # Create a specifier from the requirement line, e.g., ">=1.2.3"
                 specifier_str = line.replace(lib, '').strip()
                 if specifier_str and not SpecifierSet(specifier_str).contains(lib_dist.version):
-                    logging.warning(f"{lib} is out of date. Found: {lib_dist.version}, require: {line}")
+                    logging.warning(f"{lib} is not the recommended version. Found: {lib_dist.version}, required: {line}")
                     OUTDATED[lib] = line
             except PackageNotFoundError:
                 # Should not happen in this loop
