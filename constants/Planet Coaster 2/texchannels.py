@@ -11,7 +11,7 @@ texchannels = {
 	# 'pBaseColourTexture4': {"RGB": "", "A": ""},
 	# 'pBaseColourTextureDetailBase': {"RGB": "", "A": ""},
 	# 'pBaseColourTextureDetailBlend': {"RGB": "", "A": ""},
-	# 'pCavityRoughnessDielectricArray': {"R": "", "G": "", "B": "", "A": ""},
+	'pCavityRoughnessDielectricArray': {"R": "CA", "G": "RN", "B": "SP", "A": ""},
 	'pCavitySmoothnessTexture': {"R": "CA", "G": "SM", "B": "", "A": "FO"},  # from PC1
 	# 'pCoarseNoise': {"": ""},
 	'pCustomisation_AOTexture': {"": "AO"},
@@ -26,7 +26,7 @@ texchannels = {
 	'pCustomisation_ValueTexture': {"": "TI_BC"}, # should be mixed with some color?
 	'pDetailNormalTexture': {"RG": "NM"},
 	'pDiffuseAlphaTexture': {"RGB": "BC", "A": "OP"},
-	# 'pDiffuseArray': {"": ""},
+	'pDiffuseArray': {"": "BC"},
 	'pDiffuseTexture': {"RGB": "BC", "A": ""},
 	'pEmissiveOpacityTexture': {"RGB": "EM", "A": "OP"},
 	'pEmissiveTexture': {"": "EM"},
@@ -34,7 +34,7 @@ texchannels = {
 	# 'pFoamTexture': {"": ""},
 	# 'pFoamWhitewaterTex': {"": ""},
 	# 'pFullScaleDiffuseAndSpecial': {"": ""},
-	# 'pGradHeightArray': {"RG": "", "B": "", "A": ""},
+	'pGradHeightArray': {"RG": "NM", "B": "HE", "A": ""},
 	# 'pIBLTexture': {"": ""},
 	# 'pIBLTextureB': {"": ""},
 	# 'pIBLTextureFlowmap': {"": ""},
@@ -44,7 +44,7 @@ texchannels = {
 	# 'pLightSequenceTexture': {"": ""},
 	# 'pLightSequence_ChannelMasksTexture': {"": ""},
 	# 'pLightSequence_EmissiveMaskTexture': {"": ""},
-	# 'pMacroDiffuse': {"": ""},
+	'pMacroDiffuse': {"": "DE"},
 	# 'pMaskAOTextureUnique': {"": ""},
 	'pMetalSmoothnessCavityOpacityTexture': {"R": "MT", "G": "SM", "B": "CA", "A": "OP"},  # from PC1
 	'pMetalSmoothnessCavityTexture': {"R": "MT", "G": "SM", "B": "CA", "A": ""},  # from PC1
