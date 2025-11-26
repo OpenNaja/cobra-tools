@@ -306,11 +306,6 @@ class DdsLoader(MemStructLoader):
 				self.texbuffer.can_weave = 1 if self.texbuffer.weave_width else 0
 				# pack mips for all array tiles
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
-				packed_mips = []
-				# write the packed tex buffer: for each mip level, write all its tiles consecutively
-				for mip_level in zip(*mips_per_tiles):
-					mip_bytes = b"".join(mip_level)
-					packed_mips.append(mip_bytes)
 				# update mip data
 				height = self.texbuffer.height
 				width = self.texbuffer.width
@@ -339,7 +334,11 @@ class DdsLoader(MemStructLoader):
 					lod.num_weaves_y = mip0.num_weaves_y
 					lod.do_weave = mip0.do_weave
 					lod.ff = 0
-				unweaved_bytes = b"".join(packed_mips)
+				# write all tiles sequentially
+				packed = []
+				for mips_in_tile in mips_per_tiles:
+					packed.append(b"".join(mips_in_tile))
+				unweaved_bytes = b"".join(packed)
 				self.weave(dds_file, unweaved_bytes)
 				self.texbuffer.buffer_size = len(self.raw_bytes)
 				return self.raw_bytes
@@ -349,12 +348,12 @@ class DdsLoader(MemStructLoader):
 				self.header.size_info.data.reset_field("padding")
 				logging.debug("Packing mip maps")
 				# pack mips for all array tiles
-				mips_per_tiles = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
+				tiles_per_mip = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
 				with io.BytesIO() as tex:
 					# write the packed tex buffer: for each mip level, write all its tiles consecutively
-					for mip_level, mip_info in zip(zip(*mips_per_tiles), size_info.mip_maps):
+					for tiles_in_mip, mip_info in zip(zip(*tiles_per_mip), size_info.mip_maps):
 						mip_info.offset = tex.tell()
-						for tile in mip_level:
+						for tile in tiles_in_mip:
 							tex.write(tile)
 						mip_info.size = len(tile)
 						mip_info.size_array = tex.tell() - mip_info.offset
