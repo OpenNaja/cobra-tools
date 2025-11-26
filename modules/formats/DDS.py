@@ -106,6 +106,8 @@ class DdsLoader(MemStructLoader):
 		# override ovs membership
 		if self.context.is_pc_2:
 			self.set_ovs(self.header.ovs)
+			if not self.ovl.commands.get("update_aux", True):
+				raise AttributeError(f"Can't update {name_ext} while Rewrite AUX Files is set to False")
 		logging.debug(f"Creating image {name_ext}")
 		# create the image before creating the streams
 		buffer_bytes = self.get_image_bytes(file_path)
