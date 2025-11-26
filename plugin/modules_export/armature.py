@@ -90,6 +90,7 @@ def export_bones_custom(b_armature_ob, model_info):
 	bone_info.reset_field("enumeration")
 	bone_info.reset_field("minus_padding")
 	bone_info.reset_field("zeros_padding")
+	bone_info.reset_field("jwe_3_nibbles")
 
 	sorted_bones = sorted(b_armature_ob.data.bones, key=lambda b_bone: b_armature_ob.pose.bones[b_bone.name]["index"])
 	for bone_i, b_bone in enumerate(sorted_bones):
@@ -101,7 +102,8 @@ def export_bones_custom(b_armature_ob, model_info):
 		# set parent index
 		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else NO_PARENT
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
-		bone_info.enumeration[bone_i] = [4, bone_i] if model_info.context.version >= 32 else bone_i
+		# ZTUAC, DLA and JWE3 are 1D
+		bone_info.enumeration[bone_i] = [4, bone_i] if 13 < model_info.context.version < 55 else bone_i
 	# sanity check for bone hierarchy to verify sorting is correct
 	for bone_i, parent_i in enumerate(bone_info.parents):
 		if parent_i != NO_PARENT:

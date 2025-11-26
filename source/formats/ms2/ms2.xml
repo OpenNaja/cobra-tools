@@ -1014,7 +1014,7 @@
 		<field name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</field>
 		<field name="enumeration" type="ushort" arr1="enum count" cond="one" since="55" >JWE3</field>
-<!--		JW2 male Allo:
+<!--		JW3 male Allo:
 			bone info 0: 153 bones, 43 joints, 6 ik, 84 x00
 			bone info 1: 147 bones, 0 joints, 2 ik, 76 x00
 			looks like 4 bit per bone
