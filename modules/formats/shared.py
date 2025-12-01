@@ -271,3 +271,14 @@ def unescape_path(filepath):
 	for k, v in filepath_escapes.items():
 		filepath = filepath.replace(v, k)
 	return filepath
+
+
+def make_out_dir_func(out_dir):
+	def out_dir_func(n):
+		"""Helper function to generate temporary output file name"""
+		out_path = os.path.normpath(os.path.join(out_dir, escape_path(n)))
+		# create output dir
+		os.makedirs(os.path.dirname(out_path), exist_ok=True)
+		return out_path
+
+	return out_dir_func

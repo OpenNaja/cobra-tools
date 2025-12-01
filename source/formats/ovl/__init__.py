@@ -18,7 +18,7 @@ from generated.formats.ovl.structs.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path
+from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path, make_out_dir_func
 
 try:
 	from modules.formats.utils.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC_NAME
@@ -624,18 +624,7 @@ class OvlFile(Header):
 					error_files.append(file_name)
 		logging.info("Finished renaming contents!")
 
-	def extract(self, out_dir, only_names=(), only_types=()):
-		"""Extract the files, after all archives have been read"""
-
-		def out_dir_func(n):
-			"""Helper function to generate temporary output file name"""
-			out_path = os.path.normpath(os.path.join(out_dir, escape_path(n)))
-			# create output dir
-			os.makedirs(os.path.dirname(out_path), exist_ok=True)
-			return out_path
-
-		out_paths = []
-		loaders_for_extract = []
+	def get_loaders_for_extract(self, only_names=(), only_types=()):
 		_only_types = [s.lower() for s in only_types]
 		_only_names = [s.lower() for s in only_names]
 		for loader in self.loaders.values():
@@ -647,7 +636,14 @@ class OvlFile(Header):
 			# ignore types in the count that we export from inside other type exporters
 			if loader.ext in self.formats_dict.ignore_types:
 				continue
-			loaders_for_extract.append(loader)
+			yield loader
+
+	def extract(self, out_dir, only_names=(), only_types=()):
+		"""Extract the files, after all archives have been read"""
+
+		out_dir_func = make_out_dir_func(out_dir)
+		out_paths = []
+		loaders_for_extract = list(self.get_loaders_for_extract(only_names=only_names, only_types=only_types))
 		logging.info(f"Extracting {len(loaders_for_extract)} / {len(self.files)} files")
 		with self.reporter.report_error_files("Extracting") as error_files:
 			for loader in self.reporter.iter_progress(loaders_for_extract, "Extracting"):
@@ -661,31 +657,11 @@ class OvlFile(Header):
 		return out_paths
 
 	def get_extract_paths(self, out_dir, only_names=(), only_types=()):
-		"""Extract the files, after all archives have been read"""
+		"""Get the predicted paths of files to be extracted"""
 
-		def out_dir_func(n):
-			"""Helper function to generate temporary output file name"""
-			out_path = os.path.normpath(os.path.join(out_dir, escape_path(n)))
-			# create output dir
-			os.makedirs(os.path.dirname(out_path), exist_ok=True)
-			return out_path
-
+		out_dir_func = make_out_dir_func(out_dir)
 		out_paths = []
-		loaders_for_extract = []
-		_only_types = [s.lower() for s in only_types]
-		_only_names = [s.lower() for s in only_names]
-		for loader in self.loaders.values():
-			# for batch operations, only export those that we need
-			if _only_types and loader.ext not in _only_types:
-				continue
-			if _only_names and loader.name not in _only_names:
-				continue
-			# ignore types in the count that we export from inside other type exporters
-			if loader.ext in self.formats_dict.ignore_types:
-				continue
-			loaders_for_extract.append(loader)
-		logging.info(f"Extracting {len(loaders_for_extract)} / {len(self.files)} files")
-		for loader in loaders_for_extract:
+		for loader in self.get_loaders_for_extract(only_names=only_names, only_types=only_types):
 			ret_paths = loader.get_extract_paths(out_dir_func)
 			ret_paths = loader.handle_paths(ret_paths)
 			out_paths.extend(ret_paths)
