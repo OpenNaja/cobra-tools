@@ -251,7 +251,10 @@ class MainWindow(window.MainWindow):
 		print("action", args)
 
 	def close(self) -> bool:
-		shutil.rmtree(self.temp_dir)
+		try:
+			shutil.rmtree(self.temp_dir)
+		except FileNotFoundError:
+			pass
 		for results_container in list(self.search_views.values()):
 			results_container.close()
 		return super().close()
