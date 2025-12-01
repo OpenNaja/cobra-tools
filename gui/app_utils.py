@@ -13,7 +13,6 @@ from typing import NamedTuple, cast
 from PyQt5.QtCore import QDir, QFileInfo, QSize
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter
 from PyQt5.QtWidgets import QFileIconProvider
-from fontTools.misc.cython import returns
 
 from utils.config import Config
 from utils.logs import shorten_str
