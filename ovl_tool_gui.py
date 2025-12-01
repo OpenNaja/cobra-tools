@@ -121,7 +121,7 @@ class MainWindow(window.MainWindow):
 		self.files_container = widgets.SortableTable(
 			["Name", "File Type"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
 			actions={
-				# QtWidgets.QAction("Test action"): self.run_action,
+				QtWidgets.QAction(widgets.get_icon("extract"), "Extract Selected"): self.extract_selected,
 			})
 		# connect the interaction functions
 		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
@@ -517,16 +517,21 @@ class MainWindow(window.MainWindow):
 		if self.is_open_ovl():
 			self.extract_all_ask(batch=False)
 
-	def extract_all_ask(self, batch=False):
+	def extract_selected(self, cb=None):
+		if self.is_open_ovl():
+			only_names = self.files_container.table.get_selected_files()
+			self.extract_all_ask(batch=False, only_names=only_names)
+
+	def extract_all_ask(self, batch=False, only_names=()):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			self.run_in_threadpool(self._extract_all, (), out_dir, batch)
+			self.run_in_threadpool(self._extract, (), out_dir, batch, only_names)
 
 	def extract_all_batch(self):
 		self.extract_all_ask(batch=True)
 
-	def _extract_all(self, out_dir, batch=False):
+	def _extract(self, out_dir, batch=False, only_names=()):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
 		only_types = self.extract_types_choice.currentData()
@@ -536,7 +541,7 @@ class MainWindow(window.MainWindow):
 			if batch:
 				rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 				out_dir = os.path.join(_out_dir, rel_p)
-			ovl.extract(out_dir, only_types=only_types)
+			ovl.extract(out_dir, only_names=only_names, only_types=only_types)
 
 	def inject_ask(self):
 		files = QtWidgets.QFileDialog.getOpenFileNames(
