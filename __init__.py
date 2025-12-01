@@ -2,8 +2,8 @@
 bl_info = {
     "name": "Frontier's Cobra Engine Formats",
     "author": "Harlequinz Ego, HENDRIX et al.",
-    "blender": (4, 1, 0),
-    "version": (2025, 11, 26),
+    "blender": (4, 4, 0),
+    "version": (2025, 12, 1),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations",
     "warning": "",
@@ -36,10 +36,12 @@ except ModuleNotFoundError:
 if bpy_available:
     try:
         import bpy.utils.previews
-        from bpy.props import IntProperty
+        from bpy.props import IntProperty, PointerProperty, CollectionProperty, BoolProperty
         from bpy.types import PropertyGroup
+        from bpy.app.handlers import persistent  # for drag and drop
+
         import addon_utils
-        import pkg_resources, importlib.util
+        import importlib.util
 
         copies_of_tools = []
         for addon in addon_utils.modules():
@@ -59,7 +61,6 @@ if bpy_available:
         logging.info(f"Running blender {fmt_version(bpy.app.version)}")
 
         from plugin import addon_updater_ops
-        from plugin.addon_updater_ops import classes as updater_classes
         from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
             ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
         from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
@@ -74,13 +75,10 @@ if bpy_available:
         from plugin.mods.properties import ModData, SceneryData
         from plugin.mods.panels import COBRA_MOD_PT_mod, COBRA_MOD_PT_scenery
 
-        # drag and drop:
-        from bpy.app.handlers import persistent
-        from plugin import import_fgm, import_ms2, import_spl
-
         # 4.1 drag and drop
         if hasattr(bpy.types, 'FileHandler'):
             from plugin.modules_import.operators import MS2_FH_script_import, FGM_FH_script_import
+            from plugin import import_fgm, import_ms2, import_spl
 
         global preview_collection
 
@@ -90,32 +88,32 @@ if bpy_available:
             bl_idname = __package__
 
             # Addon updater preferences.
-            auto_check_update: bpy.props.BoolProperty(
+            auto_check_update: BoolProperty(
                 name="Auto-check for Update",
                 description="If enabled, auto-check for updates using an interval",
                 default=False)
 
-            updater_interval_months: bpy.props.IntProperty(
+            updater_interval_months: IntProperty(
                 name='Months',
                 description="Number of months between checking for updates",
                 default=0,
                 min=0)
 
-            updater_interval_days: bpy.props.IntProperty(
+            updater_interval_days: IntProperty(
                 name='Days',
                 description="Number of days between checking for updates",
                 default=1,
                 min=0,
                 max=31)
 
-            updater_interval_hours: bpy.props.IntProperty(
+            updater_interval_hours: IntProperty(
                 name='Hours',
                 description="Number of hours between checking for updates",
                 default=0,
                 min=0,
                 max=23)
 
-            updater_interval_minutes: bpy.props.IntProperty(
+            updater_interval_minutes: IntProperty(
                 name='Minutes',
                 description="Number of minutes between checking for updates",
                 default=0,
@@ -140,7 +138,7 @@ if bpy_available:
             def execute(self, context):
                 # from the suggested modules list, remove those installed already
                 # pkg_resources might not look into the addon-packages folder
-                missing = {'bitarray'} - {pkg.key for pkg in pkg_resources.working_set}
+                missing = {'bitarray'}
                 python = sys.executable
                 # can't write in site-packages, but we can write in the addon-packages folder
                 subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join(bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)
@@ -174,8 +172,8 @@ if bpy_available:
             self.layout.operator(ImportSPL.bl_idname, text="Cobra Splines (.spl)", icon_value=icon)
             self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
-        # Function used to inject elements in the contextual menu of the File Browser editor
         def CT_FileBrowser_Context_Menu(self, context):
+            """Function used to inject elements in the contextual menu of the File Browser editor"""
             if context.space_data.browse_mode == 'FILES' and context.active_file:
                 file     = context.active_file.name
                 folder   = context.space_data.params.directory.decode('ascii')
@@ -213,10 +211,9 @@ if bpy_available:
                     result = {'CANCELLED'}
                 return result
 
-
-        # Function to handle drag&drop of cobra files into blender
         @persistent
         def cobra_viewport3d_drop_handler(scene, depsgraph):
+            """Function to handle drag&drop of cobra files into blender"""
             obj = bpy.context.active_object
             try:
                 if obj and obj.type == 'EMPTY' and obj.data.type == 'IMAGE':
@@ -250,7 +247,7 @@ if bpy_available:
 
 
         classes = (
-            *updater_classes,
+            *addon_updater_ops.classes,
             AddHair,
             ApplyPoseAll,
             AutosmoothAll,
@@ -324,16 +321,16 @@ if bpy_available:
         bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
         # insert properties
-        bpy.types.Material.fgm   = bpy.props.PointerProperty(type=CobraMaterialSettings)
-        bpy.types.Material.matcol_layers = bpy.props.CollectionProperty(type=MATCOL_ListItem)
-        bpy.types.Material.matcol_layers_current = bpy.props.IntProperty(
+        bpy.types.Material.fgm   = PointerProperty(type=CobraMaterialSettings)
+        bpy.types.Material.matcol_layers = CollectionProperty(type=MATCOL_ListItem)
+        bpy.types.Material.matcol_layers_current = IntProperty(
             name="Index for matcol layers", default=0, update=matcol_slot_updated)
-        bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
-        bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
-        bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
+        bpy.types.Scene.cobra = PointerProperty(type=CobraSceneSettings)
+        bpy.types.Mesh.cobra = PointerProperty(type=CobraMeshSettings)
+        bpy.types.Object.cobra_coll = PointerProperty(type=CobraCollisionSettings)
         # mod properties
-        bpy.types.Collection.mod = bpy.props.PointerProperty(type=ModData)
-        bpy.types.Object.scenery = bpy.props.PointerProperty(type=SceneryData)
+        bpy.types.Collection.mod = PointerProperty(type=ModData)
+        bpy.types.Object.scenery = PointerProperty(type=SceneryData)
         # Injection of elements in the contextual menu of the File Browser editor
         bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
         bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)

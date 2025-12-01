@@ -1,17 +1,18 @@
 import collections
-
-import bpy
-import bpy.types
-from bpy.props import BoolProperty, CollectionProperty, IntProperty
 import logging
 
+import bpy
+from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
+from bpy.types import Operator
+
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
+
 from plugin.utils.blender_util import set_auto_smooth_safe
 from plugin.utils import shell, collection, lods, rig, hair
 from plugin.utils.properties import LodData
 
 
-class BaseOp(bpy.types.Operator):
+class BaseOp(Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	target = None
 
@@ -85,12 +86,12 @@ class UpdateLods(PopupOp):
 	bl_idname = "mdl2.update_lods"
 	bl_label = "Update LODs"
 	target = lods.update_lods
-	num_lods: bpy.props.IntProperty(
+	num_lods: IntProperty(
 		name='LOD Count', description="Total number of LODs including L0", default=1, min=1, max=6, update=update_lod_settings)
-	show_tweaks: bpy.props.BoolProperty(
+	show_tweaks: BoolProperty(
 		name='Show Tweaks', description="Total number of LODs including L0", default=False)
 	levels: CollectionProperty(type=LodData)
-	lod_index: bpy.props.IntProperty()
+	lod_index: IntProperty()
 
 	def invoke(self, context, event):
 		# populate from current lod count
@@ -241,17 +242,17 @@ class SetupRig(PopupOp):
 	bl_label = "Setup Rig"
 	target = rig.setup_rig
 
-	move_collections: bpy.props.BoolProperty(
+	move_collections: BoolProperty(
 		name="Move to Collections",
 		description="Automatically move active mesh to the required collections",
 		default=True)
 
-	add_armature: bpy.props.BoolProperty(
+	add_armature: BoolProperty(
 		name="Add Armature",
 		description="Automatically add minimal armature",
 		default=True)
 
-	add_physics: bpy.props.BoolProperty(
+	add_physics: BoolProperty(
 		name="Add Physics",
 		description="Automatically add minimal physics collider from bounding box",
 		default=True)
@@ -266,12 +267,12 @@ class GenerateRigEdit(PopupOp):
 	bl_idname = "pose.generate_rig_edit"
 	bl_label = "Add Rig Edit Bones from Pose"
 	target = rig.generate_rig_edit
-	mergenodes: bpy.props.BoolProperty(
+	mergenodes: BoolProperty(
 		name="Merge Identical Nodes",
 		description="Merges identical nodes to reduce the amount of duplicates if you moved several bones with the same parent",
 		default=True)
 
-	applyarmature: bpy.props.BoolProperty(
+	applyarmature: BoolProperty(
 		name="Apply Armature Modifiers",
 		description="Automatically applies all of the armature's object's armature modifiers and re-adds them",
 		default=False)
@@ -305,7 +306,7 @@ class AutosmoothAll(BaseOp):
 
 
 class GenericRename(PopupOp):
-	new_name: bpy.props.StringProperty(name="New Name", default="")
+	new_name: StringProperty(name="New Name", default="")
 
 	def draw(self, context):
 		row = self.layout.row()

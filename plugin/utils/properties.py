@@ -3,9 +3,8 @@ import logging
 import math
 import sys
 
-import bpy.props
-from bpy.types import PropertyGroup
-from bpy.props import *
+import bpy
+from bpy.props import FloatVectorProperty, IntProperty, BoolProperty, FloatProperty, EnumProperty, StringProperty
 from bpy.types import PropertyGroup
 
 from constants import ConstantsProvider
@@ -15,6 +14,7 @@ from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.PcCollision import PcCollision
 from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
+
 from plugin.utils.object import get_view_collections
 from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
@@ -155,7 +155,7 @@ class CobraMeshSettings(PropertyGroup):
 
 class CobraCollisionSettings(VersionedPropertyGroup):
 	__annotations__ = {}
-	air_resistance: bpy.props.FloatVectorProperty(
+	air_resistance: FloatVectorProperty(
 		name='Air Resistance',
 		description="Air Resistance in 3D, relative to the joint's axes",
 		default=(0.0, 0.0, 0.0),
@@ -166,7 +166,7 @@ class CobraCollisionSettings(VersionedPropertyGroup):
 		step=3,
 		precision=2,
 		subtype="XYZ")
-	damping_3d: bpy.props.FloatVectorProperty(
+	damping_3d: FloatVectorProperty(
 		name='Damping',
 		description='Damping in 3D',
 		default=(0.0, 0.0, 0.0),
@@ -176,8 +176,8 @@ class CobraCollisionSettings(VersionedPropertyGroup):
 		soft_max=sys.float_info.max,
 		step=1,
 		precision=6)
-	plasticity_min: bpy.props.FloatProperty(name="Plasticity Lower", subtype="ANGLE")
-	plasticity_max: bpy.props.FloatProperty(name="Upper", subtype="ANGLE")
+	plasticity_min: FloatProperty(name="Plasticity Lower", subtype="ANGLE")
+	plasticity_max: FloatProperty(name="Upper", subtype="ANGLE")
 	flag: EnumProperty(
 		name='Dynamics Flag',
 		description='Current state of this rigidbody',
@@ -360,9 +360,9 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 		self.set_value(bpy.context, "shader_name", v)
 
 
-class MATCOL_ListItem(bpy.types.PropertyGroup):
+class MATCOL_ListItem(PropertyGroup):
 	"""Group of properties representing an item in the list."""
-	name: bpy.props.StringProperty(
+	name: StringProperty(
 		name="Name",
 		description="A name for this item",
 		default="Untitled"
