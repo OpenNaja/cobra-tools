@@ -83,6 +83,7 @@ class MainWindow(window.MainWindow):
 		self.ovl_data = OvlFile()
 		self.ovl_data.reporter = self.reporter
 		self.ovl_data.cfg = self.cfg
+		self.temp_dir = tempfile.mkdtemp("-cobra")
 
 		exts = " ".join([f"*{ext}" for ext in self.ovl_data.formats_dict.extractables])
 		self.filter = f"Supported files ({exts})"
@@ -250,6 +251,7 @@ class MainWindow(window.MainWindow):
 		print("action", args)
 
 	def close(self) -> bool:
+		shutil.rmtree(self.temp_dir)
 		for results_container in list(self.search_views.values()):
 			results_container.close()
 		return super().close()
@@ -376,12 +378,11 @@ class MainWindow(window.MainWindow):
 		with self.no_popups():
 			drag = QtGui.QDrag(self)
 			mime = DelayedMimeData()
-			temp_dir = tempfile.mkdtemp("-cobra")
-			out_paths = self.ovl_data.get_extract_paths(temp_dir, only_names=file_names)
-			out_paths = self.handle_flattened_folders(out_paths, temp_dir)
+			out_paths = self.ovl_data.get_extract_paths(self.temp_dir, only_names=file_names)
+			out_paths = self.handle_flattened_folders(out_paths, self.temp_dir)
 			def extract_callback():
 				try:
-					self.ovl_data.extract(temp_dir, only_names=file_names)
+					self.ovl_data.extract(self.temp_dir, only_names=file_names)
 				except:
 					self.handle_error("Dragging failed, see log!")
 			if out_paths:
@@ -390,7 +391,6 @@ class MainWindow(window.MainWindow):
 				mime.add_callback(extract_callback)
 				drag.setMimeData(mime)
 				drag.exec_()
-			shutil.rmtree(temp_dir)
 
 	def handle_flattened_folders(self, out_paths, temp_dir):
 		"""Takes list of file paths and replaces any folders containing sub-paths in temp_dir with their relative base folder so that the subfolder is returned instead of the loose files"""
