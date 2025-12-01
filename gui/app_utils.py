@@ -13,19 +13,19 @@ from typing import NamedTuple, cast
 from PyQt5.QtCore import QDir, QFileInfo, QSize
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter
 from PyQt5.QtWidgets import QFileIconProvider
+from fontTools.misc.cython import returns
 
 from utils.config import Config
 from utils.logs import shorten_str
 
 import vdf
 
+WINDOWS = platform.system() == "Windows"
 # Windows modules
 try:
     import winreg
-    WINDOWS = True
 except:
     logging.warning("Required Windows modules missing; some features may not work.")
-    WINDOWS = False
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 ICON_CACHE = {"no_icon": QIcon()}
@@ -255,8 +255,9 @@ def get_steam_path() -> str | None:
             logging.warning(f"Steam folder not found in Windows registry")
             return "C:\\Program Files (x86)\\Steam"
 
-    logging.warning(f"Can only get games from Steam on Windows")
-    return None
+    else:
+        logging.warning(f"Can only reliably get games from Steam on Windows")
+        return "~\\.local\\share\\Steam"
 
 
 def get_steam_games(games_list: list[str]) -> dict[str, str]:
@@ -336,7 +337,7 @@ def launch_game(game: str, cfg: Config):
 vscode_exes = ["code"]
 pycharm_exes = ["pycharm.sh", "pycharm"]
 
-if platform.system() == "Windows":
+if WINDOWS:
     vscode_exes = ["code.cmd", "code"]
     pycharm_exes = ["pycharm64.exe", "pycharm.exe", "pycharm"]
 
@@ -375,7 +376,7 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
             break
 
     # If not found on PATH and the OS is Windows, try the hardcoded paths.
-    if not command_to_run and platform.system() == "Windows":
+    if not command_to_run and WINDOWS:
         install_paths = editor_config.get("install_paths", [])
         for exe_name in exe_names_to_try:
             # First check explicit install paths
@@ -446,7 +447,7 @@ import os
 
 # Use win32api on Windows because the pynput and mouse packages cause lag
 # https://github.com/moses-palmer/pynput/issues/390
-if os.name == 'nt':
+if WINDOWS:
     import win32api
 
 
