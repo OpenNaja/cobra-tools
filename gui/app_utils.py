@@ -19,8 +19,8 @@ from utils.logs import shorten_str
 
 import vdf
 
-WINDOWS = platform.system() == "Windows"
-# Windows modules
+WINDOWS_NATIVE = platform.system() == "Windows" and 'WINEPREFIX' not in os.environ
+# Windows modules, available through wine
 try:
     import winreg
 except:
@@ -242,7 +242,7 @@ def url_to_html(raw_line: str) -> str:
 # region ------------------------------------------------------------------- #
 
 def get_steam_path() -> str | None:
-    if WINDOWS:
+    if WINDOWS_NATIVE:
         # get steam folder from Windows registry
         try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
@@ -336,7 +336,7 @@ def launch_game(game: str, cfg: Config):
 vscode_exes = ["code"]
 pycharm_exes = ["pycharm.sh", "pycharm"]
 
-if WINDOWS:
+if WINDOWS_NATIVE:
     vscode_exes = ["code.cmd", "code"]
     pycharm_exes = ["pycharm64.exe", "pycharm.exe", "pycharm"]
 
@@ -357,7 +357,7 @@ EDITOR_CONFIGS = {
         "install_paths": [
             R"C:\Program Files\JetBrains\PyCharm *\bin",  # Unified e.g. 2025.1.1, 2025.2.1
             R"C:\Program Files\JetBrains\PyCharm\bin",    # Non-Unified
-            R"C:\Program Files\JetBrains\PyCharm Community Edition\bin", 
+            R"C:\Program Files\JetBrains\PyCharm Community Edition\bin",
             R"C:\Program Files\JetBrains\PyCharm Professional Edition\bin",
         ]
     }
@@ -375,7 +375,7 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
             break
 
     # If not found on PATH and the OS is Windows, try the hardcoded paths.
-    if not command_to_run and WINDOWS:
+    if not command_to_run and WINDOWS_NATIVE:
         install_paths = editor_config.get("install_paths", [])
         for exe_name in exe_names_to_try:
             # First check explicit install paths
@@ -385,7 +385,7 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
                     matches = glob.glob(path_pattern)
                     if matches:
                         # Last item is probably the highest version
-                        matches.sort()  
+                        matches.sort()
                         dirs_to_check.append(matches[-1])
                 else:
                     dirs_to_check.append(path_pattern)  # Use the path as is
@@ -422,7 +422,7 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
         return True
     except Exception as e:
         logging.info(f"Error launching {editor_name} ('{command_to_run}'): {e}.")
-    
+
     return False
 
 # endregion
@@ -446,7 +446,7 @@ import os
 
 # Use win32api on Windows because the pynput and mouse packages cause lag
 # https://github.com/moses-palmer/pynput/issues/390
-if WINDOWS:
+if WINDOWS_NATIVE:
     import win32api
 
 
