@@ -20,6 +20,7 @@ from utils.logs import shorten_str
 import vdf
 
 WINDOWS_NATIVE = platform.system() == "Windows" and 'WINEPREFIX' not in os.environ
+WINDOWS_WINE = platform.system() == "Windows" and 'WINEPREFIX' in os.environ
 # Windows modules, available through wine
 try:
     import winreg
@@ -253,10 +254,12 @@ def get_steam_path() -> str | None:
         except FileNotFoundError:
             logging.warning(f"Steam folder not found in Windows registry")
             return "C:\\Program Files (x86)\\Steam"
-
     else:
         logging.warning(f"Can only reliably get games from Steam on Windows")
-        return "~\\.local\\share\\Steam"
+        if WINDOWS_WINE:
+            return "~\\.local\\share\\Steam"
+        else:
+            return "~\\.local\\share\\Steam"
 
 
 def get_steam_games(games_list: list[str]) -> dict[str, str]:
@@ -465,11 +468,13 @@ class DelayedMimeData(QtCore.QMimeData):
         self.callbacks.append(callback)
 
     def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
+        logging.debug(f"Waiting for mouse release")
         if not mouse_pressed():
+            logging.debug(f"Running callbacks")
             for callback in self.callbacks.copy():
                 self.callbacks.remove(callback)
                 callback()
 
-        return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
+        return super().retrieveData(mime_type, preferred_type)
 
 # endregion

@@ -379,8 +379,6 @@ class MainWindow(window.MainWindow):
 	def drag_files(self, file_names):
 		# logging.debug(f"Dragging {file_names}")
 		with self.no_popups():
-			drag = QtGui.QDrag(self)
-			mime = DelayedMimeData()
 			out_paths = self.ovl_data.get_extract_paths(self.temp_dir, only_names=file_names)
 			out_paths = self.handle_flattened_folders(out_paths, self.temp_dir)
 			def extract_callback():
@@ -390,8 +388,10 @@ class MainWindow(window.MainWindow):
 					self.handle_error("Dragging failed, see log!")
 			if out_paths:
 				# set paths to mime
+				mime = DelayedMimeData()
 				mime.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 				mime.add_callback(extract_callback)
+				drag = QtGui.QDrag(self)
 				drag.setMimeData(mime)
 				drag.exec_()
 
