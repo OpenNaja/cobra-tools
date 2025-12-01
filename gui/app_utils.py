@@ -436,12 +436,8 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
 
 # from https://stackoverflow.com/questions/64252654/pyqt5-drag-and-drop-into-system-file-explorer-with-delayed-encoding?noredirect=1&lq=1
 
-import time
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
 
-import tempfile
 import os
 
 # Use win32api on Windows because the pynput and mouse packages cause lag
