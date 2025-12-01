@@ -5,6 +5,7 @@ import subprocess
 import struct
 import sys
 
+from gui.app_utils import WINDOWS_WINE
 from utils.shared import check_any
 
 util_dir = os.path.dirname(__file__)
@@ -46,6 +47,7 @@ COMPILED_BYTE_REPLACEMENTS_PREFAB = [
 	(re.compile(pattern), replacement) for pattern, replacement in BYTE_REPLACEMENTS_PREFAB
 ]
 
+
 def sanitize_lua_content(content: bytes) -> bytes:
 	"""
 	Performs a series of regex replacements on the raw Lua content
@@ -60,8 +62,17 @@ def sanitize_lua_content(content: bytes) -> bytes:
 	
 	return content
 
-def run_smart(args):
+
+def check_call_smart(args):
+	if WINDOWS_WINE:
+		args = ["wine", ] + args
 	subprocess.check_call(args)
+
+
+def prep_arg(arg):
+	if WINDOWS_WINE:
+		return "wine " + arg
+	return arg
 
 
 def write_riff_file(riff_buffer, out_file_path):
@@ -95,7 +106,7 @@ def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, N
 	file_name = os.path.basename(bin_path)
 	for call_sig in (f'"{luadec}" "{bin_path}"', f'"{luadec}" -s "{bin_path}"'):
 		try:
-			proc = subprocess.Popen(call_sig, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			proc = subprocess.Popen(prep_arg(call_sig), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, err = proc.communicate(timeout=DECOMPILE_TIMEOUT)
 			err_msg = err.decode(errors='ignore').strip()
 			if output:
@@ -141,7 +152,7 @@ def check_lua_syntax(lua_path):
 		function_string = f'"{luacheck}" "{lua_path}" --codes'
 		lua_name = os.path.basename(lua_path)
 		# capture the console output
-		bytes_output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
+		bytes_output = subprocess.Popen(prep_arg(function_string), stdout=subprocess.PIPE).communicate()[0]
 		# luacheck doesn't seem to handle non-ASCII chars when printing lua_path, so just escape them
 		output = bytes_output.decode(sys.getdefaultencoding(), errors="surrogateescape")
 		lines = [line.strip() for line in output.split("\r\n")]
@@ -171,8 +182,8 @@ def check_lua_syntax(lua_path):
 def wem_to_ogg(wem_file, out_file):
 	try:
 		output = out_file + ".ogg"
-		run_smart([ww2ogg, wem_file, "-o", output, "--pcb", pcb, ])
-		run_smart([revorb, output])
+		check_call_smart([ww2ogg, wem_file, "-o", output, "--pcb", pcb, ])
+		check_call_smart([revorb, output])
 		return output
 	except subprocess.CalledProcessError as err:
 		# Input: C:\Users\arnfi\AppData\Local\Temp\tmp_e_wg2dg-cobra-dds\buildings_media_B06CD10C.wem
@@ -191,7 +202,7 @@ def dds_to_png(dds_file_path, codec):
 	else:
 		args.extend(("-f", "R8G8B8A8_UNORM"))
 	args.append(dds_file_path)
-	run_smart(args)
+	check_call_smart(args)
 	return os.path.join(out_dir, name + '.png')
 
 
@@ -207,5 +218,5 @@ def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", num_mips=0, dds_use_gp
 	if not dds_use_gpu:
 		args.append("-nogpu")
 	args.append(png_file_path)
-	run_smart(args)
+	check_call_smart(args)
 	return os.path.join(out_dir, name + '.dds')
