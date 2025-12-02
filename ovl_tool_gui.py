@@ -239,7 +239,10 @@ class MainWindow(window.MainWindow):
 
 	def search_result_open(self, row_data):
 		ovl_path = self.abs_path_from_row(row_data)
-		self.file_widget.open_file(ovl_path)
+		if self.files_container.table.isEnabled():
+			self.file_widget.open_file(ovl_path)
+		else:
+			logging.warning(f"Wait with opening {ovl_path} until the previous ovl has loaded")
 
 	def search_result_show(self, row_data):
 		ovl_path = self.abs_path_from_row(row_data)
