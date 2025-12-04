@@ -1,8 +1,13 @@
 import io
+import math
+import multiprocessing
 import os
 import logging
+import queue
+import random
 import subprocess
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from modules.formats.FGM import FgmContext
@@ -590,8 +595,10 @@ def get_manis_values(gui, dir_walk, walk_ovls=True, official_only=True):
 		logging.exception(f"Failed")
 
 
+
 def get_tex_values(gui, dir_walk, walk_ovls=True, official_only=True):
 	dtype_to_files = {}
+	flag_to_comp = {}
 	if dir_walk:
 		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, (".tex", ".texel", ".texturestream")):
 			if official_only and not filter_accept_official(ovl_path):
@@ -605,12 +612,16 @@ def get_tex_values(gui, dir_walk, walk_ovls=True, official_only=True):
 						if ovl_data.is_pc_2:
 							t = loader.texbuffer
 							add_key(dtype_to_files, (t.num_mips, t.num_mips_low, t.num_mips_high), f"{loader.basename} ({t.compression_type.name})")
+							add_key(flag_to_comp, t.flag, loader.header.compression_type.name)
 			except:
 				logging.exception(f"Failed")
 	try:
 		logging.info(f"mips - tex files map")
 		for dtype, files in sorted(dtype_to_files.items()):
 			logging.info(f"mips {dtype} - tex {sorted(files)[:10]}")
+		logging.info(f"flag - compression map")
+		for dtype, files in sorted(flag_to_comp.items()):
+			logging.info(f"flag {dtype} - compression {sorted(files)}")
 	except:
 		logging.exception(f"Failed")
 
