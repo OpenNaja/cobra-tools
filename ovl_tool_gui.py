@@ -720,7 +720,7 @@ class MainWindow(window.MainWindow):
 
 	def walker_tex(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = widgets.WalkerDialog(self, "Inspect Tex", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Tex", self.walk_root())
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_tex_values, (), self, dir_walk=dialog.dir_walk,
