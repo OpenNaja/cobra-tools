@@ -46,7 +46,6 @@ type_module_name_map = {
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
 	'TrackedRideCarRoot': 'generated.formats.trackedridecar.structs.TrackedRideCarRoot',
 	'Row': 'generated.formats.trackedridecar.structs.Row',
-	'Seat': 'generated.formats.trackedridecar.structs.Seat',
 }
 
 name_type_map = {}

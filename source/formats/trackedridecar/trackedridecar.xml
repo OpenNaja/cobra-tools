@@ -10,8 +10,8 @@
         <field name="Seat Rows" type="ArrayPointer" template="Row" arg="Seat Rows Count"/>
         <field name="Seat Rows Count" type="uint">Numer of seats rows</field>
         <field name="Total Seats Count" type="uint">Total number of seats in this car</field>
-        <field name="Sizes" type="float" arr1="3">Size of different fence elements</field>
-        <field name="zero0" type="uint" default="0" optional="true"/>
+        <field name="Sizes" type="Vector3" >Size of different fence elements</field>
+        <field name="Sizes_align" type="uint" default="0" optional="true"/>
         <field name="Hitcheck Model Name" type="Pointer" template="ZString"/>
         <field name="Cabin Geometry Attach" type="Pointer" template="ZString" since="7"/>
         <field name="Cabin Geometry" type="Pointer" template="ZString" since="7"/>
@@ -19,16 +19,11 @@
     </struct>
 
     <struct name="Row" inherit="MemStruct">
-        <!-- 32 bytes consistent through all games -->
+        <!-- PC, PZ, PC2: 24 bytes (array is padded on odd counts) -->
         <field name="Offset" type="float">Offset of the row to create station gates</field>
-        <field name="u0" type="uint" default="0" optional="true"/> <!-- always found to be 0 -->
-        <field name="Seats" type="ArrayPointer" template="Seat" arg="Seats Count"/>
+        <field name="Offset_align" type="uint" default="0" optional="true"/>
+        <field name="Seats" type="ArrayPointer" template="Vector3" arg="Seats Count"/>
         <field name="Seats Count" type="uint64" />
-    </struct>
-
-    <struct name="Seat" inherit="MemStruct">
-        <!-- 12 bytes consistent through all games -->
-        <field name="Position" type="float" arr1="3" />
     </struct>
 
 </fileformat>
