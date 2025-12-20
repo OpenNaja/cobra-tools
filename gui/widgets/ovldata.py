@@ -613,7 +613,7 @@ class GameSelectorWidget(QWidget):
 		return QFileDialog.getExistingDirectory(self, "Open game folder")
 
 	def set_games(self) -> None:
-		for game, path in get_steam_games(self.games_list).items():
+		for game, path in get_installed_games(self.games_list).items():
 			self.cfg.init_game_in_cfg(game, path)
 		self.set_data(self.cfg["games"])
 
