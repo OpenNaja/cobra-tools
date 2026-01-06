@@ -11,12 +11,9 @@ from dataclasses import dataclass
 dict_names = ("audio", "hashes", "mimes", "shaders", "textures", "texchannels")
 
 # 3.10 has an issue with large dict files, regression fixed in 3.11
-try:
-	import bpy
-except:
-	ver = sys.version_info
-	if ver.major == 3 and ver.minor == 10:
-		raise Exception('Python 3.10 is not supported, please upgrade to 3.11 at least.')
+ver = sys.version_info
+if ver.major == 3 and ver.minor == 10:
+	raise Exception('Python 3.10 is not supported, please upgrade to 3.11 at least.')
 
 
 # @dataclass(init=False, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False, )

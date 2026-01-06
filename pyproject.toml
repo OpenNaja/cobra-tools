@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cobra-tools"
-version = "2025.12.06"
+version = "2025.12.20"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = "==3.11.*"
 dependencies = [
-    "imageio~=2.26.0",
-    "numpy~=1.22",
+    "imageio>=2.26.0",
+    "numpy~=1.24.3",  # blender is built with < 2.0.0
     "pillow>=10.0.1",
     "bitarray~=2.9.2",
 ]
