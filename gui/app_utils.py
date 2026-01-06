@@ -265,7 +265,6 @@ def get_steam_path() -> str | None:
 def get_installed_games(games_list: list[str]) -> dict[str, str]:
     # map all installed fdev game names to their ovldata folder
     fdev_games = {}
-    apps_folders = set()
 
     # steam
     steam_path = get_steam_path()
@@ -287,22 +286,24 @@ def get_installed_games(games_list: list[str]) -> dict[str, str]:
         for steam_path in library_folders:
             apps_path = os.path.join(steam_path, "steamapps", "common")
             if os.path.isdir(apps_path):
-                apps_folders.add(apps_path)
+                store_games(fdev_games, games_list, apps_path, "win64", "ovldata")
 
     # xbox game pass
     game_pass_path = "C:/XboxGames"
     if os.path.isdir(game_pass_path):
-        apps_folders.add(game_pass_path)
-
-    # list all games for each library folder
-    for apps_folder in apps_folders:
-        # filter with supported fdev games
-        fdev_in_lib = [game for game in os.listdir(apps_folder) if game in games_list]
-        # store the whole path to ovldata for each game
-        fdev_games.update({game: os.path.join(apps_folder, game, "win64", "ovldata") for game in fdev_in_lib})
+        # content subfolder
+        store_games(fdev_games, games_list, game_pass_path, "content", "win64", "ovldata")
 
     logging.info(f"Found {len(fdev_games)} installed Cobra games")
     return fdev_games
+
+
+def store_games(fdev_games, games_list, apps_folder, *args):
+    # filter with supported fdev games
+    fdev_in_lib = [game for game in os.listdir(apps_folder) if game in games_list]
+    # store the whole path to ovldata for each game
+    fdev_games.update({game: os.path.join(apps_folder, game, *args) for game in fdev_in_lib})
+
 
 # endregion
 
