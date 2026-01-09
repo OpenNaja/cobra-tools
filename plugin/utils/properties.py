@@ -15,8 +15,8 @@ from generated.formats.ms2.enums.PcCollision import PcCollision
 from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
-from plugin.utils.object import get_view_collections
-from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
+from .object import get_view_collections
+from .var_names import pz_shader_floats, pz_shader_ints
 
 suffix_map = {
 	"Planet Coaster": "_pc",

@@ -56,29 +56,23 @@ if bpy_available:
         if not plugin_dir in sys.path:
             sys.path.append(plugin_dir)
 
-        from utils.logs import logging_setup
+        from .utils.logs import logging_setup
         logging_setup("blender_plugin")
         logging.info(f"Running blender {fmt_version(bpy.app.version)}")
 
-        from plugin import addon_updater_ops
-        from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
-            ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
-        from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
-        from plugin.utils.operators import UpdateFins, UpdateLods, VcolToComb, CombToVcol, TransferHairCombing, AddHair, \
-        GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
-        AutosmoothAll, EditFlag, SetupRig
-        from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
-        CobraMaterialSettings, LodData, MATCOL_ListItem
-        from plugin.utils.panels import COBRA_PT_material, COBRA_PT_model, COBRA_PT_viewport, matcol_slot_updated, \
-        COBRA_UL_matcol_slot, COBRA_PT_matcols, COBRA_PT_mesh, COBRA_PT_scene, COBRA_PT_collision, COBRA_UL_lod
-        # mod data
-        from plugin.mods.properties import ModData, SceneryData
-        from plugin.mods.panels import COBRA_MOD_PT_mod, COBRA_MOD_PT_scenery
+        from .plugin import addon_updater_ops
+        from .plugin.modules_import.operators import *
+        from .plugin.modules_export.operators import *
+        from .plugin.utils.operators import *
+        from plugin.utils.properties import *  # errors when changed to relative import, no idea why
+        from .plugin.utils.panels import *
+        from .plugin.mods.properties import *
+        from .plugin.mods.panels import *
 
         # 4.1 drag and drop
         if hasattr(bpy.types, 'FileHandler'):
-            from plugin.modules_import.operators import MS2_FH_script_import, FGM_FH_script_import
-            from plugin import import_fgm, import_ms2, import_spl
+            from .plugin.modules_import.operators import *
+            from .plugin import import_fgm, import_ms2, import_spl
 
         global preview_collection
 
@@ -306,67 +300,66 @@ if bpy_available:
         logging.exception("Startup failed")
 
 
-    def register():
-        addon_updater_ops.register(bl_info)
-        icons_dir = os.path.join(plugin_dir, "icons")
-        global preview_collection
-        preview_collection = bpy.utils.previews.new()
-        for icon_name_ext in os.listdir(icons_dir):
-            icon_name = os.path.basename(icon_name_ext)
-            preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
+def register():
+    addon_updater_ops.register(bl_info)
+    icons_dir = os.path.join(plugin_dir, "icons")
+    global preview_collection
+    preview_collection = bpy.utils.previews.new()
+    for icon_name_ext in os.listdir(icons_dir):
+        icon_name = os.path.basename(icon_name_ext)
+        preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
 
-        for cls in classes:
-            bpy.utils.register_class(cls)
-        bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
-        bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
-        # insert properties
-        bpy.types.Material.fgm   = PointerProperty(type=CobraMaterialSettings)
-        bpy.types.Material.matcol_layers = CollectionProperty(type=MATCOL_ListItem)
-        bpy.types.Material.matcol_layers_current = IntProperty(
-            name="Index for matcol layers", default=0, update=matcol_slot_updated)
-        bpy.types.Scene.cobra = PointerProperty(type=CobraSceneSettings)
-        bpy.types.Mesh.cobra = PointerProperty(type=CobraMeshSettings)
-        bpy.types.Object.cobra_coll = PointerProperty(type=CobraCollisionSettings)
-        # mod properties
-        bpy.types.Collection.mod = PointerProperty(type=ModData)
-        bpy.types.Object.scenery = PointerProperty(type=SceneryData)
-        # Injection of elements in the contextual menu of the File Browser editor
-        bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
-        bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
+    # insert properties
+    bpy.types.Material.fgm   = PointerProperty(type=CobraMaterialSettings)
+    bpy.types.Material.matcol_layers = CollectionProperty(type=MATCOL_ListItem)
+    bpy.types.Material.matcol_layers_current = IntProperty(
+        name="Index for matcol layers", default=0, update=matcol_slot_updated)
+    bpy.types.Scene.cobra = PointerProperty(type=CobraSceneSettings)
+    bpy.types.Mesh.cobra = PointerProperty(type=CobraMeshSettings)
+    bpy.types.Object.cobra_coll = PointerProperty(type=CobraCollisionSettings)
+    # mod properties
+    bpy.types.Collection.mod = PointerProperty(type=ModData)
+    bpy.types.Object.scenery = PointerProperty(type=SceneryData)
+    # Injection of elements in the contextual menu of the File Browser editor
+    bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
 
-        # handle drag and drop of custom files:
-        if not hasattr(bpy.types, 'FileHandler'):
-            bpy.app.handlers.depsgraph_update_post.append(cobra_viewport3d_drop_handler)
+    # handle drag and drop of custom files:
+    if not hasattr(bpy.types, 'FileHandler'):
+        bpy.app.handlers.depsgraph_update_post.append(cobra_viewport3d_drop_handler)
 
 
-    def unregister():
-        # Injection of elements in the contextual menu of the File Browser editor
-        bpy.types.FILEBROWSER_MT_context_menu.remove(CT_FileBrowser_Context_Menu)
-        bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.remove(draw_rigid_body_constraints_cobra)
+def unregister():
+    # Injection of elements in the contextual menu of the File Browser editor
+    bpy.types.FILEBROWSER_MT_context_menu.remove(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.remove(draw_rigid_body_constraints_cobra)
 
-        bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
-        bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
-        for cls in reversed(classes):
-            try:
-                # there seems to be an error due to previously removed class that prevents the plugin from
-                # disabling safely.
-                bpy.utils.unregister_class(cls)
-            except:
-                pass
+    for cls in reversed(classes):
+        try:
+            # there seems to be an error due to previously removed class that prevents the plugin from
+            # disabling safely.
+            bpy.utils.unregister_class(cls)
+        except:
+            pass
 
-        del bpy.types.Material.matcol_layers
-        del bpy.types.Material.matcol_layers_current
-        del bpy.types.Scene.cobra
-        del bpy.types.Mesh.cobra
-        global preview_collection
-        bpy.utils.previews.remove(preview_collection)
+    del bpy.types.Material.matcol_layers
+    del bpy.types.Material.matcol_layers_current
+    del bpy.types.Scene.cobra
+    del bpy.types.Mesh.cobra
+    global preview_collection
+    bpy.utils.previews.remove(preview_collection)
 
-        if not hasattr(bpy.types, 'FileHandler'):
-            bpy.app.handlers.depsgraph_update_post.remove(cobra_viewport3d_drop_handler)
+    if not hasattr(bpy.types, 'FileHandler'):
+        bpy.app.handlers.depsgraph_update_post.remove(cobra_viewport3d_drop_handler)
 
 
 if __name__ == "__main__":
-    print("Main")
     register()
