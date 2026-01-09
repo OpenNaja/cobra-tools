@@ -114,6 +114,10 @@ class ImportMS2(BulkImportOp):
 		name="Mirror Meshes",
 		description="Mirrors models. Careful, sometimes bones don't match",
 		default=False)
+	merge_vertices: BoolProperty(
+		name="Merge Vertices",
+		description="Merge vertices without breaking custom normals data. Turn off for meshes with double sided geometry sharing vertices, and turn on backface culling in the material settings",
+		default=True)
 
 
 class ImportSPL(BulkImportOp):

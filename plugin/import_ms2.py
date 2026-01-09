@@ -18,7 +18,7 @@ from plugin.utils.object import create_ob, create_scene, create_collection, set_
 from generated.formats.ms2 import Ms2File
 
 
-def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False, quadrify = True):
+def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False, quadrify = True, merge_vertices: bool = True):
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
@@ -52,7 +52,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 					mesh_dict[m_ob.mesh_index] = b_me
 					original_tris = mesh.tris
 
-					if is_fin_mat(m_ob.material):
+					if is_fin_mat(m_ob.material) or not merge_vertices:
 						b_me.from_pydata(mesh.vertices, [], mesh.tris)
 						sorted_indices = np.arange(len(mesh.vertices))
 					else:
