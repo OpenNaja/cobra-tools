@@ -45,6 +45,7 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
 	'ScaleformlanguagedataRoot': 'generated.formats.scaleformlanguagedata.structs.ScaleformlanguagedataRoot',
+	'GfxReference': 'generated.formats.scaleformlanguagedata.structs.GfxReference',
 	'FontInfo': 'generated.formats.scaleformlanguagedata.structs.FontInfo',
 }
 

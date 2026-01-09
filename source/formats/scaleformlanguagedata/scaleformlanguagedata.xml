@@ -7,12 +7,18 @@
     <struct name="ScaleformlanguagedataRoot" inherit="MemStruct">
         # PC - is maybe organized differently here
         PZ: 48 bytes
-        <field name="zero0" type="uint64" />
-        <field name="zero1" type="uint64" />
-        <field name="fonts" type="ArrayPointer" template="FontInfo" arg="count" />
-        <field name="count" type="uint64" />
+        <field name="gfx_files" type="ArrayPointer" template="GfxReference" arg="gfx_files_count" />
+        <field name="gfx_files_count" type="uint64" />
+        <field name="fonts" type="ArrayPointer" template="FontInfo" arg="fonts_count" />
+        <field name="fonts_count" type="uint64" />
         <field name="zero2" type="uint64" />
         <field name="zero3" type="uint64" />
+    </struct>
+
+    <struct name="GfxReference" inherit="MemStruct">
+        8 or 16 bytes, unsure
+        <field name="gfx_name" type="Pointer" template="ZString" />
+        <field name="unk_maybe" type="uint64" />
     </struct>
 
     <struct name="FontInfo" inherit="MemStruct">

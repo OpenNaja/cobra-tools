@@ -1,13 +1,14 @@
 from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
 from generated.formats.scaleformlanguagedata.structs.FontInfo import FontInfo
+from generated.formats.scaleformlanguagedata.structs.GfxReference import GfxReference
 
 
 class ScaleformlanguagedataRoot(MemStruct):
-    zero_0: int
-    zero_1: int
+    gfx_files: ArrayPointer[GfxReference]
+    gfx_files_count: int
     fonts: ArrayPointer[FontInfo]
-    count: int
+    fonts_count: int
     zero_2: int
     zero_3: int
 
