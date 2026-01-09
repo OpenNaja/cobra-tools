@@ -169,6 +169,7 @@ class OvsFile(OvsHeader):
 					loader = self.ovl.loaders[data_entry.name]
 					loader.data_entries[archive_entry.name] = data_entry
 
+				# this can have colliding hashes
 				self.root_entries_name = self.get_names_list(self.root_entries)
 
 				if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
@@ -883,6 +884,8 @@ class OvlFile(Header):
 				self.mimes_triplets = []
 			# add file name to hash dict; ignoring the extension pointer
 			self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
+			if len(self.files_basename) != len(set(self.files["file_hash"])):
+				logging.warning("There are djb2 hash collisions, some files will not load")
 			self.files_ext = [f".{self.mimes_ext[i]}" for i in self.files["extension"]]
 			# remove any quotation chars, eg. homalocephale@huntkilledcarnotaurusin_srb".wsm
 			self.files_name = [f"{b}{e}".replace('"', "") for b, e in zip(self.files_basename, self.files_ext)]
@@ -1073,18 +1076,17 @@ class OvlFile(Header):
 	def get_archive_name_to_loaders(self, flat_sorted_loaders):
 		archive_name_to_loaders = {archive.name: [] for archive in self.archives}
 		for loader in flat_sorted_loaders:
-			try:
-				archive_name_to_loaders[loader.ovs_name].append(loader)
-			except:
-				logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
-				raise
+			archive_name_to_loaders[loader.ovs_name].append(loader)
 		return archive_name_to_loaders
 
 	def validate_loaders(self):
 		with self.reporter.report_error_files("Validating") as error_files:
-			for loader in self.loaders.values():
+			for loader in tuple(self.loaders.values()):
 				try:
 					loader.validate()
+					if not loader.ovs_name:
+						self.loaders.pop(loader.name)
+						logging.warning(f"Deleted {loader.name} as it was not found in any OVS, possibly due to hash collision")
 				except:
 					logging.exception(f"Validating '{loader.name}' failed")
 					error_files.append(loader.name)
