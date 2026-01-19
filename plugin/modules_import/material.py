@@ -460,14 +460,14 @@ def presort_keys(colors, colors_pos):
 		return (), ()
 
 
-def import_material(reporter, created_materials, in_dir, b_me, material):
+def import_material(reporter, created_materials, in_dir, b_me, material, load_libraries=False):
 	material_name = material.name.lower()
 	try:
 		# find if material is in blender already. Imported FGMs
 		# will have the material name all in lowercase, we need
 		# to check both.
 		b_mat = bpy.data.materials.get(material_name)
-		if not b_mat:
+		if load_libraries and not b_mat:
 			# try finding the material first in the user libraries, only use lowercase
 			load_material_from_libraries(created_materials, material_name)
 

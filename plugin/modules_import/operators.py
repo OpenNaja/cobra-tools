@@ -118,6 +118,10 @@ class ImportMS2(BulkImportOp):
 		name="Merge Vertices",
 		description="Merge vertices without breaking custom normals data. Turn off for meshes with double sided geometry sharing vertices, and turn on backface culling in the material settings",
 		default=True)
+	load_libraries: BoolProperty(
+		name="Load from Libraries",
+		description="Check Blender's asset libraries for materials; may be very slow",
+		default=False)
 
 
 class ImportSPL(BulkImportOp):
