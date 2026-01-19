@@ -280,21 +280,22 @@ def load_material_from_asset_library(created_materials, filepath, matname):
 	library_path = os.path.abspath(filepath)  # blend file name
 	inner_path = 'Material'  # type
 	material_name = matname  # name
+	# don't append from currently open blend file
+	if os.path.abspath(bpy.data.filepath) != library_path:
+		# try current material case
+		bpy.ops.wm.append(
+			filepath=os.path.join(library_path, inner_path, material_name),
+			directory=os.path.join(library_path, inner_path),
+			filename=material_name
+		)
 
-	# try current material case
-	bpy.ops.wm.append(
-		filepath=os.path.join(library_path, inner_path, material_name),
-		directory=os.path.join(library_path, inner_path),
-		filename=material_name
-	)
+		# if we have loaded the material, mark it out
+		b_mat = bpy.data.materials.get(matname)
+		if b_mat:
+			created_materials[matname] = b_mat
 
-	# if we have loaded the material, mark it out
-	b_mat = bpy.data.materials.get(matname)
-	if b_mat:
-		created_materials[matname] = b_mat
-
-	# we return nothing, this function will add the material to
-	# blender if found, nothing will happen if not found.
+		# we return nothing, this function will add the material to
+		# blender if found, nothing will happen if not found.
 
 
 def load_material_from_libraries(created_materials, matname):
