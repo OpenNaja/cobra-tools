@@ -18,7 +18,7 @@ from plugin.utils.object import create_ob, create_scene, create_collection, set_
 from generated.formats.ms2 import Ms2File
 
 
-def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False, quadrify = True, merge_vertices: bool = True):
+def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_mesh: bool = False, quadrify = True, merge_vertices: bool = True, load_libraries : bool = False):
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
@@ -101,7 +101,7 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						logging.exception("import_mesh_layers failed")
 				# import_chunk_bounds(b_me, mesh, lod_coll)
 				# link material to mesh
-				import_material(reporter, created_materials, in_dir, b_me, m_ob.material)
+				import_material(reporter, created_materials, in_dir, b_me, m_ob.material, load_libraries)
 
 				if m_ob.mesh_index in ob_dict:
 					b_ob = ob_dict[m_ob.mesh_index]
