@@ -571,11 +571,11 @@ class MainWindow(FramelessMainWindow):
 	@property
 	def file_menu_items(self) -> list[BaseMenuItem]:
 		return [
-			MenuItem("Open", self.file_widget.ask_open, shortcut="CTRL+O", icon="dir"),
-			SubMenuItem("Open Recent", self.populate_recent_files, icon="recent"),
+			MenuItem("Open", self.file_widget.ask_open, shortcut="CTRL+O", icon="dir", tooltip="Open an existing file"),
+			SubMenuItem("Open Recent", self.populate_recent_files, icon="recent", tooltip="Choose a file to open from recently opened files"),
 			SeparatorMenuItem(),
-			MenuItem("Save", self.file_widget.ask_save, shortcut="CTRL+S", icon="save"),
-			MenuItem("Save As", self.file_widget.ask_save_as, shortcut="CTRL+SHIFT+S", icon="save"),
+			MenuItem("Save", self.file_widget.ask_save, shortcut="CTRL+S", icon="save", tooltip="Save changes to the currently open file"),
+			MenuItem("Save As", self.file_widget.ask_save_as, shortcut="CTRL+SHIFT+S", icon="save", tooltip="Save changes to a chosen file"),
 			SeparatorMenuItem(),
 			MenuItem("Exit", self.close, icon="exit")
 		]

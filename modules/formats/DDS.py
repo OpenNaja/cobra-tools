@@ -14,7 +14,7 @@ from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.formats.shared import fnv64, encode_int64_base32
 from modules.helpers import as_bytes
 
-from modules.formats.utils import texconv, imarray
+from modules.formats.utils import dds_conversion, png_splitting
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
@@ -385,7 +385,7 @@ class DdsLoader(MemStructLoader):
 		else:
 			try:
 				# try to reassemble a flat PNG for this tile, and then convert it to DDS
-				png_path = imarray.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
+				png_path = png_splitting.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
 				png_paths.append(png_path)
 				return True
 			except FileNotFoundError as exception:
@@ -418,7 +418,7 @@ class DdsLoader(MemStructLoader):
 		# texconv can't create mips for images with arbitrary size (often used for UI), so don't even create mips
 		num_mips = 1 if size_info.num_mips == 1 else 0
 		# compress and generate mips if needed
-		dds_file_path = texconv.png_to_dds(
+		dds_file_path = dds_conversion.png_to_dds(
 			png_path, tmp_dir,
 			codec=compression,
 			num_mips=num_mips,
@@ -598,10 +598,10 @@ class DdsLoader(MemStructLoader):
 		for dds_path in self.ovl.reporter.iter_progress(dds_paths, "Converting", cond=len(dds_paths) > 1):
 			try:
 				# convert the dds to png
-				png_path = texconv.dds_to_png(dds_path, self.compression_name)
+				png_path = dds_conversion.dds_to_png(dds_path, self.compression_name)
 				# postprocessing of the png
 				if os.path.isfile(png_path):
-					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))
+					out_files.extend(png_splitting.split_png(png_path, self.ovl, self.compression_name))
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files + dds_paths
@@ -622,7 +622,7 @@ class DdsLoader(MemStructLoader):
 			dds_paths.append(dds_path)
 		for dds_path in dds_paths:
 			png_path = os.path.splitext(dds_path)[0] + ".png"
-			out_files.extend(imarray.get_extract_paths(png_path, self.ovl, self.compression_name))
+			out_files.extend(png_splitting.get_extract_paths(png_path, self.ovl, self.compression_name))
 		if self.context.is_pc_2:
 			if self.ovl.do_debug:
 				texbuffer_path = out_dir(f"{self.basename}.texbuffer")

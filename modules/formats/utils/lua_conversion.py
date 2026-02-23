@@ -2,23 +2,15 @@ import logging
 import os
 import re
 import subprocess
-import struct
 import sys
 
-from gui.app_utils import WINDOWS_WINE
+from modules.formats.utils import util_dir, prep_arg
 from utils.shared import check_any
 
-util_dir = os.path.dirname(__file__)
-BINARY = os.path.normpath(os.path.join(util_dir, "texconv/texconv.exe"))
-ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
-pcb = os.path.normpath(os.path.join(util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin"))
-revorb = os.path.normpath(os.path.join(util_dir, "revorb/revorb.exe"))
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
 luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
-
 DECOMPILE_TIMEOUT = 10
 PREFAB_ROOT = b"l_0_2"
-
 BYTE_REPLACEMENTS_PREFAB = [
 	# Replacements for Prefab Lua specifically
 	# Example: b'= .setmetatable' -> b'= setmetatable'
@@ -28,7 +20,6 @@ BYTE_REPLACEMENTS_PREFAB = [
 	# Example: b'.Root' -> b'l_0_2.Root'
 	(br'\.(FlattenedRoot|Root|GetRoot|GetFlattenedRoot)\b', br'l_0_2.\1'),
 ]
-
 BYTE_REPLACEMENTS = [
 	# Syntax Errors from custom Lua
 	# < 0, 0, 0 > -> vec3_const(0, 0, 0)
@@ -38,11 +29,9 @@ BYTE_REPLACEMENTS = [
 	),
 	(br'\s\.end\b', br' nil'),
 ]
-
 COMPILED_BYTE_REPLACEMENTS = [
 	(re.compile(pattern), replacement) for pattern, replacement in BYTE_REPLACEMENTS
 ]
-
 COMPILED_BYTE_REPLACEMENTS_PREFAB = [
 	(re.compile(pattern), replacement) for pattern, replacement in BYTE_REPLACEMENTS_PREFAB
 ]
@@ -59,47 +48,8 @@ def sanitize_lua_content(content: bytes) -> bytes:
 
 	for compiled_pattern, replacement in COMPILED_BYTE_REPLACEMENTS:
 		content = compiled_pattern.sub(replacement, content)
-	
+
 	return content
-
-
-def check_call_smart(args):
-	if WINDOWS_WINE:
-		args = ["wine", ] + args
-	subprocess.check_call(args)
-
-
-def prep_arg(arg):
-	if WINDOWS_WINE:
-		return "wine " + arg
-	return arg
-
-
-def write_riff_file(riff_buffer, out_file_path):
-	"""Given a raw riff_buffer from a bank, outputs it in a usable format to out_file_path (without extension)"""
-	f_type = riff_buffer[0:4]
-	if riff_buffer[0:4] == b"RIFF":
-		fmt = struct.unpack("<h", riff_buffer[20:22])[0]
-		if fmt == -1:
-			with open(out_file_path + ".wem", "wb") as f:
-				f.write(riff_buffer)
-			return wem_to_ogg(out_file_path + ".wem", out_file_path)
-		elif fmt == -2:
-			wav_file_path = out_file_path + ".wav"
-			with open(wav_file_path, "wb") as f:
-				# header up for the format chunk
-				f.write(riff_buffer[:20])
-				# wav, stereo
-				f.write(struct.pack("<hh", 1, 2))
-				# the rest
-				f.write(riff_buffer[24:])
-			print(wav_file_path)
-			return wav_file_path
-		# 2 == JUNK, not sure if readable
-		else:
-			logging.warning(f"Unknown RIFF format {fmt} in {out_file_path}! Please report to the devs!")
-	else:
-		logging.warning(f"Unknown resource format {f_type} in {out_file_path}! Please report to the devs!")
 
 
 def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, None]:
@@ -177,46 +127,3 @@ def check_lua_syntax(lua_path):
 					logging.debug(msg)
 	except subprocess.CalledProcessError:
 		logging.exception(f"Something went wrong")
-
-
-def wem_to_ogg(wem_file, out_file):
-	try:
-		output = out_file + ".ogg"
-		check_call_smart([ww2ogg, wem_file, "-o", output, "--pcb", pcb, ])
-		check_call_smart([revorb, output])
-		return output
-	except subprocess.CalledProcessError as err:
-		# Input: C:\Users\arnfi\AppData\Local\Temp\tmp_e_wg2dg-cobra-dds\buildings_media_B06CD10C.wem
-		# Parse error: RIFF truncated
-		logging.warning(err)
-
-
-def dds_to_png(dds_file_path, codec):
-	"""Converts a DDS file given by a path to a PNG file"""
-	out_dir, in_name = os.path.split(dds_file_path)
-	name = os.path.splitext(in_name)[0]
-	args = [BINARY, "-y", "-ft", "png", "-o", out_dir, "-fl", "12.1", "-dx10"]
-	# logging.info(f"Selective SRGB {codec}")
-	if "SRGB" in codec:
-		args.extend(("-f", "R8G8B8A8_UNORM_SRGB", "-srgb"))
-	else:
-		args.extend(("-f", "R8G8B8A8_UNORM"))
-	args.append(dds_file_path)
-	check_call_smart(args)
-	return os.path.join(out_dir, name + '.png')
-
-
-def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", num_mips=0, dds_use_gpu=False):
-	"""Converts a PNG file given by a path to a DDS file"""
-	png_file_path = os.path.normpath(png_file_path)
-	in_dir, in_name = os.path.split(png_file_path)
-	name = os.path.splitext(in_name)[0]
-	args = [BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-if", "FANT_DITHER_DIFFUSION",
-		"-dx10", "-m", str(num_mips), "-sepalpha"]
-	if "SRGB" in codec:
-		args.append("-srgb")
-	if not dds_use_gpu:
-		args.append("-nogpu")
-	args.append(png_file_path)
-	check_call_smart(args)
-	return os.path.join(out_dir, name + '.dds')

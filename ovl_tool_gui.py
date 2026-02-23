@@ -165,7 +165,7 @@ class MainWindow(window.MainWindow):
 		# Setup Menus
 		self.build_menus({
 			widgets.FILE_MENU: [
-				MenuItem("New", self.file_widget.ask_open_dir, shortcut="CTRL+N", icon="new"),
+				MenuItem("New from Folder", self.file_widget.ask_open_dir, shortcut="CTRL+N", icon="new", tooltip="Create a new OVL from a folder containing loose files"),
 				*self.file_menu_items,
 			],
 			widgets.EDIT_MENU: [
