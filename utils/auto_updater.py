@@ -10,6 +10,10 @@ import logging
 import subprocess
 from typing import Callable
 
+from modules.formats.utils import prep_arg
+from modules.formats.utils.dds_conversion import texconv
+from modules.formats.utils.lua_conversion import luacheck, luadec
+from modules.formats.utils.wem_conversion import ww2ogg, revorb
 from utils.logs import ANSI
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -19,7 +23,7 @@ def _relaunch_application():
     """
     Logs, waits, and then relaunches the application.
     """
-    print("Restarting application...")
+    print("Restarting application")
     time.sleep(2)
     if sys.platform == "win32":
         # Use subprocess.Popen to work around second process exit hanging console
@@ -29,11 +33,11 @@ def _relaunch_application():
     sys.exit(0)
 
 
-def wait_for_user_exit(message: str | None) -> None:
+def wait_for_user_exit(message: str = "") -> None:
     """Prints a message and waits for the user to press Enter."""
     if message:
         print(f"\n{ANSI.LIGHT_RED}{message}{ANSI.END}")
-    print(f"{ANSI.LIGHT_WHITE}Press Enter to exit...{ANSI.END}")
+    print(f"{ANSI.LIGHT_WHITE}Press Enter to exit{ANSI.END}")
     input()
 
 
@@ -113,7 +117,7 @@ def check_dependencies(all_deps: list[str], dist_finder: Callable) -> tuple[dict
     # Now check for outdated packages
     try:
         from packaging.specifiers import SpecifierSet
-        logging.debug("Checking for outdated packages...")
+        logging.debug("Checking for outdated packages")
         for line in all_deps:
             lib = extract_package_name(line)
             if not lib or lib in MISSING:
@@ -219,7 +223,7 @@ def run_update_check(tool_name: str) -> list[str] | None:
             print("Packages were installed/updated.")
             _relaunch_application()
 
-        logging.debug("Verifying all required modules can be imported...")
+        logging.debug("Verifying all required modules can be imported")
         for module in MODULES:
             try:
                 import_module(module)
@@ -229,6 +233,23 @@ def run_update_check(tool_name: str) -> list[str] | None:
                 return None
 
         logging.debug("All modules verified successfully")
+
+        logging.debug("Verifying all external programs work")
+        for exe_path, magic in (
+                (texconv, b"DirectX Texture Converter"),
+                (luacheck, b"Usage: luacheck"),
+                (luadec, b"LuaDec 2.2 rev:  for Lua 5.3"),
+                (ww2ogg, b"Vorbis to Ogg Vorbis converter 0.24"),
+                (revorb, b"Recomputes page granule positions"),
+                ):
+            try:
+                proc = subprocess.Popen(prep_arg(exe_path), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                output, err = proc.communicate()
+                if magic not in output and magic not in err:
+                    raise ImportError(f"Magic not found in process output")
+            except:
+                logging.error(f"Executable {exe_path} could not run")
+        
         return MODULES
     except FileNotFoundError:
         logging.error("pyproject.toml not found in the expected location")
