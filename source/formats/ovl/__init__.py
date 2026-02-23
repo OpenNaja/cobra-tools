@@ -18,7 +18,7 @@ from generated.formats.ovl.structs.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2, DummyReporter, walk_type, escape_path, unescape_path, make_out_dir_func
+from modules.formats.shared import djb2, DummyReporter, unescape_path, make_out_dir_func, splitext_safe
 
 try:
 	from modules.formats.utils.oodle.oodle import oodle_compressor, OodleDecompressEnum, INPUT_CHUNK_SIZE, OODLE_CODEC_NAME
@@ -214,7 +214,7 @@ class OvsFile(OvsHeader):
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
 		source_entry.name = target_entry.name
-		source_entry.basename, source_entry.ext = os.path.splitext(source_entry.name)
+		source_entry.basename, source_entry.ext = splitext_safe(source_entry.name)
 		source_entry.file_hash = target_entry.file_hash
 		source_entry.ext_hash = target_entry.ext_hash
 
@@ -672,7 +672,7 @@ class OvlFile(Header):
 		"""Create a loader from a file path"""
 		file_path = os.path.normpath(file_path)
 		file_name = unescape_path(file_name.lower())
-		_, ext = os.path.splitext(file_name)
+		_, ext = splitext_safe(file_name)
 		logging.info(f"Creating {file_name} in {ovs_name}")
 		try:
 			loader = self.init_loader(file_name, ext, self.get_mime(ext, "version"))
@@ -726,7 +726,7 @@ class OvlFile(Header):
 		with self.reporter.report_error_files("Adding") as error_files:
 			for file_path in self.reporter.iter_progress(inject_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
-				bare_path, ext = os.path.splitext(file_path.lower())
+				bare_path, ext = splitext_safe(file_path.lower())
 				# ignore dirs, links etc.
 				if not os.path.isfile(file_path):
 					continue
@@ -807,8 +807,8 @@ class OvlFile(Header):
 		# store file name for later
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(filepath)
-		self.basename, self.ext = os.path.splitext(self.name)
-		self.path_no_ext = os.path.splitext(self.filepath)[0]
+		self.basename, self.ext = splitext_safe(self.name)
+		self.path_no_ext = splitext_safe(self.filepath)[0]
 
 	def load_included_ovls(self, path):
 		self.included_ovl_names.clear()
@@ -1156,7 +1156,7 @@ class OvlFile(Header):
 		self.reset_field("aux_entries")
 		# print(loaders_and_deps)
 		if loaders_and_deps:
-			deps_basename, deps_ext = zip(*[os.path.splitext(dep.lower()) for (dep, ptr), loader in loaders_and_deps])
+			deps_basename, deps_ext = zip(*[splitext_safe(dep.lower()) for (dep, ptr), loader in loaders_and_deps])
 		else:
 			deps_basename = deps_ext = ()
 		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
