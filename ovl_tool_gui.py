@@ -362,7 +362,7 @@ class MainWindow(window.MainWindow):
 			yield self.ovl_data
 
 	def open_clicked_file(self, filepath: str):
-		# handle double clicked file paths
+		# handle double-clicked file paths
 		try:
 			if filepath.lower().endswith(".ovl"):
 				self.file_widget.open_file(filepath)
@@ -386,12 +386,12 @@ class MainWindow(window.MainWindow):
 			out_paths = self.handle_flattened_folders(out_paths, self.temp_dir)
 			def extract_callback():
 				try:
-					self.ovl_data.extract(self.temp_dir, only_names=file_names)
+					self.run_in_threadpool(self._extract, (), self.temp_dir, False, file_names)
 				except:
 					self.handle_error("Dragging failed, see log!")
 			if out_paths:
 				# set paths to mime
-				mime = DelayedMimeData()
+				mime = DelayedMimeData(self)
 				mime.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 				mime.add_callback(extract_callback)
 				drag = QtGui.QDrag(self)

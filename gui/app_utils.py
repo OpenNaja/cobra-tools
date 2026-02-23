@@ -472,19 +472,21 @@ else:
 
 
 class DelayedMimeData(QtCore.QMimeData):
-    def __init__(self):
+    def __init__(self, gui):
         super().__init__()
         self.callbacks = []
+        self.gui = gui
+        self.begun = False
 
     def add_callback(self, callback):
         self.callbacks.append(callback)
 
     def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
         # logging.debug(f"Waiting for mouse release")
-        if not mouse_pressed():
+        if not mouse_pressed() and not self.begun:
+            self.begun =True
             # logging.debug(f"Running callbacks")
-            for callback in self.callbacks.copy():
-                self.callbacks.remove(callback)
+            for callback in self.callbacks:
                 callback()
 
         return super().retrieveData(mime_type, preferred_type)
