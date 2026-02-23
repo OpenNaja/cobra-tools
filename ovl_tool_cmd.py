@@ -16,6 +16,7 @@ Examples:
 """
 from __future__ import annotations
 
+from utils import config
 from utils.logs import logging_setup # type: ignore
 import logging
 logging_setup("ovl_tool_cmd")
@@ -149,6 +150,9 @@ def cmd_new(args: argparse.Namespace) -> None:
         die("You must specify --game for 'new'.")
 
     ovl = OvlFile()
+    config = Config(REPO_ROOT)
+    config.load()
+    ovl.cfg = config
     ovl.game = game  # same as game_changed() ultimately does
     ovl.load_hash_table()
 
