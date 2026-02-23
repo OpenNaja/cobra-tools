@@ -189,6 +189,11 @@ class DdsLoader(MemStructLoader):
 		in_dir, name_ext, basename, ext = self.get_names(tex_path)
 		with self.get_tmp_dir() as tmp_dir:
 			size_info = self.get_tex_structs()
+			# todo - only convert to dds if max(time of any png) is newer than time of dds, for each tile
+			#  os.path.getmtime(path)
+			#  get_image_files will need changes to fill both regardless, and probably a dict {tile_i|None : [files] }
+			#  also take channel reconstruction into account
+			#  change tmp_dir to input dir
 			# load all DDS files we need
 			dds_paths = []
 			png_paths = []
