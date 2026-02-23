@@ -22,7 +22,7 @@ def reconstruct_z(im):
 	im_f = im.astype(np.float32) / 127 - 1.0
 	# take pythagoras
 	norm_xy = np.clip(np.linalg.norm(im_f[:, :, :2], axis=-1), 0.0, 1.0)
-	# resulting z is in in 0,1 range, scale back to uint8 range
+	# resulting z is in 0,1 range, scale back to uint8 range
 	im_rec[:, :, 2] = np.round(np.sqrt(1.0 - norm_xy) * 127 + 127)
 	return im_rec
 

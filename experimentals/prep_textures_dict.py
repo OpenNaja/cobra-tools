@@ -1,5 +1,5 @@
 from constants import ConstantsProvider
-from ovl_util.imarray import get_split_mode
+from modules.formats.utils import png_splitting
 
 # game = "Planet Zoo"
 # game = "Jurassic World Evolution 2"
@@ -12,7 +12,7 @@ all_tex = {}
 for shader_name, (textures, attributes) in shaders.items():
 	# print(shader_name)
 	for tex in textures:
-		res = get_split_mode(None, tex.lower(), "any_compression")
+		res = png_splitting.get_split_mode(None, tex.lower(), "any_compression")
 		if res:
 			channels = res.split("_")
 		else:

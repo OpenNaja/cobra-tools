@@ -2,7 +2,7 @@ import logging
 from generated.formats.base.structs.PadAlign import get_padding
 from generated.formats.lua.structs.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
-from modules.formats.utils import texconv
+from modules.formats.utils import lua_conversion
 
 error_flag = b"DECOMPILER ERROR"
 
@@ -60,7 +60,7 @@ class LuaLoader(MemStructLoader):
 
 			decompiled_bytes, err = (None, None)
 			if self.lua_decompile:
-				decompiled_bytes, err = texconv.bin_to_lua(bin_path)
+				decompiled_bytes, err = lua_conversion.bin_to_lua(bin_path)
 
 			if decompiled_bytes:
 				with open(lua_path, 'wb') as outfile:
@@ -101,7 +101,7 @@ class LuaLoader(MemStructLoader):
 			raise SyntaxError(f"{file_path} has not been successfully decompiled and may crash your game. Remove {error_flag} from the file to inject anyway.")
 		# check for errors in plaintext lua
 		elif buffer_0[1:4] != b"Lua":
-			texconv.check_lua_syntax(file_path)
+			lua_conversion.check_lua_syntax(file_path)
 		return buffer_0
 
 	def rename_content(self, name_tuples):
