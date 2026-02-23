@@ -480,9 +480,9 @@ class DelayedMimeData(QtCore.QMimeData):
         self.callbacks.append(callback)
 
     def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
-        logging.debug(f"Waiting for mouse release")
+        # logging.debug(f"Waiting for mouse release")
         if not mouse_pressed():
-            logging.debug(f"Running callbacks")
+            # logging.debug(f"Running callbacks")
             for callback in self.callbacks.copy():
                 self.callbacks.remove(callback)
                 callback()
