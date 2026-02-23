@@ -386,7 +386,9 @@ class MainWindow(window.MainWindow):
 			out_paths = self.handle_flattened_folders(out_paths, self.temp_dir)
 			def extract_callback():
 				try:
-					self.run_in_threadpool(self._extract, (), self.temp_dir, False, file_names)
+					# when running threaded here, the callback is over before the work is done, resulting in an empty drag
+					# self.run_in_threadpool(self._extract, (), self.temp_dir, False, file_names)
+					self.ovl_data.extract(self.temp_dir, only_names=file_names)
 				except:
 					self.handle_error("Dragging failed, see log!")
 			if out_paths:
