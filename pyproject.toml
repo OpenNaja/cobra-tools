@@ -10,7 +10,7 @@ license = { file = "LICENSE" }
 requires-python = "==3.11.*"
 dependencies = [
     "imageio>=2.26.0",
-    "numpy~=1.26.4",  # blender is built with < 2.0.0
+    "numpy>=1.26.4,<2.0.0",  # blender is built with < 2.0.0 for now
     "pillow>=10.0.1",
     "bitarray~=2.9.2",
 ]
