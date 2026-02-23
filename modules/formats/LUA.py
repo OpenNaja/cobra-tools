@@ -41,12 +41,7 @@ class LuaLoader(MemStructLoader):
 	def extract(self, out_dir):
 		buffer_data = self.data_entry.buffer_datas[0]
 
-		if self.lua_flatten:
-			split_path = self.name.split(".")
-			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
-			lua_path = out_dir(new_path)
-		else:
-			lua_path = out_dir(self.name)
+		lua_path = self.get_lua_path(out_dir)
 
 		# DLA & ZTUAC - clip away the start (fragment data at start of buffer?)
 		if self.ovl.context.version <= 17:
@@ -76,13 +71,16 @@ class LuaLoader(MemStructLoader):
 			out_files.append(lua_path)
 		return out_files
 
-	def get_extract_paths(self, out_dir):
+	def get_lua_path(self, out_dir):
 		if self.lua_flatten:
 			split_path = self.name.split(".")
 			new_path = "/".join(split_path[:-1]) + "." + split_path[-1]
-			lua_path = out_dir(new_path)
+			return out_dir(new_path)
 		else:
-			lua_path = out_dir(self.name)
+			return out_dir(self.name)
+
+	def get_extract_paths(self, out_dir):
+		lua_path = self.get_lua_path(out_dir)
 		out_files = []
 		buffer_data = self.data_entry.buffer_datas[0]
 		if buffer_data[1:4] == b"Lua":

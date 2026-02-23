@@ -4,8 +4,7 @@ import re
 import subprocess
 import sys
 
-from gui.app_utils import WINDOWS_WINE
-from modules.formats.utils import util_dir
+from modules.formats.utils import util_dir, prep_arg
 from utils.shared import check_any
 
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
@@ -51,12 +50,6 @@ def sanitize_lua_content(content: bytes) -> bytes:
 		content = compiled_pattern.sub(replacement, content)
 
 	return content
-
-
-def prep_arg(arg):
-	if WINDOWS_WINE:
-		return "wine " + arg
-	return arg
 
 
 def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, None]:
