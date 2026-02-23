@@ -20,6 +20,8 @@ class TexHeader(MemStruct):
     compression_type: Union[DdsType, DdsTypeCoaster]
     one_0: int
     num_mips: int
+    flag: int
+    flag_x: int
     width: int
     height: int
     stream_count: int

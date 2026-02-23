@@ -47,6 +47,8 @@ class DdsLoader(MemStructLoader):
 	def link_streams(self):
 		"""Collect other loaders"""
 		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
+		if is_dla(self.ovl):
+			self._link_streams((f"{self.basename}_highlod.texturestream", f"{self.basename}_lowlod.texturestream"))
 
 	def __eq__(self, other):
 		super().__eq__(other)
@@ -569,8 +571,7 @@ class DdsLoader(MemStructLoader):
 		dds_file.dx_10.num_tiles = len(tiles)
 		if not self.context.is_pc_2:
 			# get joined output buffer
-			buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
-			image_buffer = buffer_data
+			image_buffer = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 		else:
 			# take the unweaved mip data
 			image_buffer = self.unweave(dds_file)
