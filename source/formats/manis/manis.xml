@@ -76,12 +76,14 @@
     <struct name="ManisRoot" inherit="MemStruct">
 		24 bytes for DLA, ZTUAC, PC, JWE, old PZ
 		32 bytes for PZ1.6+, JWE2
+		40 bytes for PC2, presumably JWE3
 		<field name="mani files size" type="ushort">16 * mani count</field>
         <field name="hash block size" type="ushort">4 * string count</field>
 		<field name="zero 0" type="uint"/>
         <field name="zero 1" type="uint64" />
         <field name="zero 2" type="uint64" />
         <field name="zero 3" type="uint64" since="260" />
+        <field name="zero 4" type="uint64" vercond="(#PC2# #OR# #JWE3#)"/>
     </struct>
 
 	<struct name="ManiInfo" >

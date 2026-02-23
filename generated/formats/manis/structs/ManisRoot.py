@@ -7,6 +7,7 @@ class ManisRoot(MemStruct):
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE, old PZ
 	32 bytes for PZ1.6+, JWE2
+	40 bytes for PC2, presumably JWE3
 	"""
 
 	__name__ = 'ManisRoot'
@@ -24,6 +25,7 @@ class ManisRoot(MemStruct):
 		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.zero_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_4 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -36,6 +38,7 @@ class ManisRoot(MemStruct):
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 260, None)
+		yield 'zero_4', name_type_map['Uint64'], (0, None), (False, None), (lambda context: ((context.version == 262) and (context.mani_version == 282)) or ((context.version == 262) and (context.mani_version == 282)), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +50,5 @@ class ManisRoot(MemStruct):
 		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 260:
 			yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None)
+		if ((instance.context.version == 262) and (instance.context.mani_version == 282)) or ((instance.context.version == 262) and (instance.context.mani_version == 282)):
+			yield 'zero_4', name_type_map['Uint64'], (0, None), (False, None)
