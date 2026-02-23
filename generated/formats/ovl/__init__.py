@@ -808,8 +808,8 @@ class OvlFile(Header):
 		# store file name for later
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(filepath)
-		self.basename, self.ext = splitext_safe(self.name)
-		self.path_no_ext = splitext_safe(self.filepath)[0]
+		self.basename, self.ext = os.path.splitext(self.name)
+		self.path_no_ext = os.path.splitext(self.filepath)[0]
 
 	def load_included_ovls(self, path):
 		self.included_ovl_names.clear()
