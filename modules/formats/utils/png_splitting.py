@@ -152,9 +152,7 @@ def get_split_mode(game, png_name, compression):
 		all_tex_channels_lower = {tex_type.lower(): tex_channels for tex_type, tex_channels in all_tex_channels.items()}
 		tex_id = tex_type[1:].rsplit("_[", 1)[0]  # strip the leading . and remove any array suffices
 		tex_channels_map = all_tex_channels_lower.get(tex_id)
-		if tex_channels_map is None:
-			logging.warning(f"No texchannels map provided for {png_name}, falling back to legacy splitting")
-		else:
+		if tex_channels_map:
 			suggested_channels = set(tex_channels_map.keys())
 			# remove empty channel ids
 			valid_channels = [channel_id for channel_id in suggested_channels if channel_id]
