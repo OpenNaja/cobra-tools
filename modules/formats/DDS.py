@@ -58,13 +58,6 @@ class DdsLoader(MemStructLoader):
 			self.check(self.raw_bytes, other.raw_bytes, "Texture data")
 		return self.same
 
-	def get_dummy_dds_file(self):
-		"""Used for alignment in shuffling mip blocks around"""
-		dds_file = DdsFile()
-		dds_file.dx_10.dxgi_format = DxgiFormat[self.compression_name]
-		dds_file.get_pixel_fmt()
-		return dds_file
-
 	def collect(self):
 		super(DdsLoader, self).collect()
 
