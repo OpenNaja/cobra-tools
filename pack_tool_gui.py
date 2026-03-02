@@ -120,7 +120,7 @@ class PackToolGUI(window.MainWindow):
 		self.watch_btn.setChecked(self.cfg.get("watcher_enabled", False))
 
 	def rebuild_folders(self):
-		logging.info(f"Rebuilding {self.folders_to_rebuild}")
+		logging.info(f"Rebuilding {len(self.folders_to_rebuild)} OVLs")
 		for rel_folder in self.folders_to_rebuild:
 			self.pack_folder(rel_folder)
 		self.folders_to_rebuild.clear()
@@ -167,7 +167,7 @@ class PackToolGUI(window.MainWindow):
 		self.ovl_data.game = game
 
 	def directory_dirty(self, watched_folder):
-		logging.info(f'Detected changes in {watched_folder}')
+		# logging.info(f'Detected changes in {watched_folder}')
 		# read the current folder list and add new subfolders to the watcher
 		folders = self.get_non_empty_folders(watched_folder)
 		self.watcher_add_folders(folders)
