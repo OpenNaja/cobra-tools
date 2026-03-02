@@ -172,7 +172,6 @@ class Ms2Loader(MemStructLoader):
 	
 	def extract(self, out_dir):
 		self.get_version()
-		logging.info(f"Writing {self.name}")
 		self.header.version = self.context.version
 		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
@@ -189,7 +188,6 @@ class Ms2Loader(MemStructLoader):
 			if self.header.buffer_pointers.data is not None:
 				self.header.buffer_pointers.data.to_stream(self.header.buffer_pointers.data, stream, context)
 			for mdl2_loader in self.children:
-				# logging.debug(f"Writing {mdl2_loader.name}")
 				stream.write(as_bytes(mdl2_loader.basename))
 			for loader in self.streams:
 				stream.write(as_bytes(loader.basename))

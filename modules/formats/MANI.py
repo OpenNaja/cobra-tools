@@ -30,7 +30,6 @@ class ManisLoader(MemStructLoader):
 				
 	def extract(self, out_dir):
 		name = self.name
-		logging.info(f"Writing {name}")
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 

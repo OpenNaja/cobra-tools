@@ -546,7 +546,6 @@ class DdsLoader(MemStructLoader):
 		dds_paths = []
 		tex_name = self.name
 		basename = os.path.splitext(tex_name)[0]
-		logging.info(f"Writing {tex_name}")
 
 		size_info = self.get_tex_structs()
 

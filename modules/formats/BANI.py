@@ -65,7 +65,6 @@ class BanisLoader(MimeVersionedLoader):
 		buffers = self.data_entry.buffer_datas
 		if len(buffers) != 1:
 			raise AttributeError(f"Wrong amount of buffers for {name}")
-		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as stream:

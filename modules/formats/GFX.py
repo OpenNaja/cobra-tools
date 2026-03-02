@@ -14,7 +14,6 @@ class GfxLoader(BaseFile):
 
     def extract(self, out_dir):
         name = self.name
-        logging.info(f"Writing {name}")
 
         out_path = out_dir(name)
         buffers = self.data_entry.buffer_datas
