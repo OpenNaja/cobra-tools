@@ -275,13 +275,9 @@ class PackToolGUI(window.MainWindow):
 	def _unpack_mod(self):
 		logging.info("Unpacking mod")
 		for ovl_path in walker.walk_type(self.dst_root, extension=".ovl"):
-			dst_folder = os.path.dirname(os.path.relpath(ovl_path, self.dst_root))
-			logging.info(f"Unpacking {dst_folder}")
-			ovl_name = os.path.splitext(os.path.basename(dst_folder))[0]
-			src_folder = os.path.join(self.src_root, dst_folder, ovl_name)
 			self.ovl_data.load(ovl_path, commands={"game": self.ovl_game_choice.entry.currentText(), })
-			self.ovl_data.extract(src_folder)
-
+			out_dir = self.ovl_data.get_relative_extract_folder(self.src_root, self.dst_root)
+			self.ovl_data.extract(out_dir)
 		self.copy_loose_files(self.dst_root, self.src_root)
 		
 	@property

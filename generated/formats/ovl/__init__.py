@@ -640,6 +640,11 @@ class OvlFile(Header):
 				continue
 			yield loader
 
+	def get_relative_extract_folder(self, src_folder, dst_folder):
+		"""Return a relative path so that the ovl relative to dst_folder resembles a folder nested in src_folder"""
+		rel_folder = os.path.relpath(self.path_no_ext, start=dst_folder)
+		return os.path.join(src_folder, rel_folder)
+
 	def extract(self, out_dir, only_names=(), only_types=()):
 		"""Extract the files, after all archives have been read"""
 

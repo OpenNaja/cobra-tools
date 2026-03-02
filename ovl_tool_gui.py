@@ -544,8 +544,7 @@ class MainWindow(window.MainWindow):
 		for ovl in self.handle_path(save_over=False, batch=batch):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
 			if batch:
-				rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
-				out_dir = os.path.join(_out_dir, rel_p)
+				out_dir = ovl.get_relative_extract_folder(_out_dir, selected_dir)
 			ovl.extract(out_dir, only_names=only_names, only_types=only_types)
 
 	def inject_ask(self):
