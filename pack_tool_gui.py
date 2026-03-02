@@ -148,14 +148,6 @@ class PackToolGUI(window.MainWindow):
 		except IOError:
 			logging.info("Config save failed.")
 
-	def set_src_path(self, sPath):
-		self.src_widget.setText(sPath)
-		pass
-
-	def set_dst_path(self, sPath):
-		self.dst_widget.setText(sPath)
-		pass
-
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
 			game = self.ovl_game_choice.entry.currentText()
