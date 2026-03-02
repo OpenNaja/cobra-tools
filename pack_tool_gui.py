@@ -168,16 +168,13 @@ class PackToolGUI(window.MainWindow):
 
 	def directory_dirty(self, watched_folder):
 		logging.info(f'Detected changes in {watched_folder}')
-		# read the current folder list and proceed to pack that folder
-		folders = self.get_non_empty_folders(self.src_root)
+		# read the current folder list and add new subfolders to the watcher
+		folders = self.get_non_empty_folders(watched_folder)
 		self.watcher_add_folders(folders)
 
 		rel_folder = os.path.relpath(watched_folder, self.src_root)
-		# todo - new ovls should also be added / renamed?
-		# was the change caused by adding a new folder in root?
 		if rel_folder == '.':
 			return
-
 		self.folders_to_rebuild.add(rel_folder)
 		# stop any running timers
 		if self.rebuild_timer.isActive():
