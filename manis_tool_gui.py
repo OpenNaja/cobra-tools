@@ -2,6 +2,11 @@ import contextlib
 import time
 import logging
 
+if __name__ == "__main__":
+	# Guard to hide from pytest or other imports
+	from utils.auto_updater import run_update_check
+	run_update_check("manis_tool_gui")
+
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import window, MenuItem, SeparatorMenuItem
 from generated.formats.manis import ManisFile
@@ -311,4 +316,8 @@ class MainWindow(window.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(log_name="manis_tool_gui", size=(900, 600)))
+	startup(MainWindow, GuiOptions(
+	log_name="manis_tool_gui",
+	size=(900, 600),
+	check_update=False  # Check update happens at top now
+))
