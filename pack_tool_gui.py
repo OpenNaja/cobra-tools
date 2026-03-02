@@ -11,6 +11,7 @@ from gui import widgets, startup, GuiOptions
 from gui.widgets import window, MenuItem, SeparatorMenuItem
 from utils.config import read_str_dict, write_str_dict
 from generated.formats.ovl import games, OvlFile
+from modules import walker
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
@@ -110,7 +111,7 @@ class PackToolGUI(window.MainWindow):
 		dst_recent = self.cfg.get_recent_files("pack_tool_dst", game=game)
 		if dst_recent:
 			self.dst_widget.accept_dir(dst_recent[0])
-		# self.watch_btn.setChecked(bool(tconfig['watcher_enabled']) or False)
+		self.watch_btn.setChecked(self.cfg.get("watcher_enabled", False))
 
 	def load_config(self):
 		filedialog = QFileDialog(self)
@@ -141,7 +142,7 @@ class PackToolGUI(window.MainWindow):
 			logging.info("No file name selected.")
 			return
 		try:
-			tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath,
+			tconfig = {'src_path': self.src_root, 'dst_path': self.dst_root,
 					   'game': self.ovl_game_choice.entry.currentText(), 'watcher_enabled': self.watch_btn.isChecked()}
 			write_str_dict(self.config_path, tconfig)
 		except IOError:
@@ -164,11 +165,11 @@ class PackToolGUI(window.MainWindow):
 	def directory_changed(self, path):
 		logging.info(f'Detected changes in {path}')
 		# read the current folder list and proceed to pack that folder
-		folders = self.get_src_folder_list()
+		folders = self.get_src_folder_list(self.src_root)
 		self.watcher_add_folders(folders)
 
-		basepath = self.src_widget.filepath
-		relpath = os.path.relpath(path, basepath)
+		relpath = os.path.relpath(path, self.src_root)
+		# todo - new ovls should also be added / renamed
 		if relpath == '.':
 			return
 
@@ -178,42 +179,18 @@ class PackToolGUI(window.MainWindow):
 	def file_changed(self, path):
 		logging.info(f'Detected file changes in {path}')
 
-	def get_src_folder_list(self, basepath=''):
-
-		if basepath == '':
-			basepath = self.src_widget.filepath
-
-		root = pathlib.Path(basepath)
-		non_empty_dirs = {os.path.relpath(str(p.parent), basepath) for p in root.rglob('*') if p.is_file()}
-
-		return non_empty_dirs
-
-	def get_dst_folder_list(self, basepath=''):
-
-		if basepath == '':
-			basepath = self.dst_widget.filepath
-
+	def get_src_folder_list(self, basepath):
 		root = pathlib.Path(basepath)
 		non_empty_dirs = {os.path.relpath(str(p.parent), basepath) for p in root.rglob('*') if p.is_file()}
 
 		return non_empty_dirs
 
 	def get_src_file_list(self):
+		# todo replace with walker
 		file_list = []
-		if self.src_widget.filepath:
-			for (dirpath, dirnames, filenames) in os.walk(self.src_widget.filepath):
+		if self.src_root:
+			for (dirpath, dirnames, filenames) in os.walk(self.src_root):
 				file_list += [os.path.join(dirpath, file) for file in filenames]
-
-		return file_list
-
-	def get_dst_file_list(self, basepath=''):
-
-		if basepath == '':
-			basepath = self.dst_widget.filepath
-
-		file_list = list()
-		for (dirpath, dirnames, filenames) in os.walk(basepath):
-			file_list += [os.path.join(dirpath, file) for file in filenames]
 
 		return file_list
 
@@ -235,6 +212,7 @@ class PackToolGUI(window.MainWindow):
 			self.watch_btn.setChecked(False)
 			return
 
+		self.cfg["watcher_enabled"] = self.watch_btn.isChecked()
 		if self.watch_btn.isChecked():
 			logging.info("Watch enabled")
 			self.fs_watcher.directoryChanged.connect(self.directory_changed)
@@ -245,36 +223,36 @@ class PackToolGUI(window.MainWindow):
 			self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 			self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
+
 	def watch_settings_changed(self, dirpath):
 		folders = self.get_src_folder_list(dirpath)
 		self.watcher_add_folders(folders)
 		files = self.get_src_file_list()
 		self.watcher_add_files(files)
 
-	def create_ovl(self, ovl_dir, dst_file):
+	def create_ovl(self, ovl_dir, ovl_path):
 		# clear the ovl
 		self.ovl_data.clear()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)
-			self.ovl_data.save(dst_file)
+			self.ovl_data.save(ovl_path)
 		except:
 			self.handle_error("Creating OVL failed, see log!")
 
-	# relative path
-	def pack_folder(self, folder):
-		logging.info(f"Packing {folder}")
+	def pack_folder(self, rel_folder):
+		logging.info(f"Packing {rel_folder}")
 
 		if not self.src_root:
 			logging.warning(f"Source must be set")
 			return
-		src_path = os.path.join(self.src_root, folder)
-		dst_file = os.path.join(self.dst_root, folder) + ".ovl"
-		dst_path = os.path.dirname(dst_file)
-		if not os.path.exists(dst_path):
-			os.makedirs(dst_path)
+		src_path = os.path.join(self.src_root, rel_folder)
+		dst_path = os.path.join(self.dst_root, rel_folder) + ".ovl"
+		dst_folder = os.path.dirname(dst_path)
+		if not os.path.exists(dst_folder):
+			os.makedirs(dst_folder)
 
-		self.create_ovl(src_path, dst_file)
+		self.create_ovl(src_path, dst_path)
 
 	def copy_loose_files(self, src_folder, dst_folder):
 		for name in ("Manifest.xml", "Readme.md", "Changelog.md", "License"):
@@ -288,7 +266,7 @@ class PackToolGUI(window.MainWindow):
 
 	def pack_mod(self):
 		logging.info("Packing mod")
-		subfolders = self.get_src_folder_list()
+		subfolders = self.get_src_folder_list(self.src_root)
 		for folder in subfolders:
 			# ignore the project root for packing
 			if folder == '.':
@@ -296,31 +274,21 @@ class PackToolGUI(window.MainWindow):
 				continue
 			self.pack_folder(folder)
 
-		self.copy_loose_files(self.src_widget.filepath, self.dst_widget.filepath)
+		self.copy_loose_files(self.src_root, self.dst_root)
 
 	def unpack_mod(self):
 		if self.src_root and self.dst_root:
 			self.run_in_threadpool(self._unpack_mod, (), )
 
 	def _unpack_mod(self):
-
 		logging.info("Unpacking mod")
-		dstfiles = self.get_dst_file_list()
-
-		for file_path in dstfiles:
-			# ignore all other files, unpack ovl files only.
-			if file_path.lower().endswith(".ovl"):
-				dst_folder = os.path.relpath(file_path, self.dst_root)
-				logging.info(f"Unpacking {dst_folder}")
-				filename = os.path.splitext(os.path.basename(dst_folder))[0]
-				src_folder = os.path.join(self.src_root, os.path.dirname(dst_folder), filename)
-
-				if not os.path.exists(src_folder):
-					logging.info(f"Creating {src_folder}")
-					os.makedirs(src_folder)
-
-				self.ovl_data.load(file_path, commands={"game": self.ovl_game_choice.entry.currentText(), })
-				self.ovl_data.extract(src_folder)
+		for ovl_path in walker.walk_type(self.dst_root, extension=".ovl"):
+			dst_folder = os.path.dirname(os.path.relpath(ovl_path, self.dst_root))
+			logging.info(f"Unpacking {dst_folder}")
+			ovl_name = os.path.splitext(os.path.basename(dst_folder))[0]
+			src_folder = os.path.join(self.src_root, dst_folder, ovl_name)
+			self.ovl_data.load(ovl_path, commands={"game": self.ovl_game_choice.entry.currentText(), })
+			self.ovl_data.extract(src_folder)
 
 		self.copy_loose_files(self.dst_root, self.src_root)
 		

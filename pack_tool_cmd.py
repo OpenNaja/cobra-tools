@@ -16,7 +16,7 @@ from utils.logs import logging_setup
 logging_setup("pack_tool_cmd")
 
 from generated.formats.ovl import games, OvlFile
-print(games)
+
 __version__ = '0.1'
 __author__ = 'Open-Naja'
 
@@ -130,14 +130,8 @@ def usage(msg):
 	print(f"{msg}\n")
 	print("Usage: pack_tool_cmd.py GAMESTR ACTION folder/src folder/dst\n")
 	print("GAMESTR is one of the following:")
-	print("  - Disneyland Adventure")
-	print("  - Jurassic World Evolution")
-	print("  - Jurassic World Evolution 2")
-	print("  - Planet Coaster")
-	print("  - Planet Zoo")
-	print("  - Planet Zoo pre-1.6")
-	print("  - Zoo Tycoon")
-	print("  - Unknown Game")
+	for game in games:
+		print(f"  - {game.value}")
 	print("ACTION is one of the following:")
 	print("  - PACK")
 	print("  - UNPACK")
