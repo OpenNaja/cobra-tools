@@ -7,5 +7,5 @@ class SpecdefLoader(MemStructLoader):
 	extension = ".specdef"
 
 	def extract(self, out_dir):
-		print(self.header)
+		# print(self.header)
 		return super(SpecdefLoader, self).extract(out_dir)
