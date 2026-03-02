@@ -10,7 +10,7 @@ from generated.formats.tex.structs.TexHeader import TexHeader
 from generated.formats.tex.structs.TexelHeader import TexelHeader
 from generated.formats.tex.structs.TexturestreamHeader import TexturestreamHeader
 from generated.formats.tex.enums.DdsType import DdsType
-from modules.formats.BaseFormat import MemStructLoader, BaseFile
+from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import fnv64, encode_int64_base32
 from modules.helpers import as_bytes
 
@@ -59,7 +59,7 @@ class DdsLoader(MemStructLoader):
 		return self.same
 
 	def collect(self):
-		super(DdsLoader, self).collect()
+		super().collect()
 
 		if self.context.is_pc_2:
 			# texbuffer data is in the second buffer (index 2)
