@@ -102,7 +102,7 @@ class Config(dict):
 			target[recent_key] = []
 		recent_files = target[recent_key]
 		# remove stale paths
-		recent_files[:] = [fp for fp in recent_files if os.path.isfile(fp)]
+		recent_files[:] = [fp for fp in recent_files if os.path.exists(fp)]
 		return recent_files
 
 	def get_last_file(self, ext, game=None):

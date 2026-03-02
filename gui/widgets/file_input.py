@@ -31,7 +31,6 @@ class FileDirWidget(QWidget):
 		super().__init__(parent)
 		self.mainWidget = parent
 		self.ftype = cfg_key
-		self.cfg_key = cfg_key.lower()
 		self.root = root
 		self.cfg: 'Config' = cfg
 		self.cfg.setdefault(self.cfg_last_dir_save, "C:/")
@@ -77,14 +76,14 @@ class FileDirWidget(QWidget):
 		self.basename = filename
 
 	@property
-	def ftype_lower(self) -> str:
+	def cfg_key(self) -> str:
 		return self.ftype.lower()
 
 	@property
 	def cfg_last_dir_open(self) -> str:
 		# todo - only pass game when it makes sense to store per-game
 		game = self.cfg.get("current_game", None)
-		last_file = self.cfg.get_last_file(self.ftype_lower, game=game)
+		last_file = self.cfg.get_last_file(self.cfg_key, game=game)
 		if last_file:
 			return os.path.dirname(last_file)
 		else:
@@ -151,7 +150,7 @@ class FileWidget(FileDirWidget):
 
 	@property
 	def files_filter_str(self) -> str:
-		return f"{self.ftype} files (*.{self.ftype_lower})"
+		return f"{self.ftype} files (*.{self.cfg_key})"
 
 	@property
 	def tooltip_str(self) -> str:
@@ -175,7 +174,7 @@ class FileWidget(FileDirWidget):
 			self.set_file_path(filepath)
 			# todo - only pass game when it makes sense to store per-game
 			game = self.cfg["current_game"]
-			self.cfg.add_recent_file(filepath, self.ftype_lower, game=game)
+			self.cfg.add_recent_file(filepath, self.cfg_key, game=game)
 			self.file_opened.emit(filepath)
 			return True
 		return False
@@ -198,7 +197,7 @@ class FileWidget(FileDirWidget):
 		"""Check if filepath exists and is of the expected file extension"""
 		if os.path.isfile(filepath):
 			ext = os.path.splitext(filepath)[1].lower()
-			if ext == f".{self.ftype_lower}":
+			if ext == f".{self.cfg_key}":
 				return self.open_file(filepath)
 			else:
 				self.mainWidget.showwarning(f"Unsupported File Format '{ext}'")
@@ -236,7 +235,7 @@ class FileWidget(FileDirWidget):
 			# opens in root to allow selection of sibling folders.
 			# self.cfg[self.cfg_last_dir_open], _ = os.path.split(dirpath)
 			# just set the name, do not trigger a loading event
-			self.set_file_path(f"{dirpath}.{self.ftype_lower}")
+			self.set_file_path(f"{dirpath}.{self.cfg_key}")
 
 	def ask_save_as(self) -> None:
 		"""Saves file, always ask for file path"""
@@ -277,9 +276,9 @@ class DirWidget(FileDirWidget):
 	def __init__(self, parent: QWidget, cfg: 'Config', cfg_key: str = "DIR", ask_user: bool = True) -> None:
 		super().__init__(parent=parent, cfg=cfg, cfg_key=cfg_key, ask_user=ask_user)
 
-	def open_dir(self, filepath: str) -> None:
-		if not self.accept_dir(filepath):
-			logging.warning(f"{filepath} could not be opened as a directory.")
+	def open_dir(self, dirpath: str) -> None:
+		if not self.accept_dir(dirpath):
+			logging.warning(f"{dirpath} could not be opened as a directory.")
 
 	def ask_open_dir(self) -> None:
 		filepath = QFileDialog.getExistingDirectory(directory=self.cfg_last_dir_open)
@@ -289,9 +288,10 @@ class DirWidget(FileDirWidget):
 	def accept_dir(self, dirpath: str) -> bool:
 		if os.path.isdir(dirpath):
 			self.filepath = dirpath
-			# self.cfg[self.cfg_last_dir_open], self.basename = os.path.split(dirpath)
 			self.setText(dirpath)
 			self.dir_opened.emit(dirpath)
+			game = self.cfg["current_game"]
+			self.cfg.add_recent_file(dirpath, self.cfg_key, game=game)
 			return True
 		return False
 

@@ -1,13 +1,10 @@
 import os
-import sys
-import time
 import shutil
 import pathlib
 import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import window, MenuItem, SeparatorMenuItem
 from utils.config import read_str_dict, write_str_dict
-from utils.logs import HtmlFormatter, AnsiFormatter
 from generated.formats.ovl import games, OvlFile
 
 from PyQt5 import QtCore
@@ -49,15 +46,15 @@ class PackToolGUI(window.MainWindow):
 		})
 
 		# Add app widgets
-		self.src_widget = widgets.DirWidget(self, self.cfg, cfg_key="pack_tool")
+		self.src_widget = widgets.DirWidget(self, self.cfg, cfg_key="pack_tool_src")
 		self.src_widget.setPlaceholderText("Source Folder")
-		self.src_widget.setToolTip("Source folder to pack files from.")
+		self.src_widget.setToolTip("Source folder to gather loose files from.")
 		self.central_layout.addWidget(self.src_widget)
-		self.src_widget.dir_opened.connect(self.settings_changed)
+		self.src_widget.dir_opened.connect(self.watch_settings_changed)
 
-		self.dst_widget = widgets.DirWidget(self, self.cfg, cfg_key="pack_tool")
+		self.dst_widget = widgets.DirWidget(self, self.cfg, cfg_key="pack_tool_dst")
 		self.dst_widget.setPlaceholderText("Destination Folder")
-		self.dst_widget.setToolTip("Destination folder to pack files to.")
+		self.dst_widget.setToolTip("Destination folder to pack OVL files into.")
 		self.central_layout.addWidget(self.dst_widget)
 
 		# Add a line for controls
@@ -66,19 +63,28 @@ class PackToolGUI(window.MainWindow):
 		self.central_layout.addLayout(self.boxLayout)
 
 		# Add a button
-		self.watch = QCheckBox("Watch changes")
-		self.watch.setToolTip("Experimental")
-		self.watch.setChecked(False)
-		self.watch.stateChanged.connect(self.watchChanged)
-		self.boxLayout.addWidget(self.watch)
-		self.fs_watcher = ''
+		self.watch_btn = QCheckBox("Watch changes")
+		self.watch_btn.setToolTip("Experimental")
+		self.watch_btn.setChecked(False)
+		self.watch_btn.stateChanged.connect(self.watch_btn_clicked)
+		self.boxLayout.addWidget(self.watch_btn)
+		self.fs_watcher = QtCore.QFileSystemWatcher()
 
-		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
-		self.boxLayout.addWidget(self.game_choice)
+		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
+		self.boxLayout.addWidget(self.ovl_game_choice)
 
 		self.central_layout.addWidget(self.progress)
 
 		self.ovl_data = OvlFile()
+		self.reporter = widgets.Reporter()
+		self.ovl_data.reporter = self.reporter
+		# self.reporter.files_list.connect(self.update_files_ui)
+		# self.reporter.included_ovls_list.connect(self.included_ovls_view.set_data)
+		# self.reporter.warning_msg.connect(self.notify_user)
+		self.reporter.progress_percentage.connect(self.set_progress)
+		self.reporter.progress_total.connect(self.set_progress_total)
+		self.reporter.success_msg.connect(self.set_progress_message)
+		self.reporter.current_action.connect(self.set_progress_message)
 		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
 		topleft = QtWidgets.QWidget()
@@ -89,23 +95,17 @@ class PackToolGUI(window.MainWindow):
 
 		self.layout_logger(topleft, widgets.LOGGER_BOTTOM)
 
-		if len(sys.argv) > 1:
-			self.apply_from_config(sys.argv[1])
-
-
-
-	def apply_from_config(self, path):
-		try:
-			tconfig = read_str_dict(path)
-			self.src_widget.filepath = tconfig['src_path'] or ''
-			self.src_widget.setText(tconfig['src_path'] or '')
-			self.dst_widget.filepath = tconfig['dst_path'] or ''
-			self.dst_widget.setText(tconfig['dst_path'] or '')
-			self.game_choice.entry.setText(tconfig['game'] or '')
-			self.watch.setChecked(bool(tconfig['watcher_enabled']) or False)
-		except IOError:
-			logging.info("Config load failed.")
-		pass
+		# from OVL config
+		game = self.cfg.get("current_game")
+		if game:
+			self.ovl_game_choice.entry.setText(game)
+		src_recent = self.cfg.get_recent_files("pack_tool_src", game=game)
+		if src_recent:
+			self.src_widget.accept_dir(src_recent[0])
+		dst_recent = self.cfg.get_recent_files("pack_tool_dst", game=game)
+		if dst_recent:
+			self.dst_widget.accept_dir(dst_recent[0])
+		# self.watch_btn.setChecked(bool(tconfig['watcher_enabled']) or False)
 
 	def load_config(self):
 		filedialog = QFileDialog(self)
@@ -120,7 +120,7 @@ class PackToolGUI(window.MainWindow):
 		if self.config_path == "":
 			logging.info("No file name selected.")
 			return
-		self.apply_from_config(self.config_path)
+		# self.apply_from_config(self.config_path)
 
 	def save_config(self):
 		filedialog = QFileDialog(self)
@@ -137,7 +137,7 @@ class PackToolGUI(window.MainWindow):
 			return
 		try:
 			tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath,
-					   'game': self.game_choice.entry.currentText(), 'watcher_enabled': self.watch.isChecked()}
+					   'game': self.ovl_game_choice.entry.currentText(), 'watcher_enabled': self.watch_btn.isChecked()}
 			write_str_dict(self.config_path, tconfig)
 		except IOError:
 			logging.info("Config save failed.")
@@ -152,7 +152,7 @@ class PackToolGUI(window.MainWindow):
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
-			game = self.game_choice.entry.currentText()
+			game = self.ovl_game_choice.entry.currentText()
 		logging.info(f"Setting OVL version to {game}")
 		self.ovl_data.game = game
 
@@ -213,43 +213,34 @@ class PackToolGUI(window.MainWindow):
 		return file_list
 
 	def watcher_add_folders(self, folders):
-		if self.fs_watcher:
-			srcpath = self.src_widget.filepath
-			subfolders = ["/".join([srcpath, x]) for x in folders]
-			self.fs_watcher.addPaths(subfolders)
+		subfolders = ["/".join([self.src_root, x]) for x in folders]
+		self.fs_watcher.addPaths(subfolders)
 
 	def watcher_add_files(self, files):
-		if self.fs_watcher:
-			srcpath = self.src_widget.filepath
-			self.fs_watcher.addPaths(files)
+		self.fs_watcher.addPaths(files)
 
-	def watchChanged(self):
-		if self.src_widget.filepath == '':
+	def watch_btn_clicked(self):
+		if not self.src_root:
 			logging.info('select source path to enable watch')
-			self.watch.setChecked(False)
+			self.watch_btn.setChecked(False)
 			return
 
-		if self.dst_widget.filepath == '':
+		if not self.dst_root:
 			logging.info('select destination path to enable watch')
-			self.watch.setChecked(False)
+			self.watch_btn.setChecked(False)
 			return
 
-		if self.watch.isChecked():
-			self.fs_watcher = QtCore.QFileSystemWatcher()
+		if self.watch_btn.isChecked():
+			logging.info("Watch enabled")
 			self.fs_watcher.directoryChanged.connect(self.directory_changed)
 			self.fs_watcher.fileChanged.connect(self.file_changed)
-			folders = self.get_src_folder_list()
-			self.watcher_add_folders(folders)
-			files = self.get_src_file_list()
-			self.watcher_add_files(files)
-			logging.info("Watch enabled")
+			self.watch_settings_changed(self.src_root)
 		else:
-			self.watch.setChecked(False)
 			logging.info("Watch disabled")
 			self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 			self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
-	def settings_changed(self, dirpath):
+	def watch_settings_changed(self, dirpath):
 		folders = self.get_src_folder_list(dirpath)
 		self.watcher_add_folders(folders)
 		files = self.get_src_file_list()
@@ -268,41 +259,27 @@ class PackToolGUI(window.MainWindow):
 	# relative path
 	def pack_folder(self, folder):
 		logging.info(f"Packing {folder}")
-		srcbasepath = self.src_widget.filepath
-		dstbasepath = self.dst_widget.filepath
 
-		if not srcbasepath:
+		if not self.src_root:
 			logging.warning(f"Source must be set")
 			return
-		src_path = os.path.join(srcbasepath, folder)
-		dst_file = os.path.join(dstbasepath, folder) + ".ovl"
+		src_path = os.path.join(self.src_root, folder)
+		dst_file = os.path.join(self.dst_root, folder) + ".ovl"
 		dst_path = os.path.dirname(dst_file)
 		if not os.path.exists(dst_path):
 			os.makedirs(dst_path)
 
 		self.create_ovl(src_path, dst_file)
 
-	# file has full path.
-	def unpack_ovl(self, file):
-		srcbasepath = self.src_widget.filepath
-		dstbasepath = self.dst_widget.filepath
-		dstfolder = os.path.relpath(file, dstbasepath)
-		logging.info(f"Unpacking {dstfolder}")
-		filename = os.path.splitext(os.path.basename(dstfolder))[0]
-		srcfolder = os.path.join(srcbasepath, os.path.dirname(dstfolder), filename)
-
-		if not os.path.exists(srcfolder):
-			logging.info(srcfolder)
-			os.makedirs(srcfolder)
-
-		self.ovl_data.load(file)
-		out_paths, error_files = self.ovl_data.extract(srcfolder, show_temp_files=False)
-
-	def copy_file(self, srcpath, dstpath, fname):
-		try:
-			shutil.copyfile(os.path.join(srcpath, fname), os.path.join(dstpath, fname))
-		except:
-			logging.info(f"error copying: {fname}")
+	def copy_loose_files(self, src_folder, dst_folder):
+		for name in ("Manifest.xml", "Readme.md", "License"):
+			try:
+				src_path = os.path.join(src_folder, name)
+				dst_path = os.path.join(dst_folder, name)
+				if os.path.exists(src_path):
+					shutil.copyfile(src_path, dst_path)
+			except:
+				logging.info(f"Error copying: {name}")
 
 	def pack_mod(self):
 		logging.info("Packing mod")
@@ -314,33 +291,41 @@ class PackToolGUI(window.MainWindow):
 				continue
 			self.pack_folder(folder)
 
-		# Also copy Manifest.xml and Readme.md files if any
-		srcbasepath = self.src_widget.filepath
-		dstbasepath = self.dst_widget.filepath
-		self.copy_file(srcbasepath, dstbasepath, "Manifest.xml")
-		self.copy_file(srcbasepath, dstbasepath, "Readme.md")
-		self.copy_file(srcbasepath, dstbasepath, "License")
+		self.copy_loose_files(self.src_widget.filepath, self.dst_widget.filepath)
 
 	def unpack_mod(self):
-		srcbasepath = self.src_widget.filepath
-		dstbasepath = self.dst_widget.filepath
-		if not srcbasepath or not dstbasepath:
-			return
+		if self.src_root and self.dst_root:
+			self.run_in_threadpool(self._unpack_mod, (), )
+
+	def _unpack_mod(self):
 
 		logging.info("Unpacking mod")
 		dstfiles = self.get_dst_file_list()
 
-		for file in dstfiles:
+		for file_path in dstfiles:
 			# ignore all other files, unpack ovl files only.
-			if file.lower().endswith(".ovl"):
-				self.unpack_ovl(file)
-				continue
+			if file_path.lower().endswith(".ovl"):
+				dst_folder = os.path.relpath(file_path, self.dst_root)
+				logging.info(f"Unpacking {dst_folder}")
+				filename = os.path.splitext(os.path.basename(dst_folder))[0]
+				src_folder = os.path.join(self.src_root, os.path.dirname(dst_folder), filename)
 
-		# The previous loop will not copy Manifest.xml and Readme.md files if any
-		self.copy_file(dstbasepath, srcbasepath, "Manifest.xml")
-		self.copy_file(dstbasepath, srcbasepath, "Readme.md")
-		self.copy_file(dstbasepath, srcbasepath, "License")
+				if not os.path.exists(src_folder):
+					logging.info(f"Creating {src_folder}")
+					os.makedirs(src_folder)
 
+				self.ovl_data.load(file_path, commands={"game": self.ovl_game_choice.entry.currentText(), })
+				self.ovl_data.extract(src_folder)
+
+		self.copy_loose_files(self.dst_root, self.src_root)
+		
+	@property
+	def src_root(self):
+		return self.src_widget.filepath
+	
+	@property
+	def dst_root(self):
+		return self.dst_widget.filepath
 
 if __name__ == '__main__':
 	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150)))

@@ -704,7 +704,7 @@ class MainWindow(FramelessMainWindow):
 			return
 		recent_menu.clear()
 		game = self.cfg["current_game"]
-		recent_files = self.cfg.get_recent_files(self.file_widget.ftype_lower, game)
+		recent_files = self.cfg.get_recent_files(self.file_widget.cfg_key, game)
 
 		# Add a placeholder if the list is empty
 		if not recent_files:
@@ -727,7 +727,7 @@ class MainWindow(FramelessMainWindow):
 		recent_menu.addSeparator()
 		clear_action = QAction("Clear Recent Files", self)
 		def clear_list():
-			recent_files = self.cfg.get_recent_files(self.file_widget.ftype_lower, game)
+			recent_files = self.cfg.get_recent_files(self.file_widget.cfg_key, game)
 			recent_files[:] = []
 
 		clear_action.triggered.connect(clear_list)
@@ -965,7 +965,7 @@ class MainWindow(FramelessMainWindow):
 			return
 
 		path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
-		if path.lower().endswith(f".{self.file_widget.ftype_lower}"):
+		if path.lower().endswith(f".{self.file_widget.cfg_key}"):
 			event.accept()
 		else:
 			event.ignore()
