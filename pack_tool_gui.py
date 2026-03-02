@@ -2,7 +2,12 @@ import os
 import shutil
 import pathlib
 import logging
-from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+
+if __name__ == "__main__":
+	from utils.auto_updater import run_update_check
+	run_update_check("pack_tool_gui")
+
+from gui import widgets, startup, GuiOptions
 from gui.widgets import window, MenuItem, SeparatorMenuItem
 from utils.config import read_str_dict, write_str_dict
 from generated.formats.ovl import games, OvlFile
@@ -272,7 +277,7 @@ class PackToolGUI(window.MainWindow):
 		self.create_ovl(src_path, dst_file)
 
 	def copy_loose_files(self, src_folder, dst_folder):
-		for name in ("Manifest.xml", "Readme.md", "License"):
+		for name in ("Manifest.xml", "Readme.md", "Changelog.md", "License"):
 			try:
 				src_path = os.path.join(src_folder, name)
 				dst_path = os.path.join(dst_folder, name)
@@ -328,4 +333,5 @@ class PackToolGUI(window.MainWindow):
 		return self.dst_widget.filepath
 
 if __name__ == '__main__':
-	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150)))
+	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150), check_update=False  # Check update happens at top now
+	))
