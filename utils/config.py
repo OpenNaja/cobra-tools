@@ -186,12 +186,6 @@ def read_str_dict(cfg_path):
 	return config_dict
 
 
-def write_str_dict(cfg_path, config_dict):
-	stream = "\n".join([key + "=" + str(val) for key, val in config_dict.items()])
-	with open(cfg_path, 'w', encoding='utf8') as cfg_file:
-		cfg_file.write(stream)
-
-
 def read_list(cfg_path):
 	try:
 		with open(cfg_path, 'r', encoding='utf-8') as cfg_file:

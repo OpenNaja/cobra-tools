@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
 from gui import widgets, startup, GuiOptions
 from gui.widgets import window, MenuItem, SeparatorMenuItem
-from utils.config import read_str_dict, write_str_dict
+from utils.config import Config, save_config
 from generated.formats.ovl import games, OvlFile
 from modules import walker
 
@@ -30,9 +30,6 @@ class PackToolGUI(window.MainWindow):
 
 		"""View initializer."""
 		super().__init__("PackToolGUI", opts=opts)
-
-		# save config file name from args
-		self.config_path = ''
 
 		# Set some main window's properties
 		self.setWindowTitle('Pack Tool ' + __version__)
@@ -107,17 +104,20 @@ class PackToolGUI(window.MainWindow):
 
 		self.layout_logger(topleft, widgets.LOGGER_BOTTOM)
 
+		self.apply_from_config(self.cfg)
+
+	def apply_from_config(self, cfg: Config[str, Any]):
 		# from OVL config
-		game = self.cfg.get("current_game")
+		game = cfg.get("current_game")
 		if game:
 			self.ovl_game_choice.entry.setText(game)
-		src_recent = self.cfg.get_recent_files("pack_tool_src", game=game)
+		src_recent = cfg.get_recent_files("pack_tool_src", game=game)
 		if src_recent:
 			self.src_widget.accept_dir(src_recent[0])
-		dst_recent = self.cfg.get_recent_files("pack_tool_dst", game=game)
+		dst_recent = cfg.get_recent_files("pack_tool_dst", game=game)
 		if dst_recent:
 			self.dst_widget.accept_dir(dst_recent[0])
-		self.watch_btn.setChecked(self.cfg.get("watcher_enabled", False))
+		self.watch_btn.setChecked(cfg.get("watcher_enabled", False))
 
 	def rebuild_folders(self):
 		logging.info(f"Rebuilding {len(self.folders_to_rebuild)} OVLs")
@@ -132,13 +132,15 @@ class PackToolGUI(window.MainWindow):
 		filedialog.setFileMode(QFileDialog.ExistingFile)
 		selected = filedialog.exec()
 		if selected:
-			self.config_path = filedialog.selectedFiles()[0]
+			config_path = filedialog.selectedFiles()[0]
+			config_dir, config_name = os.path.split(config_path)
+			cfg: Config[str, Any] = Config(config_dir, name=config_name)
+			cfg.load()
+			self.cfg.update(cfg)
+			self.apply_from_config(cfg)
 		else:
-			return
-		if self.config_path == "":
 			logging.info("No file name selected.")
 			return
-		# self.apply_from_config(self.config_path)
 
 	def save_config(self):
 		filedialog = QFileDialog(self)
@@ -147,18 +149,11 @@ class PackToolGUI(window.MainWindow):
 		filedialog.setAcceptMode(QFileDialog.AcceptSave)
 		selected = filedialog.exec()
 		if selected:
-			self.config_path = filedialog.selectedFiles()[0]
+			cfg_path = filedialog.selectedFiles()[0]
+			save_config(cfg_path, self.cfg)
 		else:
-			return
-		if self.config_path == "":
 			logging.info("No file name selected.")
 			return
-		try:
-			tconfig = {'src_path': self.src_root, 'dst_path': self.dst_root,
-					   'game': self.ovl_game_choice.entry.currentText(), 'watcher_enabled': self.watch_btn.isChecked()}
-			write_str_dict(self.config_path, tconfig)
-		except IOError:
-			logging.info("Config save failed.")
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
@@ -216,9 +211,10 @@ class PackToolGUI(window.MainWindow):
 
 
 	def watch_settings_changed(self, dirpath):
-		folders = self.get_non_empty_folders(dirpath)
-		self.watcher_add_folders(folders)
-		self.watcher_add_files(walker.walk_type(self.src_root, extension=""))
+		if self.watch_btn.isChecked():
+			folders = self.get_non_empty_folders(dirpath)
+			self.watcher_add_folders(folders)
+			self.watcher_add_files(walker.walk_type(self.src_root, extension=""))
 
 	def pack_folder(self, rel_folder):
 		src_path = os.path.join(self.src_root, rel_folder)
