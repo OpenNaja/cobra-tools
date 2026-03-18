@@ -294,15 +294,29 @@ def get_installed_games(games_list: list[str]) -> dict[str, str]:
         # content subfolder
         store_games(fdev_games, games_list, game_pass_path, "content", "win64", "ovldata")
 
+    # Epic
+    game_pass_path = "C:/Program Files/Epic Games"
+    if os.path.isdir(game_pass_path):
+        store_games(fdev_games, games_list, game_pass_path, "win64", "ovldata")
+
     logging.info(f"Found {len(fdev_games)} installed Cobra games")
     return fdev_games
 
 
+def short_alias(game):
+    """Jurassic World Evolution 2 -> JWE2"""
+    return "".join(x[0] for x in game.split(" "))
+
+
 def store_games(fdev_games, games_list, apps_folder, *args):
-    # filter with supported fdev games
-    fdev_in_lib = [game for game in os.listdir(apps_folder) if game in games_list]
-    # store the whole path to ovldata for each game
-    fdev_games.update({game: os.path.join(apps_folder, game, *args) for game in fdev_in_lib})
+    # check for supported fdev games
+    games_folders = os.listdir(apps_folder)
+    for game in games_list:
+        if game in games_folders:
+            fdev_games[game] = os.path.join(apps_folder, game, *args)
+        # Epic folder name: JWE2
+        elif short_alias(game) in games_folders:
+            fdev_games[game] = os.path.join(apps_folder, short_alias(game), *args)
 
 
 # endregion
