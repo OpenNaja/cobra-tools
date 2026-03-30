@@ -28,6 +28,9 @@ class PackTool:
 		self.folders_to_rebuild = set()
 		self.ovl_data = OvlFile()
 		self.fs_watcher = None
+		# need to use custom getters and setters to inherit, can't overwrite game directly with get/set
+		self._game = [g for g in games][0]
+		self._watching = False
 
 	def run_in_threadpool(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
 		print("Skipping threadpool")
@@ -110,6 +113,19 @@ class PackTool:
 					shutil.copyfile(src_path, dst_path)
 			except:
 				logging.info(f"Error copying: {name}")
+
+	def apply_from_config(self, cfg: Config[str, Any]):
+		# from OVL config
+		game = cfg.get("current_game")
+		if game:
+			self.game = game
+		src_recent = cfg.get_recent_files("pack_tool_src", game=game)
+		if src_recent:
+			self.src_root = src_recent[0]
+		dst_recent = cfg.get_recent_files("pack_tool_dst", game=game)
+		if dst_recent:
+			self.dst_root = dst_recent[0]
+		self.watching = cfg.get("watcher_enabled", False)
 
 
 class PackToolGUI(window.MainWindow, PackTool):
@@ -209,6 +225,22 @@ class PackToolGUI(window.MainWindow, PackTool):
 	def watching(self, v):
 		self.watch_btn.setChecked(v)
 
+	@property
+	def src_root(self):
+		return self.src_widget.filepath
+
+	@src_root.setter
+	def src_root(self, v):
+		self.src_widget.accept_dir(v)
+
+	@property
+	def dst_root(self):
+		return self.dst_widget.filepath
+
+	@dst_root.setter
+	def dst_root(self, v):
+		self.dst_widget.accept_dir(v)
+
 	def load_config(self):
 		filedialog = QFileDialog(self)
 		filedialog.setDefaultSuffix("mptconfig")
@@ -234,19 +266,6 @@ class PackToolGUI(window.MainWindow, PackTool):
 		else:
 			logging.info("No file name selected.")
 			return
-
-	def apply_from_config(self, cfg: Config[str, Any]):
-		# from OVL config
-		game = cfg.get("current_game")
-		if game:
-			self.game = game
-		src_recent = cfg.get_recent_files("pack_tool_src", game=game)
-		if src_recent:
-			self.src_widget.accept_dir(src_recent[0])
-		dst_recent = cfg.get_recent_files("pack_tool_dst", game=game)
-		if dst_recent:
-			self.dst_widget.accept_dir(dst_recent[0])
-		self.watching = cfg.get("watcher_enabled", False)
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
@@ -303,14 +322,7 @@ class PackToolGUI(window.MainWindow, PackTool):
 			folders = self.get_non_empty_folders(dirpath)
 			self.watcher_add_folders(folders)
 			self.watcher_add_files(walker.walk_type(self.src_root, extension=""))
-		
-	@property
-	def src_root(self):
-		return self.src_widget.filepath
-	
-	@property
-	def dst_root(self):
-		return self.dst_widget.filepath
+
 
 if __name__ == '__main__':
 	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150), check_update=False  # Check update happens at top now
