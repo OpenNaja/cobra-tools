@@ -6,7 +6,7 @@ import numpy as np
 from generated.formats.ms2.structs.packing_utils import has_nan
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.blender_util import set_auto_smooth_safe
-from plugin.utils.shell import num_fur_as_weights
+from plugin.utils.shell import num_fur_as_weights, FUR_FIN
 
 
 def per_loop(flattened_tris, per_vertex_input):
@@ -46,8 +46,8 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat,
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
-	# set normals
-	if use_custom_normals and mesh.flag not in (565,):
+	# set normals if desired and safe to do so; crash on fur fin geometry due to zero area faces
+	if use_custom_normals and not mat_name.lower().endswith(FUR_FIN):
 		set_auto_smooth_safe(b_me)
 		normals = mesh.normals_custom if mesh.is_speedtree else mesh.normals
 		b_me.normals_split_custom_set(per_loop(mesh_tris_flat, normals))
