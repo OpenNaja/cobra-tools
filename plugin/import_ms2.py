@@ -102,11 +102,15 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 				# import_chunk_bounds(b_me, mesh, lod_coll)
 				# link material to mesh
 				import_material(reporter, created_materials, in_dir, b_me, m_ob.material, load_libraries)
-
+				lod_suffix = f"_L{lod_i}"
+				mat_name = m_ob.material.name.lower()
+				mat_suffix = get_mat_suffix(mat_name, model_info)
 				if m_ob.mesh_index in ob_dict:
 					b_ob = ob_dict[m_ob.mesh_index]
+					# update name by attaching the unique suffix of the new material
+					b_ob.name = f"{b_ob.name}, {mat_suffix}"
 				else:
-					b_ob = create_ob(scene, f"{model_info.name}_ob{ob_i}_L{lod_i}", b_me, coll=lod_coll)
+					b_ob = create_ob(scene, f"{model_info.name}{lod_suffix}: {mat_suffix}", b_me, coll=lod_coll)
 					b_ob.parent = b_armature_obj
 					ob_dict[m_ob.mesh_index] = b_ob
 					try:
@@ -129,3 +133,16 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 			set_collection_visibility(scene, lod_coll.name, lod_i != 0)
 		gauge_uv_scale_wrapper(reporter)
 	reporter.show_info(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
+
+
+def get_mat_suffix(mat_name, model_info):
+	# get the wordwise common prefix
+	out = []
+	for a, b in zip(model_info.name.split("_"), mat_name.split("_")):
+		if a == b:
+			out.append(a)
+		else:
+			break
+	prefix = "_".join(out)
+	mat_suffix = mat_name.replace(prefix, '').lstrip('_')
+	return mat_suffix

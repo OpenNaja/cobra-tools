@@ -44,7 +44,7 @@ def update_lods(reporter, mdl2_coll, levels):
 				if is_fin(ob) and lod_index > 1:
 					continue
 				obj1 = copy_ob(ob, lod_coll)
-				obj1.name = f"{mdl2_coll.name}_ob{ob_index}_L{lod_index}"
+				obj1.name = ob.name.replace("_L0", f"_L{lod_index}")
 				b_me = obj1.data
 
 				# Can't create automatic LODs for models that have shape keys
