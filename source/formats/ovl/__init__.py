@@ -539,6 +539,7 @@ class OvlFile(Header):
 		self.formats_dict = FormatDict()
 		self.constants = {}
 		self.loaders = {}
+		self.commands = {}
 		self.included_ovl_names = []
 		# set a default reporter here
 		self.reporter = DummyReporter()
@@ -696,8 +697,10 @@ class OvlFile(Header):
 			logging.exception(f"Could not create: {file_name}")
 			raise
 
-	def create(self, ovl_dir):
+	def create(self, ovl_dir, commands={}):
 		logging.info(f"Creating OVL from {ovl_dir}")
+		# store commands
+		self.commands = commands
 		self.store_filepath(f"{ovl_dir}.ovl")
 		self.create_archive(name="STATIC")
 		self.loaders = {}

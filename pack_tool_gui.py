@@ -58,11 +58,11 @@ class PackTool:
 		self.folders_to_rebuild.clear()
 
 	def pack_folder(self, rel_folder):
-		src_path = os.path.join(self.src_root, rel_folder)
+		src_folder = os.path.join(self.src_root, rel_folder)
 		dst_path = os.path.join(self.dst_root, rel_folder) + ".ovl"
-		if not os.path.exists(src_path):
+		if not os.path.exists(src_folder):
 			if self.fs_watcher:
-				self.fs_watcher.removePath(src_path)
+				self.fs_watcher.removePath(src_folder)
 			return
 		logging.info(f"Packing {rel_folder}")
 
@@ -76,8 +76,9 @@ class PackTool:
 		# clear the ovl
 		self.ovl_data.clear()
 		self.game_changed()
+		commands = {"game": self.game, }
 		try:
-			self.ovl_data.create(src_path)
+			self.ovl_data.create(src_folder, commands=commands)
 			self.ovl_data.save(dst_path)
 		except:
 			logging.warning("Creating OVL failed, see log!")

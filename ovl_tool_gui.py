@@ -470,21 +470,19 @@ class MainWindow(window.MainWindow):
 					self.handle_error("OVL loading failed, see log!")
 
 	def open_dir(self, dirpath: str) -> None:
-		self.create_ovl(dirpath)
+		# clear the ovl
+		self.ovl_data.clear()
+		self.game_changed()
+		commands = {"game": self.ovl_game_choice.entry.currentText(), "update_aux": self.cfg.get("update_aux")}
+		try:
+			self.ovl_data.create(dirpath, commands=commands)
+		except:
+			self.handle_error("Creating OVL failed, see log!")
 		self.set_dirty()
 
 	def choices_update(self):
 		self.set_ovl_game_choice_game(self.ovl_data.game)
 		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
-
-	def create_ovl(self, ovl_dir):
-		# clear the ovl
-		self.ovl_data.clear()
-		self.game_changed()
-		try:
-			self.ovl_data.create(ovl_dir)
-		except:
-			self.handle_error("Creating OVL failed, see log!")
 
 	def is_open_ovl(self):
 		if self.file_widget.filename or self.file_widget.dirty:
