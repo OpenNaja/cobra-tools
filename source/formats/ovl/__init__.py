@@ -891,11 +891,17 @@ class OvlFile(Header):
 				self.mimes_triplets = []
 			# add file name to hash dict; ignoring the extension pointer
 			self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
-			if len(self.files_basename) != len(set(self.files["file_hash"])):
-				logging.warning("There are djb2 hash collisions, some files will not load")
 			self.files_ext = [f".{self.mimes_ext[i]}" for i in self.files["extension"]]
 			# remove any quotation chars, eg. homalocephale@huntkilledcarnotaurusin_srb".wsm
 			self.files_name = [f"{b}{e}".replace('"', "") for b, e in zip(self.files_basename, self.files_ext)]
+			# hash collisions are actually from shared basenames, so seem to be harmless
+			# if len(self.files_basename) != len(set(self.files["file_hash"])):
+			# 	logging.warning("There are djb2 hash collisions, some files will not load")
+			# 	hash_counter = Counter(self.files["file_hash"])
+			# 	for name, djb_hash in zip(self.files_name, self.files["file_hash"]):
+			# 		if hash_counter[djb_hash] > 1:
+			# 			# e.g. albertosaurus_juvenile.mdl2 [3060300434] and albertosaurus_juvenile.fgm [3060300434]
+			# 			logging.warning(f"Djb2 hash collision for {name} [{djb_hash}]")
 			dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 			self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
