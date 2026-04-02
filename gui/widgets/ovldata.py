@@ -613,8 +613,11 @@ class GameSelectorWidget(QWidget):
 		return QFileDialog.getExistingDirectory(self, "Open game folder")
 
 	def set_games(self) -> None:
+		# populate empty cfg with defaults if needed
 		for game, path in get_installed_games(self.games_list).items():
 			self.cfg.init_game_in_cfg(game, path)
+		if "current_game" not in self.cfg:
+			self.cfg["current_game"] = self.games_list[0]
 		self.set_data(self.cfg["games"])
 
 	def game_chosen(self, game: str) -> None:

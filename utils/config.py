@@ -95,7 +95,7 @@ class Config(dict):
 		"""Generalized access to recent files for more formats depending on game, e.g. ovl and bnk"""
 		recent_key = f"{ext}_recent"
 		if game:
-			target = self["games"][game]
+			target = self["games"].get(game, self)
 		else:
 			target = self
 		if recent_key not in target:
