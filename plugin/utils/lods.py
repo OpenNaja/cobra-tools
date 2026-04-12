@@ -5,6 +5,7 @@ import bpy
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from plugin.utils.object import ensure_visible, create_collection
 from plugin.utils.shell import is_shell, is_fin, copy_ob
+from utils.shared import check_any
 
 
 def update_lods(reporter, mdl2_coll, levels):
@@ -71,5 +72,5 @@ def update_lods(reporter, mdl2_coll, levels):
 
 
 def get_lod_collections(mdl2_coll):
-	lod_collections = [col for col in mdl2_coll.children if "_L" in col.name]
+	lod_collections = [col for col in mdl2_coll.children if check_any((f"_L{i}" for i in range(7)), col.name)]
 	return lod_collections
