@@ -180,7 +180,6 @@ class DdsLoader(MemStructLoader):
 
 	def get_image_bytes(self, tex_path):
 		"""Returns a list of packed dds bytes, split for tex and texturestream buffers"""
-		# logging.debug(f"Loading image {tex_path}")
 		in_dir, name_ext, basename, ext = self.get_names(tex_path)
 		with self.get_tmp_dir() as tmp_dir:
 			size_info = self.get_tex_structs()
@@ -212,9 +211,9 @@ class DdsLoader(MemStructLoader):
 					dds_paths.append(dds_path)
 			dds_files = [self.load_dds(dds_path) for dds_path in dds_paths]
 			# start updating the tex
-			assert dds_files, f"Found no dds files for {tex_path}"
+			assert dds_files, f"Found no DDS files for {name_ext}"
 			assert len(set(
-				dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
+				dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {name_ext} have varying mip map counts"
 			# by now the dds is set in stone, and we can update the tex header with data from the dds
 			dds = dds_files[0]
 			# handle pre-DX10 compressions in dds files authored by legacy programs
@@ -228,9 +227,10 @@ class DdsLoader(MemStructLoader):
 				size_info.num_mips = dds.mipmap_count
 				# mip maps for tex sizes that are not power of 2 are uncommon
 				# however they are found in ed_infoboard_custom.pbasecolourtexture
+				# it does cause crashes when used in a PZ animal, so raise error for now
 				if dds.width not in pow2 or dds.height not in pow2:
-					logging.warning(
-						f"Non-power-of-2 dimensions ({dds.width}x{dds.height}) with MIP maps for {tex_path}")
+					raise AttributeError(
+						f"Non-power-of-2 dimensions ({dds.width}x{dds.height}) with MIP maps for {name_ext}")
 			size_info.width = dds.width
 			size_info.height = dds.height
 			size_info.depth = dds.depth
