@@ -2,15 +2,17 @@ import os
 import shutil
 import pathlib
 import logging
-
+import sys
 
 if __name__ == "__main__":
 	from utils.auto_updater import run_update_check
-	run_update_check("pack_tool_gui")
+
+	run_update_check("pack_tool")
 
 from gui import widgets, startup, GuiOptions
 from gui.widgets import window, MenuItem, SeparatorMenuItem
-from utils.config import Config, save_config
+from utils.config import Config, save_config, read_str_dict
+from utils.logs import logging_setup
 from generated.formats.ovl import games, OvlFile
 from modules import walker
 
@@ -19,8 +21,6 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMen
 from PyQt5 import QtWidgets
 from typing import Any, Optional, Callable, Iterable
 
-__version__ = '0.1'
-__author__ = 'Open-Naja'
 
 class PackTool:
 
@@ -31,8 +31,11 @@ class PackTool:
 		# need to use custom getters and setters to inherit, can't overwrite game directly with get/set
 		self._game = [g for g in games][0]
 		self._watching = False
+		self._src_root = ""
+		self._dst_root = ""
 
-	def run_in_threadpool(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
+	@staticmethod
+	def run_in_threadpool(func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
 		print("Skipping threadpool")
 		func(*args, **kwargs)
 		for callback in callbacks:
@@ -42,7 +45,6 @@ class PackTool:
 		root = pathlib.Path(root_folder)
 		return {os.path.relpath(str(p.parent), root_folder) for p in root.rglob('*') if p.is_file()}
 
-
 	def load_config_file(self, config_path):
 		config_dir, config_name = os.path.split(config_path)
 		cfg: Config[str, Any] = Config(config_dir, name=config_name)
@@ -50,12 +52,17 @@ class PackTool:
 		self.cfg.update(cfg)
 		self.apply_from_config(cfg)
 
-
 	def rebuild_folders(self):
 		logging.info(f"Rebuilding {len(self.folders_to_rebuild)} OVLs")
 		for rel_folder in self.folders_to_rebuild:
 			self.pack_folder(rel_folder)
 		self.folders_to_rebuild.clear()
+
+	def game_changed(self, game: Optional[str] = None):
+		if game is None:
+			game = self.game
+		logging.info(f"Setting OVL version to {game}")
+		self.ovl_data.game = game
 
 	def pack_folder(self, rel_folder):
 		src_folder = os.path.join(self.src_root, rel_folder)
@@ -105,7 +112,8 @@ class PackTool:
 			self.ovl_data.extract(out_dir)
 		self.copy_loose_files(self.dst_root, self.src_root)
 
-	def copy_loose_files(self, src_folder, dst_folder):
+	@staticmethod
+	def copy_loose_files(src_folder, dst_folder):
 		for name in ("Manifest.xml", "Readme.md", "Changelog.md", "License"):
 			try:
 				src_path = os.path.join(src_folder, name)
@@ -129,8 +137,91 @@ class PackTool:
 		self.watching = cfg.get("watcher_enabled", False)
 
 
+class PackToolCMD(PackTool):
+
+	def __init__(self):
+		super().__init__()
+		self.run_in_threadpool(self.ovl_data.load_hash_table)
+		print(f"Arguments: {sys.argv[1:]}")
+		if len(sys.argv) < 3:
+			self.usage("Wrong number of arguments.")
+
+		mptfile = sys.argv[1]
+		if os.path.isfile(mptfile):
+			tconfig = read_str_dict(mptfile)
+			self.game = tconfig['game'] or ''
+			self.src_root = tconfig['src_path']
+			self.dst_root = tconfig['dst_path']
+		else:
+			self.game = sys.argv[1]
+			self.src_root = sys.argv[3]
+			self.dst_root = sys.argv[4]
+
+		action = sys.argv[2]
+
+		if action.lower() == 'pack':
+			self.pack_mod()
+		elif action.lower() == 'unpack':
+			self.unpack_mod()
+		else:
+			self.usage("Wrong action")
+		print("done.\n\n")
+
+	@staticmethod
+	def usage(msg):
+		print(f"{msg}\n")
+		print("Usage: pack_tool.py GAMESTR ACTION folder/src_files folder/ovl_files\n")
+		print("* GAMESTR is one of the following:")
+		for game in games:
+			print(f"  - {game.name}")
+		print("* ACTION is one of the following:")
+		print("  - PACK (pack loose files from folder/src_files into folder/ovl_files)")
+		print("  - UNPACK (extract from folder/ovl_files into folder/src_files)")
+		print("")
+		print("Alternatively, you can use a .mptconfig file:")
+		print("Usage: pack_tool.py path/to/.mptconfig ACTION\n")
+		exit()
+
+	@property
+	def game(self):
+		return self._game
+
+	@game.setter
+	def game(self, v):
+		if v not in games._member_map_:
+			self.usage(f"Wrong game string: {v}")
+		self._game = games[v].value
+
+	@property
+	def watching(self):
+		return self._watching
+
+	@watching.setter
+	def watching(self, v):
+		self._watching = v
+
+	@property
+	def src_root(self):
+		return self._src_root
+
+	@src_root.setter
+	def src_root(self, v):
+		if not os.path.isdir(v):
+			self.usage(f"Wrong source path: {v}")
+		self._src_root = v
+
+	@property
+	def dst_root(self):
+		return self._dst_root
+
+	@dst_root.setter
+	def dst_root(self, v):
+		if not os.path.isdir(v):
+			self.usage(f"Wrong destination path: {v}")
+		self._dst_root = v
+
+
 class PackToolGUI(window.MainWindow, PackTool):
-	"""Main's View (GUI)."""
 
 	def __init__(self, opts: GuiOptions):
 
@@ -138,7 +229,7 @@ class PackToolGUI(window.MainWindow, PackTool):
 		super().__init__("PackToolGUI", opts=opts)
 
 		# Set some main window's properties
-		self.setWindowTitle('Pack Tool ' + __version__)
+		self.setWindowTitle('Pack Tool')
 
 		# Setup Menus
 		self.build_menus({
@@ -180,7 +271,8 @@ class PackToolGUI(window.MainWindow, PackTool):
 		self.boxLayout.addWidget(self.watch_btn)
 		self.fs_watcher = QtCore.QFileSystemWatcher()
 
-		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
+		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False,
+												  changed_fn=self.game_changed)
 		self.boxLayout.addWidget(self.ovl_game_choice)
 
 		self.central_layout.addWidget(self.progress)
@@ -192,7 +284,6 @@ class PackToolGUI(window.MainWindow, PackTool):
 		self.reporter.current_action.connect(self.set_progress_message)
 
 		self.ovl_data.reporter = self.reporter
-		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
 		# collect changes from the fs_watcher
 		self.rebuild_timer = QtCore.QTimer()
@@ -268,12 +359,6 @@ class PackToolGUI(window.MainWindow, PackTool):
 			logging.info("No file name selected.")
 			return
 
-	def game_changed(self, game: Optional[str] = None):
-		if game is None:
-			game = self.game
-		logging.info(f"Setting OVL version to {game}")
-		self.ovl_data.game = game
-
 	def directory_dirty(self, watched_folder):
 		# logging.info(f'Detected changes in {watched_folder}')
 		# read the current folder list and add new subfolders to the watcher
@@ -316,7 +401,7 @@ class PackToolGUI(window.MainWindow, PackTool):
 		else:
 			logging.info("Watch disabled")
 			self.fs_watcher.directoryChanged.disconnect(self.directory_dirty)
-			# self.fs_watcher.fileChanged.disconnect(self.file_changed)
+		# self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
 	def watch_settings_changed(self, dirpath):
 		if self.watching:
@@ -326,5 +411,11 @@ class PackToolGUI(window.MainWindow, PackTool):
 
 
 if __name__ == '__main__':
-	startup(PackToolGUI, GuiOptions(log_name="pack_tool_gui", size=(400, 150), check_update=False  # Check update happens at top now
-	))
+	if len(sys.argv) == 1:
+		startup(PackToolGUI,
+				GuiOptions(log_name="pack_tool", size=(400, 150),
+						   check_update=False  # Check update happens at top now
+						   ))
+	else:
+		logging_setup("ovl_tool_cmd")
+		PackToolCMD()
