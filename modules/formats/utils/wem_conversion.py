@@ -3,7 +3,8 @@ import os
 import struct
 import subprocess
 
-from modules.formats.utils import util_dir, check_call_smart
+from modules.formats.utils import util_dir
+from utils.shared import check_call_smart
 
 ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
 pcb = os.path.normpath(os.path.join(util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin"))

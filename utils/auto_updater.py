@@ -10,7 +10,7 @@ import logging
 import subprocess
 from typing import Callable
 
-from modules.formats.utils import prep_arg
+from utils.shared import prep_arg
 from modules.formats.utils.dds_conversion import texconv
 from modules.formats.utils.lua_conversion import luacheck, luadec
 from modules.formats.utils.wem_conversion import ww2ogg, revorb

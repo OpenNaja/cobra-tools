@@ -1,6 +1,7 @@
 import os
 
-from modules.formats.utils import util_dir, check_call_smart
+from modules.formats.utils import util_dir
+from utils.shared import check_call_smart
 
 texconv = os.path.normpath(os.path.join(util_dir, "texconv/texconv.exe"))
 

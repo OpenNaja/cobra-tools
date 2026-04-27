@@ -4,7 +4,6 @@ import os
 import re
 import html
 import glob
-import platform
 import webbrowser
 import shutil
 from functools import cache
@@ -19,8 +18,8 @@ from utils.logs import shorten_str
 
 import vdf
 
-WINDOWS_NATIVE = platform.system() == "Windows" and 'WINEPREFIX' not in os.environ
-WINDOWS_WINE = platform.system() == "Windows" and 'WINEPREFIX' in os.environ
+from utils.shared import WINDOWS_NATIVE, WINDOWS_WINE
+
 # Windows modules, available through wine
 try:
     import winreg
@@ -465,7 +464,7 @@ def launch_editor(editor_config, file_location, target_line_number) -> bool:
 
 # from https://stackoverflow.com/questions/64252654/pyqt5-drag-and-drop-into-system-file-explorer-with-delayed-encoding?noredirect=1&lq=1
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
 
 import os
 

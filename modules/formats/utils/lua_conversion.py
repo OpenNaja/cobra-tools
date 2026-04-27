@@ -4,8 +4,8 @@ import re
 import subprocess
 import sys
 
-from modules.formats.utils import util_dir, prep_arg
-from utils.shared import check_any
+from modules.formats.utils import util_dir
+from utils.shared import check_any, prep_arg
 
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
 luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
