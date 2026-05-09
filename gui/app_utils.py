@@ -18,7 +18,7 @@ from utils.logs import shorten_str
 
 import vdf
 
-from utils.shared import WINDOWS_NATIVE, WINDOWS_WINE
+from utils.shared import IS_LINUX, IS_MACOS, IS_WINDOWS, WINDOWS_NATIVE, WINDOWS_WINE
 
 # Windows modules, available through wine
 try:
@@ -242,23 +242,25 @@ def url_to_html(raw_line: str) -> str:
 # region ------------------------------------------------------------------- #
 
 def get_steam_path() -> str | None:
-    if WINDOWS_NATIVE:
-        # get steam folder from Windows registry
+    if IS_WINDOWS:
+        # Wine-Python falls through here too; wine emulates the registry.
         try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
             steam_query = winreg.QueryValueEx(hkey, "InstallPath")
-            # get path to steam games folder
-            # C:\\Program Files (x86)\\Steam
             return cast(str, steam_query[0])
-        except FileNotFoundError:
-            logging.warning(f"Steam folder not found in Windows registry")
-            return "C:\\Program Files (x86)\\Steam"
-    else:
-        logging.warning(f"Can only reliably get games from Steam on Windows")
-        if WINDOWS_WINE:
-            return "~\\.local\\share\\Steam"
-        else:
-            return "~\\.local\\share\\Steam"
+        except (FileNotFoundError, OSError):
+            logging.warning("Steam folder not found in Windows registry")
+            return r"C:\Program Files (x86)\Steam"
+    if IS_LINUX:
+        # ~/.steam/steam is typically a symlink to ~/.local/share/Steam; check both.
+        for candidate in ("~/.local/share/Steam", "~/.steam/steam"):
+            path = os.path.expanduser(candidate)
+            if os.path.isdir(path):
+                return path
+        return os.path.expanduser("~/.local/share/Steam")
+    if IS_MACOS:
+        return os.path.expanduser("~/Library/Application Support/Steam")
+    return None
 
 
 def get_installed_games(games_list: list[str]) -> dict[str, str]:
@@ -287,16 +289,15 @@ def get_installed_games(games_list: list[str]) -> dict[str, str]:
             if os.path.isdir(apps_path):
                 store_games(fdev_games, games_list, apps_path, "win64", "ovldata")
 
-    # xbox game pass
-    game_pass_path = "C:/XboxGames"
-    if os.path.isdir(game_pass_path):
-        # content subfolder
-        store_games(fdev_games, games_list, game_pass_path, "content", "win64", "ovldata")
+    # Xbox Game Pass and Epic Games launchers exist only on Windows.
+    if IS_WINDOWS:
+        xbox_path = os.path.join("C:" + os.sep, "XboxGames")
+        if os.path.isdir(xbox_path):
+            store_games(fdev_games, games_list, xbox_path, "content", "win64", "ovldata")
 
-    # Epic
-    game_pass_path = "C:/Program Files/Epic Games"
-    if os.path.isdir(game_pass_path):
-        store_games(fdev_games, games_list, game_pass_path, "win64", "ovldata")
+        epic_path = os.path.join("C:" + os.sep, "Program Files", "Epic Games")
+        if os.path.isdir(epic_path):
+            store_games(fdev_games, games_list, epic_path, "win64", "ovldata")
 
     logging.info(f"Found {len(fdev_games)} installed Cobra games")
     return fdev_games
