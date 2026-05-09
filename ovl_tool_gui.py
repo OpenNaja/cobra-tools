@@ -10,13 +10,13 @@ if __name__ == "__main__":
 	# Guard to hide from pytest or other imports
 	from gui.tools.dev_tools import setup_dev_diagnostics
 	setup_dev_diagnostics()
-	from utils.auto_updater import run_update_check
+	from gui.auto_updater import run_update_check
 	run_update_check("ovl_tool_gui")
 
 	# TODO: Temporary location until logs.py code is fixed
 	CONFIG_VERSION = "1.0.2"
 	# --- MIGRATION ---
-	from utils.migrator import Migrator
+	from gui.migrator import Migrator
 	migrator = Migrator("config.json", CONFIG_VERSION)
 	migrator.run()
 

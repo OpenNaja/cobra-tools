@@ -7,8 +7,22 @@ from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
 
-from utils import auto_updater, logs
+from utils import logs
 from utils.config import save_config
+from . import auto_updater
+
+
+def is_dev_environment():
+	"""
+	Checks if running in a development environment
+	"""
+	try:
+		from importlib.util import find_spec
+		has_git = (root_dir / ".git").is_dir()
+		has_pytest = find_spec("pytest")
+		return has_git and has_pytest
+	except Exception:
+		return False
 
 if TYPE_CHECKING:
 	from gui.widgets import MainWindow

@@ -5,7 +5,7 @@ import logging
 import sys
 
 if __name__ == "__main__":
-	from utils.auto_updater import run_update_check
+	from gui.auto_updater import run_update_check
 
 	run_update_check("pack_tool")
 

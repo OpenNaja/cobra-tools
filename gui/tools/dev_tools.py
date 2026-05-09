@@ -2,7 +2,7 @@ import sys
 from pathlib import PurePath
 from typing import TYPE_CHECKING
 
-from utils import is_dev_environment
+from gui import is_dev_environment
 
 try:
 	import faulthandler

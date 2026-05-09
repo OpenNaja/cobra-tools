@@ -5,7 +5,7 @@ from packaging.version import parse, Version
 from typing import TYPE_CHECKING, Callable, TypeAlias
 
 from utils import root_dir
-from utils.auto_updater import install_prompt, pip_install, pip_upgrade
+from .auto_updater import install_prompt, pip_install, pip_upgrade
 from utils.config import load_config, save_config
 
 MigrationFunc: TypeAlias = Callable[[dict], None]
@@ -157,7 +157,7 @@ class Migrator:
 		collects them, runs them, and saves the config as needed.
 		"""
 		# Import and collect migrations
-		import utils.migrations  
+		from . import migrations  # noqa: F401  (registers @Migrator.register decorators)
 		self._collect_migrations()
 
 		if self._fresh_install:
