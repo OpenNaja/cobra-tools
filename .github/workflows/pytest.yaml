@@ -16,10 +16,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         python-version: ["3.11"]
 
-    steps:  
+    steps:
       - uses: actions/checkout@v3
       - name: Set Up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -33,8 +33,12 @@ jobs:
       - name: Install GitHub plugins
         run: |
           pip install pytest-github-actions-annotate-failures
-      - name: Run Tests
+      - name: Run Tests (Windows)
+        if: matrix.os == 'windows-latest'
         run: pytest
+      - name: Run Tests (Linux - codegen + platform only)
+        if: matrix.os == 'ubuntu-latest'
+        run: pytest tests/test_codegen tests/test_platform
 
   run-pytest-verbose:
     runs-on: ${{ matrix.os }}
