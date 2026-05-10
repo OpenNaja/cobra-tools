@@ -16,10 +16,12 @@ from utils import shared
 from utils.shared import (
 	BinaryNotAvailableError,
 	argv_for_binary,
+	invocation_for_binary,
 	register_binary,
 	requires_binary,
 	resolve_binary,
 	run_binary,
+	winepath,
 )
 
 
@@ -182,3 +184,86 @@ def test_binary_not_available_error_message():
 	assert "no PATH entry" in str(err)
 	assert err.name == "texconv"
 	assert err.reason == "no PATH entry"
+
+
+# --- wine path translation -------------------------------------------------- #
+
+
+def test_winepath_translates_posix_absolute_on_unix():
+	"""POSIX-absolute paths get the Z: drive prefix and backslash separators on non-Windows."""
+	with patch.object(shared, "IS_WINDOWS", False):
+		assert winepath("/home/user/foo.dds") == r"Z:\home\user\foo.dds"
+		assert winepath("/tmp/out") == r"Z:\tmp\out"
+
+
+def test_winepath_no_op_on_windows():
+	"""On Windows-Python (native or Wine), winepath returns its input unchanged so we don't
+	clobber drive-letter paths that Wine-Python sees natively."""
+	with patch.object(shared, "IS_WINDOWS", True):
+		assert winepath("/home/user/foo.dds") == "/home/user/foo.dds"
+		assert winepath(r"C:\Users\foo") == r"C:\Users\foo"
+
+
+def test_winepath_no_op_for_relative_paths_and_flags():
+	"""Non-POSIX-absolute strings (relative paths, flags, plain values) pass through verbatim."""
+	with patch.object(shared, "IS_WINDOWS", False):
+		assert winepath("-y") == "-y"
+		assert winepath("relative/path") == "relative/path"
+		assert winepath("png") == "png"
+		assert winepath("") == ""
+
+
+# --- invocation_for_binary -------------------------------------------------- #
+
+
+def test_invocation_for_binary_native_returns_identity_translator():
+	"""Native PATH binary: translator is identity; argv has no wine prefix."""
+	with patch("utils.shared.shutil.which", return_value="/usr/local/bin/luadec"):
+		argv, translator = invocation_for_binary("luadec")
+	assert argv == ["/usr/local/bin/luadec"]
+	assert translator("/some/path") == "/some/path"
+
+
+def test_invocation_for_binary_wine_returns_winepath_translator(tmp_path):
+	"""Wine invocation: translator is winepath; argv is wine-prefixed."""
+	fake_exe = tmp_path / "luadec.exe"
+	fake_exe.write_bytes(b"")
+	register_binary("luadec", str(fake_exe))
+	# Translator must be invoked while IS_WINDOWS is mocked False; otherwise on a Windows
+	# host winepath sees the real IS_WINDOWS=True and returns the input unchanged.
+	with patch("utils.shared.shutil.which", return_value=None), \
+		patch.object(shared, "IS_WINDOWS", False), \
+		patch.object(shared, "WINE_AVAILABLE", True):
+		argv, translator = invocation_for_binary("luadec")
+		assert argv == ["wine", str(fake_exe)]
+		assert translator("/home/user/foo.bin") == r"Z:\home\user\foo.bin"
+
+
+# --- run_binary auto-translation -------------------------------------------- #
+
+
+def test_run_binary_translates_posix_path_args_under_wine(tmp_path):
+	"""When invoking via wine, POSIX-absolute path args are converted to Z: drive form."""
+	fake_exe = tmp_path / "texconv.exe"
+	fake_exe.write_bytes(b"")
+	register_binary("texconv", str(fake_exe))
+	with patch("utils.shared.shutil.which", return_value=None), \
+		patch.object(shared, "IS_WINDOWS", False), \
+		patch.object(shared, "WINE_AVAILABLE", True), \
+		patch("utils.shared.subprocess.run") as mock_run:
+		run_binary("texconv", ["-y", "-o", "/tmp/out", "/home/user/in.dds"])
+	mock_run.assert_called_once_with(
+		["wine", str(fake_exe), "-y", "-o", r"Z:\tmp\out", r"Z:\home\user\in.dds"],
+		check=True,
+	)
+
+
+def test_run_binary_does_not_translate_native_invocation():
+	"""Native PATH binary: POSIX paths passed through unchanged (native binary speaks POSIX)."""
+	with patch("utils.shared.shutil.which", return_value="/usr/local/bin/texconv"), \
+		patch("utils.shared.subprocess.run") as mock_run:
+		run_binary("texconv", ["-o", "/tmp/out", "/home/user/in.dds"])
+	mock_run.assert_called_once_with(
+		["/usr/local/bin/texconv", "-o", "/tmp/out", "/home/user/in.dds"],
+		check=True,
+	)

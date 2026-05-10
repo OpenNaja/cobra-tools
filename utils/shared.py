@@ -5,6 +5,7 @@ import os
 import platform
 import shutil
 import subprocess
+from typing import Callable
 
 
 _SYSTEM = platform.system()
@@ -90,6 +91,27 @@ def _missing_reason(name: str) -> str:
 	return f"{name!r} not on PATH and `wine` is unavailable to run the vendored .exe"
 
 
+def winepath(path: str) -> str:
+	"""Translate a POSIX absolute path to the wine ``Z:`` drive form.
+
+	``/home/user/foo.dds`` becomes ``Z:\\home\\user\\foo.dds`` so that a Windows .exe
+	invoked through wine can resolve the file. No-op on Windows-Python (native or Wine-
+	Python) and for paths that aren't POSIX-absolute (relative paths, flags, drive-letter
+	paths).
+
+	Use this only when invoking a Windows binary through wine — native Linux/macOS
+	binaries take POSIX paths unchanged. :func:`run_binary` and
+	:func:`invocation_for_binary` apply it automatically when needed.
+	"""
+	if IS_WINDOWS or not path.startswith("/"):
+		return path
+	return "Z:" + path.replace("/", "\\")
+
+
+def _identity_path(path: str) -> str:
+	return path
+
+
 def argv_for_binary(name: str) -> list[str]:
 	"""Return the argv prefix for invoking ``name`` via subprocess.
 
@@ -107,14 +129,35 @@ def argv_for_binary(name: str) -> list[str]:
 	return [resolved]
 
 
+def invocation_for_binary(name: str) -> tuple[list[str], Callable[[str], str]]:
+	"""Return ``(argv_prefix, path_translator)`` for invoking ``name``.
+
+	The path translator must be applied to every path-style argument before constructing
+	the final command. When the invocation is going through wine, ``path_translator`` is
+	:func:`winepath`; otherwise it's the identity function.
+
+	Use this for callers that bypass :func:`run_binary` (e.g. ``subprocess.Popen`` for
+	stdout streaming or output parsing) and need the same translation contract.
+	"""
+	argv = argv_for_binary(name)
+	if argv[0] == "wine":
+		return argv, winepath
+	return argv, _identity_path
+
+
 def run_binary(name: str, args: list[str], **kwargs) -> "subprocess.CompletedProcess":
 	"""subprocess.run wrapper that resolves ``name`` and invokes it with ``args``.
 
 	Defaults to ``check=True`` (raises CalledProcessError on non-zero exit). Pass
 	``capture_output=True`` to capture stdout/stderr, ``timeout=N`` for a deadline, etc.
 	Raises :class:`BinaryNotAvailableError` before invocation if ``name`` cannot be resolved.
+
+	When invoking via wine, POSIX-absolute path arguments in ``args`` are auto-translated
+	to wine ``Z:`` drive form (see :func:`winepath`); other arguments pass through verbatim.
 	"""
-	cmd = [*argv_for_binary(name), *args]
+	argv, to_argpath = invocation_for_binary(name)
+	translated_args = [to_argpath(a) if isinstance(a, str) else a for a in args]
+	cmd = [*argv, *translated_args]
 	return subprocess.run(cmd, **{"check": True, **kwargs})
 
 

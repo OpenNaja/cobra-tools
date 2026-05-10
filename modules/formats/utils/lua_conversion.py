@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 from modules.formats.utils import util_dir
-from utils.shared import argv_for_binary, check_any, register_binary, requires_binary
+from utils.shared import check_any, invocation_for_binary, register_binary, requires_binary
 
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
 luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
@@ -59,9 +59,10 @@ def sanitize_lua_content(content: bytes) -> bytes:
 @requires_binary("luadec")
 def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, None]:
 	file_name = os.path.basename(bin_path)
-	luadec_argv = argv_for_binary("luadec")
+	luadec_argv, to_argpath = invocation_for_binary("luadec")
+	wined_bin_path = to_argpath(bin_path)
 	for extra_args in ([], ["-s"]):
-		cmd = [*luadec_argv, *extra_args, bin_path]
+		cmd = [*luadec_argv, *extra_args, wined_bin_path]
 		try:
 			proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, err = proc.communicate(timeout=DECOMPILE_TIMEOUT)
@@ -107,7 +108,11 @@ def check_lua_syntax(lua_path):
 		# https://luacheck.readthedocs.io/en/stable/cli.html
 		# https://luacheck.readthedocs.io/en/stable/warnings.html
 		# https://stackoverflow.com/questions/49158143/how-to-ignore-luacheck-warnings
-		cmd = [*argv_for_binary("luacheck"), lua_path, "--codes"]
+		luacheck_argv, to_argpath = invocation_for_binary("luacheck")
+		# Use the translated path for both the invocation and the output line-prefix match,
+		# since luacheck echoes whichever form it received.
+		wined_lua_path = to_argpath(lua_path)
+		cmd = [*luacheck_argv, wined_lua_path, "--codes"]
 		lua_name = os.path.basename(lua_path)
 		# capture the console output
 		bytes_output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
@@ -115,8 +120,8 @@ def check_lua_syntax(lua_path):
 		output = bytes_output.decode(sys.getdefaultencoding(), errors="surrogateescape")
 		lines = [line.strip() for line in output.split("\r\n")]
 		for line in lines:
-			if line.startswith(lua_path):
-				line_nr, col_nr, info = line.replace(lua_path + ":", "").split(":", 3)
+			if line.startswith(wined_lua_path):
+				line_nr, col_nr, info = line.replace(wined_lua_path + ":", "").split(":", 3)
 				match = re.search(r"[EW][0-9]+", info, flags=0)
 				error_code = int(match.group(0).lstrip("EW"))
 				msg = f"{lua_name}: line {line_nr}, column {col_nr}: {info.strip()}"
