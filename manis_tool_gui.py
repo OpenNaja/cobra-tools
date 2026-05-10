@@ -4,7 +4,7 @@ import logging
 
 if __name__ == "__main__":
 	# Guard to hide from pytest or other imports
-	from utils.auto_updater import run_update_check
+	from gui.auto_updater import run_update_check
 	run_update_check("manis_tool_gui")
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!

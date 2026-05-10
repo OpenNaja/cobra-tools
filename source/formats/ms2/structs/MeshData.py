@@ -5,7 +5,7 @@ import math
 import numpy as np
 
 from generated.formats.ms2.structs.packing_utils import FUR_OVERHEAD, remap
-from plugin.utils.tristrip import triangulate, stripify
+from utils.tristrip import triangulate, stripify
 
 
 # END_GLOBALS

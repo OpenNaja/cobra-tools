@@ -4,11 +4,14 @@ import struct
 import subprocess
 
 from modules.formats.utils import util_dir
-from utils.shared import check_call_smart
+from utils.shared import register_binary, requires_binary, run_binary
 
 ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
 pcb = os.path.normpath(os.path.join(util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin"))
 revorb = os.path.normpath(os.path.join(util_dir, "revorb/revorb.exe"))
+
+register_binary("ww2ogg", ww2ogg)
+register_binary("revorb", revorb)
 
 
 def write_riff_file(riff_buffer, out_file_path):
@@ -38,11 +41,13 @@ def write_riff_file(riff_buffer, out_file_path):
 		logging.warning(f"Unknown resource format {f_type} in {out_file_path}! Please report to the devs!")
 
 
+@requires_binary("ww2ogg")
+@requires_binary("revorb")
 def wem_to_ogg(wem_file, out_file):
 	try:
 		output = out_file + ".ogg"
-		check_call_smart([ww2ogg, wem_file, "-o", output, "--pcb", pcb, ])
-		check_call_smart([revorb, output])
+		run_binary("ww2ogg", [wem_file, "-o", output, "--pcb", pcb])
+		run_binary("revorb", [output])
 		return output
 	except subprocess.CalledProcessError as err:
 		# Input: C:\Users\arnfi\AppData\Local\Temp\tmp_e_wg2dg-cobra-dds\buildings_media_B06CD10C.wem

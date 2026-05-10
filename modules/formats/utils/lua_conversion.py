@@ -5,10 +5,14 @@ import subprocess
 import sys
 
 from modules.formats.utils import util_dir
-from utils.shared import check_any, prep_arg
+from utils.shared import check_any, invocation_for_binary, register_binary, requires_binary
 
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
 luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
+
+register_binary("luadec", luadec)
+register_binary("luacheck", luacheck)
+
 DECOMPILE_TIMEOUT = 10
 PREFAB_ROOT = b"l_0_2"
 BYTE_REPLACEMENTS_PREFAB = [
@@ -52,11 +56,15 @@ def sanitize_lua_content(content: bytes) -> bytes:
 	return content
 
 
+@requires_binary("luadec")
 def bin_to_lua(bin_path) -> tuple[bytes, str] | tuple[None, str] | tuple[None, None]:
 	file_name = os.path.basename(bin_path)
-	for call_sig in (f'"{luadec}" "{bin_path}"', f'"{luadec}" -s "{bin_path}"'):
+	luadec_argv, to_argpath = invocation_for_binary("luadec")
+	wined_bin_path = to_argpath(bin_path)
+	for extra_args in ([], ["-s"]):
+		cmd = [*luadec_argv, *extra_args, wined_bin_path]
 		try:
-			proc = subprocess.Popen(prep_arg(call_sig), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			output, err = proc.communicate(timeout=DECOMPILE_TIMEOUT)
 			err_msg = err.decode(errors='ignore').strip()
 			if output:
@@ -94,21 +102,26 @@ def filter_error_code(error_code: int, msg: str) -> bool:
 	return check_any(filters, msg)
 
 
+@requires_binary("luacheck")
 def check_lua_syntax(lua_path):
 	try:
 		# https://luacheck.readthedocs.io/en/stable/cli.html
 		# https://luacheck.readthedocs.io/en/stable/warnings.html
 		# https://stackoverflow.com/questions/49158143/how-to-ignore-luacheck-warnings
-		function_string = f'"{luacheck}" "{lua_path}" --codes'
+		luacheck_argv, to_argpath = invocation_for_binary("luacheck")
+		# Use the translated path for both the invocation and the output line-prefix match,
+		# since luacheck echoes whichever form it received.
+		wined_lua_path = to_argpath(lua_path)
+		cmd = [*luacheck_argv, wined_lua_path, "--codes"]
 		lua_name = os.path.basename(lua_path)
 		# capture the console output
-		bytes_output = subprocess.Popen(prep_arg(function_string), stdout=subprocess.PIPE).communicate()[0]
+		bytes_output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 		# luacheck doesn't seem to handle non-ASCII chars when printing lua_path, so just escape them
 		output = bytes_output.decode(sys.getdefaultencoding(), errors="surrogateescape")
 		lines = [line.strip() for line in output.split("\r\n")]
 		for line in lines:
-			if line.startswith(lua_path):
-				line_nr, col_nr, info = line.replace(lua_path + ":", "").split(":", 3)
+			if line.startswith(wined_lua_path):
+				line_nr, col_nr, info = line.replace(wined_lua_path + ":", "").split(":", 3)
 				match = re.search(r"[EW][0-9]+", info, flags=0)
 				error_code = int(match.group(0).lstrip("EW"))
 				msg = f"{lua_name}: line {line_nr}, column {col_nr}: {info.strip()}"
