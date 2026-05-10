@@ -10,10 +10,11 @@ import logging
 import subprocess
 from typing import Callable
 
-from utils.shared import prep_arg
-from modules.formats.utils.dds_conversion import texconv
-from modules.formats.utils.lua_conversion import luacheck, luadec
-from modules.formats.utils.wem_conversion import ww2ogg, revorb
+from utils.shared import BinaryNotAvailableError, argv_for_binary
+# Importing the conversion modules registers their vendored binaries via register_binary.
+import modules.formats.utils.dds_conversion  # noqa: F401
+import modules.formats.utils.lua_conversion  # noqa: F401
+import modules.formats.utils.wem_conversion  # noqa: F401
 from utils.logs import ANSI
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -235,20 +236,25 @@ def run_update_check(tool_name: str) -> list[str] | None:
         logging.debug("All modules verified successfully")
 
         logging.debug("Verifying all external programs work")
-        for exe_path, magic in (
-                (texconv, b"DirectX Texture Converter"),
-                (luacheck, b"Usage: luacheck"),
-                (luadec, b"LuaDec 2.2 rev:  for Lua 5.3"),
-                (ww2ogg, b"Vorbis to Ogg Vorbis converter 0.24"),
-                (revorb, b"Recomputes page granule positions"),
+        for binary_name, magic in (
+                ("texconv", b"DirectX Texture Converter"),
+                ("luacheck", b"Usage: luacheck"),
+                ("luadec", b"LuaDec 2.2 rev:  for Lua 5.3"),
+                ("ww2ogg", b"Vorbis to Ogg Vorbis converter 0.24"),
+                ("revorb", b"Recomputes page granule positions"),
                 ):
             try:
-                proc = subprocess.Popen(prep_arg(exe_path), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                argv = argv_for_binary(binary_name)
+            except BinaryNotAvailableError as err:
+                logging.warning(f"{binary_name}: {err}")
+                continue
+            try:
+                proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 output, err = proc.communicate()
                 if magic not in output and magic not in err:
                     raise ImportError(f"Magic not found in process output")
-            except:
-                logging.error(f"Executable {exe_path} could not run")
+            except Exception:
+                logging.error(f"Executable {binary_name} could not run")
         
         return MODULES
     except FileNotFoundError:

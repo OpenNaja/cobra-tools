@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import functools
 import os
 import platform
 import shutil
@@ -41,47 +44,92 @@ def _is_windows_exe(path: str) -> bool:
 	return isinstance(path, str) and path.lower().endswith(".exe")
 
 
-def _first_token(arg: str) -> str:
-	"""Return the first whitespace-separated token of ``arg``, with surrounding quotes stripped."""
-	stripped = arg.strip()
-	if not stripped:
-		return ""
-	if stripped[0] in ('"', "'"):
-		quote = stripped[0]
-		end = stripped.find(quote, 1)
-		return stripped[1:end] if end != -1 else stripped[1:]
-	return stripped.split(None, 1)[0]
+# --- Vendored-binary registry & PATH-aware resolver ---
+
+_VENDORED_BINARIES: dict[str, str] = {}
 
 
-def check_call_smart(args: list[str]):
-	"""subprocess.check_call wrapper that prefixes ``wine`` when invoking a Windows .exe
-	from a Wine-Python or non-Windows Python. Raises BinaryNotAvailableError on non-Windows
-	when the .exe target can't be reached (no wine on PATH)."""
-	if not args:
-		raise ValueError("check_call_smart requires at least one argument")
-	if WINDOWS_WINE:
-		args = ["wine", *args]
-	elif (not IS_WINDOWS) and _is_windows_exe(args[0]):
-		if not WINE_AVAILABLE:
-			raise BinaryNotAvailableError(
-				args[0],
-				"Windows .exe targets need either a Windows host or `wine` on PATH",
-			)
-		args = ["wine", *args]
-	subprocess.check_call(args)
+def register_binary(name: str, vendored_path: str) -> None:
+	"""Register a vendored binary path used as a fallback when ``name`` is not on PATH.
+
+	Each conversion module calls this at import time, e.g.:
+
+		register_binary("texconv", os.path.join(util_dir, "texconv/texconv.exe"))
+	"""
+	_VENDORED_BINARIES[name] = vendored_path
 
 
-def prep_arg(arg: str):
-	"""Prefix ``arg`` (a single shell-style command string) with ``wine `` when invoking a
-	Windows .exe from a Wine-Python or non-Windows Python. Mirrors check_call_smart for
-	callers that pass commands to subprocess.Popen as a single string."""
-	if WINDOWS_WINE:
-		return "wine " + arg
-	if not IS_WINDOWS and _is_windows_exe(_first_token(arg)):
-		if not WINE_AVAILABLE:
-			raise BinaryNotAvailableError(
-				_first_token(arg),
-				"Windows .exe targets need either a Windows host or `wine` on PATH",
-			)
-		return "wine " + arg
-	return arg
+def resolve_binary(name: str) -> str | None:
+	"""Resolve ``name`` to a runnable absolute path, or None if unreachable.
+
+	Lookup order:
+	  1. ``shutil.which(name)`` — Linux/macOS native install or Windows-on-PATH.
+	  2. ``shutil.which(name + ".exe")`` — defensive on Windows where PATHEXT usually handles it.
+	  3. The vendored fallback registered via :func:`register_binary`. Only returned on
+	     Windows or when ``WINE_AVAILABLE`` is True (so wine can run the .exe).
+	"""
+	on_path = shutil.which(name)
+	if on_path:
+		return on_path
+	if IS_WINDOWS:
+		on_path_exe = shutil.which(f"{name}.exe")
+		if on_path_exe:
+			return on_path_exe
+	fallback = _VENDORED_BINARIES.get(name)
+	if fallback and os.path.isfile(fallback):
+		if IS_WINDOWS or WINE_AVAILABLE:
+			return fallback
+	return None
+
+
+def _missing_reason(name: str) -> str:
+	if IS_WINDOWS:
+		return f"{name!r} not on PATH and no vendored fallback found"
+	if WINE_AVAILABLE:
+		return f"{name!r} not on PATH and no vendored fallback found"
+	return f"{name!r} not on PATH and `wine` is unavailable to run the vendored .exe"
+
+
+def argv_for_binary(name: str) -> list[str]:
+	"""Return the argv prefix for invoking ``name`` via subprocess.
+
+	Use as: ``cmd = [*argv_for_binary("texconv"), "-y", "-ft", "png", ...]``.
+
+	Raises :class:`BinaryNotAvailableError` if no source is reachable. When the resolved
+	path is a Windows .exe and we're on a non-Windows or Wine-Python interpreter, the
+	returned list is prefixed with ``"wine"``.
+	"""
+	resolved = resolve_binary(name)
+	if resolved is None:
+		raise BinaryNotAvailableError(name, _missing_reason(name))
+	if WINDOWS_WINE or ((not IS_WINDOWS) and _is_windows_exe(resolved)):
+		return ["wine", resolved]
+	return [resolved]
+
+
+def run_binary(name: str, args: list[str], **kwargs) -> "subprocess.CompletedProcess":
+	"""subprocess.run wrapper that resolves ``name`` and invokes it with ``args``.
+
+	Defaults to ``check=True`` (raises CalledProcessError on non-zero exit). Pass
+	``capture_output=True`` to capture stdout/stderr, ``timeout=N`` for a deadline, etc.
+	Raises :class:`BinaryNotAvailableError` before invocation if ``name`` cannot be resolved.
+	"""
+	cmd = [*argv_for_binary(name), *args]
+	return subprocess.run(cmd, **{"check": True, **kwargs})
+
+
+def requires_binary(name: str):
+	"""Decorator: validates that ``name`` is reachable before invoking the wrapped function.
+
+	Pairs with :func:`register_binary` at module load. On miss, fails at the function-entry
+	boundary with :class:`BinaryNotAvailableError` so callers learn early which feature is
+	missing instead of debugging a mid-subprocess error.
+	"""
+	def deco(fn):
+		@functools.wraps(fn)
+		def wrapper(*args, **kw):
+			if resolve_binary(name) is None:
+				raise BinaryNotAvailableError(name, _missing_reason(name))
+			return fn(*args, **kw)
+		return wrapper
+	return deco
