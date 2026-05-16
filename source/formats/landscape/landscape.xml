@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat>
+
+	<token name="verexpr" attrs="vercond">
+		<verexpr token="#DLA#" string="(#VER# #EQ# 21)">DLA</verexpr>
+		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 21)">ZTUAC</verexpr>
+	</token>
+
+	<token name="global" attrs="vercond access">
+		Global Tokens.
+		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+		<global token="#VER#" string="version" />
+	</token>
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+	<!-- set latest occurence of a version number in a game first so that that is set by the setters -->
+	<version id="DLA" version="21" >Disneyland Adventures</version>
+	<version id="ZTUAC" version="21" >Zoo Tycoon</version>
+	
+	<struct name="LandscapeRoot" inherit="MemStruct">
+		232 bytes
+		<field name="pointers1" type="uint64" arr1="13"/>
+		<field name="buffer_pointers" type="ArrayPointer" template="BufferPresence" arg="3">links buffers to ms2 dependencies if they are streamed</field>
+		<field name="pointers2" type="uint64" arr1="9"/>
+		<field name="floats" type="float" arr1="2"/>
+		<field name="rest" type="ubyte" arr1="6"/>
+		<field name="name_buffer_size" type="ushort"/>
+		<field name="rest2" type="ushort" arr1="8"/>
+		<field name="things_count" type="ushort"/>
+		<field name="rest3" type="ushort" arr1="7"/>
+	</struct>
+
+	<struct name="BufferPresence" inherit="MemStruct">
+		<field name="dependency_name" type="Pointer" >in DLA and JWE2, this can be a dependency to a model2stream</field>
+	</struct>
+
+	<struct name="Buffer0" >
+		<field name="names" type="ZStringBuffer" arg="#ARG#\name_buffer_size"/>
+		<field name="names padding" type="PadAlign" template="names" arg="8"/>
+		<field name="floats" type="float" arr1="14"/>maybe counted
+		<field name="stuff" type="uint" arr1="30"/>
+		<field name="name_indices" type="uint" arr1="#ARG#\things_count"/>
+		rest is unk
+	</struct>
+
+</fileformat>
