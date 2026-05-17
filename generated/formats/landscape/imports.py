@@ -46,7 +46,11 @@ type_module_name_map = {
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
 	'LandscapeRoot': 'generated.formats.landscape.structs.LandscapeRoot',
 	'BufferPresence': 'generated.formats.landscape.structs.BufferPresence',
+	'Struct0': 'generated.formats.landscape.structs.Struct0',
+	'Struct2': 'generated.formats.landscape.structs.Struct2',
+	'Pass': 'generated.formats.landscape.structs.Pass',
 	'Buffer0': 'generated.formats.landscape.structs.Buffer0',
+	'Buffer1': 'generated.formats.landscape.structs.Buffer1',
 }
 
 name_type_map = {}

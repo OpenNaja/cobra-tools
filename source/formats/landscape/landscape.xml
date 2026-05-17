@@ -24,7 +24,9 @@
 		<field name="pointers1" type="uint64" arr1="13"/>
 		<field name="buffer_pointers" type="ArrayPointer" template="BufferPresence" arg="3">links buffers to ms2 dependencies if they are streamed</field>
 		<field name="pointers2" type="uint64" arr1="9"/>
-		<field name="floats" type="float" arr1="2"/>
+		<field name="size" type="uint" />
+		<field name="a" type="ushort" />
+		<field name="b" type="ushort" />
 		<field name="rest" type="ubyte" arr1="6"/>
 		<field name="name_buffer_size" type="ushort"/>
 		<field name="rest2" type="ushort" arr1="8"/>
@@ -36,12 +38,42 @@
 		<field name="dependency_name" type="Pointer" >in DLA and JWE2, this can be a dependency to a model2stream</field>
 	</struct>
 
+	<struct name="Struct0" >
+		<field name="vec" type="Vector3" />
+		<field name="unk" type="ubyte" arr1="4"/>
+	</struct>
+
+	<struct name="Struct2" >
+		224 bytes
+		<field name="a" type="uint64" arr1="15"/>
+		<field name="floats" type="float" arr1="4" arr2="3"/>
+		<field name="c" type="uint" arr1="14"/>
+	</struct>
+	<struct name="Pass" >
+		8 bytes
+		<field name="name_offset" type="uint" />
+		<field name="a" type="ushort" />
+		<field name="b" type="ushort" />
+	</struct>
+
 	<struct name="Buffer0" >
 		<field name="names" type="ZStringBuffer" arg="#ARG#\name_buffer_size"/>
 		<field name="names padding" type="PadAlign" template="names" arg="8"/>
 		<field name="floats" type="float" arr1="14"/>maybe counted
 		<field name="stuff" type="uint" arr1="30"/>
-		<field name="name_indices" type="uint" arr1="#ARG#\things_count"/>
+		<field name="name_offsets" type="uint" arr1="#ARG#\things_count"/>
+		<field name="unk" type="ubyte" arr1="756"/>
+		<field name="passes" type="Pass" arr1="21"/>
+		<field name="unk2" type="ushort" arr1="90"/>
+		<field name="vecs" type="float" arr1="81" arr2="3"/>
+		<field name="unk3" type="ushort" arr1="170"/>
+		<field name="unk4" type="Struct0" arr1="54"/>
+		rest is unk
+	</struct>
+
+
+	<struct name="Buffer1" >
+		<field name="unk5" type="Struct2" arr1="5"/>
 		rest is unk
 	</struct>
 

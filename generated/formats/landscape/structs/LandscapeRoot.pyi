@@ -8,7 +8,9 @@ class LandscapeRoot(MemStruct):
     pointers_1: Array[int]
     buffer_pointers: ArrayPointer[BufferPresence]
     pointers_2: Array[int]
-    floats: Array[float]
+    size: int
+    a: int
+    b: int
     rest: Array[int]
     name_buffer_size: int
     rest_2: Array[int]
