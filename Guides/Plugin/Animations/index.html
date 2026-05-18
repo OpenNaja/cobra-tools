@@ -1374,15 +1374,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#scaling" class="md-nav__link">
-    <span class="md-ellipsis">
-      Scaling
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#manis-editor" class="md-nav__link">
     <span class="md-ellipsis">
       Manis Editor
@@ -1891,13 +1882,6 @@
 <li>If you plan on editing only some animations of a <code>.manis</code>, insert the modified (= uncompressed) ones into the compressed <code>.manis</code> file using the <a href="#manis-editor">Manis Editor</a>.</li>
 </ul>
 </div>
-<h3 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h3>
-<p>A command line script is provided to scale compressed animations and ms2 models by a given factor. Call it from a CMD or PowerShell window like this:</p>
-<div class="admonition example">
-<p class="admonition-title">CMD</p>
-<p><code>python resize_manis_cmd.py [FOLDER] [SCALE_FACTOR]</code></p>
-<p><code>python resize_manis_cmd.py "C:\Users\USER\Desktop\tiger" 1.4</code></p>
-</div>
 <h3 id="manis-editor">Manis Editor<a class="headerlink" href="#manis-editor" title="Permanent link">&para;</a></h3>
 <p>A GUI editor to manipulate <code>.manis</code> files.</p>
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom" data-gallery="tools"><img alt="Manis Editor" data-gallery="tools" src="../images/manis_editor.png" /></a></p>
@@ -1907,7 +1891,14 @@
 <li>changing speed of anims</li>
 <li>decompressing anims</li>
 <li>renaming / deleting / appending anims</li>
+<li>resizing of ms2 and several manis</li>
 </ul>
+</div>
+<p>If you only want to resize, you can also use the command line interface to scale compressed animations and ms2 models by a given factor:</p>
+<div class="admonition example">
+<p class="admonition-title">CMD</p>
+<p><code>python manis_tool.py [FOLDER] [SCALE_FACTOR]</code></p>
+<p><code>python manis_tool.py "C:\Users\USER\Desktop\tiger" 1.4</code></p>
 </div>
 <h2 id="banis">Banis<a class="headerlink" href="#banis" title="Permanent link">&para;</a></h2>
 <p><code>.banis</code> animations hold rigidly sampled location and rotation keys for all bones in a model. They are generally used for simple building or character animations, such as:</p>
@@ -1940,7 +1931,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 29, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 18, 2026</span>
   </span>
 
     
