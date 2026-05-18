@@ -1,4 +1,7 @@
+import argparse
 import contextlib
+import os
+import sys
 import time
 import logging
 
@@ -8,9 +11,12 @@ if __name__ == "__main__":
 	run_update_check("manis_tool_gui")
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import window, MenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SeparatorMenuItem, get_icon
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import games
+from generated.formats.ms2 import Ms2File
+from generated.formats.wsm.structs.WsmHeader import WsmHeader
+from utils.logs import logging_setup
 from typing import Optional
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
@@ -18,9 +24,6 @@ from PyQt5.QtCore import Qt
 from matplotlib import pyplot as plt
 plt.set_loglevel(level='warning')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
-
-
-from gui.widgets import get_icon
 
 
 class MainWindow(window.MainWindow):
@@ -83,6 +86,7 @@ class MainWindow(window.MainWindow):
 				MenuItem("Append", self.append, icon="append"),
 				MenuItem("Duplicate Selected", self.duplicate, shortcut="SHIFT+D", icon="duplicate_mesh"),
 				MenuItem("Remove Selected", self.remove, shortcut="DEL", icon="delete_mesh"),
+				MenuItem("Resize", self.resize_popup, shortcut="CTRL+R"),
 			],
 			widgets.HELP_MENU: self.help_menu_items
 		})
@@ -314,10 +318,57 @@ class MainWindow(window.MainWindow):
 		except:
 			self.handle_error("Saving MANIS failed, see log!")
 
+	def resize_popup(self):
+		dialog = window.ResizeManisDialog(self, "Resize MS2 amd MANIS")
+		if dialog.exec():
+			self.run_in_threadpool(self.resize_manis, (), dialog.folder, dialog.factor)
+
+	@classmethod
+	def resize_manis(cls, in_folder, fac=1.0):
+		"""Change size by fac for all manis and wsm files in folder"""
+		# create output folder
+		out_folder = os.path.join(in_folder, "resized")
+		os.makedirs(out_folder, exist_ok=True)
+		manis = ManisFile()
+		ms2 = Ms2File()
+		for filename in os.listdir(in_folder):
+			file_path = os.path.join(in_folder, filename)
+			out_path = os.path.join(out_folder, filename)
+
+			if filename.endswith(".manis"):
+				manis.load(file_path)
+				if manis.mani_version >= 282:
+					logging.warning(f"Unsupported MANI version {manis.mani_version}")
+					continue
+				manis.resize(fac)
+				manis.save(out_path)
+			elif filename.endswith(".wsm"):
+				wsm = WsmHeader.from_xml_file(file_path, manis.context)
+				for vec in wsm.locs.data:
+					vec.x *= fac
+					vec.y *= fac
+					vec.z *= fac
+				with WsmHeader.to_xml_file(wsm, out_path):
+					pass
+			elif filename.endswith(".ms2"):
+				ms2.load(file_path, read_editable=True)
+				ms2.resize(fac)
+				ms2.save(out_path)
+		logging.info(f"Finished resizing from {in_folder} to {out_folder}")
+
 
 if __name__ == '__main__':
-	startup(MainWindow, GuiOptions(
-	log_name="manis_tool_gui",
-	size=(900, 600),
-	check_update=False  # Check update happens at top now
-))
+
+	if len(sys.argv) == 1:
+		startup(MainWindow, GuiOptions(
+		log_name="manis_tool",
+		size=(900, 600),
+		check_update=False  # Check update happens at top now
+		))
+	else:
+		logging_setup("manis_tool")
+		parser = argparse.ArgumentParser()
+		parser.add_argument('dir', nargs='?', help='Folder containing all ms2, manis and wsm files')
+		parser.add_argument('fac', nargs='?', default=1.0, type=float, help='Scale factor to scale by, as used in Blender')
+		args = parser.parse_args()
+		MainWindow.resize_manis(args.dir, args.fac)

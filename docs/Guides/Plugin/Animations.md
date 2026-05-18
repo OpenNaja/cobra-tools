@@ -50,15 +50,6 @@ Transforms in blender actions are stored relative to the armature, but absolute 
     - Export only produces uncompressed animations, which occupy a lot of disk space and RAM bandwidth in-game. The game uses compressed animations for almost everything.
     - If you plan on editing only some animations of a `.manis`, insert the modified (= uncompressed) ones into the compressed `.manis` file using the [Manis Editor](#manis-editor).
 
-### Scaling
-
-A command line script is provided to scale compressed animations and ms2 models by a given factor. Call it from a CMD or PowerShell window like this:
-
-!!! example "CMD"
-    ``python resize_manis_cmd.py [FOLDER] [SCALE_FACTOR]``
-
-    ``python resize_manis_cmd.py "C:\Users\USER\Desktop\tiger" 1.4``
-
 
 ### Manis Editor
 
@@ -71,6 +62,15 @@ A GUI editor to manipulate `.manis` files.
     - changing speed of anims
     - decompressing anims
     - renaming / deleting / appending anims
+    - resizing of ms2 and several manis
+
+If you only want to resize, you can also use the command line interface to scale compressed animations and ms2 models by a given factor:
+
+!!! example "CMD"
+    ``python manis_tool.py [FOLDER] [SCALE_FACTOR]``
+
+    ``python manis_tool.py "C:\Users\USER\Desktop\tiger" 1.4``
+
 
 ## Banis
 

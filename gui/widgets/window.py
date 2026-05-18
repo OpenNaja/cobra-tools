@@ -25,7 +25,7 @@ from PyQt5.QtGui import (QFont, QIcon, QCloseEvent, QDragEnterEvent, QDropEvent,
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QAction, QCheckBox, QLabel, QMenu,
 							 QMessageBox, QMenuBar, QProgressBar, QStatusBar, QSpacerItem,
 							 QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QSizePolicy,
-							 QSplitter, QDialog, QDialogButtonBox)
+							 QSplitter, QDialog, QDialogButtonBox, QDoubleSpinBox)
 
 try:
 	from PyQt5.QtWinExtras import QWinTaskbarButton
@@ -116,29 +116,50 @@ class StatusSpacer(QWidget):
 				self.updateGeometry()
 
 
-class WalkerDialog(QDialog):
-	def __init__(self, parent: Optional[QWidget] = None, title: str = "", dir_walk: str = "") -> None:
+class ModalDialog(QDialog):
+	def __init__(self, parent: Optional[QWidget] = None, title: str = "") -> None:
 		super().__init__(parent)
 		self.setWindowTitle(title)
 		self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint, False)
 		self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint, False)
 		self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
-		# Directory selector
-		self.dir_widget = DirWidget(self, parent.cfg)
-		self.dir_widget.entry.setMinimumWidth(480)
-		if dir_walk:
-			self.dir_widget.open_dir(dir_walk)
-		vbox = QVBoxLayout(self)
-		vbox.addWidget(self.dir_widget)
+		# main layout
+		self.vbox = QVBoxLayout(self)
 
 		# Empty options area for external use
 		self.options = QGridLayout()
-		vbox.addLayout(self.options)
+		self.vbox.addLayout(self.options)
+
+		self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+		self.buttons.accepted.connect(self.accept)
+		self.buttons.rejected.connect(self.reject)
 
 		# Buttons bar
-		hbox = QHBoxLayout()
-		vbox.addLayout(hbox)
+		self.hbox = QHBoxLayout()
+		self.hbox.addSpacerItem(QSpacerItem(1, 16, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed))
+		self.hbox.addWidget(self.buttons)
+		self.vbox.addLayout(self.hbox)
+
+	def make_dir_selector(self, dir_walk, cfg):
+		dir_widget = DirWidget(self, cfg)
+		dir_widget.entry.setMinimumWidth(480)
+		if dir_walk:
+			dir_widget.open_dir(dir_walk)
+		return dir_widget
+
+	def addWidget(self, widget: QWidget, row: int, column: int, rowSpan: int = 1, columnSpan: int = 1, alignment = Qt.Alignment()):
+		"""Add widget to options section of dialog"""
+		self.options.addWidget(widget, row, column, rowSpan, columnSpan, alignment)
+
+
+class WalkerDialog(ModalDialog):
+	def __init__(self, parent: Optional[QWidget] = None, title: str = "", dir_walk: str = "") -> None:
+		super().__init__(parent, title=title, )
+
+		# Directory selector
+		self.dir_widget = self.make_dir_selector(dir_walk, parent.cfg)
+		self.vbox.insertWidget(0, self.dir_widget)
 
 		self.chk_ovls = QCheckBox("Extract OVLs")
 		self.chk_ovls.setChecked(True)
@@ -146,14 +167,8 @@ class WalkerDialog(QDialog):
 		self.chk_official = QCheckBox("Official Only")
 		self.chk_official.setChecked(True)
 
-		self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-		self.buttons.accepted.connect(self.accept)
-		self.buttons.rejected.connect(self.reject)
-
-		hbox.addWidget(self.chk_ovls)
-		hbox.addWidget(self.chk_official)
-		hbox.addSpacerItem(QSpacerItem(1, 16, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed))
-		hbox.addWidget(self.buttons)
+		self.hbox.insertWidget(0, self.chk_ovls)
+		self.hbox.insertWidget(1, self.chk_official)
 
 	@property
 	def dir_walk(self):
@@ -167,9 +182,31 @@ class WalkerDialog(QDialog):
 	def walk_ovls(self):
 		return self.chk_ovls.isChecked()
 
-	def addWidget(self, widget: QWidget, row: int, column: int, rowSpan: int = 1, columnSpan: int = 1, alignment = Qt.Alignment()):
-		"""Add widget to options section of dialog"""
-		self.options.addWidget(widget, row, column, rowSpan, columnSpan, alignment)
+
+class ResizeManisDialog(ModalDialog):
+	def __init__(self, parent: Optional[QWidget] = None, title: str = "") -> None:
+		super().__init__(parent, title=title)
+
+		self.dir_widget = self.make_dir_selector("", parent.cfg)
+		self.dir_widget.setToolTip("Select a folder that contains the MS2 and all MANIS files you want to resize.")
+		self.vbox.insertWidget(0, self.dir_widget)
+
+		self.factor_entry = QDoubleSpinBox()
+		self.factor_entry.setValue(1.0)
+		self.factor_entry.setMinimum(0.0)
+		self.factor_entry.setSingleStep(0.05)
+		self.factor_entry.setDecimals(4)
+		self.factor_entry.setToolTip("Resizing factor.")
+
+		self.hbox.insertWidget(0, self.factor_entry)
+
+	@property
+	def factor(self):
+		return self.factor_entry.value()
+
+	@property
+	def folder(self):
+		return self.dir_widget.filepath
 
 
 class TitleBar(StandardTitleBar):
