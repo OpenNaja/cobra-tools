@@ -86,7 +86,7 @@ srb_name = "srb"
 
 
 class KeysContext:
-    def __init__(self, stream, segment_frames_count):
+    def __init__(self, stream, segment_frames_count: int):
         self.stream = stream
         # this is a jump to the end of the compressed keys
         context_offset = stream.read_uint_reversed(16) * 8
@@ -116,7 +116,7 @@ class KeysContext:
         # seek to start of base keys
         stream.seek(16)
 
-    def read_golomb_rice_data(self, segment_frames_count, keys_flag):
+    def read_golomb_rice_data(self, segment_frames_count: int, keys_flag: StoreKeys) -> (np.ndarray, np.ndarray):
         raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
         frame_map = np.zeros(32, dtype=np.uint32)
         # logging.info(f"golomb_rice at bit {self.stream.pos}")
@@ -149,7 +149,7 @@ class KeysContext:
                     raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(result)[0]
         return raw_keys_storage, frame_map
 
-    def decode_adaptive_golomb(self, base_size, rel_size_limit):
+    def decode_adaptive_golomb(self, base_size: int, rel_size_limit: int) -> int:
         assert base_size < 32
         rel_size = self.stream.read_unary_count(rel_size_limit)
         offset = (1 << (base_size & 31)) * ((1 << rel_size) - 1)
