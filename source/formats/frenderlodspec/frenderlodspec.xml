@@ -24,6 +24,7 @@
 
     <struct name="FRenderLodSpecRoot" inherit="MemStruct">
         PZ, JWE2 16 bytes
+        <field name="jwe3_id" type="Pointer" template="ZString" vercond="#JWE3#"/>
         <field name="LodGroups" type="ArrayPointer" template="LODGroup" arg="LodGroups_count"/>
         <field name="LodGroups_count" type="uint64" />
     </struct>

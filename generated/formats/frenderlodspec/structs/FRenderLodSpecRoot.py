@@ -14,6 +14,7 @@ class FRenderLodSpecRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.lod_groups_count = name_type_map['Uint64'](self.context, 0, None)
+		self.jwe_3_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.lod_groups = name_type_map['ArrayPointer'](self.context, self.lod_groups_count, name_type_map['LODGroup'])
 		if set_default:
 			self.set_defaults()
@@ -21,11 +22,14 @@ class FRenderLodSpecRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
+		yield 'jwe_3_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.jwe_3, None)
 		yield 'lod_groups', name_type_map['ArrayPointer'], (None, name_type_map['LODGroup']), (False, None), (None, None)
 		yield 'lod_groups_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
+		if instance.context.jwe_3:
+			yield 'jwe_3_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'lod_groups', name_type_map['ArrayPointer'], (instance.lod_groups_count, name_type_map['LODGroup']), (False, None)
 		yield 'lod_groups_count', name_type_map['Uint64'], (0, None), (False, None)
