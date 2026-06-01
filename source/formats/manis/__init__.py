@@ -4,6 +4,9 @@ import os
 import time
 from copy import copy
 from typing import TYPE_CHECKING
+
+from generated.formats.manis.basic import BoneIndex
+
 if TYPE_CHECKING:
     import matplotlib
 
@@ -185,38 +188,80 @@ class ManisFile(InfoHeader, IoFile):
         set_game(self, game_name)
 
     def name_used(self, new_name):
-        for model_info in self.mani_infos:
-            if model_info.name == new_name:
+        for mani in self.mani_infos:
+            if mani.name == new_name:
                 return True
         return False
 
     def rename_file(self, old, new):
         logging.info(f"Renaming .mani in {self.name}")
-        for model_info in self.mani_infos:
-            if model_info.name == old:
-                model_info.name = new
+        for mani in self.mani_infos:
+            if mani.name == old:
+                mani.name = new
+
+    def get_max_v(self, mani_info):
+        # BoneIndex in ManiInfo and bone arrays in ManiBlock use different ways to handle it in our code, but both are affected
+        return 65535 if mani_info.dtype.use_ushort else 255
+
+    def remove_bone(self, mani_name, dtype, bone_name):
+        logging.info(f"Removing {bone_name} [{dtype}] from {mani_name}")
+        for mani in self.mani_infos:
+            if mani.name == mani_name:
+                if mani.dtype.compression == 1:
+                    logging.warning(f"{mani_name} is compressed, decompressing before editing")
+                    self.force_decompress(mani)
+                MAX_V = self.get_max_v(mani)
+                dtype_bare = dtype.replace("_bones", "")
+                names = getattr(mani.keys, f"{dtype}_names")
+                if len(names):
+                    root_name = ""
+                    if dtype_bare in ("ori", "pos"):
+                        root_index = getattr(mani, f"root_{dtype_bare}_bone")
+                        if root_index != MAX_V:
+                            root_name = names[root_index]
+
+                    remove_i = names.index(bone_name)
+                    names2 = names[:remove_i] + names[remove_i + 1:]
+                    names.shape = (len(names2), )
+                    names[:] = names2
+
+                    if dtype_bare in (POS, ORI, SCL):
+                        for s in (f"{dtype_bare}_bone_count", f"{dtype_bare}_bone_count_repeat", f"{dtype_bare}_bone_count_related"):
+                            setattr(mani, s, len(names))
+                        self.delete_from_array(f"{dtype_bare}_channel_to_bone", mani, remove_i, 0)
+                    elif dtype_bare == "floats":
+                        setattr(mani, "float_count", len(names))
+                    self.delete_from_array(dtype, mani, remove_i, 1)
+                    # update root bone index
+                    setattr(mani, f"root_{dtype_bare}_bone", names.index(root_name) if root_name in names else MAX_V)
+
+    def delete_from_array(self, field_name, mani, remove_i, axis):
+        keys = getattr(mani.keys, field_name)
+        mani.keys.reset_field(field_name)
+        keys2 = getattr(mani.keys, field_name)
+        keys2[:] = np.delete(keys, remove_i, axis=axis)
 
     def remove(self, mani_names):
         logging.info(f"Removing {len(mani_names)} .mani files in {self.name}")
-        for model_info in reversed(self.mani_infos):
-            if model_info.name in mani_names:
-                self.mani_infos.remove(model_info)
+        for mani in reversed(self.mani_infos):
+            if mani.name in mani_names:
+                self.mani_infos.remove(mani)
 
     def duplicate(self, mani_names):
         logging.info(f"Duplicating {len(mani_names)} .mani files in {self.name}")
-        for model_info in reversed(self.mani_infos):
-            if model_info.name in mani_names:
-                model_info_copy = copy(model_info)
+        for mani in reversed(self.mani_infos):
+            if mani.name in mani_names:
+                mani_copy = copy(mani)
                 # add as many suffixes as needed to make new_name unique
-                self.make_name_unique(model_info_copy)
-                self.mani_infos.append(model_info_copy)
-        self.mani_infos.sort(key=lambda model_info: model_info.name)
+                self.make_name_unique(mani_copy)
+                self.mani_infos.append(mani_copy)
+        self.mani_infos.sort(key=lambda mani: mani.name)
 
-    def make_name_unique(self, model_info_copy):
-        new_name = model_info_copy.name
+    def make_name_unique(self, mani_copy):
+        new_name = mani_copy.name
         while self.name_used(new_name):
             new_name = f"{new_name}_copy"
-        model_info_copy.name = new_name
+        mani_copy.name = new_name
 
     def resize(self, fac):
         for mi in self.mani_infos:
@@ -278,14 +323,10 @@ class ManisFile(InfoHeader, IoFile):
                 if hasattr(mani_info, "keys"):
                     mani_info.keys.name = mani_info.name
                     mani_info.keys.compressed.name = mani_info.name
-                # print(mi.keys.name)
-                # if mi.root_pos_bone != 255:
-                # 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
-                # if mi.root_ori_bone != 255:
-                # 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 
     def update_key_indices(self, mani_info, m_dtype):
         # logging.debug(f"Updating key indices for {m_dtype}")
+        MAX_V = self.get_max_v(mani_info)
         k = mani_info.keys
         ms2_bone_names = self.sorted_ms2_bone_names
         m_names = getattr(k, f"{m_dtype}_bones_names")
@@ -308,13 +349,13 @@ class ManisFile(InfoHeader, IoFile):
             key_lut = {name: i for i, name in enumerate(m_names)}
             k.reset_field(f"{m_dtype}_bone_to_channel")
             # logging.debug(f'Len({m_dtype}_bone_to_channel) = {len(getattr(k, f"{m_dtype}_bone_to_channel"))}')
-            bone_map_indices = [key_lut.get(name, 255) for name in ms2_bone_names[min(indices): max(indices)+1]]
+            bone_map_indices = [key_lut.get(name, MAX_V) for name in ms2_bone_names[min(indices): max(indices)+1]]
             # logging.debug(f'min(indices) {min(indices)}')
             # logging.debug(f'max(indices) {max(indices)}')
             # logging.debug(f'bone_map_indices {len(bone_map_indices)} = {bone_map_indices}')
             getattr(k, f"{m_dtype}_bone_to_channel")[:] = bone_map_indices
         else:
-            setattr(mani_info, f"{m_dtype}_bone_min", 255)
+            setattr(mani_info, f"{m_dtype}_bone_min", MAX_V)
             setattr(mani_info, f"{m_dtype}_bone_max", 0)
             k.reset_field(f"{m_dtype}_bone_to_channel")
 
@@ -463,6 +504,19 @@ class ManisFile(InfoHeader, IoFile):
             if len(keys[0, 0]) > 3:
                 ax.plot(keys[:, bone_i, 3], label='Q')
         ax.legend(loc="lower right")
+
+    def force_decompress(self, mani_info, dump=False):
+        self.decompress(mani_info, dump=dump)
+        mani_info.dtype.compression = 0
+        mani_info.dtype.has_list = 0
+        k = mani_info.keys
+        ck = mani_info.keys.compressed
+        # mani_info.keys.set_defaults()
+        k.reset_field("pos_bones")
+        k.reset_field("ori_bones")
+        k.pos_bones[:] = ck.pos_bones
+        k.ori_bones[:] = ck.ori_bones
+        # k.scl_bones[:] = ck.scl_bones
 
     def decompress(self, mani_info, dump=False):
         if BinStream is None:
@@ -769,10 +823,10 @@ def get_quat_scale_fac(norm_half_abs: float):
 
 if __name__ == "__main__":
     from utils.logs import logging_setup
-    logging_setup("mani")
+    logging_setup("manis")
     for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
         print(ManisDtype.from_value(k))
-    mani = ManisFile()
+    manis = ManisFile()
     # WH
-    # mani.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
-    # mani.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
+    # manis.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
+    # manis.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")

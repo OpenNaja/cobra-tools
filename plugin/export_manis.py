@@ -141,7 +141,6 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		mani_info.frame_count = last_frame - first_frame
 		# index of last frame / fps
 		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
-		mani_info.count_a = mani_info.count_b = 255
 		mani_info.target_bone_count = len(bones_data)
 
 		# create arrays for loc, rot, scale keys
@@ -241,7 +240,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		k.scl_bones_names[:] = scl_names
 		k.floats_names[:] = floats_names
 		# copy the keys and set root bone indices
-		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
+		mani_info.root_pos_bone = mani_info.root_ori_bone = manis.get_max_v(mani_info)
 		for bone_i, name in enumerate(pos_names):
 			if name == root_name:
 				mani_info.root_pos_bone = bone_i

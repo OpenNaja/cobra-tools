@@ -147,7 +147,6 @@ class MainWindow(window.MainWindow):
 				mani_name, = names
 			elif len(names) == 3:
 				mani_name, dtype, bone_name = names
-				menu = QtWidgets.QMenu("Test", self.tree)
 				show_keys = QtWidgets.QAction("Show Keys")
 
 				def show_keys_cb(checked):
@@ -156,9 +155,18 @@ class MainWindow(window.MainWindow):
 							self.manis_file.show_keys_by_dtype(mani_name, dtype, bone_name, self.ax)
 						except:
 							logging.exception(f"failed")
+
+				def delet_bone_cb(checked):
+					try:
+						self.manis_file.remove_bone(mani_name, dtype, bone_name)
+					except:
+						logging.exception(f"failed")
 				show_keys.triggered.connect(show_keys_cb)
+				delete = QtWidgets.QAction(f"Delete {bone_name} [{dtype}]")
+				delete.triggered.connect(delet_bone_cb)
+
+				menu = QtWidgets.QMenu("Context", self.tree)
 				menu.addAction(show_keys)
-				delete = QtWidgets.QAction(f"Delete {bone_name}")
 				menu.addAction(delete)
 				menu.exec(self.tree.mapToGlobal(pos))
 
@@ -198,17 +206,7 @@ class MainWindow(window.MainWindow):
 			elif dtype == "Compressed":
 				if mani_info.dtype.compression == 1 and new_val == "0":
 					logging.info(f"Decompressing")
-					self.manis_file.decompress(mani_info, dump=False)
-					mani_info.dtype.compression = 0
-					mani_info.dtype.has_list = 0
-					k = mani_info.keys
-					ck = mani_info.keys.compressed
-					# mani_info.keys.set_defaults()
-					k.reset_field("pos_bones")
-					k.reset_field("ori_bones")
-					k.pos_bones[:] = ck.pos_bones
-					k.ori_bones[:] = ck.ori_bones
-					# k.scl_bones[:] = ck.scl_bones
+					self.manis_file.force_decompress(mani_info, dump=False)
 			elif dtype == "Duration":
 				logging.info(f"Changing duration to {new_val}")
 				mani_info.duration = float(new_val)
@@ -227,6 +225,11 @@ class MainWindow(window.MainWindow):
 					self.handle_error("Removing file failed, see log!")
 			elif len(names) == 3:
 				mani_name, dtype, bone_name = names
+				try:
+					self.manis_file.remove_bone(mani_name, dtype, bone_name)
+					self.set_file_modified(True)
+				except:
+					self.handle_error("Removing file failed, see log!")
 		self.update_gui_table()
 
 	def duplicate(self):
