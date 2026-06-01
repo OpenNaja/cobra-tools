@@ -1,8 +1,8 @@
 from generated.base_struct import BaseStruct
 
 
-class Pass(BaseStruct):
-    name: int
+class Repeat2(BaseStruct):
+    ind: int
     a: int
     b: int
 
