@@ -25,7 +25,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<!-- set latest occurence of a version number in a game first so that that is set by the setters -->
+	<!-- set latest occurrence of a version number in a game first so that that is set by the setters -->
 	<version id="DLA" version="7" >Disneyland Adventures</version>
 	<version id="ZTUAC" version="13" >Zoo Tycoon</version>
 	<version id="PC" version="32" >Planet Coaster</version>
