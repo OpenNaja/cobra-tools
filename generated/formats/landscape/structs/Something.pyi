@@ -1,9 +1,9 @@
+from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.landscape.structs.Pair import Pair
 
 
-class Repeat2(BaseStruct):
-    ind: int
-    pair: Pair
+class Something(BaseStruct):
+    flo_22: Array[float]
+    junk_22: Array[int]
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

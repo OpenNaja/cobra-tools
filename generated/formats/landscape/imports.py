@@ -52,7 +52,10 @@ type_module_name_map = {
 	'Pass': 'generated.formats.landscape.structs.Pass',
 	'Lod': 'generated.formats.landscape.structs.Lod',
 	'Str48': 'generated.formats.landscape.structs.Str48',
+	'Pair': 'generated.formats.landscape.structs.Pair',
 	'Repeat2': 'generated.formats.landscape.structs.Repeat2',
+	'RepeatLong': 'generated.formats.landscape.structs.RepeatLong',
+	'Something': 'generated.formats.landscape.structs.Something',
 	'Buffer0': 'generated.formats.landscape.structs.Buffer0',
 	'Buffer1': 'generated.formats.landscape.structs.Buffer1',
 }

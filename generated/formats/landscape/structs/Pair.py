@@ -2,30 +2,30 @@ from generated.base_struct import BaseStruct
 from generated.formats.landscape.imports import name_type_map
 
 
-class Repeat2(BaseStruct):
+class Pair(BaseStruct):
 
 	"""
-	4 bytes
+	2 bytes
 	"""
 
-	__name__ = 'Repeat2'
+	__name__ = 'Pair'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ind = name_type_map['Ushort'](self.context, 0, None)
-		self.pair = name_type_map['Pair'](self.context, 0, None)
+		self.a = name_type_map['Ubyte'](self.context, 0, None)
+		self.b = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'ind', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'pair', name_type_map['Pair'], (0, None), (False, None), (None, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ind', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'pair', name_type_map['Pair'], (0, None), (False, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None)
