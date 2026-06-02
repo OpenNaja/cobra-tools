@@ -46,12 +46,6 @@
 		<field name="unk" type="ubyte" arr1="4"/>
 	</struct>
 
-	<struct name="Struct2" >
-		224 bytes
-		<field name="a" type="uint64" arr1="15"/>
-		<field name="floats" type="float" arr1="4" arr2="3"/>
-		<field name="c" type="uint" arr1="14"/>
-	</struct>
 	<struct name="Pass" >
 		8 bytes
 		<field name="name" type="NameOffset" arg="#ARG#"/>
@@ -138,7 +132,30 @@
 	</struct>
 
 
+
+	<struct name="Struct2" >
+		224 bytes
+		<field name="a" type="uint"/>
+		<field name="b" type="int"/>
+		<field name="z" type="int"/>
+		<field name="c" type="short"/>
+		<field name="d" type="short"/>
+		<field name="floats" type="float" arr1="3" arr2="4"/>
+		<field name="e" type="uint" arr1="4"/>
+		<field name="floats2" type="float" arr1="6"/>
+		<field name="f" type="uint" arr1="4"/>
+		<field name="floats3" type="float" arr1="6"/>
+		<field name="g" type="uint" />
+		<field name="h" type="ushort" />
+		<field name="i" type="ubyte" />
+		<field name="j" type="ubyte" />
+		<field name="zfinal" type="uint64" arr1="9"/>
+	</struct>
+
 	<struct name="Buffer1" >
+<!--		probably 16 zeros here-->
+		<field name="z0" type="uint64" arr1="2"/>
+<!--		first entry is different-->
 		<field name="unk5" type="Struct2" arr1="5"/>
 <!--		rest is unk-->
 	</struct>

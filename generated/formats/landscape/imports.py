@@ -48,7 +48,6 @@ type_module_name_map = {
 	'LandscapeRoot': 'generated.formats.landscape.structs.LandscapeRoot',
 	'BufferPresence': 'generated.formats.landscape.structs.BufferPresence',
 	'Struct0': 'generated.formats.landscape.structs.Struct0',
-	'Struct2': 'generated.formats.landscape.structs.Struct2',
 	'Pass': 'generated.formats.landscape.structs.Pass',
 	'Lod': 'generated.formats.landscape.structs.Lod',
 	'Str48': 'generated.formats.landscape.structs.Str48',
@@ -57,6 +56,7 @@ type_module_name_map = {
 	'RepeatLong': 'generated.formats.landscape.structs.RepeatLong',
 	'Something': 'generated.formats.landscape.structs.Something',
 	'Buffer0': 'generated.formats.landscape.structs.Buffer0',
+	'Struct2': 'generated.formats.landscape.structs.Struct2',
 	'Buffer1': 'generated.formats.landscape.structs.Buffer1',
 }
 

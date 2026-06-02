@@ -3,6 +3,7 @@ import os
 import struct
 import logging
 
+from generated.formats.landscape.structs.Buffer1 import Buffer1
 from generated.formats.landscape.structs.LandscapeRoot import LandscapeRoot
 from generated.formats.landscape.structs.Buffer0 import Buffer0
 
@@ -58,6 +59,9 @@ class LandscapeLoader(MemStructLoader):
 		buffer_0_stream = io.BytesIO(self.data_entry.buffer_datas[0])
 		names_buffer = Buffer0.from_stream(buffer_0_stream, self.context, self.header)
 		print(names_buffer)
+		buffer_1_stream = io.BytesIO(self.data_entry.buffer_datas[1])
+		buffer1 = Buffer1.from_stream(buffer_1_stream, self.context, self.header)
+		print(buffer1)
 
 	def extract(self, out_dir):
 		all_buffer_bytes = self.data_entry.buffer_datas
