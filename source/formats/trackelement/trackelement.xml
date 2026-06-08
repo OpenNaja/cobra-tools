@@ -98,9 +98,6 @@
         <field name="unk_2" type="uint" />
 
 	    <field name="tracktype_bitfield" type="TracktypeBitfield" default="0">Every bit encodes some track property</field>
-        <!-- <field name="unk 3" type="ushort" default="0" /> -->
-        <!-- <field name="unk 4" type="ushort" default="32" /> -->
-        <!-- <field name="unk 5" type="uint"   default="1024"/> -->
 
         <field name="start_connection_bitfield" type="uint" default="1" />
         <field name="end_connection_bitfield" type="uint" default="1" />
