@@ -15,7 +15,7 @@
     <struct name="TrackElementData" inherit="MemStruct">
         PC: was 80, now it is 72
         PZ: 48
-        PC2: 88
+        PC2: was 88, now it is 112
         <field name="spline_name" type="Pointer" template="ZString">
             Will require a _l_spline and _r_spline spl files
         </field>
@@ -32,15 +32,26 @@
         <field name="unk_count" type="uint" />
         <field name="OptionalCatwalk" type="Pointer" template="ZString"/>
         <field name="direction" type="uint"/>
-        <field name="unk 2" type="uint" />
-        <field name="unk 3" type="ushort" default="0" />
-        <field name="unk 4" type="ushort" default="32" />
-        <field name="unk 5" type="uint"   default="1024"/>
-        <field name="unk 6" type="uint"   default="1" />
-        <field name="unk 7" type="uint"   default="1" />
-        <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
-        <field name="unk 9" type="uint" default="0" />
+        <field name="unk_2" type="uint" />
 
+	    <field name="tracktype_bitfield" type="uint64" default="0">Every bit encodes some track property</field>
+        <!-- <field name="unk 3" type="ushort" default="0" /> -->
+        <!-- <field name="unk 4" type="ushort" default="32" /> -->
+        <!-- <field name="unk 5" type="uint"   default="1024"/> -->
+
+        <field name="start_connection_bitfield" type="uint" default="1" />
+        <field name="end_connection_bitfield" type="uint" default="1" />
+
+        <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
+        <field name="unk_5" type="uint" default="0" />
+	
+	    Planet Coaster 2 specific:
+    	<field name="x_offset" type="float" default="0">X offset</field>
+    	<field name="y_offset" type="float" default="0">Y offset</field>
+    	<field name="z_offset" type="float" default="0">Z offset</field>
+    	<field name="yaw_offset" type="float" default="0">Yaw offset</field>
+    	<field name="pitch_offset" type="float" default="0">Pitch offset</field>
+    	<field name="roll_offset" type="float" default="0">Roll offset</field>
     </struct>
 
     <struct name="TrackMesh_ref" inherit="MemStruct">
