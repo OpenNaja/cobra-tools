@@ -46,12 +46,12 @@
         <field name="unk_5" type="uint" default="0" />
 	
 	    Planet Coaster 2 specific:
-    	<field name="x_offset" type="float" default="0">X offset</field>
-    	<field name="y_offset" type="float" default="0">Y offset</field>
-    	<field name="z_offset" type="float" default="0">Z offset</field>
-    	<field name="yaw_offset" type="float" default="0">Yaw offset</field>
-    	<field name="pitch_offset" type="float" default="0">Pitch offset</field>
-    	<field name="roll_offset" type="float" default="0">Roll offset</field>
+    	<field name="x_offset" type="float" default="0" since="12">X offset</field>
+    	<field name="y_offset" type="float" default="0" since="12">Y offset</field>
+    	<field name="z_offset" type="float" default="0" since="12">Z offset</field>
+    	<field name="yaw_offset" type="float" default="0" since="12">Yaw offset</field>
+    	<field name="pitch_offset" type="float" default="0" since="12">Pitch offset</field>
+    	<field name="roll_offset" type="float" default="0" since="12">Roll offset</field>
     </struct>
 
     <struct name="TrackMesh_ref" inherit="MemStruct">
