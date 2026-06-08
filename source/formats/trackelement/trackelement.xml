@@ -11,11 +11,74 @@
 		<field name="visual_prefab_name" type="pointer" template="ZString">Used as visual prefab</field>
 		<field name="support_prefab_name" type="pointer" template="ZString">Used as support prefab</field>
     </struct>
+    
+    <bitfield name="TracktypeBitfield" storage="uint64">
+        <member width="1" pos="0" name="station" type="bool"/>
+        <member width="1" pos="1" name="chainlift" type="bool"/>
+        <member width="1" pos="2" name="brakes" type="bool"/>
+        <member width="1" pos="3" name="booster" type="bool"/>
+        <member width="1" pos="4" name="blockbrake" type="bool"/>
+        <member width="1" pos="5" name="invisiblestation" type="bool"/>
+        <member width="1" pos="6" name="holdingsection" type="bool"/>
+        <member width="1" pos="7" name="hydrauliclaunch" type="bool"/>
+        <member width="1" pos="8" name="photosection" type="bool"/>
+        <member width="1" pos="9" name="reverselaunch" type="bool"/>
+        <member width="1" pos="10" name="cablelift" type="bool"/>
+        <member width="1" pos="11" name="carspinstart" type="bool"/>
+        <member width="1" pos="12" name="carspinstop" type="bool"/>
+        <member width="1" pos="13" name="floating" type="bool"/>
+        <member width="1" pos="14" name="water" type="bool"/>
+        <member width="1" pos="15" name="splash" type="bool"/>
+        <member width="1" pos="16" name="alternatefriction" type="bool"/>
+        <member width="1" pos="17" name="constantvalueforpotentiallyunsettrackparamlerp" type="bool"/>
+        <member width="1" pos="18" name="splashnofoam" type="bool"/>
+        <member width="1" pos="19" name="dropend" type="bool"/>
+        <member width="1" pos="20" name="chainlift_blocksection" type="bool"/>
+        <member width="1" pos="21" name="directed" type="bool"/>
+        <member width="1" pos="22" name="tweakable" type="bool"/>
+        <member width="1" pos="23" name="autocomplete" type="bool"/>
+        <member width="1" pos="24" name="dropsplash" type="bool"/>
+        <member width="1" pos="25" name="reverse" type="bool"/>
+        <member width="1" pos="26" name="chicane" type="bool"/>
+        <member width="1" pos="27" name="chainlift_drop" type="bool"/>
+        <member width="1" pos="28" name="chainlift_once" type="bool"/>
+        <member width="1" pos="29" name="dualdirectionbooster" type="bool"/>
+        <member width="1" pos="30" name="UNUSED_30" type="bool"/>
+        <member width="1" pos="31" name="carspin_forcestopovertracklength" type="bool"/>
+        <member width="1" pos="32" name="UNUSED_32" type="bool"/>
+        <member width="1" pos="33" name="forcecabingapfix" type="bool"/>
+        <member width="1" pos="34" name="shuttlelaunch" type="bool"/>
+        <member width="1" pos="35" name="directedreverse" type="bool"/>
+        <member width="1" pos="36" name="stationendcap" type="bool"/>
+        <member width="1" pos="37" name="wheellift" type="bool"/>
+        <member width="1" pos="38" name="dualdirectionlsmholdingsection" type="bool"/>
+        <member width="1" pos="39" name="endcapbullwheel" type="bool"/>
+        <member width="1" pos="40" name="endcapdrivewheel" type="bool"/>
+        <member width="1" pos="41" name="tirelaunchbooster" type="bool"/>
+        <member width="1" pos="42" name="lsmholdingsection" type="bool"/>
+        <member width="1" pos="43" name="eddycurrentspinner" type="bool"/>
+        <member width="1" pos="44" name="eddycurrentforcelock" type="bool"/>
+        <member width="1" pos="45" name="logicalanimatedsection" type="bool"/>
+        <member width="1" pos="46" name="animatedholdingsection" type="bool"/>
+        <member width="1" pos="47" name="animatedreversedirection" type="bool"/>
+        <member width="1" pos="48" name="animatedpassthrough" type="bool"/>
+        <member width="1" pos="49" name="logicaltrainreverse" type="bool"/>
+        <member width="1" pos="50" name="logicalsubtrackentry" type="bool"/>
+        <member width="1" pos="51" name="logicalsubtrackexit" type="bool"/>
+        <member width="1" pos="52" name="flume_water" type="bool"/>
+        <member width="1" pos="53" name="flume_splash" type="bool"/>
+        <member width="1" pos="54" name="low_friction" type="bool"/>
+        <member width="1" pos="55" name="runout_lane" type="bool"/>
+        <member width="1" pos="56" name="station_load_only" type="bool"/>
+        <member width="1" pos="57" name="station_unload_only" type="bool"/>
+        <member width="1" pos="58" name="enabletiltforverticalslide" type="bool"/>
+        <member width="1" pos="59" name="animatedreversedirectionforoddsecondarypasses" type="bool"/>
+    </bitfield>
 
     <struct name="TrackElementData" inherit="MemStruct">
         PC: was 80, now it is 72
         PZ: 48
-        PC2: 88
+        PC2: was 88, now it is 112
         <field name="spline_name" type="Pointer" template="ZString">
             Will require a _l_spline and _r_spline spl files
         </field>
@@ -32,15 +95,23 @@
         <field name="unk_count" type="uint" />
         <field name="OptionalCatwalk" type="Pointer" template="ZString"/>
         <field name="direction" type="uint"/>
-        <field name="unk 2" type="uint" />
-        <field name="unk 3" type="ushort" default="0" />
-        <field name="unk 4" type="ushort" default="32" />
-        <field name="unk 5" type="uint"   default="1024"/>
-        <field name="unk 6" type="uint"   default="1" />
-        <field name="unk 7" type="uint"   default="1" />
-        <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
-        <field name="unk 9" type="uint" default="0" />
+        <field name="unk_2" type="uint" />
 
+	    <field name="tracktype_bitfield" type="TracktypeBitfield" default="0">Every bit encodes some track property</field>
+
+        <field name="start_connection_bitfield" type="uint" default="1" />
+        <field name="end_connection_bitfield" type="uint" default="1" />
+
+        <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
+        <field name="unk_5" type="uint" default="0" />
+	
+	    <!-- Planet Coaster 2 specific: -->
+    	<field name="x_offset" type="float" default="0" since="12">X offset</field>
+    	<field name="y_offset" type="float" default="0" since="12">Y offset</field>
+    	<field name="z_offset" type="float" default="0" since="12">Z offset</field>
+    	<field name="yaw_offset" type="float" default="0" since="12">Yaw offset</field>
+    	<field name="pitch_offset" type="float" default="0" since="12">Pitch offset</field>
+    	<field name="roll_offset" type="float" default="0" since="12">Roll offset</field>
     </struct>
 
     <struct name="TrackMesh_ref" inherit="MemStruct">
