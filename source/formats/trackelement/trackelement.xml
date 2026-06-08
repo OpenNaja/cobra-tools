@@ -105,7 +105,7 @@
         <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
         <field name="unk_5" type="uint" default="0" />
 	
-	    Planet Coaster 2 specific:
+	    <!-- Planet Coaster 2 specific: -->
     	<field name="x_offset" type="float" default="0" since="12">X offset</field>
     	<field name="y_offset" type="float" default="0" since="12">Y offset</field>
     	<field name="z_offset" type="float" default="0" since="12">Z offset</field>
