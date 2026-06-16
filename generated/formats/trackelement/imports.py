@@ -45,6 +45,7 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
 	'TrackElementRoot': 'generated.formats.trackelement.structs.TrackElementRoot',
+	'TracktypeBitfield': 'generated.formats.trackelement.bitfields.TracktypeBitfield',
 	'TrackElementData': 'generated.formats.trackelement.structs.TrackElementData',
 	'TrackMeshRef': 'generated.formats.trackelement.structs.TrackMeshRef',
 	'TrackElementSub': 'generated.formats.trackelement.structs.TrackElementSub',

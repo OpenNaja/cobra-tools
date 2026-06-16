@@ -1,0 +1,73 @@
+from generated.bitfield import BasicBitfield
+from generated.bitfield import BitfieldMember
+from generated.formats.base.basic import Uint64
+from generated.formats.ovl_base.basic import Bool
+
+
+class TracktypeBitfield(BasicBitfield):
+
+	__name__ = 'TracktypeBitfield'
+	_storage = Uint64
+	station = BitfieldMember(pos=0, mask=0x1, return_type=Bool.from_value)
+	chainlift = BitfieldMember(pos=1, mask=0x2, return_type=Bool.from_value)
+	brakes = BitfieldMember(pos=2, mask=0x4, return_type=Bool.from_value)
+	booster = BitfieldMember(pos=3, mask=0x8, return_type=Bool.from_value)
+	blockbrake = BitfieldMember(pos=4, mask=0x10, return_type=Bool.from_value)
+	invisiblestation = BitfieldMember(pos=5, mask=0x20, return_type=Bool.from_value)
+	holdingsection = BitfieldMember(pos=6, mask=0x40, return_type=Bool.from_value)
+	hydrauliclaunch = BitfieldMember(pos=7, mask=0x80, return_type=Bool.from_value)
+	photosection = BitfieldMember(pos=8, mask=0x100, return_type=Bool.from_value)
+	reverselaunch = BitfieldMember(pos=9, mask=0x200, return_type=Bool.from_value)
+	cablelift = BitfieldMember(pos=10, mask=0x400, return_type=Bool.from_value)
+	carspinstart = BitfieldMember(pos=11, mask=0x800, return_type=Bool.from_value)
+	carspinstop = BitfieldMember(pos=12, mask=0x1000, return_type=Bool.from_value)
+	floating = BitfieldMember(pos=13, mask=0x2000, return_type=Bool.from_value)
+	water = BitfieldMember(pos=14, mask=0x4000, return_type=Bool.from_value)
+	splash = BitfieldMember(pos=15, mask=0x8000, return_type=Bool.from_value)
+	alternatefriction = BitfieldMember(pos=16, mask=0x10000, return_type=Bool.from_value)
+	constantvalueforpotentiallyunsettrackparamlerp = BitfieldMember(pos=17, mask=0x20000, return_type=Bool.from_value)
+	splashnofoam = BitfieldMember(pos=18, mask=0x40000, return_type=Bool.from_value)
+	dropend = BitfieldMember(pos=19, mask=0x80000, return_type=Bool.from_value)
+	chainlift_blocksection = BitfieldMember(pos=20, mask=0x100000, return_type=Bool.from_value)
+	directed = BitfieldMember(pos=21, mask=0x200000, return_type=Bool.from_value)
+	tweakable = BitfieldMember(pos=22, mask=0x400000, return_type=Bool.from_value)
+	autocomplete = BitfieldMember(pos=23, mask=0x800000, return_type=Bool.from_value)
+	dropsplash = BitfieldMember(pos=24, mask=0x1000000, return_type=Bool.from_value)
+	reverse = BitfieldMember(pos=25, mask=0x2000000, return_type=Bool.from_value)
+	chicane = BitfieldMember(pos=26, mask=0x4000000, return_type=Bool.from_value)
+	chainlift_drop = BitfieldMember(pos=27, mask=0x8000000, return_type=Bool.from_value)
+	chainlift_once = BitfieldMember(pos=28, mask=0x10000000, return_type=Bool.from_value)
+	dualdirectionbooster = BitfieldMember(pos=29, mask=0x20000000, return_type=Bool.from_value)
+	unused_30 = BitfieldMember(pos=30, mask=0x40000000, return_type=Bool.from_value)
+	carspin_forcestopovertracklength = BitfieldMember(pos=31, mask=0x80000000, return_type=Bool.from_value)
+	unused_32 = BitfieldMember(pos=32, mask=0x100000000, return_type=Bool.from_value)
+	forcecabingapfix = BitfieldMember(pos=33, mask=0x200000000, return_type=Bool.from_value)
+	shuttlelaunch = BitfieldMember(pos=34, mask=0x400000000, return_type=Bool.from_value)
+	directedreverse = BitfieldMember(pos=35, mask=0x800000000, return_type=Bool.from_value)
+	stationendcap = BitfieldMember(pos=36, mask=0x1000000000, return_type=Bool.from_value)
+	wheellift = BitfieldMember(pos=37, mask=0x2000000000, return_type=Bool.from_value)
+	dualdirectionlsmholdingsection = BitfieldMember(pos=38, mask=0x4000000000, return_type=Bool.from_value)
+	endcapbullwheel = BitfieldMember(pos=39, mask=0x8000000000, return_type=Bool.from_value)
+	endcapdrivewheel = BitfieldMember(pos=40, mask=0x10000000000, return_type=Bool.from_value)
+	tirelaunchbooster = BitfieldMember(pos=41, mask=0x20000000000, return_type=Bool.from_value)
+	lsmholdingsection = BitfieldMember(pos=42, mask=0x40000000000, return_type=Bool.from_value)
+	eddycurrentspinner = BitfieldMember(pos=43, mask=0x80000000000, return_type=Bool.from_value)
+	eddycurrentforcelock = BitfieldMember(pos=44, mask=0x100000000000, return_type=Bool.from_value)
+	logicalanimatedsection = BitfieldMember(pos=45, mask=0x200000000000, return_type=Bool.from_value)
+	animatedholdingsection = BitfieldMember(pos=46, mask=0x400000000000, return_type=Bool.from_value)
+	animatedreversedirection = BitfieldMember(pos=47, mask=0x800000000000, return_type=Bool.from_value)
+	animatedpassthrough = BitfieldMember(pos=48, mask=0x1000000000000, return_type=Bool.from_value)
+	logicaltrainreverse = BitfieldMember(pos=49, mask=0x2000000000000, return_type=Bool.from_value)
+	logicalsubtrackentry = BitfieldMember(pos=50, mask=0x4000000000000, return_type=Bool.from_value)
+	logicalsubtrackexit = BitfieldMember(pos=51, mask=0x8000000000000, return_type=Bool.from_value)
+	flume_water = BitfieldMember(pos=52, mask=0x10000000000000, return_type=Bool.from_value)
+	flume_splash = BitfieldMember(pos=53, mask=0x20000000000000, return_type=Bool.from_value)
+	low_friction = BitfieldMember(pos=54, mask=0x40000000000000, return_type=Bool.from_value)
+	runout_lane = BitfieldMember(pos=55, mask=0x80000000000000, return_type=Bool.from_value)
+	station_load_only = BitfieldMember(pos=56, mask=0x100000000000000, return_type=Bool.from_value)
+	station_unload_only = BitfieldMember(pos=57, mask=0x200000000000000, return_type=Bool.from_value)
+	enabletiltforverticalslide = BitfieldMember(pos=58, mask=0x400000000000000, return_type=Bool.from_value)
+	animatedreversedirectionforoddsecondarypasses = BitfieldMember(pos=59, mask=0x800000000000000, return_type=Bool.from_value)
+
+	def set_defaults(self):
+		pass
