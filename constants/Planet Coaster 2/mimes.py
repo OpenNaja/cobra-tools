@@ -41,7 +41,7 @@ mimes = {
 	".frenderlodspec": Mime(name='Casino:fRenderLodSettings:frenderlodspec', hash=467070503, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".generalstaffsettings": Mime(name='Staff:GeneralStaffSettings:generalstaffsettings', hash=176123333, version=8, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".guestaisettings": Mime(name='Game:GuestAISettings:guestaisettings', hash=2255099717, version=110, triplets=[(1, 2, 3)], pool=4, set_pool=0),
-	".guestdemographicsettings": Mime(name='Game:GuestDemographicSettings:guestdemographicsettings', hash=596755239, version=11, triplets=[(1, 2, 3)], pool=4, set_pool=0),
+	".guestdemographicsettings": Mime(name='Game:GuestDemographicSettings:guestdemographicsettings', hash=596755240, version=12, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".guestmoodsettings": Mime(name='Game:GuestMoodSettings:guestmoodsettings', hash=3688498646, version=9, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".guestonrideanimsettings": Mime(name='Game:GuestOnRideAnimSettings:guestonrideanimsettings', hash=2202992129, version=6, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".guestpreferencesettings": Mime(name='Game:GuestPreferenceSettings:guestpreferencesettings', hash=1486140446, version=10, triplets=[(1, 2, 3)], pool=4, set_pool=0),
