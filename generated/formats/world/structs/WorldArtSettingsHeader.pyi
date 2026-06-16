@@ -9,13 +9,13 @@ class WorldArtSettingsHeader(MemStruct):
     size_z: int
     unknown_1: int
     skirt_resource_name: Pointer[str]
-    landscape_prefab_name: Pointer[str]
+    full_scale_material_name: Pointer[str]
     skirt_material_names: Pointer[ZStringList]
     skirt_material_names_count: int
     packages_to_load: Pointer[ZStringList]
     packages_to_load_count: int
     height_map_file_name: Pointer[str]
-    unknown_3: int
+    land_scape_prefab_name: Pointer[str]
     sea_prefab_name: Pointer[str]
     colour_grade_name: Pointer[str]
     sun_horizon_rotation: float

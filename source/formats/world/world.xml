@@ -6,6 +6,8 @@
 
     <!-- Starting the review of this struct for PC2, the size is 80 bytes, need to check for missing/new elements. -->
     <struct name="WorldHeader" inherit="MemStruct">
+        <!-- PC2 1.9.3.868368 80 bytes -->
+
         <!-- # NOTE, World struct in JWE has an extra pointer this import/export is not accounting for yet -->
         <field name="worldType" type="uint64"/>
         <field name="asset_pkgs" type="Pointer" template="ZStringList" arg="asset_pkgs_count"/>
@@ -24,27 +26,27 @@
          removing some of the data form the .world mime.
     -->
     <struct name="WorldSharedSettingsHeader" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 32 bytes -->
+        <!-- PC2 1.9.3.868368 32 bytes -->
         <field name="Biome Name" type="Pointer" template="ZString">Name of the .biome file</field> 
         <field name="World Type" type="uint64"/>
-        <field name="Skirt Package Name" type="Pointer" template="ZString">.assetpkg file?</field>  <!-- I'm not sure since several things have this name -->
+        <field name="Skirt Package Name" type="Pointer" template="ZString">.assetpkg file?</field>  <!-- Confirmed not to be an assetpkg name, not used, unknown purpose yet -->
         <field name="unknown" type="uint64"/>
     </struct>
 
     <struct name="WorldArtSettingsHeader" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 112 bytes-->
+        <!-- PC2 1.9.3.868368 112 bytes-->
         <field name="Size X" type="uint"/>
         <field name="Size Y" type="uint"/>
         <field name="Size Z" type="uint"/>
-        <field name="unknown_1" type="uint"/>
+        <field name="unknown_1" type="uint"/> <!-- doesn't seem to be used, not mapped into api.world.GetArtInitSettings() -->
         <field name="Skirt Resource Name" type="Pointer" template="ZString"/>
-        <field name="Landscape Prefab Name" type="Pointer" template="ZString"/>
+        <field name="Full Scale Material Name" type="Pointer" template="ZString"/>
         <field name="Skirt Material Names" type="Pointer" template="ZStringList" arg="Skirt Material Names Count">List of fgms for the skirts</field>
         <field name="Skirt Material Names Count" type="uint64"/>
         <field name="Packages To Load" type="Pointer" template="ZStringList" arg="Packages To Load Count"/>
         <field name="Packages To Load Count" type="uint64"/>
         <field name="Height Map File Name" type="Pointer" template="ZString"/>
-        <field name="unknown_3" type="uint64"/> <!-- this could be the Landscape prefab name -->
+        <field name="LandScape Prefab Name" type="Pointer" template="ZString"/>
         <field name="Sea Prefab Name" type="Pointer" template="ZString"/>
         <field name="Colour Grade Name" type="Pointer" template="ZString">Name of the LUT file to load for this world.</field>
         <field name="Sun Horizon Rotation" type="float"/>
