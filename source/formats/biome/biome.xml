@@ -4,30 +4,31 @@
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <struct name="BiomeArtIcon" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 -->
+        <!-- Last checked PC2 1.9.3.868368 -->
         <field name="Icon Name" type="Pointer" template="ZString" />
-        <field name="Unknown Int" type="uint64" />
+        <field name="Hide Layer" type="uint64" />
     </struct>
 
     <struct name="BiomeRoot" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 -->
+        <!-- Last checked PC2 1.9.3.868368, version 1 -->
         <field name="Biome Name" type="Pointer" template="ZString" /> <!-- could be geome name -->
+        <field name="Unknown 1"  type="uint64" default="0" optional="True"/> <!-- Unused, probably padding -->
     </struct>
 
     <struct name="BiomeAudioSettingsRoot" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 -->
+        <!-- Last checked PC2 1.9.3.868368, version 1 -->
         <field name="Ambience Name" type="Pointer" template="ZString" />
         <field name="Primary Ambience Name" type="Pointer" template="ZString" />
     </struct>
 
     <struct name="BiomeDesignSettingsRoot" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 -->
-        <field name="Sandbox Initial Save Relative File Path" type="Pointer" template="ZString" />
+        <!-- Last checked PC2 1.9.3.868368, version 1 -->
+        <field name="Sandbox Bin File" type="Pointer" template="ZString" />
         <field name="Sandbox World Name" type="Pointer" template="ZString" />
     </struct>
 
     <struct name="BiomeArtSettingsRoot" inherit="MemStruct">
-        <!-- From PC2 1.0.7.434846 -->
+        <!-- Last checked PC2 1.9.3.868368, version 4  80 bytes -->
         <field name="Packages To Load" type="Pointer" template="ZStringList" arg="Packages To Load Count" />
         <field name="Packages To Load Count" type="uint64" />
         <field name="Default Full Scale Material Name" type="Pointer" template="ZString" />
@@ -37,6 +38,7 @@
         <field name="Brush Package" type="Pointer" template="ZString" />
         <field name="Material Icons" type="ArrayPointer" template="BiomeArtIcon" arg="Material Icons Count" />
         <field name="Material Icons Count" type="uint64" />
+        <field name="Unknown 1"  type="uint64" default="0" optional="True"/> <!-- Unused, probably padding -->       
     </struct>
 
 </fileformat>

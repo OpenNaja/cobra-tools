@@ -15,5 +15,6 @@ class BiomeArtSettingsRoot(MemStruct):
     brush_package: Pointer[str]
     material_icons: ArrayPointer[BiomeArtIcon]
     material_icons_count: int
+    unknown_1: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

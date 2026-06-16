@@ -12,6 +12,7 @@ class BiomeArtSettingsRoot(MemStruct):
 		self.packages_to_load_count = name_type_map['Uint64'](self.context, 0, None)
 		self.material_names_count = name_type_map['Uint64'](self.context, 0, None)
 		self.material_icons_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unknown_1 = name_type_map['Uint64'].from_value(0)
 		self.packages_to_load = name_type_map['Pointer'](self.context, self.packages_to_load_count, name_type_map['ZStringList'])
 		self.default_full_scale_material_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.material_names = name_type_map['Pointer'](self.context, self.material_names_count, name_type_map['ZStringList'])
@@ -33,6 +34,7 @@ class BiomeArtSettingsRoot(MemStruct):
 		yield 'brush_package', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'material_icons', name_type_map['ArrayPointer'], (None, name_type_map['BiomeArtIcon']), (False, None), (None, None)
 		yield 'material_icons_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unknown_1', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,3 +48,4 @@ class BiomeArtSettingsRoot(MemStruct):
 		yield 'brush_package', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'material_icons', name_type_map['ArrayPointer'], (instance.material_icons_count, name_type_map['BiomeArtIcon']), (False, None)
 		yield 'material_icons_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unknown_1', name_type_map['Uint64'], (0, None), (True, 0)
