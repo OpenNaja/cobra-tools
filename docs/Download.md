@@ -26,9 +26,11 @@ You need to have installed:
 <div class="annotate" markdown>
 - [Microsoft Visual C++ Redistributable 2017 x64](https://aka.ms/vs/15/release/vc_redist.x64.exe){:target="_blank"} (1)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://aka.ms/highdpimfc2013x86enu){:target="_blank"} (2)
+- [Xiph.org Directshow Filters](https://www.xiph.org/dshow/downloads){:target="_blank"} (3)
 </div>
 1. Required for texture conversion
 2. Required for Lua decompilation
+3. Required for audio playback in BNK Editor
 
 ### Download
 

@@ -11,6 +11,7 @@ from generated.formats.bnk import BnkFile
 from generated.formats.ovl import OvlFile
 from constants import ConstantsProvider
 from generated.formats.bnk.enums.HircType import HircType
+from gui.widgets.sound import AudioWidget
 from modules.formats.utils.wem_conversion import write_riff_file
 from modules.formats.shared import fmt_hash
 
@@ -145,6 +146,7 @@ class MainWindow(window.MainWindow):
 		self.events_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 		self.events_tree.files_dropped.connect(self.inject_wem)
 		self.events_tree.files_dragged.connect(self.drag_files)
+		self.events_tree.itemSelectionChanged.connect(self.update_playback)
 
 		self.btn_expand = QPushButton("Expand All", self)
 		self.btn_collapse = QPushButton("Collapse All", self)
@@ -153,10 +155,11 @@ class MainWindow(window.MainWindow):
 
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
+		self.audio_widget = AudioWidget()
 
 		left_frame = widgets.pack_in_box(self.bnks_tree, self.game_choice)
 		tree_tools = widgets.pack_in_box(self.btn_expand, self.btn_collapse, layout=QtWidgets.QHBoxLayout)
-		right_frame = widgets.pack_in_box(tree_tools, self.events_tree, )
+		right_frame = widgets.pack_in_box(self.audio_widget, tree_tools, self.events_tree, )
 
 		splitter = QtWidgets.QSplitter()
 		splitter.addWidget(left_frame)
@@ -181,6 +184,14 @@ class MainWindow(window.MainWindow):
 		})
 
 		self.fill_bnks()
+
+	def update_playback(self):
+		"""Sets the last selected file as the playback"""
+		ids = self.get_selected_ids()
+		if ids:
+			out_paths = self.extract_audio(self.tmp_dir, [ids[-1],])
+			if len(out_paths) == 1:
+				self.audio_widget.load_file(out_paths[0])
 
 	def replace_ask_core(self, ids):
 		wem_file_paths = QtWidgets.QFileDialog.getOpenFileNames(
