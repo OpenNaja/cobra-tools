@@ -2,7 +2,7 @@ import os
 import shutil
 import logging
 import tempfile
-
+import webbrowser
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.app_utils import get_icon
@@ -24,6 +24,7 @@ suffices = ("_Media", "_Events", "_DistMedia")
 class EventTree(QtWidgets.QTreeWidget):
 	files_dropped = QtCore.pyqtSignal(list)
 	files_dragged = QtCore.pyqtSignal(list)
+	selected_ids = QtCore.pyqtSignal(list)
 
 	def __init__(self, parent=None):
 		super().__init__(parent)
@@ -32,6 +33,7 @@ class EventTree(QtWidgets.QTreeWidget):
 		self.setDropIndicatorShown(True)
 		self.setDefaultDropAction(Qt.DropAction.CopyAction)
 		self.ignore_drop_type = ""
+		self.itemSelectionChanged.connect(self.emit_ids)
 
 	def accept_ignore(self, e: QtGui.QDropEvent) -> None:
 		if not self.ignore_drop_type:
@@ -68,12 +70,12 @@ class EventTree(QtWidgets.QTreeWidget):
 		self.setAcceptDrops(True)
 
 	def get_ids_for_items(self, items):
-		files = []
+		ids = []
 		for item in items:
 			event_id, wem_id = self.get_id_for_item(item)
 			if event_id and wem_id:
-				files.append((event_id, wem_id))
-		return files
+				ids.append((event_id, wem_id))
+		return ids
 
 	def get_id_for_item(self, item):
 		if item:
@@ -95,13 +97,16 @@ class EventTree(QtWidgets.QTreeWidget):
 			names.insert(0, item.text(0))
 		return names
 
-	def get_subtree_nodes(self, tree_widget_item):
+	def get_subtree_nodes(self, item):
 		"""Returns all QTreeWidgetItems in the subtree rooted at the given node."""
 		nodes = []
-		nodes.append(tree_widget_item)
-		for i in range(tree_widget_item.childCount()):
-			nodes.extend(self.get_subtree_nodes(tree_widget_item.child(i)))
+		nodes.append(item)
+		for child in self.get_children(item):
+			nodes.extend(self.get_subtree_nodes(child))
 		return nodes
+
+	def get_children(self, item):
+		return [item.child(i) for i in range(item.childCount())]
 
 	def get_all_items(self):
 		"""Returns all QTreeWidgetItems in the given QTreeWidget."""
@@ -110,6 +115,25 @@ class EventTree(QtWidgets.QTreeWidget):
 			top_item = self.topLevelItem(i)
 			all_items.extend(self.get_subtree_nodes(top_item))
 		return all_items
+
+	def get_selected_ids(self):
+		return self.get_ids_for_items(self.get_selected_items())
+
+	def emit_ids(self):
+		return self.selected_ids.emit(self.get_selected_ids())
+
+
+class AudioTree(EventTree):
+
+	def get_id_for_item(self, item):
+		if item:
+			# print(self.get_parents(item))
+			if len(self.get_parents(item)) == 1:
+				# event_id = self.get_parents(item)[0]  #.removeprefix("0x")
+				wem_id = item.text(0)  #.removeprefix("0x")
+				return 999, wem_id
+		return None, None
+
 
 class MainWindow(window.MainWindow):
 
@@ -146,30 +170,30 @@ class MainWindow(window.MainWindow):
 		self.events_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 		self.events_tree.files_dropped.connect(self.inject_wem)
 		self.events_tree.files_dragged.connect(self.drag_files)
-		self.events_tree.itemSelectionChanged.connect(self.update_playback)
+		self.events_tree.selected_ids.connect(self.update_playback)
 
-		self.btn_expand = QPushButton("Expand All", self)
-		self.btn_collapse = QPushButton("Collapse All", self)
-		self.btn_expand.pressed.connect(self.events_tree.expandAll)
-		self.btn_collapse.pressed.connect(self.events_tree.collapseAll)
+		self.audio_tree = AudioTree(self)
+		self.audio_tree.setColumnCount(1)
+		self.audio_tree.setHeaderLabels(("Name",))
+		# self.audio_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+		# self.audio_tree.customContextMenuRequested.connect(self.context_menu)
+		# self.audio_tree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+		# self.audio_tree.files_dropped.connect(self.inject_wem)
+		# self.audio_tree.files_dragged.connect(self.drag_files)
+		self.audio_tree.selected_ids.connect(self.update_playback)
 
 		self.game_choice = GameSelectorWidget(self)
 		self.game_choice.installed_game_chosen.connect(self.fill_bnks)
 		self.audio_widget = AudioWidget()
 
 		left_frame = widgets.pack_in_box(self.bnks_tree, self.game_choice)
-		tree_tools = widgets.pack_in_box(self.btn_expand, self.btn_collapse, layout=QtWidgets.QHBoxLayout)
-		right_frame = widgets.pack_in_box(self.audio_widget, tree_tools, self.events_tree, )
+		trees = self.build_splitter((self.build_tree_frame(self.events_tree), self.build_tree_frame(self.audio_tree)), (3, 2))
+		right_frame = widgets.pack_in_box(self.audio_widget, trees)
 
-		splitter = QtWidgets.QSplitter()
-		splitter.addWidget(left_frame)
-		splitter.addWidget(right_frame)
-		splitter.setStretchFactor(0, 1)
-		splitter.setStretchFactor(1, 3)
-		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		main_splitter = self.build_splitter((left_frame, right_frame), (1, 3))
 
 		self.qgrid = QtWidgets.QVBoxLayout()
-		self.qgrid.addWidget(splitter)
+		self.qgrid.addWidget(main_splitter)
 		self.qgrid.addWidget(self.progress)
 		self.central_widget.setLayout(self.qgrid)
 
@@ -180,16 +204,38 @@ class MainWindow(window.MainWindow):
 				MenuItem("Inject", self.inject_ask, shortcut="CTRL+I", icon="inject", tooltip="Replace sounds by wem files of the same name"),
 				MenuItem("Replace with", self.inject_ask, shortcut="CTRL+R", icon="inject", tooltip="Replace all selected sounds by a wem file"),
 			],
-			widgets.HELP_MENU: self.help_menu_items
+			widgets.HELP_MENU: [*self.help_menu_items,
+				MenuItem("Download Audio Codecs", self.download_audio_codecs, icon="inject", tooltip="Download Xiph DirectShow filters for audio playback"),
+		]
 		})
 
 		self.fill_bnks()
 
-	def update_playback(self):
+	def download_audio_codecs(self) -> None:
+		webbrowser.open("https://www.xiph.org/dshow/downloads/", new=2)
+		
+	def build_splitter(self, frames, stretches):
+		splitter = QtWidgets.QSplitter()
+		for frame in frames:
+			splitter.addWidget(frame)
+		for i, s in enumerate(stretches):
+			splitter.setStretchFactor(i, s)
+		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		return splitter
+
+	def build_tree_frame(self, tree):
+		btn_expand = QPushButton("Expand All", self)
+		btn_collapse = QPushButton("Collapse All", self)
+		btn_expand.pressed.connect(tree.expandAll)
+		btn_collapse.pressed.connect(tree.collapseAll)
+		tree_tools = widgets.pack_in_box(btn_expand, btn_collapse, layout=QtWidgets.QHBoxLayout)
+		return widgets.pack_in_box(tree_tools, tree)
+
+	def update_playback(self, selected_ids):
 		"""Sets the last selected file as the playback"""
-		ids = self.get_selected_ids()
-		if ids:
-			out_paths = self.extract_audio(self.tmp_dir, [ids[-1],])
+		if selected_ids:
+			print(selected_ids)
+			out_paths = self.extract_audio(self.tmp_dir, [selected_ids[-1],])
 			if len(out_paths) == 1:
 				self.audio_widget.load_file(out_paths[0])
 
@@ -204,12 +250,11 @@ class MainWindow(window.MainWindow):
 					self.inject_wem_core(wem_file_path, wem_id)
 
 	def replace_ask(self):
-		ids = self.get_selected_ids()
+		ids = self.events_tree.get_selected_ids()
 		self.replace_ask_core(ids)
 
 	def context_menu(self, pos):
-		# item = self.events_tree.itemAt(pos)
-		ids = self.get_selected_ids()
+		ids = self.events_tree.get_selected_ids()
 		if ids:
 			def extract_callback(checked):
 				out_dir = QtWidgets.QFileDialog.getExistingDirectory(directory=self.cfg.get("dir_extract"))
@@ -229,12 +274,6 @@ class MainWindow(window.MainWindow):
 			menu.addAction(replace)
 
 			menu.exec(self.events_tree.mapToGlobal(pos))
-
-	def get_selected_ids(self):
-		items = self.events_tree.get_selected_items()
-		items = [self.events_tree.get_id_for_item(item) for item in items]
-		items = [item for item in items if item != (None, None)]
-		return items
 
 	def get_subfolders(self, dir_path):
 		for name in os.listdir(dir_path):
@@ -398,9 +437,9 @@ class MainWindow(window.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def show_node(self, hirc, qt_parent, sid_2_hirc, lut):
+	def show_node(self, hirc, qt_parent, sid_2_hirc, lut, event):
 		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
-		name = lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
+		name = self.get_node_name(hirc, lut)
 		self.shown.add(hirc.data.id)
 		hirc_item.setText(0, name)
 		hirc_item.setIcon(0, get_icon("dir"))
@@ -422,18 +461,24 @@ class MainWindow(window.MainWindow):
 				if not child:
 					logging.warning(f"Child {child_id} not found")
 					continue
-				self.show_node(child, hirc_item, sid_2_hirc, lut)
+				self.show_node(child, hirc_item, sid_2_hirc, lut, event)
 		if hirc.id == HircType.SOUND:
 			sbi = hirc.data.ak_bank_source_data
-			self.show_sbi(hirc_item, sbi)
+			self.show_sbi(hirc_item, sbi, self.get_node_name(event, lut))
 		if hirc.id == HircType.MUSIC_TRACK:
 			for sbi in hirc.data.ak_bank_source_data:
-				self.show_sbi(hirc_item, sbi)
+				self.show_sbi(hirc_item, sbi, self.get_node_name(event, lut))
 
-	def show_sbi(self, hirc_item, sbi):
+	def get_node_name(self, hirc, lut):
+		return lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
+
+	def show_sbi(self, hirc_item, sbi, event_name):
 		info = sbi.ak_media_information
 		wem_id = fmt_hash(info.source_i_d)
 		src_item = QtWidgets.QTreeWidgetItem(hirc_item)
+		# the event may refer to a wem_id from a foreign bnk
+		if wem_id in self.audio_event_map:
+			self.audio_event_map[wem_id].append(event_name)
 		src_item.setText(0, f"0x{wem_id}")
 		icon = get_icon("bnk")
 		src_item.setIcon(0, icon)
@@ -449,9 +494,6 @@ class MainWindow(window.MainWindow):
 			try:
 				self.bnk_media.load(self.filepath_media)
 				self.bnk_events.load(self.filepath_events)
-				# logging.info(self.bnk_events.aux_b)
-				# print(self.bnk_media)
-				# print(self.bnk_media.aux_b)
 				if not self.bnk_events.aux_b.hirc:
 					logging.warning("No hirc found")
 					return
@@ -459,18 +501,45 @@ class MainWindow(window.MainWindow):
 				# get the lut of fnv1 of the sound names
 				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
 
-				self.events_tree.clear()
-				self.shown = set()
-				for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
-					if hirc.id == HircType.EVENT:
-						self.show_node(hirc, self.events_tree, sid_2_hirc, lut)
-				self.events_tree.expandAll()
-				self.events_tree.sortItems(0, QtCore.Qt.AscendingOrder)
-				self.events_tree.resizeColumnToContents(0)
-				self.events_tree.resizeColumnToContents(1)
-				self.events_tree.resizeColumnToContents(2)
+				self.fill_events_tree(lut, sid_2_hirc)
+				self.fill_audio_tree(lut, sid_2_hirc)
 			except:
 				self.handle_error("Loading failed, see log!")
+
+	def fill_events_tree(self, lut, sid_2_hirc):
+		self.events_tree.clear()
+		self.audio_event_map = {name: [] for name in self.bnk_media.ptr_map}
+		self.shown = set()
+		for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+			if hirc.id == HircType.EVENT:
+				self.show_node(hirc, self.events_tree, sid_2_hirc, lut, hirc)
+		self.events_tree.expandAll()
+		self.events_tree.sortItems(0, QtCore.Qt.AscendingOrder)
+		self.events_tree.resizeColumnToContents(0)
+		self.events_tree.resizeColumnToContents(1)
+		self.events_tree.resizeColumnToContents(2)
+
+	def fill_audio_tree(self, lut, sid_2_hirc):
+		self.audio_tree.clear()
+		# self.shown = set()
+		for name in self.bnk_media.ptr_map:
+			# info = sbi.ak_media_information
+			# wem_id = fmt_hash(info.source_i_d)
+			src_item = QtWidgets.QTreeWidgetItem(self.audio_tree)
+			src_item.setText(0, f"0x{name}")
+			icon = get_icon("bnk")
+			src_item.setIcon(0, icon)
+			for event_id in self.audio_event_map[name]:
+				event_item = QtWidgets.QTreeWidgetItem(src_item)
+				event_item.setIcon(0, get_icon("dir"))
+				event_item.setText(0, event_id)
+			# src_item.setText(1, f"WEM {sbi.stream_type.name}")
+			# src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
+		self.audio_tree.expandAll()
+		# self.audio_tree.sortItems(0, QtCore.Qt.AscendingOrder)
+		# self.audio_tree.resizeColumnToContents(0)
+		# self.audio_tree.resizeColumnToContents(1)
+		# self.audio_tree.resizeColumnToContents(2)
 
 	def save(self, filepath) -> None:
 		try:
