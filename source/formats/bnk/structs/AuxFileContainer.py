@@ -10,6 +10,7 @@ from generated.formats.bnk.structs.HIRCSection import HIRCSection
 from generated.base_struct import BaseStruct
 from generated.formats.base.structs.PadAlign import get_padding
 from generated.formats.bnk.enums.HircType import HircType
+from generated.formats.bnk.structs.STIDSection import STIDSection
 from modules.formats.shared import fmt_hash
 
 
@@ -54,9 +55,8 @@ class AuxFileContainer(BaseStruct):
 					instance.data = DATASection.from_stream(stream, instance.context, 0, None)
 					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b"STID":
-					pass
-					# instance.data = DATASection.from_stream(stream, instance.context, 0, None)
-					# instance.chunks.append((chunk_id, instance.data))
+					instance.data = STIDSection.from_stream(stream, instance.context, 0, None)
+					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b'\x00' * len(chunk_id):
 					# empty chunk, could be the end of the file
 					break
@@ -66,7 +66,8 @@ class AuxFileContainer(BaseStruct):
 				chunk_length = instance.chunks[-1][1].length
 				desired_end = after_size_pos + chunk_length
 				if stream.tell() != desired_end:
-					logging.info(f"Chunk {chunk_id} (length: {chunk_length}) ended up at bad offset {stream.tell()}, seeking to desired {desired_end}")
+					logging.warning(f"Chunk {chunk_id} (length: {chunk_length}) ended up at bad offset {stream.tell()}, seeking to desired {desired_end}")
+					logging.warning(instance.chunks[-1][1])
 					stream.seek(desired_end)
 			# id the pointers
 			if instance.hirc:

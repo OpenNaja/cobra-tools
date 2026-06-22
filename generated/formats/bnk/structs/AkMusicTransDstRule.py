@@ -25,7 +25,7 @@ class AkMusicTransDstRule(BaseStruct):
 		yield 'fade_params', name_type_map['FadeParams'], (0, None), (False, None), (None, None)
 		yield 'u_cue_filter_hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'u_jump_to_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 133, None)
 		yield 'e_entry_type', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'b_play_pre_entry', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'b_dest_match_source_cue_name', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
@@ -36,7 +36,8 @@ class AkMusicTransDstRule(BaseStruct):
 		yield 'fade_params', name_type_map['FadeParams'], (0, None), (False, None)
 		yield 'u_cue_filter_hash', name_type_map['Uint'], (0, None), (False, None)
 		yield 'u_jump_to_i_d', name_type_map['Uint'], (0, None), (False, None)
-		yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None)
+		if instance.context.version >= 133:
+			yield 'e_jump_to_type', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'e_entry_type', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'b_play_pre_entry', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'b_dest_match_source_cue_name', name_type_map['Ubyte'], (0, None), (False, None)

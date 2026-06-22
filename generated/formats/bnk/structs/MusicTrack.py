@@ -20,6 +20,8 @@ class MusicTrack(HircObject):
 		self.p_items = Array(self.context, 0, None, (0,), name_type_map['AkClipAutomation'])
 		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
 		self.e_track_type = name_type_map['Ubyte'](self.context, 0, None)
+		self.switch_params = name_type_map['SwitchParams'](self.context, 0, None)
+		self.trans_params = name_type_map['TransParams'](self.context, 0, None)
 		self.i_look_ahead_time = name_type_map['Int'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -37,6 +39,8 @@ class MusicTrack(HircObject):
 		yield 'p_items', Array, (0, None, (None,), name_type_map['AkClipAutomation']), (False, None), (None, None)
 		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None), (None, None)
 		yield 'e_track_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'switch_params', name_type_map['SwitchParams'], (0, None), (False, None), (None, True)
+		yield 'trans_params', name_type_map['TransParams'], (0, None), (False, None), (None, True)
 		yield 'i_look_ahead_time', name_type_map['Int'], (0, None), (False, None), (None, None)
 
 	@classmethod
@@ -52,4 +56,7 @@ class MusicTrack(HircObject):
 		yield 'p_items', Array, (0, None, (instance.num_clip_automation_item,), name_type_map['AkClipAutomation']), (False, None)
 		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None)
 		yield 'e_track_type', name_type_map['Ubyte'], (0, None), (False, None)
+		if instance.e_track_type == 3:
+			yield 'switch_params', name_type_map['SwitchParams'], (0, None), (False, None)
+			yield 'trans_params', name_type_map['TransParams'], (0, None), (False, None)
 		yield 'i_look_ahead_time', name_type_map['Int'], (0, None), (False, None)

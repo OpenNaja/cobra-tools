@@ -2,6 +2,8 @@
 
 import logging
 from generated.base_struct import BaseStruct
+from generated.formats.base.basic import Uint
+
 
 # END_GLOBALS
 
@@ -16,9 +18,12 @@ class HircPointer(BaseStruct):
 			super().read_fields(stream, instance)
 		except:
 			logging.warning(f"HIRC block {instance.id} at offset {instance.io_start} failed to read")
-			stream.seek(instance.data.io_start + instance.length)
-			# return
-			raise IOError("Reading failed")
+			# logging.exception(f"HIRC block {instance.id} at offset {instance.io_start} failed to read")
+			stream.seek(instance.io_start + 1)
+			length = Uint.from_stream(stream)
+			stream.seek(instance.io_start + length + 5)
+			return
+			# raise IOError("Reading failed")
 		if instance.data.io_size != instance.length:
 			logging.warning(f"HIRC block {instance.id} at offset {instance.io_start} expected {instance.length}, but read {instance.data.io_size} bytes")
 			stream.seek(instance.data.io_start + instance.length)

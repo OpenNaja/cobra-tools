@@ -214,7 +214,8 @@
     </struct>
 
     <struct name="Event" inherit="HircObject">
-        <field name="num actions" type="ubyte"/>
+        <field name="num actions" type="uint" until="122"/>
+        <field name="num actions" type="ubyte" since="123">todo varint</field>
         <field name="children" type="uint" arr1="num_actions"/>
     </struct>
 
@@ -269,11 +270,20 @@
 		<member width="2" pos="2" name="ePannerType" type="int"/>
 		<member width="2" pos="5" name="e3DPositionType" type="int"/>
 	</bitfield>
+	<bitfield name="uBitsPositioning122" storage="ubyte">
+		<member width="1" pos="0" name="bPositioningInfoOverrideParent" type="int"/>
+		<member width="1" pos="1" name="unknown2d_next_flag" type="int"/>
+		<member width="1" pos="2" name="unknown2d" type="int"/>
+		<member width="1" pos="3" name="cbIs3DPositioningAvailable" type="int"/>
+	</bitfield>
 
     <struct name="PositioningParams">
-        <field name="uBitsPositioning" type="uBitsPositioning"/>
-        <field name="uBits3d" type="ubyte" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
-        <field name="PositioningAutomation" type="PositioningAutomation" cond="uBitsPositioning\e3DPositionType #AND# uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+        <field name="uBitsPositioning" type="uBitsPositioning122" until="122"/>
+        <field name="uBitsPositioning" type="uBitsPositioning" since="130"/>
+        <field name="uBits3d" type="ubyte" since="130" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+        <field name="uBits3d" type="ubyte" until="122" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\cbIs3DPositioningAvailable"/>
+        <field name="PositioningAutomation" since="130" type="PositioningAutomation" cond="uBitsPositioning\e3DPositionType #AND# uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\bHasListenerRelativeRouting"/>
+        <field name="uAttenuationID" type="int" until="129" cond="uBitsPositioning\bPositioningInfoOverrideParent #AND# uBitsPositioning\cbIs3DPositioningAvailable"/>
     </struct>
 
     <struct name="Vec">
@@ -310,7 +320,7 @@
     <struct name="AuxParams">
         <field name="byBitVector" type="AuxBitfield"/>
         <field name="aux" type="uint" arr1="4" cond="byBitVector\bHasAux"/>
-        <field name="reflectionsAuxBus" type="uint"/>
+        <field name="reflectionsAuxBus" type="uint" since="138"/>
     </struct>
 
     <struct name="AdvSettingsParams">
@@ -350,12 +360,13 @@
 
 
     <struct name="StateChunk">
+        <field name="ulNumStateProps" type="uint" until="120"/>
 <!--        todo varint-->
-        <field name="ulNumStateProps" type="ubyte"/>
+        <field name="ulNumStateProps" type="ubyte" since="121"/>
         <field name="stateProps" type="AkStatePropertyInfo" arr1="ulNumStateProps"/>
 <!--        todo varint-->
-        <field name="ulNumStateGroups" type="ubyte"/>
-        <field name="stateGroups" type="AkStateGroupChunk" arr1="ulNumStateGroups"/>
+        <field name="ulNumStateGroups" type="ubyte" since="125"/>
+        <field name="stateGroups" type="AkStateGroupChunk" arr1="ulNumStateGroups" since="125"/>
     </struct>
 
     <struct name="AkRTPCGraphPoint">
@@ -524,7 +535,7 @@
     <struct name="AkTrackSrcInfo">
         <field name="trackID" type="uint"/>
         <field name="sourceID" type="uint"/>
-        <field name="eventID" type="uint"/>
+        <field name="eventID" type="uint" since="133"/>
         <field name="fPlayAt" type="double"/>
         <field name="fBeginTrimOffset" type="double"/>
         <field name="fEndTrimOffset" type="double"/>
@@ -555,7 +566,8 @@
     <struct name="AkMusicMarkerWwise">
         <field name="id" type="uint"/>
         <field name="fPosition" type="double"/>
-        <field name="pMarkerName" type="ZString"/>
+        <field name="uStringSize" type="uint" until="136"/>
+        <field name="pMarkerName" type="ZString" since="137"/>
     </struct>
 
     <struct name="CAkStinger">
@@ -602,7 +614,7 @@
         <field name="fadeParams" type="fadeParams"/>
         <field name="uCueFilterHash" type="uint"/>
         <field name="uJumpToID" type="uint"/>
-        <field name="eJumpToType" type="ushort"/>
+        <field name="eJumpToType" type="ushort" since="133"/>
         <field name="eEntryType" type="ushort"/>
         <field name="bPlayPreEntry" type="ubyte"/>
         <field name="bDestMatchSourceCueName" type="ubyte"/>
@@ -660,6 +672,21 @@
 <!--									</obj>-->
     </struct>
 
+    <struct name="SwitchParams" >
+        <field name="eGroupType" type="ubyte" />
+        <field name="uGroupID" type="uint" />
+        <field name="uDefaultSwitch" type="uint" />
+        <field name="numSwitchAssoc" type="uint" />
+        <field name="ulSwitchAssoc" type="uint" arr1="numSwitchAssoc" />
+    </struct>
+
+    <struct name="TransParams" >
+        <field name="srcFadeParams" type="fadeParams"/>
+        <field name="eSyncType" type="uint" />
+        <field name="uCueFilterHash" type="uint" />
+        <field name="destFadeParams" type="fadeParams"/>
+    </struct>
+
     <struct name="MusicTrack" inherit="HircObject">
         <field name="uFlags" type="ubyte"/>
         <field name="numSources" type="uint"/>
@@ -671,6 +698,8 @@
         <field name="pItems" type="AkClipAutomation" arr1="numClipAutomationItem"/>
         <field name="NodeBaseParams" type="NodeBaseParams"/>
         <field name="eTrackType" type="ubyte"/>
+        <field name="SwitchParams" type="SwitchParams" cond="eTrackType #EQ# 3"/>
+        <field name="TransParams" type="TransParams" cond="eTrackType #EQ# 3"/>
         <field name="iLookAheadTime" type="int"/>
     </struct>
 

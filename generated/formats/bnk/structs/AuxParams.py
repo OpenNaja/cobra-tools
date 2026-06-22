@@ -21,7 +21,7 @@ class AuxParams(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'by_bit_vector', name_type_map['AuxBitfield'], (0, None), (False, None), (None, None)
 		yield 'aux', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, True)
-		yield 'reflections_aux_bus', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'reflections_aux_bus', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 138, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -29,4 +29,5 @@ class AuxParams(BaseStruct):
 		yield 'by_bit_vector', name_type_map['AuxBitfield'], (0, None), (False, None)
 		if instance.by_bit_vector.b_has_aux:
 			yield 'aux', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
-		yield 'reflections_aux_bus', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 138:
+			yield 'reflections_aux_bus', name_type_map['Uint'], (0, None), (False, None)

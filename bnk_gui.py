@@ -415,19 +415,19 @@ class MainWindow(window.MainWindow):
 					if fp.endswith(".bnk"):
 						if "_events" in fp.lower():
 							self.filepath_events = fp
-						elif "_media" in fp.lower():
+						elif "_media" in fp.lower() or "_distmedia" in fp.lower():
 							self.filepath_media = fp
 						elif "_vo" in fp.lower():
 							self.filepath_events = fp
 							self.filepath_media = fp
 						else:
-							# PC1, no suffices, but reading of bnks is broken
+							# PC1, usually no suffices, but reading of event bnks is broken
 							self.filepath_events = fp
 							self.filepath_media = fp
 			self.set_clean()
 			self.events_tree.clear()
 			self.audio_tree.clear()
-			if self.filepath_media and self.filepath_events:
+			if self.filepath_media or self.filepath_events:
 				# set a dummy path so file_widget knows a file is open
 				# self.file_widget.filepath = self.filepath_media
 				# self.open("")
@@ -504,7 +504,6 @@ class MainWindow(window.MainWindow):
 	def show_node(self, hirc, qt_parent, sid_2_hirc, lut, event):
 		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
 		name = self.get_node_name(hirc, lut)
-		self.shown.add(hirc.data.id)
 		hirc_item.setText(0, name)
 		hirc_item.setIcon(0, get_icon("dir"))
 		hirc_item.setText(1, hirc.id.name)
@@ -518,9 +517,6 @@ class MainWindow(window.MainWindow):
 		if children is not None:
 			hirc_item.setText(2, str(len(children)))
 			for child_id in set(children):
-				# if child_id in self.shown:
-				# 	logging.warning(f"Child {child_id} already shown, skipping to avoid recursion")
-				# 	continue
 				child = sid_2_hirc.get(child_id)
 				if not child:
 					logging.warning(f"Child {child_id} not found")
@@ -553,6 +549,7 @@ class MainWindow(window.MainWindow):
 			src_item.setDisabled(True)
 
 	def open(self, dummy_filepath):
+		self.audio_event_map = {}
 		try:
 			self.bnk_media.load(self.filepath_media)
 			self.bnk_events.load(self.filepath_events)
@@ -562,15 +559,17 @@ class MainWindow(window.MainWindow):
 			sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
 			# get the lut of fnv1 of the sound names
 			lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
-
 			self.fill_events_tree(lut, sid_2_hirc)
-			self.fill_audio_tree(lut, sid_2_hirc)
+		except:
+			self.handle_error("Loading Events failed, see log!")
+
+		try:
+			self.fill_audio_tree()
 		except:
 			self.handle_error("Loading failed, see log!")
 
 	def fill_events_tree(self, lut, sid_2_hirc):
 		self.audio_event_map = {name: [] for name in self.bnk_media.ptr_map}
-		self.shown = set()
 		for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 			if hirc.id == HircType.EVENT:
 				self.show_node(hirc, self.events_tree, sid_2_hirc, lut, hirc)
@@ -580,13 +579,13 @@ class MainWindow(window.MainWindow):
 		self.events_tree.resizeColumnToContents(1)
 		self.events_tree.resizeColumnToContents(2)
 
-	def fill_audio_tree(self, lut, sid_2_hirc):
+	def fill_audio_tree(self):
 		for name in self.bnk_media.ptr_map:
 			src_item = QtWidgets.QTreeWidgetItem(self.audio_tree)
 			src_item.setText(0, f"0x{name}")
 			icon = get_icon("bnk")
 			src_item.setIcon(0, icon)
-			for event_id in sorted(self.audio_event_map[name]):
+			for event_id in sorted(self.audio_event_map.get(name, ())):
 				event_item = QtWidgets.QTreeWidgetItem(src_item)
 				event_item.setIcon(0, get_icon("dir"))
 				event_item.setText(0, event_id)

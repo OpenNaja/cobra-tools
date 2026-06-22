@@ -11,6 +11,7 @@ class AkMusicMarkerWwise(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.id = name_type_map['Uint'](self.context, 0, None)
 		self.f_position = name_type_map['Double'](self.context, 0, None)
+		self.u_string_size = name_type_map['Uint'](self.context, 0, None)
 		self.p_marker_name = name_type_map['ZString'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -20,11 +21,15 @@ class AkMusicMarkerWwise(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'id', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'f_position', name_type_map['Double'], (0, None), (False, None), (None, None)
-		yield 'p_marker_name', name_type_map['ZString'], (0, None), (False, None), (None, None)
+		yield 'u_string_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 136, None)
+		yield 'p_marker_name', name_type_map['ZString'], (0, None), (False, None), (lambda context: context.version >= 137, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'id', name_type_map['Uint'], (0, None), (False, None)
 		yield 'f_position', name_type_map['Double'], (0, None), (False, None)
-		yield 'p_marker_name', name_type_map['ZString'], (0, None), (False, None)
+		if instance.context.version <= 136:
+			yield 'u_string_size', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 137:
+			yield 'p_marker_name', name_type_map['ZString'], (0, None), (False, None)
