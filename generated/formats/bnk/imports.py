@@ -44,6 +44,8 @@ type_module_name_map = {
 	'NestedPointers': 'generated.formats.ovl_base.structs.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
+	'STIDRef': 'generated.formats.bnk.structs.STIDRef',
+	'STIDSection': 'generated.formats.bnk.structs.STIDSection',
 	'BKHDSection': 'generated.formats.bnk.structs.BKHDSection',
 	'DataPointer': 'generated.formats.bnk.structs.DataPointer',
 	'DIDXSection': 'generated.formats.bnk.structs.DIDXSection',

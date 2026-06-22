@@ -3,6 +3,8 @@ import shutil
 import logging
 import tempfile
 import webbrowser
+from pathlib import Path
+import re
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.app_utils import get_icon
@@ -17,9 +19,20 @@ from modules.formats.shared import fmt_hash
 
 from PyQt5.QtWidgets import QApplication, QTreeWidgetItem, QPushButton
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject
 
 suffices = ("_Media", "_Events", "_DistMedia")
+
+def atoi(text):
+	return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+	"""
+	alist.sort(key=natural_keys) sorts in human order
+	http://nedbatchelder.com/blog/200712/human_sorting.html
+	(See Toothy's implementation in the comments)
+	"""
+	return [atoi(c) for c in re.split(r'(\d+)', text)]
+
 
 class EventTree(QtWidgets.QTreeWidget):
 	files_dropped = QtCore.pyqtSignal(list)
@@ -31,7 +44,7 @@ class EventTree(QtWidgets.QTreeWidget):
 		self.setAcceptDrops(True)
 		self.setDragEnabled(True)
 		self.setDropIndicatorShown(True)
-		self.setDefaultDropAction(Qt.DropAction.CopyAction)
+		self.setDefaultDropAction(QtCore.Qt.DropAction.CopyAction)
 		self.ignore_drop_type = ""
 		self.itemSelectionChanged.connect(self.emit_ids)
 
@@ -59,12 +72,12 @@ class EventTree(QtWidgets.QTreeWidget):
 			self.files_dropped.emit(file_paths)
 			event.accept()
 
-	def startDrag(self, _supportedActions: (Qt.DropActions | Qt.DropAction)) -> None:
+	def startDrag(self, _supportedActions: (QtCore.Qt.DropActions | QtCore.Qt.DropAction)) -> None:
 		"""Emits a signal with the file names of all files that are being dragged"""
 		# Disallow drops on self after drag has begun
 		self.setAcceptDrops(False)
 		# Drag only with LMB
-		if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+		if QApplication.mouseButtons() & QtCore.Qt.MouseButton.LeftButton:
 			self.files_dragged.emit(self.get_ids_for_items(self.get_selected_items()))
 		# Allow drops on self after drag has finished
 		self.setAcceptDrops(True)
@@ -127,7 +140,6 @@ class AudioTree(EventTree):
 
 	def get_id_for_item(self, item):
 		if item:
-			# print(self.get_parents(item))
 			if len(self.get_parents(item)) == 1:
 				# event_id = self.get_parents(item)[0]  #.removeprefix("0x")
 				wem_id = item.text(0)  #.removeprefix("0x")
@@ -153,6 +165,7 @@ class MainWindow(window.MainWindow):
 
 		self.bnk_name = ""
 		self.cp_name = ""
+		self.parts = ()
 		self.filepath_events = None
 		self.filepath_media = None
 		self.bnk_map = {}
@@ -234,7 +247,6 @@ class MainWindow(window.MainWindow):
 	def update_playback(self, selected_ids):
 		"""Sets the last selected file as the playback"""
 		if selected_ids:
-			print(selected_ids)
 			out_paths = self.extract_audio(self.tmp_dir, [selected_ids[-1],])
 			if len(out_paths) == 1:
 				self.audio_widget.load_file(out_paths[0])
@@ -282,7 +294,11 @@ class MainWindow(window.MainWindow):
 				yield sub_dir_path
 
 	def get_ovl_files(self, dir_path):
+		folder_name = os.path.basename(dir_path)
+		# print(folder_name)
 		for name in os.listdir(dir_path):
+			# todo discard elsewhere
+			# if folder_name in name:
 			file_path = os.path.join(dir_path, name)
 			if os.path.isfile(file_path) and file_path.endswith(".ovl"):
 				yield file_path
@@ -297,47 +313,81 @@ class MainWindow(window.MainWindow):
 		game = self.game_choice.get_selected_game()
 		if game:
 			game_dir = self.get_game_path(game)
-			# content packs
-			for cp in self.get_subfolders(game_dir):
+			if not os.path.isdir(game_dir):
+				logging.warning(f"Game {game} is not a directory")
+				return
+			# sort content packs naturally
+			for cp in sorted(self.get_subfolders(game_dir), key=natural_keys):
 				audio_dir = os.path.join(cp, "Audio")
 				if os.path.isdir(audio_dir):
-					cp_map = {}
-					cp_name = os.path.basename(cp)
-					self.bnk_map[cp_name] = cp_map
-					if game in ("Planet Coaster 2", "Jurassic World Evolution 3"):
-						# todo better logic for finding paths
-						# PC2: misses loc ovls?
-						# subfolder and separate ovls
-						for bnk_dir in self.get_subfolders(audio_dir):
-							bnk_name = os.path.basename(bnk_dir)
-							for s in suffices:
-								bnk_name = bnk_name.removesuffix(s)
-								bnk_name = bnk_name.removesuffix(s.lower())
-							for ovl_path in self.get_ovl_files(bnk_dir):
-								self.store_ovl_paths(ovl_path, bnk_name, cp_map)
+					self.discover_recursive(audio_dir, game_dir)
+		rel_path_item_map = {}
+		for parts, ovls in self.bnk_map.items():
+			if not ovls:
+				continue
+			# validate suffixes
+			if not self.validate_ovls(ovls, game):
+				continue
+			for i, part in enumerate(parts):
+				rel_path = parts[:i + 1]
+				if rel_path not in rel_path_item_map:
+					if len(rel_path) == 1:
+						parent = self.bnks_tree
 					else:
-						# ovls directly in audio dir
-						for ovl_path in self.get_ovl_files(audio_dir):
-							bnk_name = os.path.splitext(os.path.basename(ovl_path))[0]
-							self.store_ovl_paths(ovl_path, bnk_name, cp_map)
-		for cp_name, cp_map in sorted(self.bnk_map.items()):
-			cp_item = QtWidgets.QTreeWidgetItem(self.bnks_tree)
-			cp_item.setText(0, cp_name)
-			cp_item.setIcon(0, get_icon("dir"))
-			for bnk_name in sorted(cp_map.keys()):
-				bnk_item = QtWidgets.QTreeWidgetItem(cp_item)
-				bnk_item.setText(0, bnk_name)
-				bnk_item.setIcon(0, get_icon("bnk"))
+						parent = rel_path_item_map[parts[:i]]
+					cp_item = QtWidgets.QTreeWidgetItem(parent)
+					cp_item.setText(0, part)
+
+					if i == len(parts) - 1:
+						cp_item.setIcon(0, get_icon("bnk"))
+					else:
+						if "(" in part:
+							cp_item.setIcon(0, get_icon(part))
+						else:
+							cp_item.setIcon(0, get_icon("dir"))
+
+					# store for subsequent reference
+					rel_path_item_map[rel_path] = cp_item
+
+	def validate_ovls(self, ovls, game):
+		for ovl in ovls:
+			# if len(ovls) == 1 and game == "Jurassic World Evolution 3":
+			# 	if not ovl.endswith("_VO.ovl"):
+			# 		return False
+			if len(ovls) == 1:
+				if ovl.endswith("_media.ovl"):
+					return False
+		return True
+
+	def discover_recursive(self, audio_dir, root):
+		for ovl_path in self.get_ovl_files(audio_dir):
+			self.store_ovl_paths(ovl_path, root)
+		for bnk_dir in self.get_subfolders(audio_dir):
+			self.discover_recursive(bnk_dir, root)
+
+	def store_ovl_paths(self, ovl_path, root):
+		# skip empty dummy ovls
+		if os.path.basename(ovl_path) in ("Audio.ovl", "Init.ovl", "AssetPackageOverlays.ovl", "AssetPackagesOverlays.ovl", "audiometadata.ovl"):
+			return
+		bnk_rel_path = os.path.splitext(os.path.relpath(ovl_path, root))[0]
+		parts = []
+		for part in Path(bnk_rel_path).parts:
+			for s in suffices:
+				part = part.removesuffix(s).removesuffix(s.lower())
+			if part in ("Audio",):
+				continue
+			if parts and part == parts[-1]:
+				continue
+			parts.append(part)
+		parts = tuple(parts)
+		if parts not in self.bnk_map:
+			self.bnk_map[parts] = []
+		self.bnk_map[parts].append(ovl_path)
 
 	def get_game_path(self, game):
 		game_info = self.cfg.get("games").get(game)
 		game_dir = game_info["path"]
 		return game_dir
-
-	def store_ovl_paths(self, ovl_path, bnk_name, cp_map):
-		if bnk_name not in cp_map:
-			cp_map[bnk_name] = []
-		cp_map[bnk_name].append(ovl_path)
 
 	def get_parents(self, item):
 		names = [item.text(0), ]
@@ -347,15 +397,17 @@ class MainWindow(window.MainWindow):
 		return names
 
 	def bnk_selected(self, item):
-		names = self.get_parents(item)
-		if len(names) > 1:
+		parts = tuple(self.get_parents(item))
+		# audio ovls
+		if parts in self.bnk_map:
 			self.filepath_events = None
 			self.filepath_media = None
-			self.cp_name = names[0]
-			self.bnk_name = names[-1]
+			self.parts = parts
+			self.cp_name = parts[0]
+			self.bnk_name = parts[-1]
 			self.clear_tmp_dir()
 			self.setWindowTitle("BNK Editor", file=self.bnk_name)
-			ovl_paths = self.bnk_map[self.cp_name][self.bnk_name]
+			ovl_paths = self.bnk_map[parts]
 			for ovl_path in ovl_paths:
 				ovl_data = OvlFile()
 				ovl_data.load(ovl_path, {"game": self.game_choice.entry.currentText(), })
@@ -363,20 +415,32 @@ class MainWindow(window.MainWindow):
 					if fp.endswith(".bnk"):
 						if "_events" in fp.lower():
 							self.filepath_events = fp
-						if "_media" in fp.lower():
+						elif "_media" in fp.lower():
 							self.filepath_media = fp
+						elif "_vo" in fp.lower():
+							self.filepath_events = fp
+							self.filepath_media = fp
+						else:
+							# PC1, no suffices, but reading of bnks is broken
+							self.filepath_events = fp
+							self.filepath_media = fp
+			self.set_clean()
+			self.events_tree.clear()
+			self.audio_tree.clear()
 			if self.filepath_media and self.filepath_events:
 				# set a dummy path so file_widget knows a file is open
 				# self.file_widget.filepath = self.filepath_media
 				# self.open("")
 				self.file_widget.open_file(f"//{self.bnk_name}")
+		# folder
 		else:
 			# get folder path to open
 			game = self.game_choice.get_selected_game()
 			if game:
 				game_dir = self.get_game_path(game)
-				cp_name = names[0]
-				audio_dir = os.path.join(game_dir, cp_name, "Audio")
+				cp_name = parts[0]
+				rest = parts[1:]
+				audio_dir = os.path.join(game_dir, cp_name, "Audio", *rest)
 				os.startfile(audio_dir)
 
 	def extract_audio(self, out_dir, file_ids):
@@ -489,25 +553,22 @@ class MainWindow(window.MainWindow):
 			src_item.setDisabled(True)
 
 	def open(self, dummy_filepath):
-		if self.filepath_media:
-			self.set_clean()
-			try:
-				self.bnk_media.load(self.filepath_media)
-				self.bnk_events.load(self.filepath_events)
-				if not self.bnk_events.aux_b.hirc:
-					logging.warning("No hirc found")
-					return
-				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
-				# get the lut of fnv1 of the sound names
-				lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
+		try:
+			self.bnk_media.load(self.filepath_media)
+			self.bnk_events.load(self.filepath_events)
+			if not self.bnk_events.aux_b.hirc:
+				logging.warning("No hirc found")
+				return
+			sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
+			# get the lut of fnv1 of the sound names
+			lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
 
-				self.fill_events_tree(lut, sid_2_hirc)
-				self.fill_audio_tree(lut, sid_2_hirc)
-			except:
-				self.handle_error("Loading failed, see log!")
+			self.fill_events_tree(lut, sid_2_hirc)
+			self.fill_audio_tree(lut, sid_2_hirc)
+		except:
+			self.handle_error("Loading failed, see log!")
 
 	def fill_events_tree(self, lut, sid_2_hirc):
-		self.events_tree.clear()
 		self.audio_event_map = {name: [] for name in self.bnk_media.ptr_map}
 		self.shown = set()
 		for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
@@ -520,16 +581,12 @@ class MainWindow(window.MainWindow):
 		self.events_tree.resizeColumnToContents(2)
 
 	def fill_audio_tree(self, lut, sid_2_hirc):
-		self.audio_tree.clear()
-		# self.shown = set()
 		for name in self.bnk_media.ptr_map:
-			# info = sbi.ak_media_information
-			# wem_id = fmt_hash(info.source_i_d)
 			src_item = QtWidgets.QTreeWidgetItem(self.audio_tree)
 			src_item.setText(0, f"0x{name}")
 			icon = get_icon("bnk")
 			src_item.setIcon(0, icon)
-			for event_id in self.audio_event_map[name]:
+			for event_id in sorted(self.audio_event_map[name]):
 				event_item = QtWidgets.QTreeWidgetItem(src_item)
 				event_item.setIcon(0, get_icon("dir"))
 				event_item.setText(0, event_id)
@@ -547,7 +604,7 @@ class MainWindow(window.MainWindow):
 			self.bnk_media.save(self.filepath_media)
 			self.bnk_events.save(self.filepath_events)
 			# inject into the ovls
-			ovl_paths = self.bnk_map[self.cp_name][self.bnk_name]
+			ovl_paths = self.bnk_map[self.parts]
 			for ovl_path in ovl_paths:
 				ovl_data = OvlFile()
 				ovl_data.load_hash_table()

@@ -4,6 +4,19 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <struct name="STIDRef">
+        <field name="bankID" type="uint" >fnv1</field>
+        <field name="stringsize" type="ubyte"/>
+        <field name="name" type="char" arr1="stringsize"/>
+    </struct>
+
+    <struct name="STIDSection">
+        <field name="length" type="uint" >length of following data</field>
+        <field name="uiType" type="uint"/>
+        <field name="uiSize" type="uint"/>
+        <field name="data pointers" type="STIDRef" arr1="uiSize"/>
+    </struct>
+
     <struct name="BKHDSection">
         <field name="length" type="uint" >length of following data</field>
         <field name="version" type="uint"/>

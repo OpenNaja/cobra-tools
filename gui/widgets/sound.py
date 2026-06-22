@@ -1,20 +1,8 @@
-import logging
-import math
-
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QBuffer, QIODevice, Qt
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QPushButton, QSlider, QWidget, QLabel, QCheckBox, QGridLayout
-from PyQt5.QtMultimedia import QAudio, QAudioFormat, QAudioOutput
+from PyQt5.QtWidgets import QSlider, QGridLayout, QWidget, QPushButton, QLabel
+from PyQt5.QtMultimedia import QAudio, QMediaPlayer, QMediaContent
 
 from gui.app_utils import get_icon
-
-
-
-import sys
-from PyQt5.QtCore import QUrl, QTime
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QLabel
-from PyQt5.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaContent
 
 
 class AudioWidget(QWidget):
@@ -29,7 +17,7 @@ class AudioWidget(QWidget):
 		self.volume_label = QLabel()
 		self.volume_label.setPixmap(get_icon("volume").pixmap(16))
 		
-		self.volume_slider = QSlider(Qt.Horizontal)
+		self.volume_slider = QSlider(QtCore.Qt.Horizontal)
 		self.volume_slider.setMinimum(0)
 		self.volume_slider.setMaximum(100)
 		self.volume_slider.setPageStep(1)
@@ -37,7 +25,7 @@ class AudioWidget(QWidget):
 		self.volume_slider.valueChanged.connect(self.change_volume)
 		self.change_volume(self.volume_slider.value())
 
-		self.time_slider = QSlider(Qt.Horizontal)
+		self.time_slider = QSlider(QtCore.Qt.Horizontal)
 		self.time_slider.setMinimum(0)
 		self.time_slider.setMaximum(1000)
 		self.time_slider.setPageStep(1)
@@ -114,7 +102,9 @@ class AudioWidget(QWidget):
 		self.player.setVolume(linearVolume)
 
 	def load_file(self, file_path):
-		media = QMediaContent(QUrl.fromLocalFile(file_path))
+		# set a clear media to force a reload, e.g. for voiceovers that share the same file name
+		self.player.setMedia(QMediaContent())
+		media = QMediaContent(QtCore.QUrl.fromLocalFile(file_path))
 		self.player.setMedia(media)
 
 

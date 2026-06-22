@@ -27,6 +27,10 @@ class AuxFileContainer(BaseStruct):
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		instance.bhkd = None
+		instance.didx = None
+		instance.hirc = None
+		instance.data = None
 		try:
 			instance.chunks = []
 			chunk_id = "DUMM"
@@ -49,15 +53,20 @@ class AuxFileContainer(BaseStruct):
 				elif chunk_id == b"DATA":
 					instance.data = DATASection.from_stream(stream, instance.context, 0, None)
 					instance.chunks.append((chunk_id, instance.data))
+				elif chunk_id == b"STID":
+					pass
+					# instance.data = DATASection.from_stream(stream, instance.context, 0, None)
+					# instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b'\x00' * len(chunk_id):
 					# empty chunk, could be the end of the file
 					break
 				else:
 					raise NotImplementedError(f"Unknown chunk {chunk_id}!")
 				# see where this chunk should have ended
-				desired_end = after_size_pos + instance.chunks[-1][1].length
+				chunk_length = instance.chunks[-1][1].length
+				desired_end = after_size_pos + chunk_length
 				if stream.tell() != desired_end:
-					logging.info(f"Chunk {chunk_id} ended up at bad offset {stream.tell()}, seeking to desired {desired_end}")
+					logging.info(f"Chunk {chunk_id} (length: {chunk_length}) ended up at bad offset {stream.tell()}, seeking to desired {desired_end}")
 					stream.seek(desired_end)
 			# id the pointers
 			if instance.hirc:
