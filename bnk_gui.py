@@ -3,6 +3,7 @@ import shutil
 import logging
 import tempfile
 import webbrowser
+from collections import Counter
 from pathlib import Path
 import re
 
@@ -294,11 +295,7 @@ class MainWindow(window.MainWindow):
 				yield sub_dir_path
 
 	def get_ovl_files(self, dir_path):
-		folder_name = os.path.basename(dir_path)
-		# print(folder_name)
 		for name in os.listdir(dir_path):
-			# todo discard elsewhere
-			# if folder_name in name:
 			file_path = os.path.join(dir_path, name)
 			if os.path.isfile(file_path) and file_path.endswith(".ovl"):
 				yield file_path
@@ -450,15 +447,16 @@ class MainWindow(window.MainWindow):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 
-		for event_id, wem_id in file_ids:
-			logging.info(f"Extracting {event_id} {wem_id}")
+		for event_id, wem_id_raw in file_ids:
+			logging.info(f"Extracting {event_id} {wem_id_raw}")
 			try:
-				ptr = self.bnk_media.ptr_map[wem_id.removeprefix("0x")]
+				wem_id = wem_id_raw.split(" ")[-1].removeprefix("0x")
+				ptr = self.bnk_media.ptr_map[wem_id]
 				out_file = write_riff_file(ptr.data, out_dir_func(f"{self.bnk_name} {event_id} {wem_id}"))
 				if out_file:
 					out_files.append(out_file)
 			except:
-				logging.exception(f"Failed to extract audio for {wem_id}")
+				logging.exception(f"Failed to extract audio for {wem_id_raw}")
 		return out_files
 
 	def is_wem(self, wem_file_path):
@@ -501,7 +499,34 @@ class MainWindow(window.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def show_node(self, hirc, qt_parent, sid_2_hirc, lut, event):
+	def parse_events_node(self, hirc, sid_2_hirc, name):
+		if hasattr(hirc.data, "children"):
+			children = hirc.data.children
+		elif hasattr(hirc.data, "music_node_params"):
+			children = hirc.data.music_node_params.children
+		else:
+			children = None
+		if children is not None:
+			for child_id in set(children):
+				child = sid_2_hirc.get(child_id)
+				if not child:
+					logging.warning(f"Child {child_id} not found")
+					continue
+				self.parse_events_node(child, sid_2_hirc, name)
+		if hirc.id == HircType.SOUND:
+			self.store_name_for_sbi(hirc.data.ak_bank_source_data, name)
+		if hirc.id == HircType.MUSIC_TRACK:
+			for sbi in hirc.data.ak_bank_source_data:
+				self.store_name_for_sbi(sbi, name)
+
+	def store_name_for_sbi(self, sbi, name):
+		info = sbi.ak_media_information
+		wem_id = fmt_hash(info.source_i_d)
+		# the event may refer to a wem_id from a foreign bnk
+		if wem_id in self.wem_to_event_names_map:
+			self.wem_to_event_names_map[wem_id].append(name)
+
+	def show_events_node(self, hirc, qt_parent, sid_2_hirc, lut):
 		hirc_item = QtWidgets.QTreeWidgetItem(qt_parent)
 		name = self.get_node_name(hirc, lut)
 		hirc_item.setText(0, name)
@@ -521,25 +546,22 @@ class MainWindow(window.MainWindow):
 				if not child:
 					logging.warning(f"Child {child_id} not found")
 					continue
-				self.show_node(child, hirc_item, sid_2_hirc, lut, event)
+				self.show_events_node(child, hirc_item, sid_2_hirc, lut)
 		if hirc.id == HircType.SOUND:
 			sbi = hirc.data.ak_bank_source_data
-			self.show_sbi(hirc_item, sbi, self.get_node_name(event, lut))
+			self.show_sbi(hirc_item, sbi)
 		if hirc.id == HircType.MUSIC_TRACK:
 			for sbi in hirc.data.ak_bank_source_data:
-				self.show_sbi(hirc_item, sbi, self.get_node_name(event, lut))
+				self.show_sbi(hirc_item, sbi)
 
 	def get_node_name(self, hirc, lut):
 		return lut.get(hirc.data.id, f"0x{fmt_hash(hirc.data.id)}")
 
-	def show_sbi(self, hirc_item, sbi, event_name):
+	def show_sbi(self, hirc_item, sbi):
 		info = sbi.ak_media_information
 		wem_id = fmt_hash(info.source_i_d)
 		src_item = QtWidgets.QTreeWidgetItem(hirc_item)
-		# the event may refer to a wem_id from a foreign bnk
-		if wem_id in self.audio_event_map:
-			self.audio_event_map[wem_id].append(event_name)
-		src_item.setText(0, f"0x{wem_id}")
+		src_item.setText(0, self.wem_id_to_name.get(wem_id, f"Unknown 0x{wem_id}"))
 		icon = get_icon("bnk")
 		src_item.setIcon(0, icon)
 		src_item.setText(1, f"WEM {sbi.stream_type.name}")
@@ -549,7 +571,7 @@ class MainWindow(window.MainWindow):
 			src_item.setDisabled(True)
 
 	def open(self, dummy_filepath):
-		self.audio_event_map = {}
+		self.wem_to_event_names_map = {}
 		try:
 			self.bnk_media.load(self.filepath_media)
 			self.bnk_events.load(self.filepath_events)
@@ -569,10 +591,15 @@ class MainWindow(window.MainWindow):
 			self.handle_error("Loading failed, see log!")
 
 	def fill_events_tree(self, lut, sid_2_hirc):
-		self.audio_event_map = {name: [] for name in self.bnk_media.ptr_map}
+		self.wem_to_event_names_map = {name: [] for name in self.bnk_media.ptr_map}
 		for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
 			if hirc.id == HircType.EVENT:
-				self.show_node(hirc, self.events_tree, sid_2_hirc, lut, hirc)
+				name = self.get_node_name(hirc, lut)
+				self.parse_events_node(hirc, sid_2_hirc, name)
+		self.guess_wem_names()
+		for hirc in self.bnk_events.aux_b.hirc.hirc_pointers:
+			if hirc.id == HircType.EVENT:
+				self.show_events_node(hirc, self.events_tree, sid_2_hirc, lut)
 		self.events_tree.expandAll()
 		self.events_tree.sortItems(0, QtCore.Qt.AscendingOrder)
 		self.events_tree.resizeColumnToContents(0)
@@ -580,22 +607,43 @@ class MainWindow(window.MainWindow):
 		self.events_tree.resizeColumnToContents(2)
 
 	def fill_audio_tree(self):
-		for name in self.bnk_media.ptr_map:
+		for wem_id, wem_name in self.wem_id_to_name.items():
 			src_item = QtWidgets.QTreeWidgetItem(self.audio_tree)
-			src_item.setText(0, f"0x{name}")
 			icon = get_icon("bnk")
 			src_item.setIcon(0, icon)
-			for event_id in sorted(self.audio_event_map.get(name, ())):
+			src_item.setText(0, wem_name)
+			event_ids = sorted(self.wem_to_event_names_map.get(wem_id, ()))
+			for event_id in event_ids:
 				event_item = QtWidgets.QTreeWidgetItem(src_item)
 				event_item.setIcon(0, get_icon("dir"))
 				event_item.setText(0, event_id)
 			# src_item.setText(1, f"WEM {sbi.stream_type.name}")
 			# src_item.setText(2, f"{info.u_in_memory_media_size} bytes")
 		self.audio_tree.expandAll()
-		# self.audio_tree.sortItems(0, QtCore.Qt.AscendingOrder)
-		# self.audio_tree.resizeColumnToContents(0)
-		# self.audio_tree.resizeColumnToContents(1)
-		# self.audio_tree.resizeColumnToContents(2)
+		self.audio_tree.sortItems(0, QtCore.Qt.AscendingOrder)
+
+	def guess_wem_names(self):
+		name_map = Counter()
+		self.wem_id_to_name = {}
+		for wem_id in self.bnk_media.ptr_map:
+			event_ids = self.wem_to_event_names_map.get(wem_id, ())
+			# guess a reasonable name for this sound file from the names of events that use it
+			event_names = [name for name in event_ids if not name.startswith("0x")]
+			if event_names:
+				# ignore case for comparisons due to inconsistencies, e.g. in PZ PDLC5 dhole
+				common_strings = set.intersection(*[set(n.lower().split("_")) for n in event_names])
+				sorted_strings = [x for x in event_names[0].split("_") if x.lower() in common_strings]
+				if len(sorted_strings) <= 1:
+					sorted_strings.append("Shared")
+				raw_name = "_".join(sorted_strings)
+			else:
+				raw_name = "Unknown"
+			count = name_map[raw_name]
+			final_name = raw_name
+			final_name += f"_{count:02d}"
+			name_map[raw_name] += 1
+			self.wem_id_to_name[wem_id] = f"{final_name} 0x{wem_id}"
+			
 
 	def save(self, filepath) -> None:
 		try:
