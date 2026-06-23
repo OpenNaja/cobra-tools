@@ -320,15 +320,15 @@
     <struct name="AuxParams">
         <field name="byBitVector" type="AuxBitfield"/>
         <field name="aux" type="uint" arr1="4" cond="byBitVector\bHasAux"/>
-        <field name="reflectionsAuxBus" type="uint" since="138"/>
+        <field name="reflectionsAuxBus" type="uint" since="135"/>
     </struct>
 
     <struct name="AdvSettingsParams">
-        <field name="byBitVector" type="ubyte"/>
+        <field name="byBitVector1" type="ubyte"/>
         <field name="eVirtualQueueBehavior" type="ubyte"/>
         <field name="u16MaxNumInstance" type="ushort"/>
         <field name="eBelowThresholdBehavior" type="ubyte"/>
-        <field name="byBitVector" type="ubyte"/>
+        <field name="byBitVector2" type="ubyte"/>
     </struct>
 
     <struct name="AkStatePropertyInfo">

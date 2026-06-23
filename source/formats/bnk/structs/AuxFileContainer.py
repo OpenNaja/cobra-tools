@@ -24,6 +24,7 @@ class AuxFileContainer(BaseStruct):
 		self.didx = None
 		self.hirc = None
 		self.data = None
+		self.stid = None
 		self.size_for_ovl = 0
 
 	@classmethod
@@ -32,6 +33,7 @@ class AuxFileContainer(BaseStruct):
 		instance.didx = None
 		instance.hirc = None
 		instance.data = None
+		instance.stid = None
 		try:
 			instance.chunks = []
 			chunk_id = "DUMM"
@@ -55,7 +57,7 @@ class AuxFileContainer(BaseStruct):
 					instance.data = DATASection.from_stream(stream, instance.context, 0, None)
 					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b"STID":
-					instance.data = STIDSection.from_stream(stream, instance.context, 0, None)
+					instance.stid = STIDSection.from_stream(stream, instance.context, 0, None)
 					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b'\x00' * len(chunk_id):
 					# empty chunk, could be the end of the file
