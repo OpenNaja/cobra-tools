@@ -61,7 +61,7 @@ class WorkerRunnable(QRunnable):
 			self.signals.finished.emit()
 
 	def cancel(self) -> None:
-		logging.info(f"Cancel requested for worker: {getattr(self.func, '__name__', 'unknown_func')}")
+		logging.debug(f"Cancel requested for worker: {getattr(self.func, '__name__', 'unknown_func')}")
 		self._is_cancelled = True
 
 
