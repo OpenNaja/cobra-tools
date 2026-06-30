@@ -37,9 +37,9 @@ class KeysReader(BaseStruct):
 			bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 			try:
 				cls.pad_to_start(instance, stream)
+				logging.info(mani_info)
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, bone_dtype)
-				# logging.info(mani_info)
-				# logging.info(mani_info.keys)
+				logging.info(mani_info.keys)
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")

@@ -291,6 +291,8 @@ class MainWindow(window.MainWindow):
 				mani_item.setText(4, str(m.frame_count))
 				mani_item.setFlags(mani_item.flags() | Qt.ItemIsEditable)
 				for dtype in ("pos_bones", "ori_bones", "scl_bones", "floats"):
+					if not hasattr(m, "keys"):
+						continue
 					dtype_array = getattr(m.keys, f"{dtype}_names")
 					if len(dtype_array):
 						dtype_item = QtWidgets.QTreeWidgetItem(mani_item)

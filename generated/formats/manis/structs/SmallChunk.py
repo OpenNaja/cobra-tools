@@ -18,8 +18,11 @@ class SmallChunk(BaseStruct):
 		self.b = name_type_map['Uint'](self.context, 0, None)
 		self.c = name_type_map['Uint'](self.context, 0, None)
 		self.d = name_type_map['Uint'](self.context, 0, None)
-		self.half = name_type_map['Ushort'](self.context, 0, None)
-		self.full = name_type_map['Ushort'](self.context, 0, None)
+
+		# 32768 if another chunk follows; 0 if last chunk
+		self.flag = name_type_map['Ushort'](self.context, 0, None)
+		self.e = name_type_map['Ubyte'](self.context, 0, None)
+		self.f = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -30,8 +33,9 @@ class SmallChunk(BaseStruct):
 		yield 'b', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'c', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'd', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'half', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'full', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'flag', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'e', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'f', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,5 +44,6 @@ class SmallChunk(BaseStruct):
 		yield 'b', name_type_map['Uint'], (0, None), (False, None)
 		yield 'c', name_type_map['Uint'], (0, None), (False, None)
 		yield 'd', name_type_map['Uint'], (0, None), (False, None)
-		yield 'half', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'full', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'flag', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'e', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'f', name_type_map['Ubyte'], (0, None), (False, None)

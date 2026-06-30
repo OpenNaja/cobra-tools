@@ -7,7 +7,7 @@ from generated.formats.ovl_base.structs.Empty import Empty
 class CompressedManiDataPC2(BaseStruct):
     size: int
     ref: Empty
-    u_0: int
+    u_0: Array[int]
     constant: Array[int]
     bone_count: int
     frame_count: int
@@ -32,6 +32,7 @@ class CompressedManiDataPC2(BaseStruct):
     chunks: Array[SmallChunk]
     ref_2: Empty
     databytes: Array[int]
+    zend: int
     ref_3: Empty
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

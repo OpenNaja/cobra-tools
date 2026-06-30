@@ -6,7 +6,8 @@ class SmallChunk(BaseStruct):
     b: int
     c: int
     d: int
-    half: int
-    full: int
+    flag: int
+    e: int
+    f: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

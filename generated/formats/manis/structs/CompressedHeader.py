@@ -6,7 +6,7 @@ from generated.formats.manis.imports import name_type_map
 class CompressedHeader(BaseStruct):
 
 	"""
-	present at end of buffer 0 in JWE3 if any of the manis is compressed
+	present at end of buffer 0 in JWE3 if any of the manis is compressed, not on PC2
 	"""
 
 	__name__ = 'CompressedHeader'

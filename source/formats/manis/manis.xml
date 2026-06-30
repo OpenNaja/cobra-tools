@@ -166,7 +166,7 @@
     </struct>
 
     <struct name="CompressedHeader">
-		present at end of buffer 0 in JWE3 if any of the manis is compressed
+		present at end of buffer 0 in JWE3 if any of the manis is compressed, not on PC2
 		<field name="ref" type="Empty"/>
 		<field name="size" type="uint"/>
 		<field name="u0" type="ubyte"/>
@@ -400,9 +400,10 @@
 		<field name="a" type="uint" />
 		<field name="b" type="uint" />
 		<field name="c" type="uint" />
-		<field name="d" type="uint" /> <!-- increasing -->
-		<field name="half" type="ushort" />
-		<field name="full" type="ushort" />
+		<field name="d" type="uint" /> <!-- increasing, likely offsets into the raw data bytes -->
+		<field name="flag" type="ushort" >32768 if another chunk follows; 0 if last chunk</field>
+		<field name="e" type="ubyte" />
+		<field name="f" type="ubyte" />
     </struct>
 
 	<struct name="CompressedManiDataPC2" >
@@ -410,7 +411,7 @@
 		<field name="size" type="uint" />
 		<field name="ref" type="Empty"/>
 
-		<field name="u0" type="uint" /> <!-- variable -->
+		<field name="u0" type="ubyte" arr1="4" /> <!-- variable -->
 		<field name="constant" type="ubyte" arr1="8" />
 		<field name="bone_count" type="uint" />
 		<field name="FrameCount" type="uint"/>
@@ -432,11 +433,13 @@
 		<field name="s1" type="uint"/>
 		<field name="s2" type="uint"/>
 		<field name="s3" type="uint"/>
-		<field name="frame_segments" type="uint" arr1="frame_segments_count"/>
-		<field name="ff2" type="int"/>
+<!--		the following two seem to be only present when more than 1 segment is used -->
+		<field name="frame_segments" type="uint" arr1="frame_segments_count" cond="frame_segments_count #GT# 1"/>
+		<field name="ff2" type="int" cond="frame_segments_count #GT# 1"/>
 		<field name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
 		<field name="ref2" type="Empty"/>
 		<field name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
+		<field name="zend" type="ushort"/>
 		<field name="ref3" type="Empty"/>
 <!--		<field name="pad" type="PadAlign" template="ref" arg="4"/>-->
     </struct>
