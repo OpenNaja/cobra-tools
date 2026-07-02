@@ -14,6 +14,7 @@ from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.PcCollision import PcCollision
 from generated.formats.ms2.enums.PcSurface import PcSurface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
+from . import lods
 
 from .object import get_view_collections
 from .var_names import pz_shader_floats, pz_shader_ints
@@ -61,6 +62,7 @@ class VersionedPropertyGroup(PropertyGroup):
 def show_lod_callback(self, context):
 	logging.debug(f"Showing LOD {self.current_lod}")
 	view_colls = get_view_collections()
+	max_lods = max(len(lods.get_lod_collections(mdl2_coll) )for mdl2_coll in context.scene.collection.children)
 	for view_coll in view_colls:
 		if view_coll.name in context.scene.collection.children:
 			# don't alter the visibility of mdl2 collections
@@ -68,8 +70,9 @@ def show_lod_callback(self, context):
 		if "_joints" in view_coll.name:
 			# don't alter the visibility of joints collections
 			continue
-		lod_index = int(math.floor(self.current_lod))
-		lod_transition = self.current_lod - lod_index
+		clamped_lod = min(max_lods - 1.0, self.current_lod)
+		lod_index = int(math.floor(clamped_lod))
+		lod_transition = clamped_lod - lod_index
 		view_coll.hide_viewport = f"_L{lod_index}" not in view_coll.name
 		# set LOD blending state
 		if not view_coll.hide_viewport:
