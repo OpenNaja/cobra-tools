@@ -162,16 +162,21 @@ class ChunkedMesh(MeshData):
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 
 				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24):
+
+					if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, ):
+						# skip meta chunk
+						self.buffer_info.verts.read(16)
 					# interleaved vertex array, meta includes all extra data
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 					# store position
 					vert_chunk.vertices[:] = vert_chunk.meta["pos"]
-					print(vert_chunk.vertices)
+					# print(vert_chunk)
 					self.read_weights(vert_chunk, offs)
 				else:
 					raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
 				# store chunk's meta data in mesh's array
-				vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
+				if "uvs" in vert_chunk.meta.dtype.fields:
+					vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
 				if "normal_custom" in vert_chunk.meta.dtype.fields:
 					vert_chunk.normals_custom[:] = vert_chunk.meta["normal_custom"]
 					vert_chunk.wind[:] = vert_chunk.meta["wind"]
@@ -185,6 +190,10 @@ class ChunkedMesh(MeshData):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.center_keys[:] = vert_chunk.meta["center_key"]
 					vert_chunk.whatever[:] = vert_chunk.meta["whatever"]
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
+					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
+					vert_chunk.uvs[:, :, 0] = vert_chunk.meta["u"]
+					vert_chunk.uvs[:, :, 1] = 1.0-vert_chunk.meta["v"]
 			except:
 				logging.exception(f"Chunk {i} failed")
 			# create absolute vertex indices for the total mesh
@@ -218,6 +227,8 @@ class ChunkedMesh(MeshData):
 		# currently, known uses of Impostor48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 			unpack_ushort_vector_impostor(self.uvs)
+		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
+			pass
 		else:
 			unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
@@ -333,19 +344,12 @@ class ChunkedMesh(MeshData):
 		# 24 bytes per vertex, with all data interleaved
 		dt_foliage24 = [
 			# todo - no idea about the real format
-			("lod_key", np.float16, (3,)),
-			("a", np.ubyte, (2,)),
-			*_normal_tangent_oct,  # standard vertex / face normal
-			("uvs", np.ushort, (1, 2)),
-			# ("unk", np.ushort, (1, 2)),
-			("pos", np.float16, (3,)),
-			("b", np.ubyte, (2,)),
-			# # nan (FF 7F) if unused, used on JWE2 mango, no apparent flag in tri or vert chunk or mesh
-			# # ("center_key", np.float16, 3),
-			# # ("whatever", np.ushort),  # 00 00 or 01 00 in calamites
-			# *_normal_tangent_oct,  # standard vertex / face normal
-			# ("normal_custom", np.ubyte, 3),  # edited normal
-			# ("wind", np.ubyte),
+			("pos", np.float16, (3,)),  # correct
+			("u", np.float16, (1,)),
+			("lod_key", np.float16, (3,)),  # correct
+			("v", np.float16, (1,)),
+			("unk", np.ushort, (1, 2)),
+			*_normal_tangent_oct, # unk
 		]
 		self.dts = {}
 		self.dts[MeshFormat.SEPARATE] = np.dtype(dt_separate)

@@ -55,7 +55,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat,
 
 def import_shapekeys(b_ob, mesh, unique_indices):
 	b_me = b_ob.data
-	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format == MeshFormat.SPEEDTREE_32:
+	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format == MeshFormat.SPEEDTREE_32 or mesh.mesh_format == MeshFormat.FOLIAGE_24:
 		# insert base key
 		b_ob.shape_key_add(name="Basis")
 		b_me.shape_keys.use_relative = True
@@ -65,10 +65,11 @@ def import_shapekeys(b_ob, mesh, unique_indices):
 		b_ob.shape_key_add(name="LOD", from_mix=False)
 		# optional dissolve shape key
 		if not has_nan(mesh.center_keys[unique_indices]):
-			for v_index, v in enumerate(mesh.center_keys):
+			for v_index, v in enumerate(mesh.center_keys[unique_indices]):
 				b_me.vertices[v_index].co = v[:3]
 			b_ob.shape_key_add(name="Center", from_mix=False)
-		b_me["whatever_range"] = float(mesh.whatever_range)
+		if hasattr(mesh, "whatever_range"):
+			b_me["whatever_range"] = float(mesh.whatever_range)
 
 
 def ob_postpro(use_mirror_mesh, quadrify):

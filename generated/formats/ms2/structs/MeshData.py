@@ -75,6 +75,8 @@ class MeshData(MemStruct):
 	def get_uv_count(self, ):
 		if "uvs" in self.dt.fields:
 			return self.dt["uvs"].shape[0]
+		elif "u" in self.dt.fields:
+			return 1
 		return 0
 
 	def assign_buffer_info(self, buffer_infos):
@@ -114,6 +116,7 @@ class MeshData(MemStruct):
 		self.uvs = np.zeros((self.vertex_count, self.get_uv_count(), 2), np.float32)
 		self.colors = np.zeros((self.vertex_count, 4), np.float32)
 		self.center_keys = np.zeros((self.vertex_count, 3), np.float32)
+		self.center_keys[:] = np.nan
 		self.lod_keys = np.zeros((self.vertex_count, 3), np.float32)
 		self.bone_indices = np.zeros((self.vertex_count, 4), np.short)
 		self.bone_weights = np.zeros((self.vertex_count, 4), np.float32)
