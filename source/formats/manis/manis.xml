@@ -423,9 +423,10 @@
 		<field name="PosBoneCount" type="uint"/>
 		<field name="SclBoneCount" type="ushort"/>
 		<field name="MorphBoneCount" type="ushort"/>
-		<field name="unk_count_1" type="uint"/>
-		<field name="unk_count_2" type="uint"/>
-		<field name="unk_count_3" type="uint"/>
+<!--		presumably offset indices-->
+		<field name="OriBoneOffset" type="uint"/>
+		<field name="PosBoneOffset" type="uint"/>
+		<field name="SclBoneOffset" type="uint"/>
 		<!-- @64 -->
 		<field name="ff" type="int"/>
 		<!-- @68 -->
@@ -437,6 +438,28 @@
 		<field name="frame_segments" type="uint" arr1="frame_segments_count" cond="frame_segments_count #GT# 1"/>
 		<field name="ff2" type="int" cond="frame_segments_count #GT# 1"/>
 		<field name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
+		<!--		pigeon
+0: -
+1: -
+2: 2 * 4
+3: 1 * 4
+4: 1 * 4
+-->
+		<field name="unk before floats" type="uint" >can be more or less than 1 apparently</field>
+		<field name="start of floats" type="Empty"/>
+<!--		this is not quite right-->
+		<field name="ori_bones0" type="float" arr1="OriBoneCount" arr2="3"/>
+		<field name="pos_bones0" type="float" arr1="PosBoneCount" arr2="3"/>
+		<field name="ori_bones1" type="float" arr1="OriBoneCount" arr2="3"/>
+		<field name="pos_bones1" type="float" arr1="PosBoneCount" arr2="3"/>
+<!--		<field name="floats" type="float" arr1="16" arr2="3"/>-->
+<!--		pigeon
+0: 16 * 3 = 48
+1: 16 * 3 = 48
+2: 23 * 3 = 69
+3: 20 * 3 = 60
+4: 17 * 3 = 51
+-->
 		<field name="ref2" type="Empty"/>
 		<field name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
 		<field name="zend" type="ushort"/>

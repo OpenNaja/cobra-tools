@@ -19,9 +19,9 @@ class CompressedManiDataPC2(BaseStruct):
     pos_bone_count: int
     scl_bone_count: int
     morph_bone_count: int
-    unk_count_1: int
-    unk_count_2: int
-    unk_count_3: int
+    ori_bone_offset: int
+    pos_bone_offset: int
+    scl_bone_offset: int
     ff: int
     count: int
     s_1: int
@@ -30,6 +30,12 @@ class CompressedManiDataPC2(BaseStruct):
     frame_segments: Array[int]
     ff_2: int
     chunks: Array[SmallChunk]
+    unk_before_floats: int
+    start_of_floats: Empty
+    ori_bones_0: Array[Array[float]]
+    pos_bones_0: Array[Array[float]]
+    ori_bones_1: Array[Array[float]]
+    pos_bones_1: Array[Array[float]]
     ref_2: Empty
     databytes: Array[int]
     zend: int
