@@ -383,8 +383,10 @@ class MainWindow(window.MainWindow):
 
 	def get_game_path(self, game):
 		game_info = self.cfg.get("games").get(game)
-		game_dir = game_info["path"]
-		return game_dir
+		if game_info:
+			game_dir = game_info["path"]
+			return game_dir
+		return ""
 
 	def get_parents(self, item):
 		names = [item.text(0), ]
