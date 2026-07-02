@@ -55,7 +55,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name, mesh_tris_flat,
 
 def import_shapekeys(b_ob, mesh, unique_indices):
 	b_me = b_ob.data
-	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format == MeshFormat.SPEEDTREE_32 or mesh.mesh_format == MeshFormat.FOLIAGE_24:
+	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX, ):
 		# insert base key
 		b_ob.shape_key_add(name="Basis")
 		b_me.shape_keys.use_relative = True

@@ -189,6 +189,7 @@
 		<option value="1" name="Speedtree32" />
 		<option value="2" name="Impostor48" />
 		<option value="3" name="Foliage24" />
+		<option value="5" name="Foliage24_NoBbox" />
 	</enum>
 
 <!--Count from the end!!!-->
@@ -205,7 +206,8 @@
 	</bitfield>
 
 	<bitfield name="WeightsFlagPC2" storage="ushort">
-		<member width="2" pos="0" name="mesh_format" type="MeshFormat"/>
+		<member width="3" pos="0" name="mesh_format" type="MeshFormat"/>
+<!--		<member width="1" pos="2" name="no_bbox" type="bool">if off, read bbox from vertex buffer for PC2 mesh type 3</member>-->
 		<member width="1" pos="3" name="material_effects" type="bool">if off: metal turns white, alpha is not used</member>
 		<member width="1" pos="4" name="has_weights" type="bool"/>
 		<member width="8" pos="5" name="bone_index" type="int"/>
