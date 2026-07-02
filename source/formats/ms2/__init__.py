@@ -556,7 +556,7 @@ if __name__ == "__main__":
 	# 		me.mesh.tris = ((-1, list(me.mesh.tris)), )
 	# 		# print(me.mesh.tri_indices)
 	# 		# print(m)
-	m.load("C:/Users/arnfi/Desktop/resize/resized/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/bush/models.ms2", read_editable=True, dump=True)
 	print(m)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):

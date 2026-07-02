@@ -40,7 +40,7 @@ class CompressedManiDataPC2(BaseStruct):
 		self.ff_2 = name_type_map['Int'](self.context, 0, None)
 		self.chunks = Array(self.context, 0, None, (0,), name_type_map['SmallChunk'])
 
-		# can be more than 1 apparently
+		# can be more or less than 1 apparently
 		self.unk_before_floats = name_type_map['Uint'](self.context, 0, None)
 		self.start_of_floats = name_type_map['Empty'](self.context, 0, None)
 		self.ori_bones_0 = Array(self.context, 0, None, (0,), name_type_map['Float'])
