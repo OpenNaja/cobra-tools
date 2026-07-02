@@ -162,11 +162,14 @@ class ChunkedMesh(MeshData):
 		unpack_ubyte_color(self.colors)
 		unpack_ubyte_color(self.wind)
 		unpack_ubyte_vector(self.normals_custom)
+		# todo FOLIAGE_24 may need a different swizzle
+		# if not vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
 		unpack_swizzle_vectorized(self.normals_custom)
 		# currently, known uses of Impostor48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 			unpack_ushort_vector_impostor(self.uvs)
 		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
+			# hfloat, no scaling
 			pass
 		else:
 			unpack_ushort_vector(self.uvs)
@@ -282,12 +285,12 @@ class ChunkedMesh(MeshData):
 		]
 		# 24 bytes per vertex, with all data interleaved
 		dt_foliage24 = [
-			# todo - no idea about the real format
-			("pos", np.float16, (3,)),  # correct
+			("pos", np.float16, (3,)),
 			("u", np.float16, (1,)),
-			("lod_key", np.float16, (3,)),  # correct
+			("lod_key", np.float16, (3,)),
 			("v", np.float16, (1,)),
-			("unk", np.ushort, (1, 2)),
+			("normal_custom", np.ubyte, 3),  # probably edited normal, unsure about axes
+			("wind", np.ubyte),  # not sure
 			*_normal_tangent_oct, # unk
 		]
 		self.dts = {}
@@ -350,7 +353,7 @@ class ChunkedMesh(MeshData):
 
 	@property
 	def is_speedtree(self):
-		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48)
+		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24)
 
 	def resize_vertices(self, model_info, fac):
 		self.vertices *= fac
