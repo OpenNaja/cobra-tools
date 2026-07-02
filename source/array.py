@@ -294,7 +294,7 @@ class Array(list):
         else:
             # include array index for easier printing
             fields_str = ',\n'.join([
-                    f"#{i} " + f_type.format_indented(array[f_name], indent+INDENT_COUNT)
+                    f"{INDENT_CHAR * (indent+INDENT_COUNT)}[{i}] " + f_type.format_indented(array[f_name], indent+INDENT_COUNT).lstrip(INDENT_CHAR)
                     for i, (f_name, f_type, _, _) in enumerate(cls._get_filtered_attribute_list(array, array.dtype))])
             return f"[\n{fields_str}]"
 
