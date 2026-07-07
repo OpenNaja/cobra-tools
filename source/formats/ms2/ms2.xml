@@ -189,7 +189,7 @@
 		<option value="1" name="Speedtree32" />
 		<option value="2" name="Impostor48" />
 		<option value="3" name="Foliage24" />
-		<option value="5" name="Foliage24_NoBbox" />
+		<option value="5" name="Foliage16" />
 	</enum>
 
 <!--Count from the end!!!-->

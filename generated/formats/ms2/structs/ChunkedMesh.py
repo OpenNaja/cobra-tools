@@ -161,17 +161,15 @@ class ChunkedMesh(MeshData):
 					# logging.info(f"meta {i} start {self.buffer_info.verts.tell()}")
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 
-				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
 
 					if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
 						# skip meta chunk
-						# if not vert_chunk.weights_flag.no_bbox:
 						self.buffer_info.verts.read(16)
 					# interleaved vertex array, meta includes all extra data
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 					# store position
 					vert_chunk.vertices[:] = vert_chunk.meta["pos"]
-					print(vert_chunk)
 					self.read_weights(vert_chunk, offs)
 				else:
 					raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
@@ -191,10 +189,17 @@ class ChunkedMesh(MeshData):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.center_keys[:] = vert_chunk.meta["center_key"]
 					vert_chunk.whatever[:] = vert_chunk.meta["whatever"]
-				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, ):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.uvs[:, :, 0] = vert_chunk.meta["u"]
-					vert_chunk.uvs[:, :, 1] = 1.0-vert_chunk.meta["v"]
+					vert_chunk.uvs[:, :, 1] = 1.0 - vert_chunk.meta["v"]
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_16,):
+					vert_chunk.uvs[:, :, 0] = vert_chunk.meta["u"]
+					vert_chunk.uvs[:, :, 1] = 1.0 - vert_chunk.meta["v"]
+					vert_chunk.normals_custom[:, 0] = vert_chunk.meta["normal_x"]
+					vert_chunk.normals_custom[:, 1] = np.sqrt(
+						np.clip(1.0 - vert_chunk.meta["normal_x"] ** 2 - vert_chunk.meta["normal_z"] ** 2, 0.0, 1.0))
+					vert_chunk.normals_custom[:, 2] = vert_chunk.meta["normal_z"]
 			except:
 				logging.exception(f"Chunk {i} failed")
 			# create absolute vertex indices for the total mesh
@@ -225,12 +230,12 @@ class ChunkedMesh(MeshData):
 		unpack_ubyte_color(self.wind)
 		unpack_ubyte_vector(self.normals_custom)
 		# todo FOLIAGE_24 may need a different swizzle
-		# if not vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+		# if not vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
 		unpack_swizzle_vectorized(self.normals_custom)
 		# currently, known uses of Impostor48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 			unpack_ushort_vector_impostor(self.uvs)
-		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
 			# hfloat, no scaling
 			pass
 		else:
@@ -276,7 +281,7 @@ class ChunkedMesh(MeshData):
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
 			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
 			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
-		elif chunk_fmt in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+		elif chunk_fmt in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
 			# interleaved vertex array, meta includes all extra data
 			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
 
@@ -355,12 +360,20 @@ class ChunkedMesh(MeshData):
 			("wind", np.ubyte),  # not sure
 			*_normal_tangent_oct, # unk
 		]
+		dt_foliage16 = [
+            ("pos", np.float16, (3,)),
+            ("normal_x", np.float16),
+            ("u", np.float16, (1,)),  # Not `uvs` because inverse v
+            ("v", np.float16, (1,)),
+            ("unk", np.ubyte, 2),     # Possibly oct tangent
+            ("normal_z", np.float16)
+        ]
 		self.dts = {}
 		self.dts[MeshFormat.SEPARATE] = np.dtype(dt_separate)
 		self.dts[MeshFormat.SPEEDTREE_32] = np.dtype(dt_speedtree32)
 		self.dts[MeshFormat.IMPOSTOR_48] = np.dtype(dt_impostor48)
 		self.dts[MeshFormat.FOLIAGE_24] = np.dtype(dt_foliage24)
-		self.dts[MeshFormat.FOLIAGE_24_NO_BBOX] = np.dtype(dt_foliage24)
+		self.dts[MeshFormat.FOLIAGE_16] = np.dtype(dt_foliage16)
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
@@ -416,7 +429,7 @@ class ChunkedMesh(MeshData):
 
 	@property
 	def is_speedtree(self):
-		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX)
+		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16)
 
 	def resize_vertices(self, model_info, fac):
 		self.vertices *= fac
@@ -461,7 +474,7 @@ class ChunkedMesh(MeshData):
 				if vert_chunk.weights_flag.has_weights:
 					for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
 						vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
-			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_24_NO_BBOX):
+			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
 				vert_chunk.weights_flag.has_weights = False
 			else:

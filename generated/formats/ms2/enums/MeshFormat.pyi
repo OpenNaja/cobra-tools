@@ -6,4 +6,4 @@ class MeshFormat(BaseEnum):
     SPEEDTREE_32: MeshFormat
     IMPOSTOR_48: MeshFormat
     FOLIAGE_24: MeshFormat
-    FOLIAGE_24_NO_BBOX: MeshFormat
+    FOLIAGE_16: MeshFormat

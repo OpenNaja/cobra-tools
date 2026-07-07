@@ -11,4 +11,4 @@ class MeshFormat(BaseEnum):
 	SPEEDTREE_32 = 1
 	IMPOSTOR_48 = 2
 	FOLIAGE_24 = 3
-	FOLIAGE_24_NO_BBOX = 5
+	FOLIAGE_16 = 5
