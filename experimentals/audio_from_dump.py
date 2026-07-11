@@ -6,16 +6,21 @@ from modules.formats.shared import fnv1_32
 from modules.walker import get_game_constants_dir
 
 constants = ConstantsProvider()
-game = "Jurassic World Evolution 2"
+# game = "Jurassic World Evolution 2"
+game = "Planet Coaster 2"
 lut = constants[game].get("audio", {})
 
-fp = "../dumps/fnv1_32_dump_JWE2.txt"
+fp = "../dumps/fnv1_32_dump_PC2.txt"
 
 with open(fp) as f:
 	for line in f.readlines():
 		line = line.strip()
-		h = fnv1_32(line.lower().encode())
-		lut[h] = line
+		if line:
+			line = line.replace('FNV1: "', '')
+			line = line.split('" -> ')[0]
+			h = fnv1_32(line.lower().encode())
+			lut[h] = line
+
 print(lut)
 out_dir = get_game_constants_dir(game)
 print(out_dir)
