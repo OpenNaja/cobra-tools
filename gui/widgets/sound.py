@@ -12,6 +12,7 @@ class AudioWidget(QWidget):
 		self.player.stateChanged.connect(self.audio_state_changed)
 		self.player.positionChanged.connect(self.update_cursor)
 		self.player.durationChanged.connect(self.changed_duration)
+		self.player.mediaStatusChanged.connect(self.media_status_changed)
 		self.player.setNotifyInterval(50)
 
 		self.volume_label = QLabel()
@@ -43,6 +44,10 @@ class AudioWidget(QWidget):
 		self.stop_button = QPushButton()
 		self.stop_button.setIcon(get_icon("stop"))
 
+		self.autoplay_button = QPushButton()
+		self.autoplay_button.setCheckable(True)
+		self.autoplay_button.setIcon(get_icon("autoplay"))
+
 		self.play_button.clicked.connect(self.play_pause)
 		self.stop_button.clicked.connect(self.player.stop)
 
@@ -52,9 +57,10 @@ class AudioWidget(QWidget):
 		layout.setVerticalSpacing(0)
 		layout.addWidget(self.play_button, 0, 0)
 		layout.addWidget(self.stop_button, 0, 1)
-		layout.addWidget(self.volume_label, 0, 2)
-		layout.addWidget(self.volume_slider, 0, 3)
-		layout.addWidget(self.time_slider, 1, 0, 1, 4)
+		layout.addWidget(self.autoplay_button, 0, 2)
+		layout.addWidget(self.volume_label, 0, 3)
+		layout.addWidget(self.volume_slider, 0, 4)
+		layout.addWidget(self.time_slider, 1, 0, 1, 5)
 		layout.addWidget(self.time_label, 1, 5)
 
 		# layout = QHBoxLayout(self)
@@ -65,6 +71,11 @@ class AudioWidget(QWidget):
 		# layout.addWidget(self.volume_label)
 		# layout.addWidget(self.volume_slider)
 		# layout.addStretch()
+
+	def media_status_changed(self, media_status):
+		if media_status == QMediaPlayer.LoadedMedia:
+			if self.autoplay_button.isChecked():
+				self.player.play()
 
 	def play_pause(self):
 		if self.player.state() == QMediaPlayer.PlayingState:
