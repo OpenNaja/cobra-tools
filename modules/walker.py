@@ -637,7 +637,8 @@ def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 		names = {}
 		logging.info(f"No existing audio names")
 
-	used_fmts = (".motiongraph", ".cinematic")
+	used_fmts = (".motiongraph", ".cinematic", ".fdb", ".wmetasb", )
+	used_hashes = set()
 	if dir_walk:
 		for ovl_data, ovl_path in ovls_in_path(gui, dir_walk, used_fmts):
 			if official_only and not filter_accept_official(ovl_path):
@@ -646,16 +647,24 @@ def get_audio_names(gui, dir_walk, walk_ovls=True, official_only=True):
 				for loader in ovl_data.loaders.values():
 					if loader.ext in used_fmts:
 						for audio_event in loader.get_audio_strings():
-							suffixes = ("", "_oc", "_oc_stop", "_oc_start", "_start", "_stop")
+							if not audio_event:
+								logging.warning(f"Skipping empty audio event in {loader.name}")
+								continue
+							suffixes = ("", "_Start", "_Stop", "_OC", "_OC_Stop", "_OC_Start")
 							for suffix in suffixes[1:]:
-								audio_event = audio_event.removesuffix(suffix)
+								audio_event = audio_event.removesuffix(suffix).removesuffix(suffix.lower())
 							for suffix in suffixes:
 								s = audio_event + suffix
 								h = fnv1_32(s.lower().encode())
 								names[h] = s
+						for audio_hash in loader.get_audio_hashes():
+							used_hashes.add(audio_hash)
 			except:
 				logging.exception(f"Failed")
 
+		# filter to names that are referred to in the wmetasb file
+		# d = set(names.keys())  # set of hashes from names
+		# names = {k: names[k] for k in used_hashes.intersection(d)}
 		os.makedirs(out_dir, exist_ok=True)
 		write_audio_dict(os.path.join(out_dir, "audio.py"), names)
 

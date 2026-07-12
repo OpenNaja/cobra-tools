@@ -510,11 +510,14 @@ class MainWindow(window.MainWindow):
 			children = None
 		if children is not None:
 			for child_id in set(children):
-				child = sid_2_hirc.get(child_id)
-				if not child:
-					logging.warning(f"Child {child_id} not found")
-					continue
-				self.parse_events_node(child, sid_2_hirc, name)
+				try:
+					child = sid_2_hirc.get(child_id)
+					if not child:
+						logging.warning(f"Child {child_id} not found")
+						continue
+					self.parse_events_node(child, sid_2_hirc, name)
+				except RecursionError:
+					logging.warning(f"Child {child_id} recursion error")
 		if hirc.id == HircType.SOUND:
 			self.store_name_for_sbi(hirc.data.ak_bank_source_data, name)
 		if hirc.id == HircType.MUSIC_TRACK:
@@ -544,11 +547,14 @@ class MainWindow(window.MainWindow):
 		if children is not None:
 			hirc_item.setText(2, str(len(children)))
 			for child_id in set(children):
-				child = sid_2_hirc.get(child_id)
-				if not child:
-					logging.warning(f"Child {child_id} not found")
-					continue
-				self.show_events_node(child, hirc_item, sid_2_hirc, lut)
+				try:
+					child = sid_2_hirc.get(child_id)
+					if not child:
+						logging.warning(f"Child {child_id} not found")
+						continue
+					self.show_events_node(child, hirc_item, sid_2_hirc, lut)
+				except RecursionError:
+					logging.warning(f"Child {child_id} recursion error")
 		if hirc.id == HircType.SOUND:
 			sbi = hirc.data.ak_bank_source_data
 			self.show_sbi(hirc_item, sbi)
@@ -614,7 +620,7 @@ class MainWindow(window.MainWindow):
 			icon = get_icon("bnk")
 			src_item.setIcon(0, icon)
 			src_item.setText(0, wem_name)
-			event_ids = sorted(self.wem_to_event_names_map.get(wem_id, ()))
+			event_ids = sorted(set(self.wem_to_event_names_map.get(wem_id, ())))
 			for event_id in event_ids:
 				event_item = QtWidgets.QTreeWidgetItem(src_item)
 				event_item.setIcon(0, get_icon("dir"))

@@ -5,12 +5,12 @@ from generated.formats.wmeta.structs.EventEntry import EventEntry
 
 
 class BnkMetaNew(MemStruct):
-    hash: int
+    fnv: int
     padding: int
     type_name: Pointer[str]
     events: ArrayPointer[EventEntry]
     events_count: int
-    hash: int
+    fnv: int
     flag: int
     unk_2: int
 

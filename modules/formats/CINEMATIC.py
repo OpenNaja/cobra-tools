@@ -12,8 +12,7 @@ class CinematicLoader(MemStructLoader):
 				return x[1].__name__ == "Event"
 			except:
 				return False
-		# condition_function = lambda x: hasattr(x[1], "__name__") and x[1].__name__ == "DataStreamResourceData"
-		# condition_function = lambda x:  issubclass(x[1], DataStreamResourceData)
 		for event in self.header.get_condition_fields(cond):
 			if event.module_name.data in ("AudioEvent", "AudioLoopingEvent", "AudioBlend", "AudioRTPC"):
-				yield event.attributes.data.event_name.data
+				if event.attributes.data.event_name.data:
+					yield event.attributes.data.event_name.data

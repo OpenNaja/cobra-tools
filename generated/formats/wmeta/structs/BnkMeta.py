@@ -13,7 +13,7 @@ class BnkMeta(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.fnv = name_type_map['Uint'](self.context, 0, None)
 		self._padding = name_type_map['Uint'].from_value(0)
 		self.events_count = name_type_map['Uint64'](self.context, 0, None)
 		self.hashes_count = name_type_map['Uint64'](self.context, 0, None)
@@ -34,7 +34,7 @@ class BnkMeta(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'fnv', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield '_padding', name_type_map['Uint'], (0, None), (False, 0), (None, None)
 		yield 'type_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'bnk_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
@@ -53,7 +53,7 @@ class BnkMeta(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'fnv', name_type_map['Uint'], (0, None), (False, None)
 		yield '_padding', name_type_map['Uint'], (0, None), (False, 0)
 		yield 'type_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'bnk_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)

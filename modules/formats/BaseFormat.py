@@ -584,6 +584,12 @@ class BaseFile:
 			self.check(own_aux, other_aux, "Aux entry")
 		return self.same
 
+	def get_audio_strings(self):
+		return ()
+
+	def get_audio_hashes(self):
+		return ()
+
 	def compare_pointer(self, other, t_p, t_o, o_p, o_o):
 		# logging.debug(f"compare_pointer {t_o} vs {o_o}")
 		if not t_p and not o_p:

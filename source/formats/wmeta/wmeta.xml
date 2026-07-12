@@ -12,19 +12,19 @@
 
     <struct name="BnkMetaNew" inherit="MemStruct">
         PZ, JWE2, PC2: 32 bytes
-        <field name="hash" type="uint" vercond="is_pz"/>
+        <field name="fnv" type="uint" vercond="is_pz"/>
         <field name="padding" type="uint" default="0" optional="True" vercond="is_pz"/>
         <field name="type_name" type="Pointer" template="ZString"/>
         <field name="events" type="ArrayPointer" template="EventEntry" arg="events_count" />
         <field name="events_count" type="uint" />
-        <field name="hash" type="uint" vercond="!is_pz"/>
+        <field name="fnv" type="uint" vercond="!is_pz"/>
         <field name="flag" type="uint" >0 or 1</field>
         <field name="unk2" type="uint" vercond="!is_pz"/>
     </struct>
 
     <struct name="BnkMeta" inherit="MemStruct">
 		# JWE, PC: 112 bytes
-        <field name="hash" type="uint" />
+        <field name="fnv" type="uint" />
         <field name="_padding" type="uint" default="0"/>
         <field name="type_name" type="Pointer" template="ZString"/>
         <field name="bnk_name" type="Pointer" template="ZString"/>
@@ -54,21 +54,21 @@
         PC, JWE1: 56 bytes
         PZ, JWE2: 40 bytes
         PC2: 44 bytes
-        <field name="hash" type="uint" />
+        <field name="stop_start_fnv" type="uint" >start hash if flag 0 is set, else stop hash</field>
         <field name="padding" type="uint" default="0" optional="True">not padding on pz?!</field>
         <field name="event_name" type="Pointer" template="ZString" until="1"/>
         <field name="float" type="float" until="1" />
-        <field name="flag 0" type="uint" />
-        <field name="flag 1" type="uint" />
-        <field name="flag 2" type="uint" />
+        <field name="flag 0" type="uint" default="0" optional="True" >1 for start event lines, mutually exclusive with flags 1/2</field>
+        <field name="flag 1" type="uint" default="0" optional="True" >1 for stop event lines</field>
+        <field name="flag 2" type="uint" default="0" optional="True" >1 for stop event lines</field>
         <field name="start_name" type="Pointer" template="ZString" until="1">used in stop events</field>
         <field name="zero 2" type="uint" default="0" optional="True" until="1"/>
-        <field name="hash b" type="uint" />
-        <field name="hash c" type="uint" /> <!-- fnv1 of lowercase event name -->
+        <field name="start_fnv" type="uint" default="0" optional="True" >fnv1 of _start event, given if flag 1 and 2 are set to 1</field>
+        <field name="event_fnv" type="uint" >fnv1 of lowercase event name</field>
         <field name="zero 4" type="uint" default="0" optional="True"/>
-        <field name="u2" type="uint" since="2"/>
-        <field name="u1" type="uint" since="2" />
-        <field name="u4" type="uint" since="2" vercond="is_PC2"/>
+        <field name="f0" type="float" since="2"/>
+        <field name="f1" type="float" since="2" />
+        <field name="u4" type="uint" since="2" vercond="is_PC2" default="0" optional="True" />
     </struct>
 
 </fileformat>

@@ -162,4 +162,81 @@ class FdbLoader(BaseFile):
 		elif context:
 			logging.error(f"SQL Script context '{context.name}' invalid on {self.name}")
 
+	def get_audio_strings(self):
+		if self.ovl.game == "Planet Coaster 2":
+			with self.get_tmp_dir_func() as out_dir_func:
+				fdb_path = self.extract(out_dir_func)[0]
+
+				try:
+					con = sqlite3.connect(fdb_path)
+					cur = con.cursor()
+					if self.basename in ("audio", ):
+						for table in ("AmbienceEventToCategoryMap", "DiegeticMusicEvents", "EventToCategoryMap", "FlatrideMusicEvents", "GunSoundEvents", "PlaceableAmbienceEvents", "PlaceableTriggeredEvents", ):
+							cur.execute(f"SELECT DISTINCT EventName FROM {table};")
+							for row in cur.fetchall():
+								yield row[0]
+					if self.basename in ("rides", "trackedrides", ):
+						cur.execute(f"SELECT DISTINCT AudioOpenSound FROM BrowserMenus;")
+						for row in cur.fetchall():
+							yield row[0]
+					# not found
+					# yield f"CT_{name}_Horn"
+					# yield f"CT_{name}_UserBraking"
+					# yield f"CT_{name}_UserThrottling"
+					# yield f"CT_{name}_Collision"
+					# yield f"Collision_{name}"
+					if self.basename in ("trackedridecars", ):
+						cur.execute(f"SELECT DISTINCT AudioBrakePrefix FROM Trains;")
+						for name, in cur.fetchall():
+							# start, stop
+							yield f"{name}_Coaster_Brakes"  # good
+						cur.execute(f"SELECT DISTINCT AudioChainLiftPrefix FROM Trains;")
+						for name, in cur.fetchall():
+							# start, stop
+							yield f"CT_{name}_Coaster_ChainLiftHolding"  # good
+							yield f"CT_{name}_Coaster_ChainLift"  # good
+							yield f"CT_{name}_Coaster_ChainLift_Alternate"  # good
+							yield f"CT_{name}_Coaster_WheelLift"  # good
+							# car stuff without prefix
+							yield f"{name}_Coaster_CableLift"  # good
+							yield f"{name}_Car_ChainLiftEnd"  # good
+							yield f"{name}_Coaster_HoldingSection"  # good
+							yield f"{name}_Coaster_HydraulicLaunch"  # good
+							yield f"{name}_AttachedToCatchCar"  # good
+							yield f"{name}_Released_From_CatchCar"  # good
+							yield f"{name}_Coaster_ShuttleLaunch_Accelerating_Reverse"  # good
+						cur.execute(f"SELECT DISTINCT TrainID, AudioPrefixOverride FROM Trains;")
+						for train, audio_override in cur.fetchall():
+							# not sure how to interpret NULL overrides
+							if audio_override:
+								name = audio_override
+							else:
+								name = train
+							yield f"CT_{name}"
+							# start, stop
+							yield f"CT_{name}_Coaster"
+							yield f"CT_{name}_Coaster_Close"
+							yield f"CT_{name}_Coaster_Default"
+							yield f"CT_{name}_Coaster_Far"
+							yield f"CT_{name}_Coaster_Station"  # good
+							yield f"CT_{name}_Engine_Coaster"  # good
+							yield f"CT_{name}_Engine_Coaster_Station"  # good
+							# unique suffices
+							yield f"CT_{name}_Coaster_Station_Movement_Starting"  # good
+							yield f"CT_{name}_Coaster_Station_Movement_Stopping"  # good
+							yield f"{name}_Engine_Coaster_Station"  # good
+							yield f"{name}_Engine_Coaster_Station_Movement_Starting"  # good
+							yield f"{name}_Engine_Coaster_Station_Movement_Stopping"  # good
+							# extra
+							yield f"CT_{name}_VFX_DropSplash"  # good
+							yield f"CT_{name}_VFX_DropSplash_Small"  # good
+							yield f"CT_{name}_VFX_EnterWater"  # good
+							yield f"{name}_Train_Train_On_Track_Collision"  # good
+
+
+				except sqlite3.Error:
+					logging.exception(f"SQL error query failed")
+				finally:
+					con.close()
+		# return ()
 

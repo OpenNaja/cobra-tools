@@ -6,7 +6,7 @@ from generated.formats.wmeta.structs.MediaEntry import MediaEntry
 
 
 class BnkMeta(MemStruct):
-    hash: int
+    fnv: int
     _padding: int
     type_name: Pointer[str]
     bnk_name: Pointer[str]

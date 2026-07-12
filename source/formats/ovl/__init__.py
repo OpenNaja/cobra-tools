@@ -146,7 +146,7 @@ class OvsFile(OvsHeader):
 				pool.ext_hash = 0
 
 	def load(self, archive_entry, stream):
-		logging.info(
+		logging.debug(
 			f"Loading archive {archive_entry.name}")
 		logging.debug(
 			f"Compressed stream {archive_entry.name} in {os.path.basename(archive_entry.ovs_path)} starts at {stream.tell()}")

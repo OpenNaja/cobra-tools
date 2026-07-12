@@ -3,7 +3,7 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class EventEntry(MemStruct):
-    hash: int
+    stop_start_fnv: int
     padding: int
     event_name: Pointer[str]
     float: float
@@ -12,11 +12,11 @@ class EventEntry(MemStruct):
     flag_2: int
     start_name: Pointer[str]
     zero_2: int
-    hash_b: int
-    hash_c: int
+    start_fnv: int
+    event_fnv: int
     zero_4: int
-    u_2: int
-    u_1: int
+    f_0: float
+    f_1: float
     u_4: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

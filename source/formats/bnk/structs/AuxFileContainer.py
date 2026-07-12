@@ -58,7 +58,7 @@ class AuxFileContainer(BaseStruct):
 					instance.chunks.append((chunk_id, instance.data))
 				elif chunk_id == b"STID":
 					instance.stid = STIDSection.from_stream(stream, instance.context, 0, None)
-					instance.chunks.append((chunk_id, instance.data))
+					instance.chunks.append((chunk_id, instance.stid))
 				elif chunk_id == b'\x00' * len(chunk_id):
 					# empty chunk, could be the end of the file
 					break
