@@ -67,6 +67,8 @@ class ChunkedMesh(MeshData):
 		self.face_maps = {}
 		self.bones_sets = []
 		mesh_formats = set()
+
+		unpack_fn = unpack_ubyte_vector
 		# unks = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
@@ -101,10 +103,15 @@ class ChunkedMesh(MeshData):
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 
 				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48, MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
-
 					if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
-						# skip meta chunk
-						self.buffer_info.verts.read(16)
+						raw_bbox = self.buffer_info.verts.read(16)
+						vert_chunk._foliage_bbox = np.frombuffer(raw_bbox, dtype=np.float16).copy()
+						logging.debug(
+							f"--- FOLIAGE_24 BBox | Chunk {i} | {vert_chunk.vertex_count} Verts ---\n"
+							f"  Min XYZ: {vert_chunk._foliage_bbox[0:3]}\n"
+							f"  Max XYZ: {vert_chunk._foliage_bbox[3:6]}\n"
+							f"  Extras:  {vert_chunk._foliage_bbox[6:8]}"
+						)
 					# interleaved vertex array, meta includes all extra data
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 					# store position
@@ -118,27 +125,49 @@ class ChunkedMesh(MeshData):
 				if "normal_custom" in vert_chunk.meta.dtype.fields:
 					vert_chunk.normals_custom[:] = vert_chunk.meta["normal_custom"]
 					vert_chunk.wind[:] = vert_chunk.meta["wind"]
-				elif "colors" in vert_chunk.meta.dtype.fields:
+				elif "colors" in vert_chunk.meta.dtype.fields and vert_chunk.weights_flag.mesh_format not in (MeshFormat.FOLIAGE_24,):
 					vert_chunk.colors[:] = vert_chunk.meta["colors"]
 				if "normal_oct" in vert_chunk.meta.dtype.fields:
 					vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
+				if "tangent_oct" in vert_chunk.meta.dtype.fields:
 					vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
 
 				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32,):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.center_keys[:] = vert_chunk.meta["center_key"]
 					vert_chunk.whatever[:] = vert_chunk.meta["whatever"]
-				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, ):
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.uvs[:, :, 0] = vert_chunk.meta["u"]
-					vert_chunk.uvs[:, :, 1] = 1.0 - vert_chunk.meta["v"]
+					vert_chunk.uvs[:, :, 1] = 1.0-vert_chunk.meta["v"]
+					# Visualize data, :4 explicit for testing size changes
+					vert_chunk.colors[:, :4] = vert_chunk.meta["colors"]
+					vert_chunk.wind[:] = vert_chunk.meta["wind"]
+					# Pack into first 2 components to unpack
+					#vert_chunk.normals[:, 0] = vert_chunk.meta["n_x"]
+					#vert_chunk.normals[:, 1] = vert_chunk.meta["n_y"]
+					# Test Reconstruct
+					#vert_chunk.normals[:, 1] = np.sqrt(1 - vert_chunk.meta["n_x"]**2 - vert_chunk.meta["n_y"]**2)
+					# Test flat ubytes
+					#vert_chunk.normals[:, 0:3] = vert_chunk.meta["normal"]
+					# Test flat sbyte
+					vert_chunk.normals[:, :3] = (vert_chunk.meta["n_raw"] / 255.0) * 2.0 - 1.0
+					#vert_chunk.tangents[:, :3] = (vert_chunk.meta["tangent"] / 255.0) * 2.0 - 1.0
+					for v in range(min(64, vert_chunk.vertex_count)):
+						b1, b2, b3 = vert_chunk.meta["n_raw"][v]
+						b4, b5, b6 = vert_chunk.meta["wind"][v]
+						x = (b1 / 255.0) * 2.0 - 1.0
+						y = (b2 / 255.0) * 2.0 - 1.0
+						z = (b3 / 255.0) * 2.0 - 1.0
+						mag_xyz = (x**2 + y**2 + z**2)**0.5
+						logging.info(f"V[{v:02d}] Raw Bytes: [{b1:3}, {b2:3}, {b3:3}, {b4:3}] | Decoded XYZ: ({x:>6.3f}, {y:>6.3f}, {z:>6.3f}) | MAG: {mag_xyz:.2f}")
 				if vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_16,):
 					vert_chunk.uvs[:, :, 0] = vert_chunk.meta["u"]
 					vert_chunk.uvs[:, :, 1] = 1.0 - vert_chunk.meta["v"]
-					vert_chunk.normals_custom[:, 0] = vert_chunk.meta["normal_x"]
-					vert_chunk.normals_custom[:, 1] = np.sqrt(
-						np.clip(1.0 - vert_chunk.meta["normal_x"] ** 2 - vert_chunk.meta["normal_z"] ** 2, 0.0, 1.0))
-					vert_chunk.normals_custom[:, 2] = vert_chunk.meta["normal_z"]
+					vert_chunk.normals[:, 0] = vert_chunk.meta["normal_x"]
+					vert_chunk.normals[:, 1] = 0
+					vert_chunk.normals[:, 2] = vert_chunk.meta["normal_z"]
+					vert_chunk.wind[:] = vert_chunk.meta["wind"]
 			except:
 				logging.exception(f"Chunk {i} failed")
 			# create absolute vertex indices for the total mesh
@@ -146,8 +175,9 @@ class ChunkedMesh(MeshData):
 			# logging.debug(vert_chunk.vertices)
 			# logging.debug(vert_chunk.meta)
 
-			# logging.info(f"Vert {i} rot {tri_chunk.rot}")
-			# logging.info(f"Vert {i} loc {tri_chunk.loc}")
+			# logging.info(f"Vert {i} cone_apex {tri_chunk.cone_apex}")
+			# logging.info(f"Vert {i} cone_axis {tri_chunk.cone_axis}")
+			# logging.info(f"Vert {i} cone_cutoff {tri_chunk.cone_cutoff}")
 			# # logging.info(f"Vert {i} min {tri_chunk.bounds_min}")
 			# logging.info(f"Vert {i} min {tri_chunk.bounds}")
 			# logging.info(f"Vert {i} min {np.min(vert_chunk.vertices, axis=0)} max {np.max(vert_chunk.vertices, axis=0)} mean {np.mean(vert_chunk.vertices, axis=0)}")
@@ -158,19 +188,30 @@ class ChunkedMesh(MeshData):
 		# max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		# logging.debug(f"max_verts {max_verts}")
 
-		oct_to_vec3(self.normals)
-		oct_to_vec3(self.tangents)
+		# Prevent oct_to_vec3 from destroying FOLIAGE_16
+		if self.mesh_format not in (MeshFormat.FOLIAGE_16, MeshFormat.FOLIAGE_24):
+			oct_to_vec3(self.normals, unpack_fn)
+			oct_to_vec3(self.tangents, unpack_fn)
+			unpack_swizzle_vectorized(self.normals)
+			unpack_swizzle_vectorized(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.lod_keys)
 		unpack_swizzle_vectorized(self.center_keys)
-		unpack_swizzle_vectorized(self.normals)
-		unpack_swizzle_vectorized(self.tangents)
 		unpack_ubyte_color(self.colors)
 		unpack_ubyte_color(self.wind)
-		unpack_ubyte_vector(self.normals_custom)
-		# todo FOLIAGE_24 may need a different swizzle
-		# if not vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24, MeshFormat.FOLIAGE_16):
-		unpack_swizzle_vectorized(self.normals_custom)
+		
+		if self.mesh_format == MeshFormat.FOLIAGE_16:
+			unpack_swizzle_vectorized(self.normals)
+			self.normals_custom[:] = self.normals[:]
+		elif self.mesh_format == MeshFormat.FOLIAGE_24:
+			unpack_swizzle_vectorized(self.normals) 
+			self.normals_custom[:] = self.normals[:]
+			#oct_to_vec3(self.tangents, unpack_fn)
+			#unpack_swizzle_vectorized(self.tangents)
+		else:
+			unpack_ubyte_vector(self.normals_custom)
+			unpack_swizzle_vectorized(self.normals_custom)
+
 		# currently, known uses of Impostor48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 			unpack_ushort_vector_impostor(self.uvs)
@@ -196,6 +237,20 @@ class ChunkedMesh(MeshData):
 		# for vertex_index, res in enumerate(self.negate_bitangents):
 		# 	self.add_to_weights(f"negate_bitangents", vertex_index, res)
 		# print(unks)
+		if self.mesh_format == MeshFormat.FOLIAGE_24:
+			logging.info("--- FOLIAGE_24 DATA DUMP ---")
+			for v in range(min(64, len(self.normals_custom))):
+				nx, ny, nz = self.normals_custom[v]
+				n_mag = (nx**2 + ny**2 + nz**2)**0.5
+				if len(self.tangents) > v:
+					tx, ty, tz = self.tangents[v][:3]
+					t_mag = (tx**2 + ty**2 + tz**2)**0.5
+				else:
+					tx, ty, tz, t_mag = (0, 0, 0, 0)
+
+				logging.info(f"V[{v:04d}] NORM: ({nx:>6.3f}, {ny:>6.3f}, {nz:>6.3f}) [Mag:{n_mag:.2f}] |"
+				 		     f"TAN: ({tx:>6.3f}, {ty:>6.3f}, {tz:>6.3f}) [Mag:{t_mag:.2f}] | DOT: {np.dot([nx, ny, nz], [tx, ty, tz]):>6.3f}"
+				)
 
 	def init_vert_chunk_arrays(self, v_slice, vert_chunk):
 		vert_chunk.packed_verts = None
@@ -291,22 +346,25 @@ class ChunkedMesh(MeshData):
 		]
 		# 24 bytes per vertex, with all data interleaved
 		dt_foliage24 = [
-			("pos", np.float16, (3,)),
-			("u", np.float16, (1,)),
-			("lod_key", np.float16, (3,)),
-			("v", np.float16, (1,)),
-			("normal_custom", np.ubyte, 3),  # probably edited normal, unsure about axes
-			("wind", np.ubyte),  # not sure
-			*_normal_tangent_oct, # unk
+			("pos", np.float16, (3,)),      # 6
+			("u", np.float16, (1,)),        # 8
+			("lod_key", np.float16, (3,)),  # 14
+			("v", np.float16, (1,)),        # 16
+			#("normal_oct", np.ubyte, (2,)),
+			("n_raw", np.ubyte, 3),
+			("wind", np.ubyte),
+			("colors", np.ubyte, 4)   # Visualize data
 		]
 		dt_foliage16 = [
-            ("pos", np.float16, (3,)),
-            ("normal_x", np.float16),
-            ("u", np.float16, (1,)),  # Not `uvs` because inverse v
-            ("v", np.float16, (1,)),
-            ("unk", np.ubyte, 2),     # Possibly oct tangent
-            ("normal_z", np.float16)
-        ]
+			("pos", np.float16, (3,)),
+			("normal_x", np.float16),
+			("u", np.float16, (1,)),  # Not `uvs` because inverse v
+			("v", np.float16, (1,)),
+			#("tangent_oct", np.ubyte, (2,)),
+			("unk", np.ubyte),
+			("wind", np.ubyte),       # Visualize data
+			("normal_z", np.float16)
+		]
 		self.dts = {}
 		self.dts[MeshFormat.SEPARATE] = np.dtype(dt_separate)
 		self.dts[MeshFormat.SPEEDTREE_32] = np.dtype(dt_speedtree32)
@@ -451,7 +509,7 @@ class ChunkedMesh(MeshData):
 		# for alpha blended shells
 		if self.flag == 13:
 			# set the loc value as center of gravity, or center of bounds?
-			tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
+			tri_chunk.cone_apex.set(np.mean(vert_chunk.vertices, axis=0))
 		# rot is probably related to the normals of the chunk
 
 	def write_data(self):
@@ -475,6 +533,13 @@ class ChunkedMesh(MeshData):
 						self.buffer_info.verts.write(vert_chunk.packed_weights.tobytes())
 					else:
 						self.buffer_info.verts.write(vert_chunk.weights.tobytes())
+			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.FOLIAGE_24,):
+				if hasattr(vert_chunk, '_foliage_bbox'):
+					self.buffer_info.verts.write(vert_chunk._foliage_bbox.tobytes())
+				else:
+					# Fallback zeroes
+					self.buffer_info.verts.write(b'\x00' * 16)
+
 			self.buffer_info.verts.write(vert_chunk.meta.tobytes())
 
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()

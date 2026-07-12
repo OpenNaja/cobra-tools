@@ -32,7 +32,6 @@ def unpack_ubyte_vector(arr, normalize=True):
     if normalize:
         arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
-
 def unpack_ubyte_color(arr):
     arr[:] = arr / UBYTE_MAX
 
@@ -44,6 +43,13 @@ def pack_ubyte_color(arr):
 def pack_ubyte_vector(arr):
     arr[:] = np.round(arr * UBYTE_SCALE + UBYTE_SCALE)
 
+def unpack_short_vector(arr, normalize=True):
+    # Maps [-32767, 32767] to [-1.0, 1.0]
+    # np.clip handles the -32768 asymmetric minimum for 16-bit signed integers
+    arr[:] = np.clip(arr / 32767.0, -1.0, 1.0)
+    # some cases (oct) do not use normalization after unpacking
+    if normalize:
+        arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 def unpack_ushort_vector(arr):
     arr[:] = (arr - USHORT_OFFSET) / USHORT_SCALE
@@ -187,15 +193,15 @@ def vec3_to_oct(arr):
     arr[:, 2] = 0.0
 
 
-def oct_to_vec3(arr, unpack=True):
+def oct_to_vec3(arr, unpack_fn=unpack_ubyte_vector, normalize=False):
     # ported from Cigolle et al. "Survey of Efficient Representations for Independent Unit Vectors" 2014.
     # vec3 oct_to_float32x3(vec2 e) {
     # vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
     # if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
     # return normalize(v);
     # }
-    if unpack:
-        unpack_ubyte_vector(arr[:, :2], normalize=False)
+    if unpack_fn:
+        unpack_fn(arr[:, :2], normalize=normalize)
     arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
     # note that advanced indexing like this creates a copy instead of a view, which makes this messy
     arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, :2]))[arr[:, 2] < 0]

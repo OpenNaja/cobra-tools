@@ -1,7 +1,6 @@
 from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.structs.Vector3 import Vector3
-from generated.formats.ms2.structs.AxisAngle import AxisAngle
 
 
 class TriChunk(BaseStruct):
@@ -14,8 +13,9 @@ class TriChunk(BaseStruct):
     value_min: int
     tris_offset: int
     zero: int
-    loc: Vector3
-    rot: AxisAngle
+    cone_apex: Vector3
+    cone_cutoff: float
+    cone_axis: Vector3
     shell_index: int
     shell_count: int
 

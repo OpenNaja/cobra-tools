@@ -37,12 +37,9 @@ class TriChunk(BaseStruct):
 		# bytes into whole tris buffer, as tris use ubyte
 		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
 		self.zero = name_type_map['Uint'].from_value(0)
-
-		# can be 0,0,0, no obvious range, not always within range of bounds
-		self.loc = name_type_map['Vector3'](self.context, 0, None)
-
-		# can be 1, 0, 0, 0; w always in range -1, +1
-		self.rot = name_type_map['AxisAngle'](self.context, 0, None)
+		self.cone_apex = name_type_map['Vector3'](self.context, 0, None)
+		self.cone_cutoff = name_type_map['Float'](self.context, 0, None)
+		self.cone_axis = name_type_map['Vector3'](self.context, 0, None)
 
 		# 0, 1, 2 - increments per shell layer
 		self.shell_index = name_type_map['Ushort'](self.context, 0, None)
@@ -64,8 +61,9 @@ class TriChunk(BaseStruct):
 		yield 'value_min', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 54, None)
 		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, 0), (lambda context: context.version >= 54, None)
-		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None), (None, None)
+		yield 'cone_apex', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'cone_axis', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'shell_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
@@ -86,7 +84,8 @@ class TriChunk(BaseStruct):
 		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 54:
 			yield 'zero', name_type_map['Uint'], (0, None), (False, 0)
-		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None)
+		yield 'cone_apex', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, None)
+		yield 'cone_axis', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'shell_count', name_type_map['Ushort'], (0, None), (False, None)

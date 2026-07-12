@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 	get_bone_names
 from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.geometry import import_mesh_layers, import_shapekeys, ob_postpro, append_mirror_modifier, \
-	get_valid_lod_objects, import_mesh_properties
+	get_valid_lod_objects, import_mesh_properties, visualize_chunks
 from plugin.modules_import.material import import_material
 from plugin.utils.fast_mesh import FastMesh
 from plugin.utils.hair import add_psys
@@ -121,6 +121,11 @@ def load(reporter, filepath: str = "", use_custom_normals: bool = False, mirror_
 						if mirror_mesh:
 							append_mirror_modifier(b_ob)
 						ob_postpro(mirror_mesh, quadrify)
+
+						# Add visualization and hide the main object to cleanly see the chunk objects
+						#visualize_chunks(mesh, b_ob.name, lod_coll)
+						#b_ob.hide_set(True)
+
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:
