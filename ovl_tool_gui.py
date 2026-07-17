@@ -343,11 +343,19 @@ class MainWindow(window.MainWindow):
 		# logging.debug(f"Setting OVL game to {game}")
 		self.ovl_game_choice.entry.setText(game)
 
+	def get_selected_ovl_paths(self):
+		selected_path = self.ovl_manager.dirs.get_selected_path()
+		if selected_path.lower().endswith(".ovl"):
+			yield selected_path
+		else:
+			for ovl_path in modules.formats.shared.walk_type(selected_path, extension=".ovl"):
+				yield ovl_path
+
 	def handle_path(self, save_over=True, batch=False):
 		if batch:
 			with self.no_popups():
 				with self.log_level_override("WARNING"):
-					for ovl_path in modules.formats.shared.walk_type(self.walk_root(), extension=".ovl"):
+					for ovl_path in self.get_selected_ovl_paths():
 						# open ovl file
 						self.open(ovl_path)
 						# todo clear logger after each file, using self.file_widget.open_file would do that
