@@ -569,20 +569,16 @@ class MainWindow(window.MainWindow):
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
-		try:
-			newline = "\n"
-			old = self.e_name_old.toPlainText()
-			new = self.e_name_new.toPlainText()
-			# make sure at least one is non-empty
-			if not (old or new):
-				return
-			old = old.split(newline)
-			new = new.split(newline)
-			if len(old) != len(new):
-				self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
-			return set(zip(old, new))
-		except:
-			self.handle_error("Getting replace strings failed, see log!")
+		old = self.e_name_old.toPlainText()
+		new = self.e_name_new.toPlainText()
+		# make sure at least one is non-empty
+		if not (old or new):
+			return ()
+		old = old.splitlines()
+		new = new.splitlines()
+		if len(old) != len(new):
+			self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
+		return set(zip(old, new))
 
 	def rename(self, batch=False):
 		names = self.get_replace_strings()
