@@ -590,8 +590,12 @@ class OvlFile(Header):
 			self.loaders[filename].remove()
 		self.send_files()
 
+	@staticmethod
+	def format_rename_str(name_tups):
+		return ', '.join(' -> '.join(tup) for tup in name_tups)
+
 	def rename(self, name_tups):
-		logging.info(f"Renaming for {name_tups}")
+		logging.info(f"Renaming {self.format_rename_str(name_tups)}")
 		# todo - support renaming included_ovls?
 		# make a temporary copy
 		temp_loaders = list(self.loaders.values())
@@ -618,7 +622,7 @@ class OvlFile(Header):
 	def rename_contents(self, name_tups, only_files):
 		if not only_files:
 			only_files = list(self.loaders.keys())
-		logging.info(f"Renaming contents for {name_tups} for {len(only_files)} selected files")
+		logging.info(f"Renaming contents for {self.format_rename_str(name_tups)} for {len(only_files)} selected files")
 		with self.reporter.report_error_files("Renaming contents for") as error_files:
 			for file_name in only_files:
 				try:
