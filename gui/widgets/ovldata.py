@@ -530,6 +530,8 @@ class OvlDataTreeView(QTreeView):
 		menu = QtWidgets.QMenu()
 		index = self.indexAt(event.pos())
 		if index.isValid():
+			# ensure actions operate on the right-clicked item, not a stale current index
+			self.setCurrentIndex(index)
 			if self.actions:
 				menu.addSection("Batch Process")
 				for action, func in self.actions.items():

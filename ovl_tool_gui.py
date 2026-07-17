@@ -343,20 +343,25 @@ class MainWindow(window.MainWindow):
 		# logging.debug(f"Setting OVL game to {game}")
 		self.ovl_game_choice.entry.setText(game)
 
-	def handle_path(self, save_over=True, batch=False):
-		if batch:
+	def handle_path(self, save_over=True, batch=False, ovl_path=None):
+		if ovl_path is not None:
 			with self.no_popups():
 				with self.log_level_override("WARNING"):
-					for ovl_path in modules.formats.shared.walk_type(self.walk_root(), extension=".ovl"):
+					self.open(ovl_path)
+					yield self.ovl_data
+		elif batch:
+			with self.no_popups():
+				with self.log_level_override("WARNING"):
+					for path in modules.formats.shared.walk_type(self.walk_root(), extension=".ovl"):
 						# open ovl file
-						self.open(ovl_path)
+						self.open(path)
 						# todo clear logger after each file, using self.file_widget.open_file would do that
 						#      however the open_file signal and thus ovl loading is processed later than the yield
-						# self.file_widget.open_file(ovl_path)
+						# self.file_widget.open_file(path)
 						# process each
 						yield self.ovl_data
 						if save_over:
-							self.save(ovl_path)
+							self.save(path)
 		# just the one that's currently open, do not save over
 		elif self.is_open_ovl():
 			yield self.ovl_data
@@ -525,21 +530,25 @@ class MainWindow(window.MainWindow):
 			only_names = self.files_container.table.get_selected_files()
 			self.extract_all_ask(batch=False, only_names=only_names)
 
-	def extract_all_ask(self, batch=False, only_names=()):
+	def extract_all_ask(self, batch=False, only_names=(), single_ovl_path=None):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			self.run_in_threadpool(self._extract, (), out_dir, batch, only_names)
+			self.run_in_threadpool(self._extract, (), out_dir, batch, only_names, single_ovl_path)
 
 	def extract_all_batch(self):
-		self.extract_all_ask(batch=True)
+		selected_path = self.ovl_manager.dirs.get_selected_path()
+		if os.path.isfile(selected_path):
+			self.extract_all_ask(batch=False, single_ovl_path=selected_path)
+		else:
+			self.extract_all_ask(batch=True)
 
-	def _extract(self, out_dir, batch=False, only_names=()):
+	def _extract(self, out_dir, batch=False, only_names=(), single_ovl_path=None):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
 		only_types = self.extract_types_choice.currentData()
 		selected_dir = self.walk_root()
-		for ovl in self.handle_path(save_over=False, batch=batch):
+		for ovl in self.handle_path(save_over=False, batch=batch, ovl_path=single_ovl_path):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
 			if batch:
 				out_dir = ovl.get_relative_extract_folder(_out_dir, selected_dir)
@@ -683,6 +692,8 @@ class MainWindow(window.MainWindow):
 		"""Choose a reasonable root path for walking the ovldata folder structure"""
 		selected_path = self.ovl_manager.dirs.get_selected_path()
 		# take sub-folders to allow for partial walking
+		if not os.path.isdir(selected_path):
+			selected_path = os.path.dirname(selected_path)
 		if os.path.isdir(selected_path):
 			if PurePath(self.game_root()) in PurePath(selected_path).parents:
 				return selected_path
