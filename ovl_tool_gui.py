@@ -190,7 +190,7 @@ class MainWindow(window.MainWindow):
 				# --- Dev Tools Submenu ---
 				SubMenuItem("Dev Tools",
 					items=[
-						MenuItem("Inspect MS2", self.inspect_models, icon="ms2"),
+						MenuItem("Inspect MS2", self.walker_ms2, icon="ms2"),
 						MenuItem("Inspect FGM", self.walker_fgm, icon="fgm"),
 						MenuItem("Inspect MANIS", self.walker_manis, icon="manis"),
 						MenuItem("Inspect TEX", self.walker_tex, icon="tex"),
@@ -546,7 +546,7 @@ class MainWindow(window.MainWindow):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
 		only_types = self.extract_types_choice.currentData()
-		selected_dir = self.walk_root()
+		selected_dir = self.walk_root_dir
 		for ovl in self.handle_path(save_over=False, batch=batch):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
 			if batch:
@@ -672,49 +672,47 @@ class MainWindow(window.MainWindow):
 					self.set_dirty()
 				except:
 					self.handle_error("Removing file from OVL failed, see log!")
-
-	def ask_game_root(self):
-		return QtWidgets.QFileDialog.getExistingDirectory(
-			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-
-	def game_root(self):
+	
+	@property
+	def game_root_dir(self):
 		root_path = self.ovl_manager.dirs.get_root()
 		if root_path.endswith("ovldata"):
 			return root_path
 		return ""
-	
-	def walk_root(self):
-		"""Choose a reasonable root path for walking the ovldata folder structure"""
+
+	@property
+	def walk_root_dir(self):
+		"""Return a reasonable root path for walking the ovldata folder structure"""
 		selected_path = self.ovl_manager.dirs.get_selected_path()
 		# take sub-folders to allow for partial walking
 		if os.path.isdir(selected_path):
-			if PurePath(self.game_root()) in PurePath(selected_path).parents:
+			if PurePath(self.game_root_dir) in PurePath(selected_path).parents:
 				return selected_path
-		# fall back on game root dir
-		return self.game_root()
+		# fall back on game root dir if an ovl is selected
+		return self.game_root_dir
 
 	def walker_audio(self, ):
-		self.run_in_threadpool(walker.get_audio_names, (), self, self.game_root())
+		self.run_in_threadpool(walker.get_audio_names, (), self, self.game_root_dir)
 
 	def walker_hash(self, ):
-		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root())
+		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root_dir)
 
 	def walker_fgm(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = window.WalkerDialog(self, "Inspect FGMs", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect FGMs", self.walk_root_dir)
 		chk_full_report = widgets.QCheckBox("Full Report")
-		chk_full_report.setChecked(self.walk_root() == self.game_root())
+		chk_full_report.setChecked(self.walk_root_dir == self.game_root_dir)
 		dialog.options.addWidget(chk_full_report)
 		if dialog.exec():
 			self.run_in_threadpool(
-				walker.get_fgm_values, (), self, self.game_root(),
+				walker.get_fgm_values, (), self, self.game_root_dir,
 				dir_walk=dialog.dir_walk, walk_ovls=dialog.walk_ovls,
 				official_only=dialog.official_only, full_report=chk_full_report.isChecked()
 			)
 
 	def walker_manis(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = window.WalkerDialog(self, "Inspect Manis", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Manis", self.walk_root_dir)
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_manis_values, (), self, dir_walk=dialog.dir_walk,
@@ -723,19 +721,19 @@ class MainWindow(window.MainWindow):
 
 	def walker_tex(self, ):
 		self.change_log_speed.emit("slow")
-		dialog = window.WalkerDialog(self, "Inspect Tex", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Tex", self.walk_root_dir)
 		if dialog.exec():
 			self.run_in_threadpool(
 				walker.get_tex_values, (), self, dir_walk=dialog.dir_walk,
 				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 
-	def inspect_models(self):
+	def walker_ms2(self):
 		self.change_log_speed.emit("slow")
-		dialog = window.WalkerDialog(self, "Inspect Models", self.walk_root())
+		dialog = window.WalkerDialog(self, "Inspect Models", self.walk_root_dir)
 		if dialog.exec():
 			self.run_in_threadpool(
-				walker.bulk_test_models, (), self, self.game_root(), dir_walk=dialog.dir_walk,
+				walker.bulk_test_models, (), self, self.game_root_dir, dir_walk=dialog.dir_walk,
 				walk_ovls=dialog.walk_ovls, official_only=dialog.official_only
 			)
 
