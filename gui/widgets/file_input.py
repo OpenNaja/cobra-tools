@@ -45,6 +45,10 @@ class FileDirWidget(QWidget):
 		self.icon = QPushButton(self)
 		self.icon.setIcon(get_icon("dir"))
 		self.icon.setFlat(True)
+		self.reload_btn = QPushButton(self)
+		self.reload_btn.setIcon(get_icon("reload"))
+		self.reload_btn.setFlat(True)
+		self.reload_btn.setToolTip("Reload the currently open file from disk if it has been modified")
 		self.entry = QLineEdit(self)
 		self.entry.setDragEnabled(True)
 		self.entry.setTextMargins(3, 0, 3, 0)
@@ -57,14 +61,17 @@ class FileDirWidget(QWidget):
 			self.entry.setReadOnly(True)
 			self.entry.installEventFilter(ClickGuard(self))
 			self.icon.installEventFilter(ClickGuard(self))
+		self.reload_btn.clicked.connect(self.reload)
 
 		self.icon.installEventFilter(DragDropPassthrough(self))
 		self.entry.installEventFilter(DragDropPassthrough(self))
+		self.reload_btn.installEventFilter(DragDropPassthrough(self))
 
 		self.qgrid = QGridLayout()
 		self.qgrid.setContentsMargins(0, 0, 0, 0)
 		self.qgrid.addWidget(self.icon, 0, 0)
 		self.qgrid.addWidget(self.entry, 0, 1)
+		self.qgrid.addWidget(self.reload_btn, 0, 2)
 		self.setLayout(self.qgrid)
 
 	@property
@@ -217,6 +224,10 @@ class FileWidget(FileDirWidget):
 		filepath = self.get_open_file_name()
 		if filepath:
 			self.open_file(filepath)
+
+	def reload(self) -> None:
+		if self.filepath and self.dirty:
+			self.open_file(self.filepath)
 
 	def get_open_file_name(self, title: Optional[str] = None):
 		title = title if title else f'Load {self.ftype}'
