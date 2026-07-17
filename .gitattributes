@@ -1,1 +1,38 @@
 * text=auto
+
+# Exclude from statistics
+docs/           linguist-documentation
+
+# Collapse in diffs
+generated/**            linguist-generated
+constants/**/audio.py   linguist-generated
+constants/**/hashes.py  linguist-generated
+constants/**/mimes.py   linguist-generated
+
+# Ensure shown in diffs
+gui/**          -linguist-generated
+plugin/**       -linguist-generated
+source/**       -linguist-generated
+
+# Remove from Download/Release ZIPs
+.gitattributes          export-ignore
+.gitignore              export-ignore
+.gitmodules             export-ignore
+.nojekyll               export-ignore
+.pre-commit-config.yaml export-ignore
+mkdocs.yml              export-ignore
+pyproject.toml          export-ignore
+
+.vscode          export-ignore
+.vscode/**       export-ignore
+.github          export-ignore
+.github/**       export-ignore
+
+docs             export-ignore
+docs/**          export-ignore
+dumps            export-ignore
+dumps/**         export-ignore
+experimentals    export-ignore
+experimentals/** export-ignore
+tests            export-ignore
+tests/**         export-ignore
