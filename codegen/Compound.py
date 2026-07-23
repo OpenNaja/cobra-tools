@@ -33,6 +33,8 @@ class Compound(BaseClass):
             self.class_basename = "BaseStruct"
             self.imports.add("BaseStruct")
 
+        class_body_src = self.grab_src_snippet("# START_CLASS", "# END_CLASS")
+
         # write to python file
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:
             # write the header stuff
@@ -62,7 +64,7 @@ class Compound(BaseClass):
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():
             #   union.write_declaration(f)
-            if "def __init__" not in self.src_code:
+            if "def __init__" not in class_body_src:
                 self.write_line(f)
                 self.write_line(f, 1, "def __init__(self, context, arg=0, template=None, set_default=True):")
 
@@ -87,7 +89,7 @@ class Compound(BaseClass):
 
             # write attribute list
             method_str = "def _get_attribute_list(cls):"
-            if method_str not in self.src_code:
+            if method_str not in class_body_src:
                 self.write_line(f)
                 self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
@@ -98,7 +100,7 @@ class Compound(BaseClass):
 
             # write the _get_filtered_attribute_list method
             method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"
-            if "def _get_filtered_attribute_list(" not in self.src_code:
+            if "def _get_filtered_attribute_list(" not in class_body_src:
                 self.write_line(f)
                 self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
@@ -117,7 +119,9 @@ class Compound(BaseClass):
     def write_pyi(self) -> None:
         """Writes the .pyi type stub file for this class."""
         if os.path.exists(self.out_pyi_file):
-            return  # Do not overwrite the hand-written stub file.
+            # Do not overwrite the hand-written stub file unless it uses templating.
+            if not getattr(self, 'pyi_src_code', '') or not any(marker in self.pyi_src_code for marker in ("# START_CLASS", "# START_GLOBALS", "# START_VARS")):
+                return 
 
         # Initialization
         pyi_imports = Imports(self.parser, self.struct, self.gen_dir, for_pyi=True)
@@ -162,6 +166,8 @@ class Compound(BaseClass):
 
         # File Writing
         with open(self.out_pyi_file, "w", encoding=self.parser.encoding) as f:
+            self.write_pyi_globals(f)
+            
             # Propagate generic status from parent class
             if not is_generic and self.class_basename:
                 is_generic = self.class_basename in self.parser.generic_types
@@ -204,10 +210,21 @@ class Compound(BaseClass):
             
             f.write(f"{class_def}:\n")
 
+            # Write custom variables first
+            pyi_vars = self.grab_pyi_snippet("# START_VARS", "# END_VARS")
+            if pyi_vars:
+                f.write(pyi_vars)
+
             # Write the attributes collected during the loop
-            if not attribute_lines:
+            if not attribute_lines and not pyi_vars.strip():
                 f.write("    pass\n")
             else:
                 f.writelines(attribute_lines)
 
+            # Write __init__
             f.write("\n    def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...\n")
+            
+            # Write custom methods or properties at the end
+            pyi_body = self.grab_pyi_snippet("# START_CLASS")
+            if pyi_body:
+                f.write(pyi_body)

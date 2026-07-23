@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from . import Config, Element
@@ -41,7 +42,14 @@ class Enum(BaseClass):
 
     def write_pyi(self) -> None:
         """Writes the .pyi type stub file for this enum."""
+        if os.path.exists(self.out_pyi_file):
+            # Do not overwrite the hand-written stub file unless it uses templating.
+            if not getattr(self, 'pyi_src_code', '') or ("# START_CLASS" not in self.pyi_src_code and "# START_GLOBALS" not in self.pyi_src_code):
+                return 
+
         with open(self.out_pyi_file, "w", encoding=self.parser.encoding) as f:
+            self.write_pyi_globals(f)
+            
             pyi_imports = Imports(self.parser, self.struct, self.gen_dir, for_pyi=True)
             pyi_imports.add(self.class_basename)
             pyi_imports.write(f)
@@ -52,3 +60,7 @@ class Enum(BaseClass):
             for option in self.elements:
                 option_name = option.attrib['name']
                 f.write(f"    {option_name}: {self.class_name}\n")
+                
+            pyi_body = self.grab_pyi_snippet("# START_CLASS")
+            if pyi_body:
+                f.write(pyi_body)

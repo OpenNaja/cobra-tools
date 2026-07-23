@@ -1,8 +1,14 @@
+from generated.array import Array
+from generated.formats.ms2.structs.MeshData import MeshData
+from generated.formats.ms2.structs.TriChunk import TriChunk
+from generated.formats.ms2.structs.VertChunk import VertChunk
 from generated.formats.ms2.bitfields.ChunkedModelFlag import ChunkedModelFlag
 from generated.formats.ms2.structs.MeshData import MeshData
 
 
 class ChunkedMesh(MeshData):
+    vert_chunks: Array[VertChunk]
+    tri_chunks: Array[TriChunk]
     chunks_offset: int
     chunks_count: int
     tris_count: int

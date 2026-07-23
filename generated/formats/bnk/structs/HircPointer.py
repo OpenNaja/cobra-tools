@@ -82,3 +82,4 @@ class HircPointer(BaseStruct):
 			stream.seek(instance.data.io_start + instance.length)
 			logging.warning(instance)
 			# raise IOError("Reading failed")
+
