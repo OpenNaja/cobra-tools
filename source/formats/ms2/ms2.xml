@@ -627,7 +627,7 @@
 		<field name="tris_offset" type="uint">bytes into whole tris buffer, as tris use ubyte</field>
 		<field name="zero" type="uint" default="0" since="54"/>
 		<field name="cone_apex" type="Vector3"></field>
-		<field name="cone_cutoff" type="float"></field>
+		<field name="cone_cutoff" type="float" default="1.0"></field>
 		<field name="cone_axis" type="Vector3"></field>
 		<field name="shell_index" type="ushort"> 0, 1, 2 - increments per shell layer</field>
 		<field name="shell_count" type="ushort"> 0 or 3 in theri</field>
