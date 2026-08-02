@@ -38,7 +38,7 @@ class TriChunk(BaseStruct):
 		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
 		self.zero = name_type_map['Uint'].from_value(0)
 		self.cone_apex = name_type_map['Vector3'](self.context, 0, None)
-		self.cone_cutoff = name_type_map['Float'](self.context, 0, None)
+		self.cone_cutoff = name_type_map['Float'].from_value(1.0)
 		self.cone_axis = name_type_map['Vector3'](self.context, 0, None)
 
 		# 0, 1, 2 - increments per shell layer
@@ -62,7 +62,7 @@ class TriChunk(BaseStruct):
 		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, 0), (lambda context: context.version >= 54, None)
 		yield 'cone_apex', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, 1.0), (None, None)
 		yield 'cone_axis', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'shell_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -85,7 +85,7 @@ class TriChunk(BaseStruct):
 		if instance.context.version >= 54:
 			yield 'zero', name_type_map['Uint'], (0, None), (False, 0)
 		yield 'cone_apex', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, None)
+		yield 'cone_cutoff', name_type_map['Float'], (0, None), (False, 1.0)
 		yield 'cone_axis', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'shell_count', name_type_map['Ushort'], (0, None), (False, None)
