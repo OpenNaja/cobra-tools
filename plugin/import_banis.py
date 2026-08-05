@@ -1,5 +1,7 @@
 import math
 import os
+import logging
+from typing import Optional, TYPE_CHECKING
 
 import bpy
 import mathutils
@@ -8,13 +10,13 @@ from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
 from plugin.utils.anim import get_bone_bind_data
-from plugin.utils.transforms import Corrector
+from plugin.utils.transforms import BanisCorrector, Corrector
 from plugin.utils.object import create_ob, get_bones_table, get_parent_map
+if TYPE_CHECKING:
+	from generated.formats.bani.structs.BaniInfo import BaniInfo
 
 interp_loc = None
-# global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
 global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, 0, 0)])
-# global_corr_euler = mathutils.Euler([math.radians(k) for k in (90, 90, 90)])
 global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
@@ -26,97 +28,186 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 	bones_table, p_bones = get_bones_table(b_armature_ob)
 	bone_names = [tup[1] for tup in bones_table]
+	logging.debug("\n[DEBUG] --- Blender Bone Mapping ---")
+	for bone_i, bone_name in bones_table:
+		logging.debug(f"  Blender Index {bone_i} -> Bone: '{bone_name}'")
 
 	parent_index_map = get_parent_map(p_bones)
 	anim_sys = Animation()
 	banis = BanisFile()
 	banis.load(filepath)
-	print(banis)
+
 	for bani in banis.anims:
-		# data 0 has various scales and counts
 		anim_length = bani.data.animation_length
 		num_frames = bani.data.num_frames
 
 		scene.frame_start = 0
 		scene.frame_end = num_frames-1
 		fps = int(round(num_frames/anim_length))
-		# print(f"Banis fps = {fps}")
+
 		animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map, use_armature)
+
 	if not use_armature:
 		for i, bone_name in bones_table:
 			b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
 			bind = b_armature_ob.data.bones[bone_name].matrix_local
-			# bind = corrector.from_blender(bind)
-			# b_empty_ob.matrix_local = bind.inverted()
-			# b_empty_ob.matrix_local = bind.inverted()
 			b_empty_ob.location = bind.translation
 			b_empty_ob.scale = (0.01, 0.01, 0.01)
+
 	reporter.show_info(f"Imported {banis_name}")
 
 
-def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map, use_armature=True):
-	"""trying to work with uncorrected
-	this assumes that bone_i is continuous"""
-	corrector = Corrector(False)
-	print(f"corr {global_corr_mat.to_euler()}")
+def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', scene, b_armature_ob, parent_index_map, use_armature=True):
+	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
+	anim_mode = getattr(bani, "anim_mode", 5)
+
+	corrector = BanisCorrector(False) if anim_mode in (1, 3) else Corrector(False)
+
 	fcurves_rot = []
 	fcurves_loc = []
-	# create the fcurves and empties if needed
+
 	if use_armature:
 		b_action = anim_sys.create_action(b_armature_ob, bani.name)
+
+	# GAME-SPACE BINDS
 	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 
+	# Fetch the list of bones that are actually animated in this file
+	animated_bones = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
+	is_partial = len(animated_bones) < len(bones_table)
+
+	scale_multiplier = 1.0
+	# We only apply scale correction on full-body animations
+	if anim_mode in (1, ) and not is_partial and len(bones_table) > 1:
+		# TODO: Find longest hard bone
+		# Pick two bones that define a solid, non-stretching segment of the rig (e.g., Root to Hips).
+		bone_a_idx = 0  # Example: Root
+		bone_b_idx = 1  # Example: Hips
+
+		# Get the distance in native 1.0x Blender rest pose
+		rest_pos_a = binds[bone_a_idx].translation
+		rest_pos_b = binds[bone_b_idx].translation
+		rest_dist = (rest_pos_b - rest_pos_a).length
+
+		# Get the distance in the raw .banis absolute coordinates at Frame 0
+		anim_pos_a = mathutils.Vector(bani.keys[0]["loc"][bone_a_idx])
+		anim_pos_b = mathutils.Vector(bani.keys[0]["loc"][bone_b_idx])
+		anim_dist = (anim_pos_b - anim_pos_a).length
+
+		# Calculate the scalar required to conform the anim to the rest pose
+		if anim_dist > 0.0001:  # Prevent divide-by-zero on collapsed rigs
+			scale_multiplier = rest_dist / anim_dist
+
 	for bone_i, bone_name in bones_table:
-		# create new empty
 		if not use_armature:
 			b_empty_ob = create_ob(scene, bone_name, None)
 			b_empty_ob.rotation_mode = "QUATERNION"
 			b_empty_ob.scale = (0.01, 0.01, 0.01)
 			b_action = anim_sys.create_action(b_empty_ob, f"{bani.name}.{bone_name}")
-		# create fcurves
+
+		# Do not create F-Curves if the bone has no keyframes in this partial animation
+		if bone_i not in animated_bones:
+			fcurves_rot.append(None)
+			fcurves_loc.append(None)
+			continue
+
 		channel_name = bone_name if use_armature else None
 		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, channel_name))
 		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, channel_name))
 
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
-		posed_armature_space = [None for _ in bones_table]
-		posed_local_space = [None for _ in bones_table]
+		game_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+
 		for bone_i, bone_name in bones_table:
-			# assuming the transform is stored relative to the inverse skin bind transform
-			# some attempts, no success yet
-			euler = frame["euler"][bone_i]
-			loc = frame["loc"][bone_i]
-			euler = mathutils.Euler([math.radians(k) for k in euler])
-			rot = global_corr_mat @ euler.to_matrix().to_4x4()
-			key = global_corr_mat @ euler.to_matrix().to_4x4()
-			# key = euler.to_matrix().to_4x4()
+			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
+			quat_data = frame["quat"][bone_i]
+			loc = [c * scale_multiplier for c in frame["loc"][bone_i]]
+
+			quat = mathutils.Quaternion(quat_data)
+
+			key: mathutils.Matrix = global_corr_mat @ quat.to_matrix().to_4x4()
 			key.translation = loc
-			# key = inv_bind @ key.inverted() @ bind
-			# key = bind @ key.inverted() @ inv_bind
-			# key = inv_bind @ key @ bind
-			# key = bind @ key @ inv_bind
-			# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
-			key = key @ binds[bone_i]
-			# key.translation += binds[bone_i].translation
-			# store the posed armature space matrix
-			posed_armature_space[bone_i] = corrector.to_blender(key)
+
+			# Fetch the readIdx for this bone
+			read_i = getattr(bani, "read_mapping", {}).get(bone_i, 255)
+
+			parent_i = parent_index_map[bone_i] if read_i == 255 else read_i
+
+			# Blend Modes
+			if anim_mode == 1:
+				# MODE 1 (Absolute): Keys are fully baked to world space. Ignore parent.
+				game_armature_space[bone_i] = key
+				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+
+			elif anim_mode == 2:
+				# MODE 2 Relative/FK
+				if is_partial and parent_i is not None:
+					# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
+					# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
+					game_armature_space[bone_i] = binds[-1] @ key
+				else:
+					# Mode 2 I have looked at don't get here
+					game_armature_space[bone_i] = key  # Maybe binds[bone_i] @ key
+				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+
+			elif anim_mode == 3:
+				# MODE 3: Additive
+				if is_partial:
+					game_armature_space[bone_i] = key @ binds[bone_i]
+				else:
+					# TODO: Blows up, `key @ binds[bone_i]` doesn't work either
+					# bodyflume_bendup, bodyflume_benddown
+					# Non-partial, 1:1 bone mapping, read_i==255 (None)
+					# Not reassigning parent_i also blows up
+					parent_i = None if read_i == 255 else parent_i
+					game_armature_space[bone_i] = binds[bone_i] @ key
+				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+
+			elif anim_mode == 5:
+				# Mode 5: Legacy (Version < 7)
+				game_mat = key @ binds[bone_i]
+				posed_armature_space[bone_i] = corrector.to_blender(game_mat)
+
 		if use_armature:
-			# make posed armature space matrices relative to posed parent
 			for bone_i, parent_i in enumerate(parent_index_map):
 				if parent_i is not None:
 					posed_local_space[bone_i] = posed_armature_space[parent_i].inverted() @ posed_armature_space[bone_i]
 				else:
 					posed_local_space[bone_i] = posed_armature_space[bone_i]
-			#  make that relative to local bone bind
+
 			for bone_i, bone_name in bones_table:
+				# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
 				posed_local_space[bone_i] = bones_local_mat[bone_i].inverted() @ posed_local_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
+			# Skip pushing keyframes to Blender if the curve is un-animated
+			if bone_i not in animated_bones:
+				continue
+
+			rot_final = mathutils.Quaternion((1, 0, 0, 0))
+			loc_final = mathutils.Vector((0, 0, 0))
 			key = posed_local_space[bone_i]
-			rot_final = key.to_quaternion()
-			loc_final = key.translation
+			if key:
+				rot_final = key.to_quaternion()
+				loc_final = key.translation
+
+			## HACK - When all else fails, ignore translation
+			## We allow the Root and its immediate child (Hips) to translate through space.
+			## We lock all other limbs to their strict rest lengths so they don't stretch/squish.
+			#parent_i = parent_index_map[bone_i]
+			#is_root = (parent_i is None)
+			#is_hips = (parent_i is not None and parent_index_map[parent_i] is None)
+			#
+			#if not (is_root or is_hips):
+			#	loc_final = mathutils.Vector((0.0, 0.0, 0.0))
+
 			anim_sys.add_key(fcurves_rot[bone_i], frame_i, rot_final, interp_loc)
 			anim_sys.add_key(fcurves_loc[bone_i], frame_i, loc_final, interp_loc)
 
+	if b_action:
+		b_action.use_frame_range = True
+		b_action.frame_end = bani.data.num_frames
 

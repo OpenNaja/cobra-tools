@@ -3,9 +3,9 @@ from generated.formats.bani.imports import name_type_map
 from generated.formats.ovl_base.structs.NestedPointers import NestedPointers
 
 
-class Keys(NestedPointers):
+class BaniKeys(NestedPointers):
 
-	__name__ = 'Keys'
+	__name__ = 'BaniKeys'
 
 
 	@property

@@ -16,11 +16,11 @@ class BaniRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# ?
-		self.index = name_type_map['Uint'](self.context, 0, None)
+		# Maps this CPU-side struct to the struct in the GPU buffer
+		self.gpu_buffer_index = name_type_map['Uint'](self.context, 0, None)
 
-		# index * 16
-		self.offset = name_type_map['Uint'](self.context, 0, None)
+		# Offset into the engine GPU buffer. gpu_buffer_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.
+		self.gpu_buffer_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
@@ -31,8 +31,8 @@ class BaniRoot(MemStruct):
 		# length of the animation, can easily get keyframe spacing now
 		self.animation_length = name_type_map['Float'](self.context, 0, None)
 
-		# if 1381323599 then looped
-		self.loop_flag = name_type_map['Uint'](self.context, 0, None)
+		# Version LT 7: if 1381323599 then looped.  Version 7: (flag RSH 16) AND 0xFFFF == Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive | flag AND 0xFFFF == num_bones
+		self.anim_flags = name_type_map['Uint'](self.context, 0, None)
 
 		# points to the banis file used
 		self.banis = name_type_map['Pointer'](self.context, 0, None)
@@ -43,21 +43,21 @@ class BaniRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None), (None, None)
-		yield 'index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_buffer_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_buffer_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'loop_flag', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'anim_flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None)
 		if instance.context.version >= 7:
-			yield 'index', name_type_map['Uint'], (0, None), (False, None)
-			yield 'offset', name_type_map['Uint'], (0, None), (False, None)
+			yield 'gpu_buffer_index', name_type_map['Uint'], (0, None), (False, None)
+			yield 'gpu_buffer_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)
-		yield 'loop_flag', name_type_map['Uint'], (0, None), (False, None)
+		yield 'anim_flags', name_type_map['Uint'], (0, None), (False, None)

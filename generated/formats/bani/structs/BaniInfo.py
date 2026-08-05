@@ -5,7 +5,7 @@ from generated.formats.bani.imports import name_type_map
 class BaniInfo(BaseStruct):
 
 	"""
-	Custom header struct
+	CPU Anim Headers
 	"""
 
 	__name__ = 'BaniInfo'

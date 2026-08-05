@@ -40,6 +40,16 @@ class ManisCorrector(Corrector):
 		self.correction_glob_inv = self.correction_glob.inverted()
 		# the local correction changes the respective axis of a rotation input
 
+class BanisCorrector(Corrector):
+	def __init__(self, is_zt):
+		super().__init__(is_zt)
+		# affects loc and orientation of rotation
+		if is_zt:
+			self.correction_glob = axis_conversion("X", "Y").to_4x4()
+		else:
+			self.correction_glob = axis_conversion("-X", "Y").to_4x4()
+		self.correction_glob_inv = self.correction_glob.inverted()
+		# the local correction changes the respective axis of a rotation input
 
 class CorrectorRagdoll(Corrector):
 	def __init__(self, is_zt):

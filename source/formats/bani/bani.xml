@@ -2,7 +2,7 @@
 <!DOCTYPE fileformat>
 <fileformat>
 
-	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+    <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <struct name="Vector3Short" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
@@ -18,41 +18,64 @@
         <field name="z" type="ushort">Third coordinate.</field>
     </struct>
 
-	<struct name="BaniRoot" inherit="MemStruct">
+    <struct name="BaniRoot" inherit="MemStruct">
         This varies per bani animation file and describes the bani's frames and duration
-		older: 24 bytes
+        older: 24 bytes
         PC2: 32 bytes
         <field name="banis" type="Pointer" >points to the banis file used</field>
-        <field name="index" type="uint" since="7">?</field>
-        <field name="offset" type="uint" since="7">index * 16</field>
-        <field name="read start frame" type="uint">The frame in the banis where this bani starts reading</field> <!-- PC2: num_frames * 8 + previous offset -->
-        <field name="num frames" type="uint">Number of frames in this bani file</field>
-        <field name="animation length" type="float">length of the animation, can easily get keyframe spacing now</field>
-        <field name="LoopFlag" type="uint">if 1381323599 then looped</field>
+        <field name="gpu_buffer_index" type="uint" since="7">Maps this CPU-side struct to the struct in the GPU buffer</field>
+        <field name="gpu_buffer_offset" type="uint" since="7">Offset into the engine GPU buffer. gpu_buffer_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.</field>
+        <field name="read_start_frame" type="uint">The frame in the banis where this bani starts reading</field>
+        <field name="num_frames" type="uint">Number of frames in this bani file</field>
+        <field name="animation_length" type="float">length of the animation, can easily get keyframe spacing now</field>
+        <field name="anim_flags" type="uint">Version LT 7: if 1381323599 then looped.  Version 7: (flag RSH 16) AND 0xFFFF == Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive | flag AND 0xFFFF == num_bones</field>
     </struct>
 
-    <struct name="BaniData" inherit="MemStruct">
+    <bitfield name="PackedOffsetBones" storage="uint">
+        <member width="24" pos="0" name="bone_channels_offset" type="uint" />
+        <member width="8" pos="24" name="num_bones" type="ubyte" />
+    </bitfield>
+
+    <struct name="BaniGpuAnimHeader" allow_np="true">
+        GPU Anim Header
         PC2: 16 bytes
-        <field name="a" type="ushort"/>
-        <field name="b" type="ushort"/>
-        <field name="unk" type="float"/>
-        <field name="increment" type="ushort"/> <!-- in guests by 15, in pigeon by 1, starts at bani_count? -->
-        <field name="zero" type="ubyte" default="0"/>
-        <field name="num_bones" type="ubyte"/>
-        <field name="index_reversed" type="uint"/>
+        <field name="uniform_scale" type="float">Multiplier for translation de-quantization</field>
+        <field name="uniform_bias" type="float">Bias (minimum bound) for translation de-quantization</field>
+        <field name="packed_offset_bones" type="PackedOffsetBones">Packed 24-bit chunk offset and 8-bit bone count</field>
+        <field name="keyframes_offset" type="uint">Offset in 16-byte chunks to the keyframe block</field>
     </struct>
 
-    <struct name="BoneInfo" allow_np="true">
+    <struct name="BaniGpuChannelBones" allow_np="true">
+        WRITE non-255, READ     255 === Normal Channel
+        WRITE non-255, READ non-255 === Channel Group, bone(s) are reusing a parent bone's transform
+        WRITE     255, READ     255 === Skip Channel, bone(s) are not being animated at all
         PC2: 2 bytes
-        <field name="index" type="ubyte"/>
-        <field name="flag" type="ubyte"/>
+        <field name="write_index" type="ubyte">Bone write index. 0xFF = None/Sentinel</field>
+        <field name="read_index" type="ubyte">Parent read index. 0xFF = None/Sentinel</field>
     </struct>
 
-    <struct name="BaniBones" inherit="MemStruct">
+    <struct name="BaniGpuChannels">
+        Each item creates an animation channel which defines the read/write indices for bones
         PC2: multiples of 32 bytes for each bani, data per bone index
-		<field name="ref" type="Empty"/>
-        <field name="data" type="BoneInfo" arr1="#ARG#\num_bones" />
-		<field name="padding" type="PadAlign" template="ref" arg="32"/>
+        <field name="ref" type="Empty"/>
+        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="padding" type="PadAlign" template="ref" arg="32">Non-LOD channels appear to be 32-byte aligned regardless of skeleton size</field>
+    </struct>
+
+    <struct name="BaniGpuChannelsLod">
+        Each item creates an animation channel which defines the read/write indices for bones
+        PC2: multiples of 32 bytes for each bani, data per bone index
+        <field name="ref" type="Empty"/>
+        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="padding" type="PadAlignFF" template="ref" arg="32">32 for small skeleton LOD channels</field>
+    </struct>
+
+    <struct name="BaniGpuChannelsLod_256">
+        Each item creates an animation channel which defines the read/write indices for bones
+        PC2: multiples of 256 bytes for each bani, data per bone index
+        <field name="ref" type="Empty"/>
+        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="padding" type="PadAlignFF" template="ref" arg="256">256 for large skeleton LOD channels</field>
     </struct>
 
     <struct name="Bone" allow_np="true">
@@ -61,41 +84,42 @@
         <field name="loc" type="Vector3Ushort" />
     </struct>
 
-    <struct name="Keys" inherit="NestedPointers" args="2">
+    <struct name="BaniKeys" inherit="NestedPointers" args="2">
         <field name="data" type="Bone" arr1="#ARG1#" arr2="#ARG2#"/>
     </struct>
 
     <struct name="BanisRoot" inherit="MemStruct">
         older games: 40 bytes
         PC2: new structure, 4 pointers to keyframe data at start
-        <field name="bani_data" type="ArrayPointer" arg="bani_count" template="BaniData" since="7"/>
-        <!-- padded with 00 bytes -->
-        <field name="bones_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
-        <!-- padded with FF bytes, todo however the counts or padding appear different on af.banisetfc27d51a -->
-        <field name="bones2_foreach_bani_data" type="ForEachPointer" arg="bani_data" template="BaniBones" since="7"/>
-        <field name="keys" type="Pointer" template="Keys" arg1="num frames" arg2="num bones" since="7"/>
+        <field name="gpu_anim_headers" type="ArrayPointer" arg="bani_count" template="BaniGpuAnimHeader" since="7"/>
+        <!-- padded with 00 bytes, 32 byte alignment-->
+        <field name="channel_bones" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannels" since="7"/>
+        <!-- padded with FF bytes, 32 byte alignment / 256 byte alignment for larger skeletons -->
+        <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod" since="7" cond="channel_bones_size #EQ# channel_bones_lod_size" />
+        <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod_256" since="7" cond="channel_bones_size #NEQ# channel_bones_lod_size" />
+        <field name="keys" type="Pointer" template="BaniKeys" arg1="num frames" arg2="num bones" since="7"/>
         <field name="zeros" type="uint" arr1="3" since="7"/>
-        <field name="count_a" type="uint" since="7"/>
-        <field name="count_b_0" type="uint" since="7">loc?</field>
-        <field name="count_b_1" type="uint" since="7">rot?</field>
-        <field name="keys_size" type="uint" since="7"/>
+        <field name="gpu_anim_headers_size" type="uint" since="7">Size of BaniGpuAnimHeader block in bytes</field>
+        <field name="channel_bones_size" type="uint" since="7">Size of the first channels block in bytes</field>
+        <field name="channel_bones_lod_size" type="uint" since="7">Size of the second channels block in bytes</field>
+        <field name="keys_size" type="uint" since="7">Size of the BaniKeys block in bytes</field>
 
         <field name="zeros" type="uint64" arr1="2" until="5"/>
 
-        <field name="bytes per frame" type="uint" >bytes per bone * num bones</field>
-        <field name="bytes per bone" type="uint" >seen 12 (PC2 pigeon), 16 (PC1 pigeon)</field>
-        <field name="num frames" type="uint" >Number of frames for all bani files in banis buffer</field>
-        <field name="num bones" type="uint" >number of bones in data, must correspond to ms2</field>
+        <field name="bytes_per_frame" type="uint">bytes per bone * num bones</field>
+        <field name="bytes_per_bone" type="uint">seen 12 (PC2 pigeon), 16 (PC1 pigeon)</field>
+        <field name="num_frames" type="uint">Number of frames for all bani files in banis buffer</field>
+        <field name="num_bones" type="uint">number of bones in data, must correspond to ms2</field>
 
-        <field name="loc scale" type="float" until="5">scale for translation range</field>
-        <field name="loc min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</field>
+        <field name="loc_scale" type="float" until="5">scale for translation range</field>
+        <field name="loc_min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</field>
 
         <field name="bani_count" type="uint" since="7"/>
         <field name="zero2" type="uint64" since="7"/>
     </struct>
 
     <struct name="BaniInfo">
-        Custom header struct
+        CPU Anim Headers
         <field name="name" type="ZString"/>
         <field name="data" type="BaniRoot"/>
     </struct>

@@ -1,7 +1,10 @@
+from typing import Union
 from generated.array import Array
-from generated.formats.bani.structs.BaniBones import BaniBones
-from generated.formats.bani.structs.BaniData import BaniData
-from generated.formats.bani.structs.Keys import Keys
+from generated.formats.bani.structs.BaniGpuAnimHeader import BaniGpuAnimHeader
+from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
+from generated.formats.bani.structs.BaniGpuChannelsLod import BaniGpuChannelsLod
+from generated.formats.bani.structs.BaniGpuChannelsLod256 import BaniGpuChannelsLod256
+from generated.formats.bani.structs.BaniKeys import BaniKeys
 from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.structs.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
@@ -9,14 +12,14 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 
 class BanisRoot(MemStruct):
-    bani_data: ArrayPointer[BaniData]
-    bones_foreach_bani_data: ForEachPointer[BaniBones]
-    bones_2_foreach_bani_data: ForEachPointer[BaniBones]
-    keys: Pointer[Keys]
+    gpu_anim_headers: ArrayPointer[BaniGpuAnimHeader]
+    channel_bones: ForEachPointer[BaniGpuChannels]
+    channel_bones_lod: Union[ForEachPointer[BaniGpuChannelsLod256], ForEachPointer[BaniGpuChannelsLod]]
+    keys: Pointer[BaniKeys]
     zeros: Array[int]
-    count_a: int
-    count_b_0: int
-    count_b_1: int
+    gpu_anim_headers_size: int
+    channel_bones_size: int
+    channel_bones_lod_size: int
     keys_size: int
     zeros: Array[int]
     bytes_per_frame: int

@@ -16,13 +16,17 @@ class BanisRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
-		self.count_a = name_type_map['Uint'](self.context, 0, None)
 
-		# loc?
-		self.count_b_0 = name_type_map['Uint'](self.context, 0, None)
+		# Size of BaniGpuAnimHeader block in bytes
+		self.gpu_anim_headers_size = name_type_map['Uint'](self.context, 0, None)
 
-		# rot?
-		self.count_b_1 = name_type_map['Uint'](self.context, 0, None)
+		# Size of the first channels block in bytes
+		self.channel_bones_size = name_type_map['Uint'](self.context, 0, None)
+
+		# Size of the second channels block in bytes
+		self.channel_bones_lod_size = name_type_map['Uint'](self.context, 0, None)
+
+		# Size of the BaniKeys block in bytes
 		self.keys_size = name_type_map['Uint'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
@@ -45,24 +49,25 @@ class BanisRoot(MemStruct):
 		self.loc_min = name_type_map['Float'](self.context, 0, None)
 		self.bani_count = name_type_map['Uint'](self.context, 0, None)
 		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
-		self.bani_data = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniData'])
-		self.bones_foreach_bani_data = name_type_map['ForEachPointer'](self.context, self.bani_data, name_type_map['BaniBones'])
-		self.bones_2_foreach_bani_data = name_type_map['ForEachPointer'](self.context, self.bani_data, name_type_map['BaniBones'])
-		self.keys = name_type_map['Pointer'](self.context, (self.num_frames, self.num_bones), name_type_map['Keys'])
+		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniGpuAnimHeader'])
+		self.channel_bones = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannels'])
+		self.channel_bones_lod = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannelsLod256'])
+		self.keys = name_type_map['Pointer'](self.context, (self.num_frames, self.num_bones), name_type_map['BaniKeys'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'bani_data', name_type_map['ArrayPointer'], (None, name_type_map['BaniData']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'bones_foreach_bani_data', name_type_map['ForEachPointer'], (None, name_type_map['BaniBones']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'bones_2_foreach_bani_data', name_type_map['ForEachPointer'], (None, name_type_map['BaniBones']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'keys', name_type_map['Pointer'], (None, name_type_map['Keys']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_anim_headers', name_type_map['ArrayPointer'], (None, name_type_map['BaniGpuAnimHeader']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'channel_bones', name_type_map['ForEachPointer'], (None, name_type_map['BaniGpuChannels']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'channel_bones_lod', name_type_map['ForEachPointer'], (None, name_type_map['BaniGpuChannelsLod']), (False, None), (lambda context: context.version >= 7, True)
+		yield 'channel_bones_lod', name_type_map['ForEachPointer'], (None, name_type_map['BaniGpuChannelsLod256']), (False, None), (lambda context: context.version >= 7, True)
+		yield 'keys', name_type_map['Pointer'], (None, name_type_map['BaniKeys']), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 7, None)
-		yield 'count_a', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'count_b_0', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'count_b_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_anim_headers_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'channel_bones_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'channel_bones_lod_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'keys_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (lambda context: context.version <= 5, None)
 		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -78,14 +83,18 @@ class BanisRoot(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 7:
-			yield 'bani_data', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['BaniData']), (False, None)
-			yield 'bones_foreach_bani_data', name_type_map['ForEachPointer'], (instance.bani_data, name_type_map['BaniBones']), (False, None)
-			yield 'bones_2_foreach_bani_data', name_type_map['ForEachPointer'], (instance.bani_data, name_type_map['BaniBones']), (False, None)
-			yield 'keys', name_type_map['Pointer'], ((instance.num_frames, instance.num_bones), name_type_map['Keys']), (False, None)
+			yield 'gpu_anim_headers', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['BaniGpuAnimHeader']), (False, None)
+			yield 'channel_bones', name_type_map['ForEachPointer'], (instance.gpu_anim_headers, name_type_map['BaniGpuChannels']), (False, None)
+		if instance.context.version >= 7 and instance.channel_bones_size == instance.channel_bones_lod_size:
+			yield 'channel_bones_lod', name_type_map['ForEachPointer'], (instance.gpu_anim_headers, name_type_map['BaniGpuChannelsLod']), (False, None)
+		if instance.context.version >= 7 and instance.channel_bones_size != instance.channel_bones_lod_size:
+			yield 'channel_bones_lod', name_type_map['ForEachPointer'], (instance.gpu_anim_headers, name_type_map['BaniGpuChannelsLod256']), (False, None)
+		if instance.context.version >= 7:
+			yield 'keys', name_type_map['Pointer'], ((instance.num_frames, instance.num_bones), name_type_map['BaniKeys']), (False, None)
 			yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
-			yield 'count_a', name_type_map['Uint'], (0, None), (False, None)
-			yield 'count_b_0', name_type_map['Uint'], (0, None), (False, None)
-			yield 'count_b_1', name_type_map['Uint'], (0, None), (False, None)
+			yield 'gpu_anim_headers_size', name_type_map['Uint'], (0, None), (False, None)
+			yield 'channel_bones_size', name_type_map['Uint'], (0, None), (False, None)
+			yield 'channel_bones_lod_size', name_type_map['Uint'], (0, None), (False, None)
 			yield 'keys_size', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 5:
 			yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None)
