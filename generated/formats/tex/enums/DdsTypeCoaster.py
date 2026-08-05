@@ -6,6 +6,7 @@ class DdsTypeCoaster(BaseEnum):
 
 	"""
 	maps the OVL's dds type to name of compression format
+	PC1 uses [1, 48, 59, 74, 76, 97, 98, 101, 102, 105, 121, 123, 127]
 	"""
 
 	__name__ = 'DdsTypeCoaster'
@@ -21,6 +22,8 @@ class DdsTypeCoaster(BaseEnum):
 	BC1_UNORM_SRGB = 98
 	BC2_UNORM = 99
 	BC2_UNORM_SRGB = 100
+
+	# looks like it could be SRGB on PC1 icons
 	BC3_UNORM = 101
 	BC3_UNORM_SRGB = 102
 	BC4_UNORM = 103
