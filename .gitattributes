@@ -21,7 +21,6 @@ source/**       -linguist-generated
 .nojekyll               export-ignore
 .pre-commit-config.yaml export-ignore
 mkdocs.yml              export-ignore
-pyproject.toml          export-ignore
 
 .vscode          export-ignore
 .vscode/**       export-ignore

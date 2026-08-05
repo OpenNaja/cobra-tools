@@ -42,3 +42,4 @@ class FixedString(BaseStruct):
 	@staticmethod
 	def get_size(instance, context, arg=0, template=None):
 		return len(instance.data)
+

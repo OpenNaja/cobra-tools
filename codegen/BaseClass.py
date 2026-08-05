@@ -38,6 +38,7 @@ class BaseClass:
             return
         # grab the source code, if it exists
         self.src_code: str = self.get_code_from_src()
+        self.pyi_src_code: str = self.get_pyi_from_src()
         if self.src_code.find("START_GLOBALS") == -1 and self.src_code.find("from generated.") > -1:
             logging.error(f"{self.class_name} does not wrap imports with START_GLOBALS/END_GLOBALS")
         self.class_basename = self.struct.attrib.get("inherit")
@@ -91,7 +92,6 @@ class BaseClass:
 
     def write(self, stream: TextIO) -> None:
         src_globals: str = self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS")
-        src_globals = "\n".join(src_globals.split("\n")[1:])
         src_globals = src_globals.replace("from generated.", f"from {to_import_path(self.gen_dir)}.")
         src_globals = src_globals.replace("import generated.", f"import {to_import_path(self.gen_dir)}.")
         stream.write(src_globals)
@@ -115,6 +115,59 @@ class BaseClass:
         for line in lines:
             self.write_line(stream, indent, line)
 
+    def _clean_snippet(self, snippet: str) -> str:
+        """Cleans up leading newlines and trailing indentation from a grabbed snippet."""
+        if not snippet.strip():
+            return ""
+        
+        # Remove the very first newline so it doesn't create a blank line
+        if snippet.startswith("\r\n"):
+            snippet = snippet[2:]
+        elif snippet.startswith("\n"):
+            snippet = snippet[1:]
+            
+        # Strip trailing indentation spaces and tabs
+        snippet = snippet.rstrip(" \t")
+        
+        # Ensure it terminates with exactly one newline so the next write is aligned
+        if not snippet.endswith("\n"):
+            snippet += "\n"
+            
+        return snippet
+
+    def get_pyi_from_src(self,) -> str:
+        """Fetches the source text of the .pyi file if it exists."""
+        if not self.class_name:
+            return ""
+        src_file: str = module_path_to_file_path(self.parser.path_dict[self.class_name], self.src_dir, self.root_dir, mkdir=False)
+        pyi_file = os.path.splitext(src_file)[0] + ".pyi"
+        if os.path.exists(pyi_file):
+            with open(pyi_file, "r", encoding=self.parser.encoding) as f:
+                return f.read()
+        return ""
+
+    def grab_pyi_snippet(self, start: str, end: str = "") -> str:
+        """Grabs a targeted snippet of code from the fetched .pyi source."""
+        if not getattr(self, "pyi_src_code", None):
+            return ""
+        start_content: int = self.pyi_src_code.find(start)
+        if start_content > -1:
+            if end:
+                end_content = self.pyi_src_code.find(end)
+                if end_content > -1:
+                    snippet = self.pyi_src_code[start_content + len(start):end_content]
+                    return self._clean_snippet(snippet)
+            return self._clean_snippet(self.pyi_src_code[start_content + len(start):])
+        return ""
+
+    def write_pyi_globals(self, stream: TextIO) -> None:
+        """Parses and writes the globals block for stub files."""
+        src_globals = self.grab_pyi_snippet("# START_GLOBALS", "# END_GLOBALS")
+        
+        src_globals = src_globals.replace("from generated.", f"from {to_import_path(self.gen_dir)}.")
+        src_globals = src_globals.replace("import generated.", f"import {to_import_path(self.gen_dir)}.")
+        stream.write(src_globals)
+
     def get_code_from_src(self,) -> str:
         if not self.class_name:
             return ""
@@ -125,14 +178,12 @@ class BaseClass:
         return ""
 
     def grab_src_snippet(self, start: str, end: str = "") -> str:
-        # print(src_code)
         start_content: int = self.src_code.find(start)
         if start_content > -1:
             if end:
                 end_content = self.src_code.find(end)
                 if end_content > -1:
                     snipp: str = self.src_code[start_content + len(start):end_content]
-                    # print("found start + end", len(snipp), start, end)
-                    return snipp
-            return self.src_code[start_content + len(start):]
+                    return self._clean_snippet(snipp)
+            return "\n" + self._clean_snippet(self.src_code[start_content + len(start):])
         return ""
