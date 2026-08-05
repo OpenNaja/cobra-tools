@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat>
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <struct name="MotiongraphVar" inherit="MemStruct">
+        PZ, JWE3: 48 bytes
+        <field name="var_name" type="Pointer" template="ZString" />
+        <field name="a" type="uint64" />
+        <field name="b0" type="float" />
+        <field name="b1" type="float" />
+        <field name="ten" default="10" type="uint64" />
+        <field name="d" type="uint64" />
+        <field name="e" type="uint64" />
+    </struct>
+
+    <struct name="MotiongraphVarNew" inherit="MemStruct">
+        PC2: 48 bytes
+        <field name="var_name" type="Pointer" template="ZString" />
+        <field name="a0" type="uint" />
+        <field name="a1" type="float" />
+        <field name="b" type="float" />
+        <field name="c" type="float" />
+        <field name="ten" default="10" type="uint" />
+        <field name="e" type="float" />
+        <field name="f" type="int" />
+        <field name="g" type="int" />
+        <field name="name2" type="Pointer" template="ZString" >not always used</field>
+    </struct>
+
+    <struct name="MotiongraphVars" inherit="NestedPointers" >
+        <field name="ptrs" type="Pointer" template="MotiongraphVarNew" arr1="#ARG#"/>
+    </struct>
+
+    <struct name="MotiongraphVarsRoot" inherit="MemStruct">
+        <field name="vars_count" type="uint64" />
+<!--        old style - directly in an array-->
+        <field name="vars" type="ArrayPointer" template="MotiongraphVar" arg="vars_count" vercond="!is_PC2"/>
+<!--        new style - array of pointers-->
+        <field name="vars" type="Pointer" template="MotiongraphVars" arg="vars_count" vercond="is_PC2"/>
+    </struct>
+
+</fileformat>

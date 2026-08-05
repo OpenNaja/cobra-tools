@@ -133,6 +133,10 @@ class FileDirWidget(QWidget):
 		if self.filepath:
 			self.filepath_changed.emit(self.filepath, self.dirty)
 
+	def reload(self) -> None:
+		if self.filepath and self.dirty:
+			self.open_file(self.filepath)
+
 
 class FileWidget(FileDirWidget):
 	"""A specialized widget for selecting a single file.
@@ -224,10 +228,6 @@ class FileWidget(FileDirWidget):
 		filepath = self.get_open_file_name()
 		if filepath:
 			self.open_file(filepath)
-
-	def reload(self) -> None:
-		if self.filepath and self.dirty:
-			self.open_file(self.filepath)
 
 	def get_open_file_name(self, title: Optional[str] = None):
 		title = title if title else f'Load {self.ftype}'
