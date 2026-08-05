@@ -30,7 +30,8 @@ optional-dependencies.dev = [
     "pytest-subtests~=0.14.2",
     "lxml~=6.0.2",
     "types-lxml~=2025.8.25",
-    "xmlschema~=4.2.0"
+    "xmlschema~=4.2.0",
+    "fake-bpy-module-4.5"
 ]
 optional-dependencies.doc = [
     "mkdocs~=1.6.1",
