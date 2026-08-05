@@ -96,8 +96,35 @@ class MemStruct:
 						yield from MemStruct.get_all_str_pointers(elem)
 
 	@classmethod
+	def _can_contain(cls, f_type, arguments, target_dtype):
+		if not isinstance(f_type, type):
+			return False
+
+		# Target dtype itself (e.g. Pointer)
+		if issubclass(f_type, target_dtype):
+			return True
+
+		# Any MemStruct can contain pointers
+		if issubclass(f_type, MemStruct):
+			return True
+
+		# For Arrays, check their inner type
+		if issubclass(f_type, Array):
+			for arg in arguments:
+				if isinstance(arg, type):
+					if issubclass(arg, target_dtype) or issubclass(arg, MemStruct):
+						return True
+
+		return False
+
+	@classmethod
 	def get_instances_recursive(cls, instance, dtype):
-		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(instance, instance, lambda x: issubclass(x[1], dtype)):
+		def enter_condition(attribute):
+			f_name, f_type, arguments = attribute[0:3]
+			return cls._can_contain(f_type, arguments, dtype)
+
+		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(
+				type(instance), instance, lambda x: issubclass(x[1], dtype), enter_condition=enter_condition):
 			f_inst = s_type.get_field(s_inst, f_name)
 			yield f_inst, f_name, arguments
 
@@ -108,6 +135,10 @@ class MemStruct:
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			# update the pointer's arg, as it is sometimes read after the pointer
 			ptr.arg, template = arguments
+			# Update the pointer's template
+			# Allows template changes in cond using later defined fields
+			if template is not None:
+				ptr.template = template
 			if not ptr.template:
 				# try the lookup function to get a suitable template for this field
 				ptr.template = self.get_ptr_template(f_name)

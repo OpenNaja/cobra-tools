@@ -2,21 +2,17 @@ import logging
 
 from generated.base_struct import BaseStruct
 
-ZERO = b"\x00"
-
 def get_padding_size(size, alignment=16):
 	mod = size % alignment
 	if mod:
 		return alignment - mod
 	return 0
 
-
-def get_padding(size, alignment=16):
+def get_padding(size, alignment=16, pad=b"\x00"):
 	if alignment:
 		# create the new blank padding
-		return ZERO * get_padding_size(size, alignment=alignment)
+		return pad * get_padding_size(size, alignment=alignment)
 	return b""
-
 
 from generated.base_struct import BaseStruct
 
@@ -38,6 +34,8 @@ class PadAlign(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
+	_PAD = b"\x00"
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = b""
@@ -57,11 +55,11 @@ class PadAlign(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		# logging.debug(f"Aligning to {instance.template.__class__.__name__} as {instance.get_pad(stream)}")
-		instance.data = ZERO * instance.get_pad(stream)
+		instance.data = cls._PAD * instance.get_pad(stream)
 		stream.write(instance.data)
 
-	@staticmethod
-	def get_size(instance, context, arg=0, template=None):
+	@classmethod
+	def get_size(cls, instance, context, arg=0, template=None):
 		# this is actually somewhat indeterminate as there is no stream to work off, so work off the last known stream
 		# position: instance.io_start
 		return get_padding_size(instance.io_start - instance.template.io_start, alignment=instance.arg)

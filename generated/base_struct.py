@@ -392,7 +392,8 @@ class BaseStruct(metaclass=StructMetaClass):
                         struct_type.get_field(struct_instance, f_name),
                         condition_function,
                         field_arguments,
-                        include_abstract)
+                        include_abstract,
+                        enter_condition)
 
     def get_condition_fields(self, condition_function, include_abstract=True, enter_condition=lambda x: True):
         """Return all fields in a tree of struct self matching condition_function"""
@@ -408,7 +409,8 @@ class BaseStruct(metaclass=StructMetaClass):
                 if callable(getattr(field, "get_condition_fields", None)):
                     yield from field.get_condition_fields(
                         condition_function,
-                        include_abstract)
+                        include_abstract,
+                        enter_condition)
 
     @classmethod
     def get_condition_values_recursive(cls, instance, condition_function, arguments=(), include_abstract=True,

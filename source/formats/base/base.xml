@@ -99,6 +99,10 @@
         Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
     </struct>
 
+    <struct name="PadAlignFF">
+        Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
+    </struct>
+
     <struct name="FixedString" count="0" >
         Holds a string of a fixed size, given as #ARG#.
     </struct>

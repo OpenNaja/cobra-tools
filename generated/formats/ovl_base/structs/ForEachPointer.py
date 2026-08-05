@@ -37,7 +37,7 @@ class ForEachPointer(Pointer):
 				args = self.arg.data
 			else:
 				raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
-			self.data = Array(self.context, 0, None, (len(args)), self.template, set_default=False)
+			self.data = Array(self.context, 0, None, (len(args),), self.template, set_default=False)
 			# for i, arg in enumerate(args):
 			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
@@ -49,7 +49,7 @@ class ForEachPointer(Pointer):
 
 	@classmethod
 	def _from_xml(cls, instance, elem):
-		instance.data = Array(instance.context, instance.arg.data, None, (len(elem)), instance.template, set_default=False)
+		instance.data = Array(instance.context, instance.arg.data, None, (len(elem),), instance.template, set_default=False)
 		# need set_default to fix dtype according to each member of arg's input array
 		instance.data[:] = [instance.template(instance.context, member, instance.template, set_default=True) for member in instance.arg.data]
 		for subelem, member in zip(elem, instance.data):

@@ -233,7 +233,8 @@ class Array(list):
                 if callable(getattr(field, "get_condition_fields", None)):
                     yield from field.get_condition_fields(
                         condition_function,
-                        include_abstract)
+                        include_abstract,
+                        enter_condition)
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template, shape, dtype):

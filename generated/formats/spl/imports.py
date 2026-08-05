@@ -21,6 +21,7 @@ type_module_name_map = {
 	'ZStringBuffer': 'generated.formats.base.structs.ZStringBuffer',
 	'ZStringBufferPadded': 'generated.formats.base.structs.ZStringBufferPadded',
 	'PadAlign': 'generated.formats.base.structs.PadAlign',
+	'PadAlignFF': 'generated.formats.base.structs.PadAlignFF',
 	'FixedString': 'generated.formats.base.structs.FixedString',
 	'Vector2': 'generated.formats.base.structs.Vector2',
 	'Vector3': 'generated.formats.spl.structs.Vector3',
