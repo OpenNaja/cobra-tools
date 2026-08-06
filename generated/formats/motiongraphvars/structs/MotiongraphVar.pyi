@@ -7,7 +7,7 @@ class MotiongraphVar(MemStruct):
     a: int
     b_0: float
     b_1: float
-    c: int
+    ten: int
     d: int
     e: int
 

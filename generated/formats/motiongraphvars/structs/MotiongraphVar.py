@@ -5,7 +5,7 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 class MotiongraphVar(MemStruct):
 
 	"""
-	PZ: 48 bytes
+	PZ, JWE3: 48 bytes
 	"""
 
 	__name__ = 'MotiongraphVar'
@@ -16,7 +16,7 @@ class MotiongraphVar(MemStruct):
 		self.a = name_type_map['Uint64'](self.context, 0, None)
 		self.b_0 = name_type_map['Float'](self.context, 0, None)
 		self.b_1 = name_type_map['Float'](self.context, 0, None)
-		self.c = name_type_map['Uint64'](self.context, 0, None)
+		self.ten = name_type_map['Uint64'].from_value(10)
 		self.d = name_type_map['Uint64'](self.context, 0, None)
 		self.e = name_type_map['Uint64'](self.context, 0, None)
 		self.var_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
@@ -30,7 +30,7 @@ class MotiongraphVar(MemStruct):
 		yield 'a', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'b_0', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'b_1', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'c', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ten', name_type_map['Uint64'], (0, None), (False, 10), (None, None)
 		yield 'd', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'e', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
@@ -41,6 +41,6 @@ class MotiongraphVar(MemStruct):
 		yield 'a', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'b_0', name_type_map['Float'], (0, None), (False, None)
 		yield 'b_1', name_type_map['Float'], (0, None), (False, None)
-		yield 'c', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ten', name_type_map['Uint64'], (0, None), (False, 10)
 		yield 'd', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'e', name_type_map['Uint64'], (0, None), (False, None)

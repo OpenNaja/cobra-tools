@@ -4,10 +4,11 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class MotiongraphVarNew(MemStruct):
     var_name: Pointer[str]
-    a: int
+    a_0: int
+    a_1: float
     b: float
     c: float
-    d: int
+    ten: int
     e: float
     f: int
     g: int
