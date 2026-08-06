@@ -58,7 +58,7 @@
         Each item creates an animation channel which defines the read/write indices for bones
         PC2: multiples of 32 bytes for each bani, data per bone index
         <field name="ref" type="Empty"/>
-        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="data" type="BaniGpuChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
         <field name="padding" type="PadAlign" template="ref" arg="32">Non-LOD channels appear to be 32-byte aligned regardless of skeleton size</field>
     </struct>
 
@@ -66,7 +66,7 @@
         Each item creates an animation channel which defines the read/write indices for bones
         PC2: multiples of 32 bytes for each bani, data per bone index
         <field name="ref" type="Empty"/>
-        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="data" type="BaniGpuChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
         <field name="padding" type="PadAlignFF" template="ref" arg="32">32 for small skeleton LOD channels</field>
     </struct>
 
@@ -74,7 +74,7 @@
         Each item creates an animation channel which defines the read/write indices for bones
         PC2: multiples of 256 bytes for each bani, data per bone index
         <field name="ref" type="Empty"/>
-        <field name="data" type="BaniChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
+        <field name="data" type="BaniGpuChannelBones" arr1="(#ARG#\packed_offset_bones\num_bones)" />
         <field name="padding" type="PadAlignFF" template="ref" arg="256">256 for large skeleton LOD channels</field>
     </struct>
 
