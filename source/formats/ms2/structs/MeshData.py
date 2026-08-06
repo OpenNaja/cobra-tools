@@ -218,16 +218,25 @@ class MeshData:
 
 	@staticmethod
 	def quantize_bone_weights(bone_weights):
-		# normalize weights so that they sum to 1.0
-		sw = sum(bone_weights)
-		bone_weights = [x / sw for x in bone_weights]
-		# round is essential so the float is not truncated
-		bone_weights = list(round(w * 255) for w in bone_weights)
-		# additional double check
-		d = np.sum(bone_weights) - 255
-		bone_weights[0] -= d
-		assert np.sum(bone_weights) == 255
-		return bone_weights
+		sw = math.fsum(bone_weights)
+		# Get exact float values proportional to 255
+		exact_weights = [(x / sw) * 255 for x in bone_weights]
+		# Floor them to integers
+		quantized = [int(w) for w in exact_weights]
+		# Calculate how many points we are short of 255
+		remainder = 255 - sum(quantized)
+		# Sort the indices by their decimal fraction (largest decimal first)
+		# e.g., 63.75 has a remainder of 0.75
+		fractions = [(i, exact_weights[i] - quantized[i]) for i in range(len(bone_weights))]
+		fractions.sort(key=lambda item: item[1], reverse=True)
+		
+		# Hand out +1 to the weights with the largest decimal fractions until we hit 255
+		for i in range(remainder):
+			index_to_bump = fractions[i][0]
+			quantized[index_to_bump] += 1
+			
+		assert sum(quantized) == 255
+		return quantized
 
 	def unpack_weights_list(self, weights_sorted):
 		# pad the weight list to 4 bones, ie. add empty bones if missing
