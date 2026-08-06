@@ -1,4 +1,5 @@
 from generated.formats.ms2.structs import Model
+from generated.formats.ms2.structs.BoneInfo import BoneInfo
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
 from generated.array import Array
 from generated.formats.base.structs.Vector3 import Vector3
@@ -14,6 +15,7 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class ModelInfo(MemStruct):
     model: 'Model'
+    bone_info: 'BoneInfo'
     unk_dla: int
     bounds_min: Vector3
     precision: float
