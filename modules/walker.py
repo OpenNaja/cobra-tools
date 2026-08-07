@@ -341,7 +341,6 @@ def ovls_in_path(gui, dir_walk, only_types):
 			yield ovl_data, ovl_path
 		except Exception as ex:
 			logging.exception(f"Opening OVL failed: {ovl_path}")
-			# errors.append((ovl_path, ex))
 
 
 def bulk_extract_ovls(errors, gui, dir_base, dir_export, dir_walk, only_types):
@@ -401,7 +400,7 @@ def get_fgm_values(gui, dir_game, dir_walk="", walk_ovls=True, official_only=Tru
 	# The game assigned to the FGMs (assumes all walked FGMs are from the same game)
 	fgm_game = "Unknown Game"
 	# Create sets of all shader names per game
-	game_shaders = {"Unknown Game": []}
+	game_shaders = {"Unknown Game": set()}
 	constants = ConstantsProvider()
 	for game in constants:
 		game_shaders[game] = set(constants[game].get("shaders", {}).keys())
@@ -417,7 +416,6 @@ def get_fgm_values(gui, dir_game, dir_walk="", walk_ovls=True, official_only=Tru
 			header = FgmHeader.from_xml_file(fgm_path, context)
 			shader_name = header.shader_name
 			if shader_name not in shaders:
-				# shaders[shader_name] = ([], {})
 				shaders[shader_name] = Shader(set(), {})
 			shader = shaders[shader_name]
 
@@ -435,7 +433,7 @@ def get_fgm_values(gui, dir_game, dir_walk="", walk_ovls=True, official_only=Tru
 						if shader_name in new_shader_fgms.keys():
 							new_shader_fgms[shader_name].add(fgm_path)
 						else:
-							new_shader_fgms[shader_name] = set([fgm_path])
+							new_shader_fgms[shader_name] = {fgm_path, }
 					else:
 						# Existing shader
 						logging.debug(f"{shader_name} found in constants\\{game}")
@@ -458,8 +456,8 @@ def get_fgm_values(gui, dir_game, dir_walk="", walk_ovls=True, official_only=Tru
 
 	for shader_name, shader in shaders.items():
 		# only keep the five most common for this shader
-		for att, val in shader.attributes.items():
-			shader.attributes[att] = (val[0], Counter(v for v in val[1]).most_common(5))
+		for att_name, (att_dtype, att_values) in shader.attributes.items():
+			shader.attributes[att_name] = (att_dtype, Counter(v for v in att_values).most_common(5))
 
 	# Write to tools dir constants if full ovldata inspection, otherwise walker_export
 	out_dir = get_game_constants_dir(dir_base) if full_game_walk else dir_export
