@@ -27,10 +27,9 @@ def load(reporter, files=(), filepath="", set_fps=False):
 	b_armature_ob = get_armature(scene.objects)
 
 	bones_table, p_bones = get_bones_table(b_armature_ob)
-	bone_names = [tup[1] for tup in bones_table]
-	logging.debug("\n[DEBUG] --- Blender Bone Mapping ---")
+	logging.debug("\n[DEBUG] --- Bone Mapping ---")
 	for bone_i, bone_name in bones_table:
-		logging.debug(f"  Blender Index {bone_i} -> Bone: '{bone_name}'")
+		logging.debug(f"  MS2 Bone Index {bone_i} -> Bone: '{bone_name}'")
 
 	parent_index_map = get_parent_map(p_bones)
 	anim_sys = Animation()
@@ -44,6 +43,8 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		scene.frame_start = 0
 		scene.frame_end = num_frames-1
 		fps = int(round(num_frames/anim_length))
+		scene.render.fps = fps
+		logging.debug(f"'{bani.name}' - FPS: {fps}")
 
 		animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map, use_armature)
 
