@@ -9,6 +9,8 @@ class BaniRoot(MemStruct):
     read_start_frame: int
     num_frames: int
     animation_length: float
-    anim_flags: int
+    flags: int
+    num_bones: int
+    mode: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

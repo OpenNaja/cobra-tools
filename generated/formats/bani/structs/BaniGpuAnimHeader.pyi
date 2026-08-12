@@ -1,10 +1,10 @@
 from generated.base_struct import BaseStruct
 from generated.formats.bani.bitfields.PackedOffsetBones import PackedOffsetBones
+from generated.formats.bani.structs.QuantizationInfo import QuantizationInfo
 
 
 class BaniGpuAnimHeader(BaseStruct):
-    uniform_scale: float
-    uniform_bias: float
+    quantization_info: QuantizationInfo
     packed_offset_bones: PackedOffsetBones
     keyframes_offset: int
 

@@ -42,11 +42,8 @@ class BanisRoot(MemStruct):
 		# number of bones in data, must correspond to ms2
 		self.num_bones = name_type_map['Uint'](self.context, 0, None)
 
-		# scale for translation range
-		self.loc_scale = name_type_map['Float'](self.context, 0, None)
-
-		# related to minimum of scaled translations, offsets everything ingame the same across all axes
-		self.loc_min = name_type_map['Float'](self.context, 0, None)
+		# For translation de-quantization
+		self.quantization_info = name_type_map['QuantizationInfo'](self.context, 0, None)
 		self.bani_count = name_type_map['Uint'](self.context, 0, None)
 		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniGpuAnimHeader'])
@@ -74,8 +71,7 @@ class BanisRoot(MemStruct):
 		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'loc_scale', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version <= 5, None)
-		yield 'loc_min', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version <= 5, None)
+		yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None), (lambda context: context.version <= 5, None)
 		yield 'bani_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 
@@ -103,8 +99,7 @@ class BanisRoot(MemStruct):
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 5:
-			yield 'loc_scale', name_type_map['Float'], (0, None), (False, None)
-			yield 'loc_min', name_type_map['Float'], (0, None), (False, None)
+			yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None)
 		if instance.context.version >= 7:
 			yield 'bani_count', name_type_map['Uint'], (0, None), (False, None)
 			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

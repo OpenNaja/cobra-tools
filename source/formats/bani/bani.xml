@@ -28,7 +28,9 @@
         <field name="read_start_frame" type="uint">The frame in the banis where this bani starts reading</field>
         <field name="num_frames" type="uint">Number of frames in this bani file</field>
         <field name="animation_length" type="float">length of the animation, can easily get keyframe spacing now</field>
-        <field name="anim_flags" type="uint">Version LT 7: if 1381323599 then looped.  Version 7: (flag RSH 16) AND 0xFFFF == Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive | flag AND 0xFFFF == num_bones</field>
+        <field name="flags" type="uint" until="5">unknown - seen 0 or 1381323599</field>
+        <field name="num_bones" type="ushort" since="7"/>
+        <field name="mode" type="ushort" since="7">Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive</field>
     </struct>
 
     <bitfield name="PackedOffsetBones" storage="uint">
@@ -36,11 +38,17 @@
         <member width="8" pos="24" name="num_bones" type="ubyte" />
     </bitfield>
 
+
+    <struct name="QuantizationInfo" allow_np="true">
+        8 bytes
+        <field name="scale" type="float">Multiplier for translation de-quantization</field>
+        <field name="bias" type="float">Bias (minimum bound) for translation de-quantization</field>
+    </struct>
+
     <struct name="BaniGpuAnimHeader" allow_np="true">
         GPU Anim Header
         PC2: 16 bytes
-        <field name="uniform_scale" type="float">Multiplier for translation de-quantization</field>
-        <field name="uniform_bias" type="float">Bias (minimum bound) for translation de-quantization</field>
+        <field name="QuantizationInfo" type="QuantizationInfo">For translation de-quantization</field>
         <field name="packed_offset_bones" type="PackedOffsetBones">Packed 24-bit chunk offset and 8-bit bone count</field>
         <field name="keyframes_offset" type="uint">Offset in 16-byte chunks to the keyframe block</field>
     </struct>
@@ -111,8 +119,7 @@
         <field name="num_frames" type="uint">Number of frames for all bani files in banis buffer</field>
         <field name="num_bones" type="uint">number of bones in data, must correspond to ms2</field>
 
-        <field name="loc_scale" type="float" until="5">scale for translation range</field>
-        <field name="loc_min" type="float" until="5">related to minimum of scaled translations, offsets everything ingame the same across all axes</field>
+        <field name="QuantizationInfo" type="QuantizationInfo" until="5">For translation de-quantization</field>
 
         <field name="bani_count" type="uint" since="7"/>
         <field name="zero2" type="uint64" since="7"/>

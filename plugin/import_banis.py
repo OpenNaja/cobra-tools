@@ -41,6 +41,8 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 		scene.frame_start = 0
 		scene.frame_end = num_frames-1
+
+		# fps = int(round((num_frames - 1) / anim_length))  # manis uses num_frames - 1
 		fps = int(round(num_frames/anim_length))
 		scene.render.fps = fps
 		logging.debug(f"'{bani.name}' - FPS: {fps}")
@@ -52,7 +54,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
-	anim_mode = getattr(bani, "anim_mode", 5)
+	anim_mode = getattr(bani.data, "mode", 5)
 
 	corrector = BanisCorrector(False) if anim_mode in (1, 3) else Corrector(False)
 
@@ -72,7 +74,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	# We only apply scale correction on full-body animations
 	if anim_mode in (1, ) and not is_partial and len(bones_table) > 1:
 		# TODO: Find longest hard bone
-		# Pick two bones that define a solid, non-stretching segment of the rig (e.g., Root to Hips).
+		# Pick two bones that define a solid, non-stretching segment of the rig (e.g. Root to Hips).
 		bone_a_idx = 0  # Example: Root
 		bone_b_idx = 1  # Example: Hips
 
@@ -89,6 +91,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		# Calculate the scalar required to conform the anim to the rest pose
 		if anim_dist > 0.0001:  # Prevent divide-by-zero on collapsed rigs
 			scale_multiplier = rest_dist / anim_dist
+		logging.debug(f"'{bani.name}' - Scaling Multiplier: {scale_multiplier}")
 
 	for bone_i, bone_name in bones_table:
 

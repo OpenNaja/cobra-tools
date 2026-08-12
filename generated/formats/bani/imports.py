@@ -49,6 +49,7 @@ type_module_name_map = {
 	'Vector3Ushort': 'generated.formats.bani.structs.Vector3Ushort',
 	'BaniRoot': 'generated.formats.bani.structs.BaniRoot',
 	'PackedOffsetBones': 'generated.formats.bani.bitfields.PackedOffsetBones',
+	'QuantizationInfo': 'generated.formats.bani.structs.QuantizationInfo',
 	'BaniGpuAnimHeader': 'generated.formats.bani.structs.BaniGpuAnimHeader',
 	'BaniGpuChannelBones': 'generated.formats.bani.structs.BaniGpuChannelBones',
 	'BaniGpuChannels': 'generated.formats.bani.structs.BaniGpuChannels',
