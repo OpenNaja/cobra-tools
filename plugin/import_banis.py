@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 	from generated.formats.bani.structs.BaniInfo import BaniInfo
 
 interp_loc = None
-global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, 0, 0)])
-global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
 def load(reporter, files=(), filepath="", set_fps=False):
@@ -56,7 +54,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
 	anim_mode = getattr(bani.data, "mode", 5)
 
-	corrector = BanisCorrector(False) if anim_mode in (1, 3) else Corrector(False)
+	corrector = Corrector(False)
 
 	fcurves_rot = []
 	fcurves_loc = []
@@ -117,7 +115,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 			quat = mathutils.Quaternion(quat_data)
 
-			key: mathutils.Matrix = global_corr_mat @ quat.to_matrix().to_4x4()
+			key: mathutils.Matrix = quat.to_matrix().to_4x4()
 			key.translation = loc
 
 			# Fetch the readIdx for this bone
