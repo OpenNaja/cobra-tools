@@ -52,7 +52,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
-	anim_mode = getattr(bani.data, "mode", 5)
+	anim_mode = bani.data.mode if bani.context.version >= 7 else 5
 
 	corrector = Corrector(False)
 
