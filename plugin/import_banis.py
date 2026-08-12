@@ -45,12 +45,12 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		scene.render.fps = fps
 		logging.debug(f"'{bani.name}' - FPS: {fps}")
 
-		animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map)
+		animate_core(anim_sys, bones_table, bani, b_armature_ob, parent_index_map)
 
 	reporter.show_info(f"Imported {banis_name}")
 
 
-def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', scene, b_armature_ob, parent_index_map):
+def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
 	anim_mode = getattr(bani, "anim_mode", 5)
 
