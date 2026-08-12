@@ -18,6 +18,8 @@ class BaniContext(object):
 
 
 class BanisFile(BanisInfoHeader, IoFile):
+	QUAT_SCALE = 0.00004315927
+	QUAT_BIAS = 0.7071067
 
 	dt_packed = np.dtype([
 		("rot_raw", np.uint16, (3,)),
@@ -38,13 +40,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 		c1 = rot_raw[:, :, 1] & 0x7FFF
 		c2 = rot_raw[:, :, 2] & 0x7FFF
 
-		MAGIC_SCALE = 0.00004315927
-		MAGIC_BIAS = 0.7071067
-
 		# Remap [0, 32767] to [-0.7071067, 0.7071067]
-		v0 = c0 * MAGIC_SCALE - MAGIC_BIAS
-		v1 = c1 * MAGIC_SCALE - MAGIC_BIAS
-		v2 = c2 * MAGIC_SCALE - MAGIC_BIAS
+		v0 = c0 * self.QUAT_SCALE - self.QUAT_BIAS
+		v1 = c1 * self.QUAT_SCALE - self.QUAT_BIAS
+		v2 = c2 * self.QUAT_SCALE - self.QUAT_BIAS
 		
 		sq_sum = v0**2 + v1**2 + v2**2
 		w = np.sqrt(np.clip(1.0 - sq_sum, 0.0, 1.0))
@@ -98,12 +97,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 		m3 = (drop_idx == 3); v0[m3], v1[m3], v2[m3] = quats[m3, 1], quats[m3, 2], quats[m3, 3]
 
 		# Quantize the components back to [0, 32767] space
-		MAGIC_SCALE = 0.00004315927
-		MAGIC_BIAS = 0.7071067
-		
-		c0 = np.clip(np.round((v0 + MAGIC_BIAS) / MAGIC_SCALE), 0, 32767).astype(np.uint16)
-		c1 = np.clip(np.round((v1 + MAGIC_BIAS) / MAGIC_SCALE), 0, 32767).astype(np.uint16)
-		c2 = np.clip(np.round((v2 + MAGIC_BIAS) / MAGIC_SCALE), 0, 32767).astype(np.uint16)
+		c0 = np.clip(np.round((v0 + self.QUAT_BIAS) / self.QUAT_SCALE), 0, 32767).astype(np.uint16)
+		c1 = np.clip(np.round((v1 + self.QUAT_BIAS) / self.QUAT_SCALE), 0, 32767).astype(np.uint16)
+		c2 = np.clip(np.round((v2 + self.QUAT_BIAS) / self.QUAT_SCALE), 0, 32767).astype(np.uint16)
 
 		# Pack the 2-bit drop_idx into the MSBs (bit 15) of c0 and c1
 		# drop_idx bit 1 goes to c0; drop_idx bit 0 goes to c1
