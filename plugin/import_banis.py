@@ -21,9 +21,10 @@ interp_loc = None
 def load(reporter, files=(), filepath="", set_fps=False):
 	in_dir, banis_name = os.path.split(filepath)
 	scene = bpy.context.scene
-	b_armature_ob = get_armature(scene.objects)
+	b_main_armature_ob = get_armature(scene.objects)
+	b_armatures_map = {ob.name: ob for ob in scene.objects if type(ob.data) == bpy.types.Armature}
 
-	bones_table, p_bones = get_bones_table(b_armature_ob)
+	bones_table, p_bones = get_bones_table(b_main_armature_ob)
 	logging.debug("\n[DEBUG] --- Bone Mapping ---")
 	for bone_i, bone_name in bones_table:
 		logging.debug(f"  MS2 Bone Index {bone_i} -> Bone: '{bone_name}'")
@@ -44,13 +45,17 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		fps = int(round(num_frames/anim_length))
 		scene.render.fps = fps
 		logging.debug(f"'{bani.name}' - FPS: {fps}")
-
-		animate_core(anim_sys, bones_table, bani, b_armature_ob, parent_index_map)
+		# select target armature for pose anims of PZ1 animals with decimated skeletons
+		b_target_armature = b_main_armature_ob
+		if "_pose_" in bani.name:
+			arm_name = bani.name.replace("_idle", "") + "_armature"
+			b_target_armature = b_armatures_map.get(arm_name, b_main_armature_ob)
+		animate_core(anim_sys, bones_table, bani, b_main_armature_ob, b_target_armature, parent_index_map)
 
 	reporter.show_info(f"Imported {banis_name}")
 
 
-def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, parent_index_map):
+def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, b_target_armature, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
 	anim_mode = bani.data.mode if bani.context.version >= 7 else 5
 
@@ -59,14 +64,16 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	fcurves_rot = []
 	fcurves_loc = []
 
-	b_action = anim_sys.create_action(b_armature_ob, bani.name)
+	b_action = anim_sys.create_action(b_target_armature, bani.name)
 
 	# GAME-SPACE BINDS
 	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
-	animated_bones = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
-	is_partial = len(animated_bones) < len(bones_table)
+	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
+	if anim_mode == 5:
+		animated_bone_indices = set(i for i, bone_name in bones_table if bone_name in b_target_armature.pose.bones)
+	is_partial = len(animated_bone_indices) < len(bones_table)
 
 	scale_multiplier = 1.0
 	# We only apply scale correction on full-body animations
@@ -94,7 +101,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	for bone_i, bone_name in bones_table:
 
 		# Do not create F-Curves if the bone has no keyframes in this partial animation
-		if bone_i not in animated_bones:
+		if bone_i not in animated_bone_indices:
 			fcurves_rot.append(None)
 			fcurves_loc.append(None)
 			continue
@@ -170,7 +177,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 		for bone_i, bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated
-			if bone_i not in animated_bones:
+			if bone_i not in animated_bone_indices:
 				continue
 
 			rot_final = mathutils.Quaternion((1, 0, 0, 0))
