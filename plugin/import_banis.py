@@ -22,7 +22,6 @@ global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 def load(reporter, files=(), filepath="", set_fps=False):
 	in_dir, banis_name = os.path.split(filepath)
-	use_armature = True
 	scene = bpy.context.scene
 	b_armature_ob = get_armature(scene.objects)
 
@@ -46,19 +45,12 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		scene.render.fps = fps
 		logging.debug(f"'{bani.name}' - FPS: {fps}")
 
-		animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map, use_armature)
-
-	if not use_armature:
-		for i, bone_name in bones_table:
-			b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
-			bind = b_armature_ob.data.bones[bone_name].matrix_local
-			b_empty_ob.location = bind.translation
-			b_empty_ob.scale = (0.01, 0.01, 0.01)
+		animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index_map)
 
 	reporter.show_info(f"Imported {banis_name}")
 
 
-def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', scene, b_armature_ob, parent_index_map, use_armature=True):
+def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', scene, b_armature_ob, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
 	anim_mode = getattr(bani, "anim_mode", 5)
 
@@ -67,8 +59,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	fcurves_rot = []
 	fcurves_loc = []
 
-	if use_armature:
-		b_action = anim_sys.create_action(b_armature_ob, bani.name)
+	b_action = anim_sys.create_action(b_armature_ob, bani.name)
 
 	# GAME-SPACE BINDS
 	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
@@ -100,11 +91,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			scale_multiplier = rest_dist / anim_dist
 
 	for bone_i, bone_name in bones_table:
-		if not use_armature:
-			b_empty_ob = create_ob(scene, bone_name, None)
-			b_empty_ob.rotation_mode = "QUATERNION"
-			b_empty_ob.scale = (0.01, 0.01, 0.01)
-			b_action = anim_sys.create_action(b_empty_ob, f"{bani.name}.{bone_name}")
 
 		# Do not create F-Curves if the bone has no keyframes in this partial animation
 		if bone_i not in animated_bones:
@@ -112,9 +98,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			fcurves_loc.append(None)
 			continue
 
-		channel_name = bone_name if use_armature else None
-		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, channel_name))
-		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, channel_name))
+		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name))
+		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name))
 
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
@@ -172,16 +157,15 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				game_mat = key @ binds[bone_i]
 				posed_armature_space[bone_i] = corrector.to_blender(game_mat)
 
-		if use_armature:
-			for bone_i, parent_i in enumerate(parent_index_map):
-				if parent_i is not None:
-					posed_local_space[bone_i] = posed_armature_space[parent_i].inverted() @ posed_armature_space[bone_i]
-				else:
-					posed_local_space[bone_i] = posed_armature_space[bone_i]
+		for bone_i, parent_i in enumerate(parent_index_map):
+			if parent_i is not None:
+				posed_local_space[bone_i] = posed_armature_space[parent_i].inverted() @ posed_armature_space[bone_i]
+			else:
+				posed_local_space[bone_i] = posed_armature_space[bone_i]
 
-			for bone_i, bone_name in bones_table:
-				# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
-				posed_local_space[bone_i] = bones_local_mat[bone_i].inverted() @ posed_local_space[bone_i]
+		for bone_i, bone_name in bones_table:
+			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
+			posed_local_space[bone_i] = bones_local_mat[bone_i].inverted() @ posed_local_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated
@@ -208,7 +192,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			anim_sys.add_key(fcurves_rot[bone_i], frame_i, rot_final, interp_loc)
 			anim_sys.add_key(fcurves_loc[bone_i], frame_i, loc_final, interp_loc)
 
-	if b_action:
-		b_action.use_frame_range = True
-		b_action.frame_end = bani.data.num_frames
+	b_action.use_frame_range = True
+	b_action.frame_end = bani.data.num_frames
 
