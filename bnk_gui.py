@@ -301,8 +301,11 @@ class MainWindow(window.MainWindow):
 				yield file_path
 
 	def clear_tmp_dir(self):
-		for fp in os.listdir(self.tmp_dir):
-			os.remove(os.path.join(self.tmp_dir, fp))
+		try:
+			for fp in os.listdir(self.tmp_dir):
+				os.remove(os.path.join(self.tmp_dir, fp))
+		except PermissionError:
+			logging.warning("Failed to clear temporary files due to PermissionError")
 
 	def fill_bnks(self):
 		self.bnks_tree.clear()
