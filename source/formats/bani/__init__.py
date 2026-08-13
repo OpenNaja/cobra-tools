@@ -6,7 +6,6 @@ import os
 import struct
 import logging
 
-import math
 import numpy as np
 
 
@@ -53,14 +52,15 @@ class BanisFile(BanisInfoHeader, IoFile):
 		drop_idx = ((rot_raw[:, :, 0] >> 14) & 2) | ((rot_raw[:, :, 1] >> 15) & 1)
 		
 		quats = np.empty(rot_raw.shape[:-1] + (4,), dtype=np.float32)
-		m0 = (drop_idx == 0); quats[m0] = np.stack((v2[m0], w[m0], v0[m0], v1[m0]), axis=-1)
-		m1 = (drop_idx == 1); quats[m1] = np.stack((v2[m1], v0[m1], w[m1], v1[m1]), axis=-1)
-		m2 = (drop_idx == 2); quats[m2] = np.stack((v2[m2], v0[m2], v1[m2], w[m2]), axis=-1)
-		m3 = (drop_idx == 3); quats[m3] = np.stack((w[m3], v0[m3], v1[m3], v2[m3]), axis=-1)
-
+		# where is faster than stacking masked arrays and take_along_axis
+		# drop_idx refers to Frontier's XYZW quaternion, but we already change it to blender's WXYZ order here
+		quats[..., 0] = np.where(drop_idx == 3, w, v2)
+		quats[..., 1] = np.where(drop_idx == 0, w, v0)
+		quats[..., 2] = np.where(drop_idx == 1, w, np.where(drop_idx == 0, v0, v1))
+		quats[..., 3] = np.where(drop_idx == 2, w, np.where(drop_idx == 3, v2, v1))
 		# Force invalid padding bytes to be clean Identity Quaternions
 		quats[sq_sum > 1.0] = [1.0, 0.0, 0.0, 0.0]
-		
+
 		# De-quantize translation
 		loc_game = loc_raw.astype(np.float32)
 		loc_game = (loc_game * scale) + bias
