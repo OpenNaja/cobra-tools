@@ -580,23 +580,31 @@ class MainWindow(window.MainWindow):
 
 	def open(self, dummy_filepath):
 		self.wem_to_event_names_map = {}
+		self.wem_id_to_name = {}
 		try:
-			self.bnk_media.load(self.filepath_media)
-			self.bnk_events.load(self.filepath_events)
-			if not self.bnk_events.aux_b.hirc:
-				logging.warning("No hirc found")
-				return
-			sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
 			# get the lut of fnv1 of the sound names
 			lut = self.constants[self.game_choice.get_selected_game()].get("audio", {})
-			self.fill_events_tree(lut, sid_2_hirc)
+			if self.filepath_media:
+				self.bnk_media.load(self.filepath_media)
+			else:
+				logging.info("No media AUX file found!")
+			if self.filepath_events:
+				self.bnk_events.load(self.filepath_events)
+				if not self.bnk_events.aux_b.hirc:
+					logging.warning("No hirc found")
+					return
+				sid_2_hirc = {hirc.data.id: hirc for hirc in self.bnk_events.aux_b.hirc.hirc_pointers}
+				self.fill_events_tree(lut, sid_2_hirc)
+			else:
+				logging.info("No events AUX file found!")
 		except:
-			self.handle_error("Loading Events failed, see log!")
+			self.handle_error("Loading failed, see log!")
 
+		# media only
 		try:
 			self.fill_audio_tree()
 		except:
-			self.handle_error("Loading failed, see log!")
+			self.handle_error("Displaying Audio files failed, see log!")
 
 	def fill_events_tree(self, lut, sid_2_hirc):
 		self.wem_to_event_names_map = {name: [] for name in self.bnk_media.ptr_map}
@@ -615,6 +623,9 @@ class MainWindow(window.MainWindow):
 		self.events_tree.resizeColumnToContents(2)
 
 	def fill_audio_tree(self):
+		# if no events file has been loaded, no readable wem names have been guessed, so just fill in the dict with hashes
+		if not self.wem_id_to_name:
+			self.wem_id_to_name = {name: name for name in self.bnk_media.ptr_map}
 		for wem_id, wem_name in self.wem_id_to_name.items():
 			src_item = QtWidgets.QTreeWidgetItem(self.audio_tree)
 			icon = get_icon("bnk")
