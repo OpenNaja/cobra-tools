@@ -54,7 +54,10 @@ if bpy_available:
 
         plugin_dir = os.path.dirname(__file__)
         if not plugin_dir in sys.path:
-            sys.path.append(plugin_dir)
+            # must come first: utils/logs.py and plugin/utils/properties.py use absolute
+            # imports ('utils.config', 'plugin.utils.properties'), so another addon that
+            # puts its own top-level 'utils' on sys.path will shadow ours if we append
+            sys.path.insert(0, plugin_dir)
 
         from .utils.logs import logging_setup
         logging_setup("blender_plugin")
