@@ -6,6 +6,9 @@ The Cobra engine uses two different kinds of animation formats: `.manis` contain
 
 `.manis` animations are sampled across all frames for different bones and transform channels. They are generally used for advanced character animation that requires dynamics, constraints or blending between animations.
 
+Not every bone has to be animated in `.manis`. Transforms of parent bones propagate down the bone hierarchy to their children, even if they are not animated themselves.
+
+
 ### Import
 
 Select a target armature you want to animate before importing a `.manis` file.
@@ -35,7 +38,7 @@ Select a target armature you want to animate before importing a `.manis` file.
 
 ### Export
 
-Transforms in blender actions are stored relative to the armature, but absolute in `.manis`. As a result, `.manis` export must know which actions belong to which armature:
+Transforms in blender actions are stored relative to the armature's rest pose, but absolute in `.manis`. As a result, `.manis` export must know which actions belong to which armature:
 
 - If you have a single action per armature, setting it as the current action in the [Action Editor](https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header) is enough.
 - To export multiple actions from an armature, stash them in the [NLA Editor](https://docs.blender.org/manual/en/latest/editors/nla/tracks.html#action-stashing) or the [Action Editor](https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header).
@@ -74,7 +77,13 @@ If you only want to resize, you can also use the command line interface to scale
 
 ## Banis
 
-`.banis` animations hold rigidly sampled location and rotation keys for all bones in a model. They are generally used for simple building or character animations, such as:
+<div class="annotate" markdown>
+`.banis` animations hold rigidly sampled location and rotation keys for all bones in a model. In contrast to `.manis`, bone transforms are stored in a way that is GPU-friendly and faster to calculate(1), at the cost of taking up more storage space.
+</div>
+
+1. To achieve this, bones are animated without the bone parent hierarchy. This results in a single transform per bone for `.banis`, compared to an extra transform for every parent bone in a chain for `.manis` - for each frame.
+
+They are generally used for simple building or character animations, such as:
 
 - guests
 - feeders
