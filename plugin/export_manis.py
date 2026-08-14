@@ -11,10 +11,10 @@ from generated.formats.manis import ManisFile, POS, ORI, SCL, FLO, EUL, root_nam
 from generated.formats.manis.structs.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
-from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_local_bone, \
+from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_b_local_matrix, \
 	get_actions, fill_in_rest_data, sample_fcu
 from plugin.utils.anim import c_map
-from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections, get_bone_matrices
+from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections, get_g_bone_matrices
 from plugin.modules_import.anim import get_rna_path
 from plugin.utils.blender_util import bone_name_for_ovl
 from plugin.utils.object import get_property
@@ -108,23 +108,23 @@ def needs_wsm(bone, game):
 def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 	corrector = ManisCorrector(False)
 	game = scene.cobra.game
-	bones_data = {}
-	rest_data = {}
+	b_local_mats = {}
+	g_rest_data = {}
 	if b_ob.type == "ARMATURE":
 		for b_bone in b_ob.data.bones:
-			m_name = bone_name_for_ovl(b_bone.name)
-			mat_local, mat_local_to_parent = get_bone_matrices(b_bone, corrector)
-			bones_data[m_name] = get_local_bone(b_bone)
-			fill_in_rest_data(m_name, mat_local_to_parent, rest_data)
+			g_name = bone_name_for_ovl(b_bone.name)
+			g_bind_matrix, g_local_matrix = get_g_bone_matrices(b_bone, corrector)
+			b_local_mats[g_name] = get_b_local_matrix(b_bone)
+			fill_in_rest_data(g_name, g_local_matrix, g_rest_data)
 		assign_p_bone_indices(b_ob)
 		manis.context.bones_lut = {bone_name_for_ovl(p_bone.name): p_bone["index"] for p_bone in b_ob.pose.bones}
 		cam_corr = None
 	else:
 		manis.context.bones_lut = {"unk1": 0, "camera_joint": 1, "unk2": 2}  # camera_joint is index 1, count is 3
-		for m_name in manis.context.bones_lut:
-			mat_local_to_parent = mathutils.Matrix().to_4x4()
-			bones_data[m_name] = mat_local_to_parent
-			fill_in_rest_data(m_name, mat_local_to_parent, rest_data)
+		for g_name in manis.context.bones_lut:
+			b_local_matrix = mathutils.Matrix().to_4x4()
+			b_local_mats[g_name] = b_local_matrix
+			fill_in_rest_data(g_name, b_local_matrix, g_rest_data)
 		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 		cam_corr.invert()
 
@@ -141,7 +141,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		mani_info.frame_count = last_frame - first_frame
 		# index of last frame / fps
 		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
-		mani_info.target_bone_count = len(bones_data)
+		mani_info.target_bone_count = len(b_local_mats)
 
 		# create arrays for loc, rot, scale keys
 		channel_storage = {m_bone_name: {
@@ -155,7 +155,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		# store pose data for b_action
 		b_ob.animation_data.action = b_action
 		for trg_frame, src_frame in enumerate(range(first_frame, last_frame)):
-			store_pose_frame_info(b_ob, src_frame, trg_frame, bones_data, channel_storage, corrector, cam_corr)
+			store_pose_frame_info(b_ob, src_frame, trg_frame, b_local_mats, channel_storage, corrector, cam_corr)
 
 		# decide which channels to keyframe by determining if the keys are static
 		for bone_name, channels in tuple(channel_storage.items()):
@@ -176,7 +176,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 						add_root_float_keys(channel_storage, keys, needed_axes,
 											("RotX Motion Track", "RotY Motion Track", "RotZ Motion Track"))
 						add_normed_float_keys(channel_storage, keys, needed_axes, "T Motion Track", game)
-						# euler is never exported as such and not added to rest_data, so delete it already
+						# euler is never exported as such and not added to g_rest_data, so delete it already
 						channels.pop(channel_id)
 						continue
 					# delete srb bone from mani; the float channels created before are needed
@@ -184,7 +184,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 						channels.pop(channel_id)
 						continue
 				# decimate channels that are static and identical to rest pose
-				if not needed_axes and reasonably_close(keys[0], rest_data[bone_name][channel_id]):
+				if not needed_axes and reasonably_close(keys[0], g_rest_data[bone_name][channel_id]):
 					# no need to keyframe this bone, discard it
 					# logging.debug(f"Discarding {bone_name}.{channel_id}")
 					channels.pop(channel_id)
@@ -201,13 +201,13 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			# export fcurves for those constraints
 			for fcu in b_action.fcurves:
 				if fcu.data_path in constraint_bones and fcu.array_index == 0:
-					c_suffix, limits, m_name = constraint_bones[fcu.data_path]
+					c_suffix, limits, g_name = constraint_bones[fcu.data_path]
 					keys = sample_fcu(fcu, first_frame, last_frame, mani_info)
 					if limits:
 						l_min, l_max = limits
 						keys *= (l_max - l_min)
 						keys += l_min
-					float_name = f"{m_name}.{c_suffix}"
+					float_name = f"{g_name}.{c_suffix}"
 					channel_storage[float_name] = {FLO: keys}
 		
 		if "_camera" in b_action.name:

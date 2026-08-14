@@ -10,7 +10,7 @@ import numpy as np
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import is_ztuac, is_dla
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
-from plugin.modules_export.animation import get_local_bone
+from plugin.modules_export.animation import get_b_local_matrix
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
 from plugin.utils.anim import c_map
@@ -27,52 +27,52 @@ dt_size = {
 }
 
 
-def get_channel(m_bone_names, m_keys, bones_data, b_action, b_dtype):
-	for bone_i, m_name in enumerate(m_bone_names):
-		b_name = bone_name_for_blender(m_name)
+def get_channel(m_bone_names, m_keys, b_local_inv_mats, b_action, b_dtype):
+	for bone_i, g_name in enumerate(m_bone_names):
+		b_name = bone_name_for_blender(g_name)
 		logging.debug(f"Importing {b_name}")
-		if b_name in bones_data:
-			bonerestmat_inv = bones_data[b_name]
+		if b_name in b_local_inv_mats:
+			b_local_inv_mat = b_local_inv_mats[b_name]
 			b_channel = b_name
 		else:
-			# not sure this is desired like that
-			if m_name == "camera_joint":
+			# not sure if this is desired like that
+			if g_name == "camera_joint":
 				logging.debug(f"Object transform '{b_name}' as LocRotScale")
-				bonerestmat_inv = mathutils.Matrix().to_4x4()
+				b_local_inv_mat = mathutils.Matrix().to_4x4()
 				b_channel = None
 			else:
 				logging.warning(f"Ignoring extraneous bone '{b_name}'")
 				continue
-		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], bonerestmat_inv)
+		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], b_local_inv_mat)
 
 
-def keys_adder(b_action, b_channel, b_dtype, in_keys, bonerestmat_inv):
+def keys_adder(b_action, b_channel, b_dtype, in_keys, b_local_inv_mat):
 	out_keys = []
 	out_frames = []
-	yield b_channel, bonerestmat_inv, out_frames, out_keys, in_keys
+	yield b_channel, b_local_inv_mat, out_frames, out_keys, in_keys
 	anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_frames, out_keys, None, n_bone=b_channel)
 
 
-def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
+def import_wsm(corrector, b_action, folder, mani_info, bone_name, b_local_inv_mats):
 	wsm_name = f"{mani_info.name}_{bone_name}.wsm"
 	wsm_path = os.path.join(folder, wsm_name)
 	if os.path.isfile(wsm_path):
 		logging.info(f"Importing {wsm_name}")
 		wsm = WsmHeader.from_xml_file(wsm_path, mani_info.context)
 		# print(wsm)
-		bonerestmat_inv = bones_data[bone_name]
-		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in keys_adder(
-				b_action, bone_name, "location", wsm.locs.data, bonerestmat_inv):
+		b_local_inv_mat = b_local_inv_mats[bone_name]
+		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "location", wsm.locs.data, b_local_inv_mat):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Vector(key)
-				key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
+				key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 				out_frames.append(frame_i)
 				out_keys.append(key)
-		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in keys_adder(
-				b_action, bone_name, "rotation_quaternion", wsm.quats.data, bonerestmat_inv):
+		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "rotation_quaternion", wsm.quats.data, b_local_inv_mat):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
-				key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
+				key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 				out_frames.append(frame_i)
 				out_keys.append(key)
 
@@ -108,7 +108,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		is_old_orientation = False
 	corrector = ManisCorrector(is_old_orientation)
 
-	bones_data = {}
+	b_local_inv_mats = {}
 	b_armature_ob = get_armature(scene.objects)
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
@@ -120,7 +120,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					if constraint.type == "IK":
 						constraint.enabled = False
 		for bone in b_armature_ob.data.bones:
-			bones_data[bone.name] = get_local_bone(bone).inverted()
+			b_local_inv_mats[bone.name] = get_b_local_matrix(bone).inverted()
 	cam_corr = None
 
 	for mi in manis.mani_infos:
@@ -138,25 +138,25 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		# print(mi)
 		logging.debug(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
-		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
+		import_wsm(corrector, b_action, folder, mi, "srb", b_local_inv_mats)
 		# floats are present for compressed or uncompressed
 		# they can vary in use according to the name of the channel
-		for bone_i, m_name in enumerate(k.floats_names):
-			if "." in m_name:
-				m_name, suffix = m_name.rsplit(".", 1)
+		for bone_i, g_name in enumerate(k.floats_names):
+			if "." in g_name:
+				g_name, suffix = g_name.rsplit(".", 1)
 			else:
 				suffix = ""
-			b_name = bone_name_for_blender(m_name)
+			b_name = bone_name_for_blender(g_name)
 			logging.debug(f"Importing {b_name}")
 			keys = k.floats[:, bone_i]
 			samples = range(len(keys))
-			if m_name == "CameraFOV":
+			if g_name == "CameraFOV":
 				# focal_len = w /  tan(FOV / 2) / 2
 				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}_Data")
 				# original sensor width
 				keys = 36 / np.tan(keys / 2) / 2
 				anim_sys.add_keys(b_data_action, "lens", (0,), None, samples, keys, None)
-			elif b_name in bones_data and suffix:
+			elif b_name in b_local_inv_mats and suffix:
 				# represented by animated properties of bone constraints
 				p_bone = b_armature_ob.pose.bones[b_name]
 				for c_suffix, c_type, create, limits in c_map:
@@ -171,8 +171,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 						break
 				else:
 					logging.warning(f"Don't know how to import '{suffix}' for '{b_name}'")
-			elif "Motion Track" in m_name:
-				logging.debug(f"Ignoring redundant import of '{m_name}'")
+			elif "Motion Track" in g_name:
+				logging.debug(f"Ignoring redundant import of '{g_name}'")
 			else:
 				logging.warning(f"Don't know how to import floats for '{b_name}'")
 				# logging.debug(k.floats[:, bone_i])
@@ -190,21 +190,23 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				stash(b_armature_ob, b_action, mi.name, 0)
 				continue
 
-			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
-					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):
+			# todo - move decompressed ck.pos_bones and ck.ori_bones onto k and merge code paths
+			# todo - use arrays instead of lists in keys_adder
+			for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+					k.pos_bones_names, ck.pos_bones, b_local_inv_mats, b_action, "location"):
 				for frame_i, key in enumerate(in_keys):
 					key = mathutils.Vector(key)
 					# # correct for scale
 					# if scale:
 					# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
-					key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
+					key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 					out_frames.append(frame_i)
 					out_keys.append(key)
-			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
-				k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
+			for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				k.ori_bones_names, ck.ori_bones, b_local_inv_mats, b_action, "rotation_quaternion"):
 				for frame_i, key in enumerate(in_keys):
 					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-					key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
+					key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 					# if cam_corr is not None:
 					# 	out = mathutils.Quaternion(cam_corr)
 					# 	out.rotate(key)
@@ -216,8 +218,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			# skip uncompressed anim
 			continue
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
-		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
-				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location"):
+		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				k.pos_bones_names, k.pos_bones, b_local_inv_mats, b_action, "location"):
 			scale_i = scale_lut.get(b_channel, None)
 			for frame_i, key in enumerate(in_keys):
 				# correct for scale
@@ -226,22 +228,22 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					key = mathutils.Vector([key[0] * scale[2], key[1] * scale[1], key[2] * scale[0]])
 				else:
 					key = mathutils.Vector(key)
-				key = (bonerestmat_inv @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
+				key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
 				out_frames.append(frame_i)
 				out_keys.append(key)
-		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
-				k.ori_bones_names, k.ori_bones, bones_data, b_action, "rotation_quaternion"):
+		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				k.ori_bones_names, k.ori_bones, b_local_inv_mats, b_action, "rotation_quaternion"):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-				key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
+				key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 				if cam_corr is not None:
 					out = mathutils.Quaternion(cam_corr)
 					out.rotate(key)
 					key = out
 				out_frames.append(frame_i)
 				out_keys.append(key)
-		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
-				k.scl_bones_names, k.scl_bones, bones_data, b_action, "scale"):
+		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				k.scl_bones_names, k.scl_bones, b_local_inv_mats, b_action, "scale"):
 			for frame_i, key in enumerate(in_keys):
 				# swizzle
 				key = mathutils.Vector([key[2], key[1], key[0]])

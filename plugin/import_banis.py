@@ -66,8 +66,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 	b_action = anim_sys.create_action(b_target_armature, bani.name)
 
-	# GAME-SPACE BINDS
-	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
+	g_bind_mats, b_local_mats = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
 	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
@@ -84,8 +83,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		bone_b_idx = 1  # Example: Hips
 
 		# Get the distance in native 1.0x Blender rest pose
-		rest_pos_a = binds[bone_a_idx].translation
-		rest_pos_b = binds[bone_b_idx].translation
+		rest_pos_a = g_bind_mats[bone_a_idx].translation
+		rest_pos_b = g_bind_mats[bone_b_idx].translation
 		rest_dist = (rest_pos_b - rest_pos_a).length
 
 		# Get the distance in the raw .banis absolute coordinates at Frame 0
@@ -141,31 +140,32 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				if is_partial and parent_i is not None:
 					# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
 					# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
-					game_armature_space[bone_i] = binds[-1] @ key
+					game_armature_space[bone_i] = g_bind_mats[-1] @ key
 				else:
 					# Mode 2 I have looked at don't get here
-					game_armature_space[bone_i] = key  # Maybe binds[bone_i] @ key
+					game_armature_space[bone_i] = key  # Maybe g_bind_mats[bone_i] @ key
 				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
 
 			elif anim_mode == 3:
 				# MODE 3: Additive
 				if is_partial:
-					game_armature_space[bone_i] = key @ binds[bone_i]
+					game_armature_space[bone_i] = key @ g_bind_mats[bone_i]
 				else:
-					# TODO: Blows up, `key @ binds[bone_i]` doesn't work either
+					# TODO: Blows up, `key @ g_bind_mats[bone_i]` doesn't work either
 					# bodyflume_bendup, bodyflume_benddown
 					# Non-partial, 1:1 bone mapping, read_i==255 (None)
 					# Not reassigning parent_i also blows up
 					parent_i = None if read_i == 255 else parent_i
-					game_armature_space[bone_i] = binds[bone_i] @ key
+					game_armature_space[bone_i] = g_bind_mats[bone_i] @ key
 				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
 
 			elif anim_mode == 5:
 				# Mode 5: Legacy (Version < 7)
-				game_mat = key @ binds[bone_i]
+				game_mat = key @ g_bind_mats[bone_i]
 				posed_armature_space[bone_i] = corrector.to_blender(game_mat)
 
 		for bone_i, parent_i in enumerate(parent_index_map):
+			# Make posed armature-space transform relative to the posed parent bone
 			if parent_i is not None:
 				posed_local_space[bone_i] = posed_armature_space[parent_i].inverted() @ posed_armature_space[bone_i]
 			else:
@@ -173,7 +173,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 		for bone_i, bone_name in bones_table:
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
-			posed_local_space[bone_i] = bones_local_mat[bone_i].inverted() @ posed_local_space[bone_i]
+			posed_local_space[bone_i] = b_local_mats[bone_i].inverted() @ posed_local_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated

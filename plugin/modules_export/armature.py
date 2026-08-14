@@ -94,14 +94,14 @@ def export_bones_custom(b_armature_ob, model_info):
 
 	sorted_bones = sorted(b_armature_ob.data.bones, key=lambda b_bone: b_armature_ob.pose.bones[b_bone.name]["index"])
 	for bone_i, b_bone in enumerate(sorted_bones):
-		mat_local, mat_local_to_parent = get_bone_matrices(b_bone, corrector)
+		g_bind_matrix, g_local_matrix = get_g_bone_matrices(b_bone, corrector)
 
 		ms2_bone = bone_info.bones[bone_i]
 		ms2_bone.name = bone_name_for_ovl(b_bone.name)
-		ms2_bone.set_bone(mat_local_to_parent)
+		ms2_bone.set_bone(g_local_matrix)
 		# set parent index
 		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else NO_PARENT
-		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
+		bone_info.inverse_bind_matrices[bone_i].set_rows(g_bind_matrix.inverted())
 		# ZTUAC, DLA and JWE3 are 1D
 		bone_info.enumeration[bone_i] = [4, bone_i] if 13 < model_info.context.version < 55 else bone_i
 	# sanity check for bone hierarchy to verify sorting is correct
@@ -116,15 +116,16 @@ def export_bones_custom(b_armature_ob, model_info):
 	export_joints(bone_info, corrector, b_armature_ob)
 
 
-def get_bone_matrices(b_bone, corrector):
+def get_g_bone_matrices(b_bone: bpy.types.Bone, corrector) -> tuple[mathutils.Matrix, mathutils.Matrix]:
+	"""Returns matrices in armature = bind space and local = relative to the parent bone for b_bone in game coordinates."""
 	# correction function works only in armature space
-	mat_local = corrector.from_blender(b_bone.matrix_local)
+	g_bind_matrix = corrector.from_blender(b_bone.matrix_local)
 	# make relative to parent
 	if b_bone.parent:
-		mat_local_to_parent = corrector.from_blender(b_bone.parent.matrix_local).inverted() @ mat_local
+		g_local_matrix = corrector.from_blender(b_bone.parent.matrix_local).inverted() @ g_bind_matrix
 	else:
-		mat_local_to_parent = mat_local
-	return mat_local, mat_local_to_parent
+		g_local_matrix = g_bind_matrix
+	return g_bind_matrix, g_local_matrix
 
 
 def add_parents(bones_with_ik, p_bone, count):
@@ -195,9 +196,9 @@ def export_ik(b_armature_ob, bone_info):
 		ik_link.matrix.set_rows(def_mat.transposed())
 
 
-def iter_constraints(joint_obs, joints, m_name, b_name, j_map, b_armature_basename):
+def iter_constraints(joint_obs, joints, g_name, b_name, j_map, b_armature_basename):
 	joints_with_constraints = [b_joint for b_joint in joint_obs if b_joint.rigid_body_constraint and b_joint.rigid_body_constraint.type == b_name]
-	constraints_name = f"{m_name}_constraints"
+	constraints_name = f"{g_name}_constraints"
 	setattr(joints, f"num_{constraints_name}", len(joints_with_constraints))
 	joints.reset_field(constraints_name)
 	m_constraints = getattr(joints, constraints_name)
