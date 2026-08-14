@@ -448,37 +448,46 @@ def get_matrix(corrector, rot_mat, vec=None):
 
 def fix_bone_lengths(b_armature_data):
 	"""Sets all edit_bones to a suitable length."""
+	good_bones = []
+	bad_bones = []
 	for b_edit_bone in b_armature_data.edit_bones:
-		# don't change root bones
-		if b_edit_bone.parent:
-			# calculate length based on position of children
-			if b_edit_bone.children:
-				children = [(len(b_child.children), b_child) for b_child in b_edit_bone.children]
-				# can't sort bones, so just sort counts
-				children.sort(key=lambda tup: tup[0], reverse=True)
-				# check if there is a bone that has more (recursive) children than the others
-				# if so, use that one to get the length
-				if len(children) > 1 and children[0][0] > children[1][0]:
-					bone_length = (b_edit_bone.head - children[0][1].head).length
-				else:
-					# average position of all children's heads
-					child_heads = mathutils.Vector()
-					for b_child in b_edit_bone.children:
-						child_heads += b_child.head
-					bone_length = (b_edit_bone.head - child_heads / len(b_edit_bone.children)).length
-			# end of a chain
+		bone_length = TOLERANCE * 0.5
+		# calculate length based on position of children
+		if b_edit_bone.children:
+			children = [(len(b_child.children), b_child) for b_child in b_edit_bone.children]
+			# can't sort bones, so just sort counts
+			children.sort(key=lambda tup: tup[0], reverse=True)
+			# check if there is a bone that has more (recursive) children than the others
+			# if so, use that one to get the length
+			if len(children) > 1 and children[0][0] > children[1][0]:
+				bone_length = (b_edit_bone.head - children[0][1].head).length
 			else:
-				if (b_edit_bone.parent.tail - b_edit_bone.head).length < TOLERANCE:
-					# continues a chain from the parent
-					bone_length = b_edit_bone.parent.length
-				else:
-					# it is isolated from the parent, so make the bone smaller to uncluster the rig
-					bone_length = b_edit_bone.parent.length * 0.3
-		else:
-			bone_length = b_edit_bone.length
-		# clamp to a safe minimum length
+				# average position of all children's heads
+				child_heads = mathutils.Vector()
+				for b_child in b_edit_bone.children:
+					child_heads += b_child.head
+				bone_length = (b_edit_bone.head - child_heads / len(b_edit_bone.children)).length
+		# or infer length from parent bone at the end of a chain
+		elif b_edit_bone.parent:
+			if (b_edit_bone.parent.tail - b_edit_bone.head).length < TOLERANCE:
+				# continues a chain from the parent
+				bone_length = b_edit_bone.parent.length
+			else:
+				# it is isolated from the parent, so make the bone smaller to uncluster the rig
+				bone_length = b_edit_bone.parent.length * 0.3
+		b_edit_bone.length = bone_length
+		# collect bones that are shorter than tolerance
 		if bone_length < TOLERANCE:
-			bone_length = 0.1
+			bad_bones.append(b_edit_bone)
+		else:
+			good_bones.append(b_edit_bone)
+	# clamp to a safe minimum length
+	bone_length = 0.1
+	# take the average length of good bones in the skeleton
+	if good_bones and bad_bones:
+		bone_length = sum(b_edit_bone.length for b_edit_bone in good_bones) / len(good_bones)
+	# apply the length to the bad bones
+	for b_edit_bone in bad_bones:
 		b_edit_bone.length = bone_length
 
 

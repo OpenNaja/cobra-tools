@@ -8,45 +8,45 @@ from generated.formats.manis import POS, ORI, srb_name, EUL, SCL
 from plugin.utils.blender_util import bone_name_for_ovl, get_scale_mat
 
 
-def store_pose_frame_info(b_ob, src_frame, trg_frame, bones_data, channel_storage, corrector, cam_corr):
+def store_pose_frame_info(b_ob, src_frame, trg_frame, b_local_mats, channel_storage, corrector, cam_corr):
 	bpy.context.scene.frame_set(src_frame)
 	bpy.context.view_layer.update()
 	if b_ob.type == "CAMERA":
 		store_transform_data(channel_storage, corrector, b_ob.matrix_local, "camera_joint", src_frame, trg_frame, cam_corr)
 	elif b_ob.type == "ARMATURE":
 		for b_name, p_bone in b_ob.pose.bones.items():
-			m_name = bone_name_for_ovl(b_name)
+			g_name = bone_name_for_ovl(b_name)
 			# Get the final transform of the bone in its own local space...
 			# then make it relative to the parent bone
 			# transform is stored relative to the parent rest
 			# whereas blender stores translation relative to the bone itself, not the parent
-			matrix = bones_data[m_name] @ b_ob.convert_space(
+			b_local_posed_matrix = b_local_mats[g_name] @ b_ob.convert_space(
 				pose_bone=p_bone, matrix=p_bone.matrix, from_space='POSE', to_space='LOCAL')
-			store_transform_data(channel_storage, corrector, matrix, m_name, src_frame, trg_frame, cam_corr)
+			store_transform_data(channel_storage, corrector, b_local_posed_matrix, g_name, src_frame, trg_frame, cam_corr)
 
 
-def store_transform_data(channel_storage, corrector, matrix, name, src_frame, trg_frame, cam_corr):
+def store_transform_data(channel_storage, corrector, b_local_posed_matrix, g_name, src_frame, trg_frame, cam_corr):
 	# loc
-	v = sample_scale2(matrix, src_frame, inverted=True) @ matrix
-	channel_storage[name][POS][trg_frame] = corrector.from_blender(v).to_translation()
+	v = sample_scale2(b_local_posed_matrix, src_frame, inverted=True) @ b_local_posed_matrix
+	channel_storage[g_name][POS][trg_frame] = corrector.from_blender(v).to_translation()
 	# rot
-	final_m = corrector.from_blender(matrix)
+	final_m = corrector.from_blender(b_local_posed_matrix)
 	key = final_m.to_quaternion()
 	if cam_corr is not None:
 		out = mathutils.Quaternion(cam_corr)
 		key.rotate(out)
 		key = mathutils.Quaternion((key.x, -key.y, key.w, -key.z))
 	# swizzle - w is stored last
-	channel_storage[name][ORI][trg_frame] = key.x, key.y, key.z, key.w
-	if name == srb_name:
-		channel_storage[name][EUL][trg_frame] = key.to_euler()
+	channel_storage[g_name][ORI][trg_frame] = key.x, key.y, key.z, key.w
+	if g_name == srb_name:
+		channel_storage[g_name][EUL][trg_frame] = key.to_euler()
 	# scale
-	scale_mat = sample_scale2(matrix, src_frame)
+	scale_mat = sample_scale2(b_local_posed_matrix, src_frame)
 	# needs axis correction, but appears to be stored relative to the animated bone's axes
 	scale_mat = corrector.from_blender(scale_mat)
 	# swizzle
 	key = scale_mat.to_scale()
-	channel_storage[name][SCL][trg_frame] = key.z, key.y, key.x
+	channel_storage[g_name][SCL][trg_frame] = key.z, key.y, key.x
 
 
 def reasonably_close(a, b):
@@ -65,10 +65,11 @@ def needs_keyframes(keys):
 				yield ch_i
 
 
-def get_local_bone(bone):
-	if bone.parent:
-		return bone.parent.matrix_local.inverted() @ bone.matrix_local
-	return bone.matrix_local
+def get_b_local_matrix(b_bone: bpy.types.Bone) -> mathutils.Matrix:
+	"""Returns the local space matrix for b_bone in blender coordinates."""
+	if b_bone.parent:
+		return b_bone.parent.matrix_local.inverted() @ b_bone.matrix_local
+	return b_bone.matrix_local
 
 
 def get_actions(b_ob):
@@ -85,12 +86,12 @@ def get_actions(b_ob):
 	return list(actions)
 
 
-def fill_in_rest_data(m_name, mat_local_to_parent, rest_data):
-	pos, quat, sca = mat_local_to_parent.decompose()
-	rest_data[m_name] = {}
-	rest_data[m_name][ORI] = [quat.x, quat.y, quat.z, quat.w]
-	rest_data[m_name][POS] = pos
-	rest_data[m_name][SCL] = sca
+def fill_in_rest_data(g_name, g_local_matrix, g_rest_data):
+	pos, quat, sca = g_local_matrix.decompose()
+	g_rest_data[g_name] = {}
+	g_rest_data[g_name][ORI] = [quat.x, quat.y, quat.z, quat.w]
+	g_rest_data[g_name][POS] = pos
+	g_rest_data[g_name][SCL] = sca
 
 
 def sample_fcu(fcu, first_frame, last_frame, mani_info):

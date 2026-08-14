@@ -28,7 +28,7 @@ def get_groups_for_type(action_groups, dtype):
 	return out
 
 
-def get_local_bone(bone):
+def get_b_local_matrix(bone):
 	if bone.parent:
 		return bone.parent.matrix_local.inverted() @ bone.matrix_local
 	return bone.matrix_local
@@ -45,14 +45,14 @@ def save(reporter, filepath=""):
 		return "Failed, no armature"
 	else:
 		for bone in b_armature_ob.data.bones:
-			bones_data[bone.name] = get_local_bone(bone)
+			bones_data[bone.name] = get_b_local_matrix(bone)
 
 	bones_table, p_bones = get_bones_table(b_armature_ob)
 	parent_index_map = get_parent_map(p_bones)
 	banis = BanisFile()
 	banis.num_anims = len(bpy.data.actions)
 	banis.reset_field("anims")
-	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
+	g_bind_mats, b_local_mats = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 	# per anim
 	for b_action, bani in zip(bpy.data.actions, banis.anims):
 		logging.info(f"Exporting {b_action.name}")
@@ -80,20 +80,10 @@ def save(reporter, filepath=""):
 
 			#  make key relative to local bone bind
 			for bone_i, bone_name in bones_table:
-				# if frame_i == 50 and bone_name == "def_c_meat11_joint":
-				# 	print(bones_local_mat[bone_i])
-				# 	print(posed_local_space[bone_i])
-				# 	print(bones_local_mat[bone_i] @ posed_local_space[bone_i])
-				posed_local_space[bone_i] = bones_local_mat[bone_i] @ posed_local_space[bone_i]
+				posed_local_space[bone_i] = b_local_mats[bone_i] @ posed_local_space[bone_i]
 			# make posed armature space matrices relative to posed parent
 			for bone_i, parent_i in enumerate(parent_index_map):
 				if parent_i is not None:
-					# if frame_i in (0, 50) and bone_i == 11:
-					# 	print(frame_i)
-					# 	print(posed_local_space[bone_i])
-					# 	print(posed_local_space[parent_i])
-					# 	print(posed_local_space[parent_i] @ posed_local_space[bone_i])
-					# 	print(posed_local_space[bone_i] @ posed_local_space[parent_i])
 					# nb flipped vs import!!
 					posed_armature_space[bone_i] = posed_local_space[parent_i] @ posed_local_space[bone_i]
 				else:
@@ -103,9 +93,9 @@ def save(reporter, filepath=""):
 				# get the posed armature space matrix
 				key = corrector.from_blender(posed_armature_space[bone_i])
 				# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
-				# key = binds[bone_i].inverted() @ key
-				key = key @ binds[bone_i].inverted()
-				# key.translation += binds[bone_i].translation
+				# key = g_bind_mats[bone_i].inverted() @ key
+				key = key @ g_bind_mats[bone_i].inverted()
+				# key.translation += g_bind_mats[bone_i].translation
 				frame["loc"][bone_i] = key.translation
 				frame["euler"][bone_i] = [math.degrees(v) for v in key.to_euler()]
 

@@ -31,8 +31,12 @@ class BaniRoot(MemStruct):
 		# length of the animation, can easily get keyframe spacing now
 		self.animation_length = name_type_map['Float'](self.context, 0, None)
 
-		# Version LT 7: if 1381323599 then looped.  Version 7: (flag RSH 16) AND 0xFFFF == Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive | flag AND 0xFFFF == num_bones
-		self.anim_flags = name_type_map['Uint'](self.context, 0, None)
+		# unknown - seen 0 or 1381323599
+		self.flags = name_type_map['Uint'](self.context, 0, None)
+		self.num_bones = name_type_map['Ushort'](self.context, 0, None)
+
+		# Mode 1 Absolute, Mode 2 Relative, Mode 3 Additive
+		self.mode = name_type_map['Ushort'](self.context, 0, None)
 
 		# points to the banis file used
 		self.banis = name_type_map['Pointer'](self.context, 0, None)
@@ -48,7 +52,9 @@ class BaniRoot(MemStruct):
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'anim_flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 5, None)
+		yield 'num_bones', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'mode', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -60,4 +66,8 @@ class BaniRoot(MemStruct):
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)
-		yield 'anim_flags', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version <= 5:
+			yield 'flags', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 7:
+			yield 'num_bones', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'mode', name_type_map['Ushort'], (0, None), (False, None)

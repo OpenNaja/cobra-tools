@@ -5,6 +5,7 @@ from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
 from generated.formats.bani.structs.BaniGpuChannelsLod import BaniGpuChannelsLod
 from generated.formats.bani.structs.BaniGpuChannelsLod256 import BaniGpuChannelsLod256
 from generated.formats.bani.structs.BaniKeys import BaniKeys
+from generated.formats.bani.structs.QuantizationInfo import QuantizationInfo
 from generated.formats.ovl_base.structs.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.structs.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
@@ -26,8 +27,7 @@ class BanisRoot(MemStruct):
     bytes_per_bone: int
     num_frames: int
     num_bones: int
-    loc_scale: float
-    loc_min: float
+    quantization_info: QuantizationInfo
     bani_count: int
     zero_2: int
 
