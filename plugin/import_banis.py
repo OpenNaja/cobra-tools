@@ -110,7 +110,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
-		g_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 		b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 		b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 
@@ -132,37 +132,36 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			# Blend Modes
 			if anim_mode == 1:
 				# MODE 1 (Absolute): Keys are fully baked to world space. Ignore parent.
-				g_armature_space[bone_i] = g_key
-				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
+				g_posed_armature_space[bone_i] = g_key
 
 			elif anim_mode == 2:
 				# MODE 2 Relative/FK
 				if is_partial and parent_i is not None:
 					# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
 					# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
-					g_armature_space[bone_i] = g_bind_mats[-1] @ g_key
+					g_posed_armature_space[bone_i] = g_bind_mats[-1] @ g_key
 				else:
 					# Mode 2 I have looked at don't get here
-					g_armature_space[bone_i] = g_key  # Maybe g_bind_mats[bone_i] @ g_key
-				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
+					g_posed_armature_space[bone_i] = g_key  # Maybe g_bind_mats[bone_i] @ g_key
 
 			elif anim_mode == 3:
 				# MODE 3: Additive
 				if is_partial:
-					g_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
+					g_posed_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
 				else:
 					# TODO: Blows up, `g_key @ g_bind_mats[bone_i]` doesn't work either
 					# bodyflume_bendup, bodyflume_benddown
 					# Non-partial, 1:1 bone mapping, read_i==255 (None)
 					# Not reassigning parent_i also blows up
 					parent_i = None if read_i == 255 else parent_i
-					g_armature_space[bone_i] = g_bind_mats[bone_i] @ g_key
-				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
+					g_posed_armature_space[bone_i] = g_bind_mats[bone_i] @ g_key
 
 			elif anim_mode == 5:
 				# Mode 5: Legacy (Version < 7)
-				game_mat = g_key @ g_bind_mats[bone_i]
-				b_posed_armature_space[bone_i] = corrector.to_blender(game_mat)
+				g_posed_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
+			
+			# Convert posed armature space from game to blender coordinates
+			b_posed_armature_space[bone_i] = corrector.to_blender(g_posed_armature_space[bone_i])
 
 		for bone_i, parent_i in enumerate(parent_index_map):
 			# Make posed armature-space transform relative to the posed parent bone
