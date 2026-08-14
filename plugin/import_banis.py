@@ -110,9 +110,9 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
-		game_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
-		posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
-		posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		g_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+		b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 
 		for bone_i, bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
@@ -121,8 +121,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 			quat = mathutils.Quaternion(quat_data)
 
-			key: mathutils.Matrix = quat.to_matrix().to_4x4()
-			key.translation = loc
+			g_key: mathutils.Matrix = quat.to_matrix().to_4x4()
+			g_key.translation = loc
 
 			# Fetch the readIdx for this bone
 			read_i = getattr(bani, "read_mapping", {}).get(bone_i, 255)
@@ -132,48 +132,48 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			# Blend Modes
 			if anim_mode == 1:
 				# MODE 1 (Absolute): Keys are fully baked to world space. Ignore parent.
-				game_armature_space[bone_i] = key
-				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+				g_armature_space[bone_i] = g_key
+				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
 
 			elif anim_mode == 2:
 				# MODE 2 Relative/FK
 				if is_partial and parent_i is not None:
 					# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
 					# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
-					game_armature_space[bone_i] = g_bind_mats[-1] @ key
+					g_armature_space[bone_i] = g_bind_mats[-1] @ g_key
 				else:
 					# Mode 2 I have looked at don't get here
-					game_armature_space[bone_i] = key  # Maybe g_bind_mats[bone_i] @ key
-				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+					g_armature_space[bone_i] = g_key  # Maybe g_bind_mats[bone_i] @ g_key
+				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
 
 			elif anim_mode == 3:
 				# MODE 3: Additive
 				if is_partial:
-					game_armature_space[bone_i] = key @ g_bind_mats[bone_i]
+					g_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
 				else:
-					# TODO: Blows up, `key @ g_bind_mats[bone_i]` doesn't work either
+					# TODO: Blows up, `g_key @ g_bind_mats[bone_i]` doesn't work either
 					# bodyflume_bendup, bodyflume_benddown
 					# Non-partial, 1:1 bone mapping, read_i==255 (None)
 					# Not reassigning parent_i also blows up
 					parent_i = None if read_i == 255 else parent_i
-					game_armature_space[bone_i] = g_bind_mats[bone_i] @ key
-				posed_armature_space[bone_i] = corrector.to_blender(game_armature_space[bone_i])
+					g_armature_space[bone_i] = g_bind_mats[bone_i] @ g_key
+				b_posed_armature_space[bone_i] = corrector.to_blender(g_armature_space[bone_i])
 
 			elif anim_mode == 5:
 				# Mode 5: Legacy (Version < 7)
-				game_mat = key @ g_bind_mats[bone_i]
-				posed_armature_space[bone_i] = corrector.to_blender(game_mat)
+				game_mat = g_key @ g_bind_mats[bone_i]
+				b_posed_armature_space[bone_i] = corrector.to_blender(game_mat)
 
 		for bone_i, parent_i in enumerate(parent_index_map):
 			# Make posed armature-space transform relative to the posed parent bone
 			if parent_i is not None:
-				posed_local_space[bone_i] = posed_armature_space[parent_i].inverted() @ posed_armature_space[bone_i]
+				b_posed_local_space[bone_i] = b_posed_armature_space[parent_i].inverted() @ b_posed_armature_space[bone_i]
 			else:
-				posed_local_space[bone_i] = posed_armature_space[bone_i]
+				b_posed_local_space[bone_i] = b_posed_armature_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
-			posed_local_space[bone_i] = b_local_mats[bone_i].inverted() @ posed_local_space[bone_i]
+			b_posed_local_space[bone_i] = b_local_mats[bone_i].inverted() @ b_posed_local_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated
@@ -182,10 +182,10 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 			rot_final = mathutils.Quaternion((1, 0, 0, 0))
 			loc_final = mathutils.Vector((0, 0, 0))
-			key = posed_local_space[bone_i]
-			if key:
-				rot_final = key.to_quaternion()
-				loc_final = key.translation
+			b_key = b_posed_local_space[bone_i]
+			if b_key:
+				rot_final = b_key.to_quaternion()
+				loc_final = b_key.translation
 
 			## HACK - When all else fails, ignore translation
 			## We allow the Root and its immediate child (Hips) to translate through space.
