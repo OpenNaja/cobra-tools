@@ -8,6 +8,7 @@ import mathutils
 import numpy as np
 
 from generated.formats.manis import ManisFile
+from generated.formats.manis.acl import decode_file as decode_acl_file, normalize_frame_count
 from generated.formats.manis.versions import is_ztuac, is_dla
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
 from plugin.modules_export.animation import get_local_bone
@@ -102,6 +103,10 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	scene = bpy.context.scene
 	manis = ManisFile()
 	manis.load(filepath)
+	is_acl_manis = manis.context.version == 262 and manis.context.mani_version == 282
+	acl_streams = iter(decode_acl_file(filepath)) if (
+		is_acl_manis and any(mi.dtype.compression for mi in manis.mani_infos)
+	) else iter(())
 	# note that ZTUAC and PC share v257, however PC uses new transforms
 	is_old_orientation = any((is_ztuac(manis.context), is_dla(manis.context)))
 	if is_old_orientation and scene.cobra.game == "Planet Coaster":
@@ -138,6 +143,32 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		# print(mi)
 		logging.debug(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
+		if is_acl_manis and mi.dtype.compression:
+			transform_stream = next(acl_streams)
+			if transform_stream.track_type != 12:
+				raise ValueError(f"Expected ACL transform tracks for {mi.name}")
+			if transform_stream.track_count != mi.target_bone_count:
+				raise ValueError(
+					f"ACL track count mismatch for {mi.name}: "
+					f"{transform_stream.track_count} != {mi.target_bone_count}"
+				)
+			transforms = normalize_frame_count(transform_stream.values, mi.frame_count)
+			ck = k.compressed
+			ck.ori_bones = transforms[:, np.asarray(k.ori_channel_to_bone), 0:4]
+			ck.pos_bones = transforms[:, np.asarray(k.pos_channel_to_bone), 4:7]
+			ck.scl_bones = transforms[:, np.asarray(k.scl_channel_to_bone), 7:10]
+			if mi.float_count:
+				scalar_stream = next(acl_streams)
+				if scalar_stream.track_type != 0:
+					raise ValueError(f"Expected ACL float1 tracks for {mi.name}")
+				if scalar_stream.track_count != mi.float_count:
+					raise ValueError(
+						f"ACL scalar count mismatch for {mi.name}: "
+						f"{scalar_stream.track_count} != {mi.float_count}"
+					)
+				k.floats = normalize_frame_count(
+					scalar_stream.values[:, :, 0], mi.frame_count
+				)
 		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 		# floats are present for compressed or uncompressed
 		# they can vary in use according to the name of the channel
@@ -179,21 +210,25 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		# check compression flag
 		if mi.dtype.compression != 0:
 			ck = k.compressed
-			try:
-				manis.decompress(mi)
-			except:
-				b_action.use_frame_range = True
-				b_action.frame_start = 0
-				b_action.frame_end = mi.frame_count-1
-				reporter.show_error(f"Decompressing {mi.name} failed, skipping")
+			if not is_acl_manis:
+				try:
+					manis.decompress(mi)
+				except:
+					b_action.use_frame_range = True
+					b_action.frame_start = 0
+					b_action.frame_end = mi.frame_count-1
+					reporter.show_error(f"Decompressing {mi.name} failed, skipping")
 
-				stash(b_armature_ob, b_action, mi.name, 0)
-				continue
+					stash(b_armature_ob, b_action, mi.name, 0)
+					continue
 
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):
 				for frame_i, key in enumerate(in_keys):
-					key = mathutils.Vector(key)
+					if np.isnan(key).all():
+						key = corrector.from_blender(bonerestmat_inv.inverted()).to_translation()
+					else:
+						key = mathutils.Vector(key)
 					# # correct for scale
 					# if scale:
 					# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
@@ -203,7 +238,10 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in get_channel(
 				k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
 				for frame_i, key in enumerate(in_keys):
-					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
+					if np.isnan(key).all():
+						key = corrector.from_blender(bonerestmat_inv.inverted()).to_quaternion()
+					else:
+						key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
 					key = (bonerestmat_inv @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
 					# if cam_corr is not None:
 					# 	out = mathutils.Quaternion(cam_corr)

@@ -406,67 +406,18 @@
 		<field name="f" type="ubyte" />
     </struct>
 
+	<struct name="AclPaddingReader" >
+		Preserves the variable JWE3 prefix and locates the following ACL transform stream.
+	</struct>
+
 	<struct name="CompressedManiDataPC2" >
-		in compressed manis
+		An ACL compressed_tracks blob followed by a ushort terminator.
+		The blob itself starts with ACL's size/hash/tag header and must be
+		preserved verbatim; decoding is handled by the external ACL helper.
 		<field name="size" type="uint" />
-		<field name="ref" type="Empty"/>
-
-		<field name="u0" type="ubyte" arr1="4" /> <!-- variable -->
-		<field name="constant" type="ubyte" arr1="8" />
-		<field name="bone_count" type="uint" />
-		<field name="FrameCount" type="uint"/>
-		<field name="fps" type="float"/>
-		<field name="unk_float" type="float"/> <!-- maybe two hfloats? -->
-		<field name="frame_segments_count" type="uint"/>
-		<field name="u3" type="uint"/>
-		<field name="OriBoneCount" type="uint"/>
-		<field name="PosBoneCount" type="uint"/>
-		<field name="SclBoneCount" type="ushort"/>
-		<field name="MorphBoneCount" type="ushort"/>
-<!--		presumably offset indices-->
-		<field name="OriBoneOffset" type="uint"/>
-		<field name="PosBoneOffset" type="uint"/>
-		<field name="SclBoneOffset" type="uint"/>
-		<!-- @64 -->
-		<field name="ff" type="int"/>
-		<!-- @68 -->
-		<field name="count" type="uint"/>
-		<field name="s1" type="uint"/>
-		<field name="s2" type="uint"/>
-		<field name="s3" type="uint"/>
-<!--		the following two seem to be only present when more than 1 segment is used -->
-		<field name="frame_segments" type="uint" arr1="frame_segments_count" cond="frame_segments_count #GT# 1"/>
-		<field name="ff2" type="int" cond="frame_segments_count #GT# 1"/>
-		<field name="chunks" type="SmallChunk" arr1="frame_segments_count"/>
-		<!--		pigeon
-0: -
-1: -
-2: 2 * 4
-3: 1 * 4
-4: 1 * 4
--->
-		<field name="unk before floats" type="uint" >can be more or less than 1 apparently</field>
-		<field name="start of floats" type="Empty"/>
-<!--		this is not quite right-->
-		<field name="ori_bones0" type="float" arr1="OriBoneCount" arr2="3"/>
-		<field name="pos_bones0" type="float" arr1="PosBoneCount" arr2="3"/>
-		<field name="ori_bones1" type="float" arr1="OriBoneCount" arr2="3"/>
-		<field name="pos_bones1" type="float" arr1="PosBoneCount" arr2="3"/>
-<!--		<field name="floats" type="float" arr1="16" arr2="3"/>-->
-<!--		pigeon
-0: 16 * 3 = 48
-1: 16 * 3 = 48
-2: 23 * 3 = 69
-3: 20 * 3 = 60
-4: 17 * 3 = 51
--->
-		<field name="ref2" type="Empty"/>
-		<field name="databytes" type="ubyte" arr1="size-(ref2\io_start - ref\io_start)+4" />
-		<field name="zend" type="ushort"/>
-		<field name="ref3" type="Empty"/>
-<!--		<field name="pad" type="PadAlign" template="ref" arg="4"/>-->
-    </struct>
-
+		<field name="acl_data" type="ubyte" arr1="size - 4" />
+		<field name="pad" type="PadAlign" template="#ARG#\ref" arg="16"/>
+	</struct>
 	<struct name="ManiBlock" >
 		aligned to 16
 		<field name="ref" type="Empty"/>
@@ -492,16 +443,16 @@
 		<!-- found in DLA SpaceMountain animations.manisetd740d135, and PZ crane -->
 		<field name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
 		<field name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
-		<!-- always uncompressed, possibly because ACL didn't support scalars -->
-		<field name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
-		<field name="uncompressed_pad_PC2" type="PadAlign" template="ref" arg="8" vercond="#PC2#"/>
-		<!-- varies between the two janitor manis, padding just before 'frame count' -->
-		<field name="precompressed" type="UncompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
-
-		<field name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
+		<!-- JWE3/PC2 stores scalar channels in a second ACL blob when compressed. -->
+		<field name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		<field name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" cond="#ARG#\dtype\compression #GT# 0" vercond="!#PC2#" />
+		<field name="uncompressed_pad_PC2" type="PadAlign" template="ref" arg="8" vercond="#PC2#" cond="#ARG#\dtype\compression #EQ# 0"/>
+		<field name="acl_prefix" type="AclPaddingReader" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
+		<field name="uncompressed_pad" type="PadAlign" template="ref" arg="16" vercond="!#PC2#"/>
 		<field name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1" vercond="!#PC2#"/>
 		<!-- varies between the two janitor manis, padding just before 'frame count' -->
 		<field name="compressed" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
+		<field name="compressed_floats" type="CompressedManiDataPC2" vercond="#PC2#" arg="#SELF#" cond="(#ARG#\dtype\compression #GT# 0) #AND# (#ARG#\FloatCount #GT# 0)" />
 		<field name="compressed" type="CompressedManiData" vercond="!#PC2#" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0" />
 		<!-- # aligned to 16 -->
 		<field name="LimbTrackData" type="LimbTrackData" cond="#ARG#\dtype\has_list #GT# 0" arg="#SELF#" vercond="!#PC2#"/>

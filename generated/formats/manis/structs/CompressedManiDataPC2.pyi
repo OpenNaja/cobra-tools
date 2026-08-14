@@ -1,44 +1,11 @@
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.manis.structs.SmallChunk import SmallChunk
-from generated.formats.ovl_base.structs.Empty import Empty
+from generated.formats.base.structs.PadAlign import PadAlign
 
 
 class CompressedManiDataPC2(BaseStruct):
     size: int
-    ref: Empty
-    u_0: Array[int]
-    constant: Array[int]
-    bone_count: int
-    frame_count: int
-    fps: float
-    unk_float: float
-    frame_segments_count: int
-    u_3: int
-    ori_bone_count: int
-    pos_bone_count: int
-    scl_bone_count: int
-    morph_bone_count: int
-    ori_bone_offset: int
-    pos_bone_offset: int
-    scl_bone_offset: int
-    ff: int
-    count: int
-    s_1: int
-    s_2: int
-    s_3: int
-    frame_segments: Array[int]
-    ff_2: int
-    chunks: Array[SmallChunk]
-    unk_before_floats: int
-    start_of_floats: Empty
-    ori_bones_0: Array[Array[float]]
-    pos_bones_0: Array[Array[float]]
-    ori_bones_1: Array[Array[float]]
-    pos_bones_1: Array[Array[float]]
-    ref_2: Empty
-    databytes: Array[int]
-    zend: int
-    ref_3: Empty
+    acl_data: Array[int]
+    pad: PadAlign[object]
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

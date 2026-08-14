@@ -2,11 +2,11 @@ from typing import Generic, TypeVar, Union
 from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.structs.PadAlign import PadAlign
+from generated.formats.manis.structs.AclPaddingReader import AclPaddingReader
 from generated.formats.manis.structs.CompressedManiData import CompressedManiData
 from generated.formats.manis.structs.CompressedManiDataPC2 import CompressedManiDataPC2
 from generated.formats.manis.structs.LimbTrackData import LimbTrackData
 from generated.formats.manis.structs.LimbTrackDataZT import LimbTrackDataZT
-from generated.formats.manis.structs.UncompressedManiDataPC2 import UncompressedManiDataPC2
 from generated.formats.manis.structs.UshortLut import UshortLut
 from generated.formats.manis.structs.WarExtra import WarExtra
 from generated.formats.ovl_base.structs.Empty import Empty
@@ -35,10 +35,12 @@ class ManiBlock(BaseStruct, Generic[_T]):
     scl_bones: Array[Array[Array[float]]]
     floats: Array[Array[float]]
     uncompressed_pad_pc_2: PadAlign[object]
-    precompressed: UncompressedManiDataPC2
+    acl_prefix: AclPaddingReader
     uncompressed_pad: PadAlign[object]
     extra_war: WarExtra
-    compressed: Union[CompressedManiData, CompressedManiDataPC2]
+    compressed: CompressedManiDataPC2
+    compressed_floats: CompressedManiDataPC2
+    compressed: CompressedManiData
     limb_track_data: Union[LimbTrackData, LimbTrackDataZT]
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

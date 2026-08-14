@@ -82,6 +82,7 @@ type_module_name_map = {
 	'UshortLut': 'generated.formats.manis.structs.UshortLut',
 	'UncompressedManiDataPC2': 'generated.formats.manis.structs.UncompressedManiDataPC2',
 	'SmallChunk': 'generated.formats.manis.structs.SmallChunk',
+	'AclPaddingReader': 'generated.formats.manis.structs.AclPaddingReader',
 	'CompressedManiDataPC2': 'generated.formats.manis.structs.CompressedManiDataPC2',
 	'ManiBlock': 'generated.formats.manis.structs.ManiBlock',
 }
