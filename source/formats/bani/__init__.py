@@ -196,7 +196,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					gpu_header_idx = bani.data.gpu_buffer_index
 					gpu_header = self.gpu_headers[gpu_header_idx]
 					# gpu_header2 = self.gpu_headers[anim_idx]
-					b_map = self.parsed_gpu_channels[gpu_header_idx]
+					channel_map = self.parsed_gpu_channels[gpu_header_idx]
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 					scale = gpu_header.quantization_info.scale
@@ -224,14 +224,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 					logging.debug(f"  Total Frames: {num_frames}")
 					logging.debug(f"  GPU Index:  : {gpu_header_idx}")
 					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {keys_pos_absolute + expected_bytes}")
-					logging.debug(f"  Bone Map    : {b_map}")
+					logging.debug(f"  Bone Map    : {channel_map}")
 
 					#if num_local_bones > 0 and num_frames > 0:
 					#	logging.debug("  [Frame 0 Raw Hex]")
 					#	for local_i in range(num_local_bones):
 					#		r_raw = anim_keys_raw["rot_raw"][0, local_i]
 					#		l_raw = anim_keys_raw["loc_raw"][0, local_i]
-					#		global_i = b_map[local_i]
+					#		global_i = channel_map[local_i]
 					#
 					#		logging.debug(f"    Curve {local_i:02d} -> Maps to Target Bone {global_i:02d}")
 					#		logging.debug(f"      Rot: [{r_raw[0]:04X}, {r_raw[1]:04X}, {r_raw[2]:04X}]  Loc: [{l_raw[0]:04X}, {l_raw[1]:04X}, {l_raw[2]:04X}]")
@@ -242,7 +242,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					#	for f in range(min(8, num_frames)):
 					#		logging.debug(f"Animation 0, Frame {f}")
 					#		for local_i in range(min(25, num_local_bones)):
-					#			global_i, read_i = b_map[local_i]
+					#			global_i, read_i = channel_map[local_i]
 					#			l_raw = anim_keys_raw["loc_raw"][f, local_i]
 					#			l_float = locs[f, local_i]
 					#			logging.debug(f"  Local Curve {local_i:02d} -> Global Bone {global_i:02d} -> Read {read_i:02d}")
@@ -256,8 +256,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					# Read mapping
 					bani.read_mapping = {}
 					# Map channels to bones
-					for local_i in range(num_local_bones):
-						write_i, read_i = b_map[local_i]
+					for local_i, (write_i, read_i) in enumerate(channel_map):
 						if write_i < global_num_bones:
 							bani.keys["quat"][:, write_i] = quats[:, local_i]
 							bani.keys["loc"][:, write_i] = locs[:, local_i]
@@ -269,12 +268,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 					end_frame = start_frame + num_frames
 
 					anim_keys_raw = keys_packed[start_frame:end_frame]
-					quats, locs = self.decompress_keyframes(
+					bani.keys["quat"][:], bani.keys["loc"][:] = self.decompress_keyframes(
 						anim_keys_raw["rot_raw"], anim_keys_raw["loc_raw"],
 						self.data.quantization_info.scale, self.data.quantization_info.bias
 					)
-					bani.keys["quat"] = quats
-					bani.keys["loc"] = locs
 					bani.animated_bone_indices = list(range(global_num_bones))
 	
 	def save(self, filepath):
