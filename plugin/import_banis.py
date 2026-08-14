@@ -108,11 +108,11 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name))
 		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name))
 
+	g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+	b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+	b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
-		g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
-		b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
-		b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 
 		for bone_i, bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
