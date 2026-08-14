@@ -1834,6 +1834,7 @@
 <p>The Cobra engine uses two different kinds of animation formats: <code>.manis</code> containers with <code>.mani</code> animations and <code>.banis</code> containers with <code>.bani</code> animations. Extracted from OVL, you get the <code>.manis</code> and <code>.banis</code>.</p>
 <h2 id="manis">Manis<a class="headerlink" href="#manis" title="Permanent link">&para;</a></h2>
 <p><code>.manis</code> animations are sampled across all frames for different bones and transform channels. They are generally used for advanced character animation that requires dynamics, constraints or blending between animations.</p>
+<p>Not every bone has to be animated in <code>.manis</code>. Transforms of parent bones propagate down the bone hierarchy to their children, even if they are not animated themselves.</p>
 <h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h3>
 <p>Select a target armature you want to animate before importing a <code>.manis</code> file.</p>
 <div class="admonition construction">
@@ -1862,7 +1863,7 @@
 </ul>
 </div>
 <h3 id="export">Export<a class="headerlink" href="#export" title="Permanent link">&para;</a></h3>
-<p>Transforms in blender actions are stored relative to the armature, but absolute in <code>.manis</code>. As a result, <code>.manis</code> export must know which actions belong to which armature:</p>
+<p>Transforms in blender actions are stored relative to the armature's rest pose, but absolute in <code>.manis</code>. As a result, <code>.manis</code> export must know which actions belong to which armature:</p>
 <ul>
 <li>If you have a single action per armature, setting it as the current action in the <a href="https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header">Action Editor</a> is enough.</li>
 <li>To export multiple actions from an armature, stash them in the <a href="https://docs.blender.org/manual/en/latest/editors/nla/tracks.html#action-stashing">NLA Editor</a> or the <a href="https://docs.blender.org/manual/en/latest/editors/dope_sheet/modes/action.html#header">Action Editor</a>.</li>
@@ -1901,7 +1902,13 @@
 <p><code>python manis_tool.py "C:\Users\USER\Desktop\tiger" 1.4</code></p>
 </div>
 <h2 id="banis">Banis<a class="headerlink" href="#banis" title="Permanent link">&para;</a></h2>
-<p><code>.banis</code> animations hold rigidly sampled location and rotation keys for all bones in a model. They are generally used for simple building or character animations, such as:</p>
+<div class="annotate">
+<p><code>.banis</code> animations hold rigidly sampled location and rotation keys for all bones in a model. In contrast to <code>.manis</code>, bone transforms are stored in a way that is GPU-friendly and faster to calculate(1), at the cost of taking up more storage space.</p>
+</div>
+<ol>
+<li>To achieve this, bones are animated without the bone parent hierarchy. This results in a single transform per bone for <code>.banis</code>, compared to an extra transform for every parent bone in a chain for <code>.manis</code> - for each frame.</li>
+</ol>
+<p>They are generally used for simple building or character animations, such as:</p>
 <ul>
 <li>guests</li>
 <li>feeders</li>
@@ -1931,7 +1938,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">May 18, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 14, 2026</span>
   </span>
 
     
