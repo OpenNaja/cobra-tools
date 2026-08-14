@@ -1,6 +1,8 @@
 from generated.formats.bani.imports import name_type_map
 from generated.array import Array
 from generated.formats.bani.structs.BaniGpuAnimHeader import BaniGpuAnimHeader
+from generated.formats.bani.structs.BaniGpuChannelBones import BaniGpuChannelBones
+from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
 from generated.formats.bani.structs.BanisInfoHeader import BanisInfoHeader
 from generated.io import IoFile
 import os
@@ -168,16 +170,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 					# Read GPU Channels
 					stream.seek(channels_pos)
-					num_bones = gpu_header.packed_offset_bones.num_bones
-					
-					bone_map_bytes = stream.read(num_bones * 2)
-					
-					bone_map = []
-					for b_idx in range(num_bones):
-						out_idx, read_idx = struct.unpack_from("<BB", bone_map_bytes, b_idx * 2)
-						bone_map.append((out_idx, read_idx))
-
-					self.parsed_gpu_channels.append(bone_map)
+					bani_gpu_channels = BaniGpuChannels.from_stream(stream, self.context, arg=gpu_header)
+					self.parsed_gpu_channels.append(bani_gpu_channels.data)
 
 				# TODO: Skip LOD Channel for now
 
