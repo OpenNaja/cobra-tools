@@ -45,7 +45,6 @@ type_module_name_map = {
 	'NestedPointers': 'generated.formats.ovl_base.structs.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
-	'Vector3Short': 'generated.formats.bani.structs.Vector3Short',
 	'Vector3Ushort': 'generated.formats.bani.structs.Vector3Ushort',
 	'BaniRoot': 'generated.formats.bani.structs.BaniRoot',
 	'PackedOffsetBones': 'generated.formats.bani.bitfields.PackedOffsetBones',
