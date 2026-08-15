@@ -28,6 +28,20 @@ dt_size = {
 }
 
 
+def keep_quat_hemisphere(key, out_keys):
+	"""Keep a quaternion in the same hemisphere as the previous key.
+
+	ACL stores rotations with w dropped and rebuilt as always-positive, so a
+	rotation that crosses w=0 comes back as its antipode. q and -q are the same
+	orientation, but blender interpolates between them the long way round, which
+	spins the bone. Observed on mutadon head and jaw (9-11 flips per clip, dot
+	exactly -1.0); indoraptor happened not to cross w=0, which is why it looked fine.
+	"""
+	if out_keys and out_keys[-1].dot(key) < 0.0:
+		return mathutils.Quaternion((-key.w, -key.x, -key.y, -key.z))
+	return key
+
+
 def get_channel(m_bone_names, m_keys, b_local_inv_mats, b_action, b_dtype):
 	for bone_i, g_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(g_name)
@@ -249,6 +263,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					# 	out = mathutils.Quaternion(cam_corr)
 					# 	out.rotate(key)
 					# 	key = out
+					key = keep_quat_hemisphere(key, out_keys)
 					out_frames.append(frame_i)
 					out_keys.append(key)
 
@@ -278,6 +293,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					out = mathutils.Quaternion(cam_corr)
 					out.rotate(key)
 					key = out
+				key = keep_quat_hemisphere(key, out_keys)
 				out_frames.append(frame_i)
 				out_keys.append(key)
 		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
