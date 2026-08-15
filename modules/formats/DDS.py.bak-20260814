@@ -139,56 +139,6 @@ class DdsLoader(MemStructLoader):
 		else:
 			return self.texbuffer.num_mips - mip_offset
 
-	def set_mip_tiers(self):
-		"""Derive the two streaming mip tiers from the weave grid.
-
-		These are the entry points the engine streams from, and wrong values crash, so
-		they are computed rather than trusted. num_mips_high is the count of mips, from
-		the smallest up, that are too small to weave. num_mips_low sits two below it,
-		except that a texture which cannot weave at all has no streaming tier to offer
-		and is written as unstreamed (low = num_mips), same as flag == 0.
-
-		Verified exact against all 7858 vanilla JWE3 tex headers, 101 of which carry a
-		real mip chain. Must run after weave_width / weave_height / can_weave are set.
-		"""
-		t = self.texbuffer
-		if t.can_weave:
-			first_nonweave = t.num_mips
-			mip_w, mip_h = t.width, t.height
-			for mip_i in range(t.num_mips):
-				if mip_w < t.weave_width or mip_h < t.weave_height:
-					first_nonweave = mip_i
-					break
-				mip_w, mip_h = max(1, mip_w // 2), max(1, mip_h // 2)
-		else:
-			first_nonweave = 0
-		high = max(1, t.num_mips - first_nonweave)
-		if t.flag == 0 or not t.can_weave:
-			low = t.num_mips
-		else:
-			low = max(1, high - 2)
-		# a hand authored tex may still override, but never silently
-		commands = getattr(self.ovl, "commands", None) or {}
-		trust_header = commands.get("tex_tiers_from_header", False)
-		for attr, derived in (("num_mips_low", low), ("num_mips_high", high)):
-			authored = getattr(self.header, attr, None)
-			if authored is None or int(authored) == derived:
-				continue
-			if trust_header:
-				logging.warning(
-					f"{self.name}: using authored {attr}={int(authored)} over derived {derived}")
-				if attr == "num_mips_low":
-					low = int(authored)
-				else:
-					high = int(authored)
-			else:
-				logging.warning(
-					f"{self.name}: authored {attr}={int(authored)} disagrees with derived "
-					f"{derived}, using derived - pass tex_tiers_from_header to override")
-		t.num_mips_low = low
-		t.num_mips_high = high
-		logging.debug(f"Mip tiers for {self.name}: low {t.num_mips_low} high {t.num_mips_high}")
-
 	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		if not self.context.is_pc_2:
 			# there's one empty buffer at the end!
@@ -320,9 +270,10 @@ class DdsLoader(MemStructLoader):
 				# 	# RGB
 				# 	else:
 				# 		self.texbuffer.flag = 96
+				# these appear not to be easily predictable, so retrieve those manually added to tex
+				self.texbuffer.num_mips_high = int(self.header.num_mips_high)
+				self.texbuffer.num_mips_low = int(self.header.num_mips_low)
 				self.texbuffer.flag = int(self.header.flag)
-				# num_mips_low / num_mips_high are derived from the weave grid below,
-				# once weave_width / weave_height / can_weave are known
 				# # surprisingly, incorrect values for num_mips_low and num_mips_high crash
 				# # to keep it safe, only update them for creating rather than saving
 				# self.texbuffer.num_mips_high = self.texbuffer.num_mips_low = self.texbuffer.num_mips
@@ -353,7 +304,6 @@ class DdsLoader(MemStructLoader):
 					self.texbuffer.weave_width = 0
 					self.texbuffer.weave_height = 0
 				self.texbuffer.can_weave = 1 if self.texbuffer.weave_width else 0
-				self.set_mip_tiers()
 				# pack mips for all array tiles
 				mips_per_tiles = [dds.get_packed_mips(self.texbuffer.mip_maps) for dds in dds_files]
 				# update mip data
