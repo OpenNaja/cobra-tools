@@ -37,6 +37,13 @@ def oodle_compress_chunk(args):
 
 class OvsFile(OvsHeader):
 
+	# Buffer-only stream archives (eg. JWE3's Anim_L0 / Anim_L1 LOD streams) never
+	# go through write_pools(), but write_archive() still writes self.pools_data.
+	# Default to empty so saving such an archive contributes no pool bytes instead
+	# of raising AttributeError. write_pools() over an empty pool list produces
+	# exactly this value, so archives that do call it are unaffected.
+	pools_data = b""
+
 	def __init__(self, context, ovl_inst, archive_entry):
 		# init with a dummy default archive
 		dummy_archive = ArchiveEntry(context, None, None)
@@ -291,7 +298,10 @@ class OvsFile(OvsHeader):
 						buffer_group.data_count = texturestream_buffer_count
 
 				if (self.buffer_groups[-1].data_count + self.buffer_groups[-1].data_offset) < len(self.data_entries):
-					for x in range(self.buffer_groups[-1].buffer_index + 1):
+					# buffer_index can exceed the number of groups present (seen on JWE3
+					# archives), so clamp or we walk off the start of the list
+					fixup_count = min(self.buffer_groups[-1].buffer_index + 1, len(self.buffer_groups))
+					for x in range(fixup_count):
 						self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 							-1 - x].data_offset
 		# update buffer groups

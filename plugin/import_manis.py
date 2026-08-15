@@ -92,7 +92,51 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, b_local_inv_ma
 				out_keys.append(key)
 
 
+def key_unanimated_channels(b_ob, action):
+	"""Give every bone a rest-value key on channels this action does not animate.
+
+	In game a clip is applied to a fresh bind pose, so a channel the clip omits
+	means "stay at bind". Blender instead leaves whatever the previously played
+	action put there, so switching between clips that animate different channel
+	sets drags stale offsets along. Observed on deinosuchus: standidle01 has no
+	location channel for def_c_jawSquash_joint or def_frontLegLwrHalfTwist_joint.L,
+	so both kept a 1.128 unit offset from an earlier clip - a tucked chin and a leg
+	bone flung out to the side.
+
+	One rest-value key per missing channel makes each action self-contained.
+	"""
+	rest = {
+		"location": (0.0, 0.0, 0.0),
+		"rotation_quaternion": (1.0, 0.0, 0.0, 0.0),
+		"scale": (1.0, 1.0, 1.0),
+	}
+	keyed = {}
+	for fcu in action.fcurves:
+		if '"' not in fcu.data_path:
+			continue
+		bone_name = fcu.data_path.split('"')[1]
+		channel = fcu.data_path.rsplit(".", 1)[-1]
+		keyed.setdefault(bone_name, set()).add(channel)
+	frame = int(action.frame_range[0])
+	for p_bone in b_ob.pose.bones:
+		have = keyed.get(p_bone.name, set())
+		for channel, values in rest.items():
+			if channel in have:
+				continue
+			data_path = f'pose.bones["{p_bone.name}"].{channel}'
+			for i, value in enumerate(values):
+				try:
+					fcu = action.fcurves.new(data_path, index=i, action_group=p_bone.name)
+				except RuntimeError:
+					# already exists for this index, nothing to pad
+					continue
+				fcu.keyframe_points.insert(frame, value)
+
+
 def stash(b_ob, action, track_name, start_frame):
+	# make the action self-contained so switching between clips does not carry
+	# stale pose values from whichever action played before
+	key_unanimated_channels(b_ob, action)
 	# Simulate stash :
 	# * add a track
 	# * add an action on track

@@ -87,7 +87,7 @@ class ManisLoader(MemStructLoader):
 		self.header = self.target_class.from_stream(stream, self.context)
 
 	def create(self, file_path):
-		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)
+		manis_file, root_data, b0, b1, b2, externals = self._get_data(file_path)
 		ms2_dir = os.path.dirname(file_path)
 		self.header = manis_file.header
 		# create mani files
@@ -98,7 +98,13 @@ class ManisLoader(MemStructLoader):
 			self.children.append(mani_loader)
 
 		self.write_root_bytes(root_data)
-		if manis_file.stream:
+		if externals:
+			# JWE3: the ACL database bulk lives in paired LOD streams, so the static
+			# entry keeps its three buffers and each tier gets its own data entry
+			self.create_data_entry((b0, b1, b2))
+			for ovs_name, blob in externals:
+				self.create_data_entry((None, None, blob), ovs_name=ovs_name)
+		elif manis_file.stream:
 			self.create_data_entry((b0, b1, b""))
 			self.create_data_entry((None, None, b2), ovs_name=manis_file.stream)
 		else:
@@ -110,6 +116,74 @@ class ManisLoader(MemStructLoader):
 		manis_file.load(file_path)
 		# update mime version before writing to binary
 		manis_file.version = manis_file.context.version = self.mime_version
-		return manis_file, as_bytes(manis_file.header), \
-			as_bytes(manis_file.mani_infos), as_bytes(manis_file.name_buffer), \
-			as_bytes(manis_file.keys_buffer)
+		externals = self._split_external_buffers(file_path, manis_file)
+		root_data = as_bytes(manis_file.header)
+		raw_static = self._raw_static_buffers(file_path, manis_file, root_data)
+		if raw_static is not None:
+			b0, b1, b2 = raw_static
+		else:
+			b0 = as_bytes(manis_file.mani_infos)
+			b1 = as_bytes(manis_file.name_buffer)
+			b2 = as_bytes(manis_file.keys_buffer)
+		return manis_file, root_data, b0, b1, b2, externals
+
+	def _raw_static_buffers(self, file_path, manis_file, root_data):
+		"""Slice the three static buffers straight out of the .manis, or None.
+
+		Re-serialising from the parsed structures silently drops anything the schema
+		does not model: the ACL compressed_database blob (240 bytes, inside buffer 0)
+		and KeysReader's preserved inter-block auxiliary data (~2.5 KB, inside buffer
+		2). Both are needed for JWE3 animation to survive a rebuild, so take the
+		bytes verbatim and only fall back to re-serialising if the layout does not
+		match what we expect.
+		"""
+		from source.formats.manis.database import locate_bulk
+		with open(file_path, "rb") as f:
+			raw = f.read()
+		# extract() writes: <HHI> + ovs_name + one zstr per mani + root header + buffers
+		preamble = 8 + len(as_bytes(str(manis_file.stream or "")))
+		for mani_barename in manis_file.names:
+			preamble += len(as_bytes(str(mani_barename)))
+		preamble += len(root_data)
+		# buffer 1 round-trips exactly, so it anchors the b0/b1 boundary
+		b1 = as_bytes(manis_file.name_buffer)
+		b1_start = raw.find(b1, preamble)
+		if b1_start == -1:
+			logging.warning(f"{self.name}: could not locate the name buffer, "
+							f"falling back to re-serialised buffers")
+			return None
+		found = locate_bulk(raw)
+		static_end = found["low_offset"] if found else len(raw)
+		if not preamble < b1_start < static_end:
+			logging.warning(f"{self.name}: unexpected buffer layout, "
+							f"falling back to re-serialised buffers")
+			return None
+		return raw[preamble:b1_start], b1, raw[b1_start + len(b1):static_end]
+
+	def _split_external_buffers(self, file_path, manis_file):
+		"""Return [(ovs_name, data), ...] for the trailing ACL database bulk.
+
+		JWE3 strips per-frame detail into an ACL database whose bulk data ships in
+		paired LOD streams. extract() appends them to the .manis as
+		[...][low tier][medium tier]EOF, and cobra stores the low tier in the _L0
+		data entry and the medium tier in _L1. Without this they are silently
+		dropped on rebuild and every clip in the bundle imports ~10x too stiff.
+		"""
+		from source.formats.manis.database import read_bulk_info, locate_bulk
+		with open(file_path, "rb") as f:
+			raw = f.read()
+		info = read_bulk_info(raw)
+		if info is None:
+			return []
+		found = locate_bulk(raw)
+		if found is None:
+			logging.warning(f"{self.name} has an ACL database but its bulk data was not "
+							f"located; the rebuilt file will lose per-frame detail")
+			return []
+		low = raw[found["low_offset"]:found["low_offset"] + info["low_size"]]
+		med = raw[found["medium_offset"]:found["medium_offset"] + info["medium_size"]]
+		# manis_file.stream holds the first non-STATIC entry name written by extract,
+		# eg. 'Anim_L0' or 'Anim_Hunting_L0'; strip the tier suffix to get the base
+		stream = str(manis_file.stream or "Anim_L0")
+		base = stream[:-3] if stream.endswith(("_L0", "_L1")) else stream
+		return [(f"{base}_L0", low), (f"{base}_L1", med)]

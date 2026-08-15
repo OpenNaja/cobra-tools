@@ -36,6 +36,13 @@ def oodle_compress_chunk(args):
 
 class OvsFile(OvsHeader):
 
+	# Buffer-only stream archives (eg. JWE3's Anim_L0 / Anim_L1 LOD streams) never
+	# go through write_pools(), but write_archive() still writes self.pools_data.
+	# Default to empty so saving such an archive contributes no pool bytes instead
+	# of raising AttributeError. write_pools() over an empty pool list produces
+	# exactly this value, so archives that do call it are unaffected.
+	pools_data = b""
+
 	def __init__(self, context, ovl_inst, archive_entry):
 		# init with a dummy default archive
 		dummy_archive = ArchiveEntry(context, None, None)
