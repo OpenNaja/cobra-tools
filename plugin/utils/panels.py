@@ -294,3 +294,19 @@ def get_preview_img():
 	tex = bpy.data.textures.new(name=name, type='IMAGE')
 	tex.image = img
 	return tex
+
+
+class COBRA_PT_object(PropertiesPanel):
+	"""Creates a Panel in the Object context for rig tools"""
+	bl_label = "Cobra Rig Tools"
+	bl_context = "object"
+
+	@classmethod
+	def poll(cls, context):
+		return context.active_object is not None and context.active_object.type == 'ARMATURE'
+
+	def draw(self, context):
+		layout = self.layout
+		layout.operator("object.cobra_generate_mirror_rig", icon="MOD_MIRROR")
+		layout.operator("object.cobra_bake_mirror_rig", icon="ACTION_TWEAK")
+		layout.operator("object.cobra_remove_mirror_rig_constraints", icon="CONSTRAINT_BONE")

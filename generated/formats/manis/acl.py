@@ -34,6 +34,13 @@ def decoder_path() -> Path:
     return _repo_root() / "bin" / "jwe3_acl_decode.exe"
 
 
+def encoder_path() -> Path:
+    override = os.environ.get("COBRA_ACL_ENCODER")
+    if override:
+        return Path(override)
+    return _repo_root() / "bin" / "jwe3_acl_encode.exe"
+
+
 def _read_samples(path: Path) -> AclSamples:
     raw = path.read_bytes()
     if len(raw) < 28:
@@ -87,6 +94,74 @@ def decode_file(filepath: str) -> list[AclSamples]:
             streams.append(_read_samples(output))
             index += 1
         return streams
+
+
+def _write_jacl(path: Path, values: np.ndarray, track_type: int, sample_rate: float) -> None:
+    """Write a sample array in the same format jwe3_acl_decode.exe emits."""
+    samples, tracks, comps = values.shape
+    with open(path, "wb") as fh:
+        fh.write(b"JACL")
+        fh.write(struct.pack("<IIIII", 1, track_type, tracks, samples, comps))
+        fh.write(struct.pack("<f", sample_rate))
+        fh.write(np.ascontiguousarray(values, dtype="<f4").tobytes())
+
+
+def encode_tracks(values: np.ndarray, track_type: int, sample_rate: float,
+                  bind: bytes = None, wrap: bool = False) -> bytes:
+    """Compress a sample array into a raw ACL compressed_tracks blob.
+
+    The blob carries its bulk data inline (has_database() == false), so a clip
+    encoded here is self-contained and can be spliced into a .manis without
+    rebuilding the bundle's ACL database.
+
+    `bind` is a serialised .jbind blob from `source.formats.manis.bindpose`. It
+    supplies the skeleton's bind pose as each track's default sub-track value, the
+    way Frontier compresses; without it the defaults are identity/zero/one and the
+    blob reports has_trivial_default_values() == true, unlike vanilla.
+
+    `wrap` marks the clip wrap-optimized: the first sample repeats at the end and
+    is not stored, which is how JWE3 authors looping clips. It changes the reported
+    duration by one sample and does not alter the sample count.
+    """
+    encoder = encoder_path()
+    if not encoder.is_file():
+        raise FileNotFoundError(
+            f"JWE3 ACL encoder was not found at '{encoder}'. "
+            "Build acl_decoder/build_encode.cmd or set COBRA_ACL_ENCODER."
+        )
+    with tempfile.TemporaryDirectory(prefix="cobra_acl_enc_") as temp_dir:
+        src = Path(temp_dir) / "in.jacl"
+        dst = Path(temp_dir) / "out.blob"
+        _write_jacl(src, values, track_type, sample_rate)
+        command = [str(encoder), str(src), str(dst)]
+        if bind:
+            bind_path = Path(temp_dir) / "bind.jbind"
+            bind_path.write_bytes(bind)
+            command += ["--bind", str(bind_path)]
+        if wrap:
+            command.append("--wrap")
+        result = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        if result.returncode != 0:
+            detail = result.stderr.strip() or result.stdout.strip()
+            raise RuntimeError(f"JWE3 ACL encoding failed: {detail}")
+        return dst.read_bytes()
+
+
+def decode_blob(blob: bytes) -> AclSamples:
+    """Decode a raw compressed_tracks blob by handing the decoder a temp file."""
+    with tempfile.TemporaryDirectory(prefix="cobra_acl_dec_") as temp_dir:
+        src = Path(temp_dir) / "blob.bin"
+        src.write_bytes(blob)
+        streams = decode_file(str(src))
+        if not streams:
+            raise ValueError("decoder produced no streams for this blob")
+        return streams[0]
 
 
 def normalize_frame_count(values: np.ndarray, frame_count: int) -> np.ndarray:

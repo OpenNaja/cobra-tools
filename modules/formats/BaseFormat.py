@@ -237,6 +237,20 @@ class BaseFile:
 				# seems like a reasonable size condition - seen stock with 17608 bytes
 				# if pool.get_size() < 16000:
 				return pool
+		# Injecting into an existing OVL only ever finds pools loaded from that file,
+		# which are not marked new, so every inject appends a fresh pool. On JWE3 that
+		# is enough to make the game reject the result: a no-op inject of one manis took
+		# STATIC from 43 pools to 44 (the extra one holding just the 40 byte ManisRoot)
+		# and crashed on spawn, while a pure load+save of the same OVL kept 118/118 pools
+		# and loaded fine. Appending to a pool that is already there keeps the count
+		# stable; existing offsets are unaffected because the data only grows at the end,
+		# and write_pools() emits every pool from its live buffer either way.
+		# NOT a fix on its own: with pool counts matched to vanilla the game still
+		# crashed, so this is left opt-in rather than changing behaviour for every game.
+		if os.environ.get("COBRA_REUSE_POOLS", "0") != "0":
+			for pool in self.ovs.pools:
+				if pool.type == pool_type_key:
+					return pool
 		# nope, have to create pool
 		pool = MemPool(self.ovl.context)
 		pool.i = None
@@ -256,6 +270,38 @@ class BaseFile:
 		pool.offsets.add(offset)
 		pool.size_map[offset] = len(data)
 		self.stack[(pool, offset)] = {}
+
+	def overwrite_root_bytes(self, data):
+		"""Rewrite the root struct where it already sits, keeping its pool and offset.
+
+		Injecting normally creates a new loader and lets it allocate fresh space, which
+		leaves the OVL structurally different from the one that was loaded - on JWE3 that
+		is enough for the game to reject it, even when every extracted file is
+		byte-identical. Overwriting in place keeps the pool layout the save path already
+		produces, which is the only shape confirmed to load.
+
+		Only valid when the struct has not changed size; the caller must check.
+		"""
+		pool, offset = self.root_ptr
+		if pool is None:
+			raise AttributeError(f"{self.name} has no root pool to overwrite")
+		old_size = pool.size_map.get(offset)
+		if old_size is not None and old_size != len(data):
+			raise ValueError(
+				f"{self.name}: root struct is {old_size} bytes but the new one is "
+				f"{len(data)}; it cannot be overwritten in place")
+		pool.data.seek(offset)
+		pool.data.write(data)
+
+	def update_in_place(self, file_path):
+		"""Replace this loader's contents from a file without re-creating it.
+
+		Overwrite in a subclass. Raise if the file cannot be applied to the existing
+		structure, so the caller can fall back to a normal inject rather than write
+		something half-updated.
+		"""
+		raise NotImplementedError(
+			f"{type(self).__name__} does not support updating in place")
 
 	def get_content(self, filepath):
 		with open(filepath, 'rb') as f:

@@ -305,10 +305,29 @@ def cmd_inject(args: argparse.Namespace) -> None:
 
     logging.info("Injecting %d files (root: %s)", len(files_to_inject), common_root)
 
-    try:
-        ovl.add_files(files_to_inject, common_root)
-    except Exception as e:
-        die(f"OvlFile.add_files failed: {e!r}")
+    if args.update:
+        # Write into the loaders that are already there instead of removing and
+        # re-creating them. A re-created loader allocates fresh pools and data entries,
+        # which leaves the OVL structurally different from the one that was loaded; JWE3
+        # rejects that even when the injected file is byte-identical to what came out,
+        # while a plain load/save of the same OVL loads fine.
+        for file_path in files_to_inject:
+            name = os.path.basename(file_path)
+            loader = ovl.loaders.get(name)
+            if loader is None:
+                die(f"--update needs the file to already exist in the OVL: {name}")
+            try:
+                loader.update_in_place(file_path)
+            except NotImplementedError:
+                die(f"--update is not supported for {name} ({type(loader).__name__})")
+            except Exception as e:
+                die(f"update_in_place failed for {name}: {e}")
+            logging.success("Updated %s in place", name)
+    else:
+        try:
+            ovl.add_files(files_to_inject, common_root)
+        except Exception as e:
+            die(f"OvlFile.add_files failed: {e!r}")
 
     # Decide output path
     if args.in_place:
@@ -455,6 +474,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--update-aux",
         action="store_true",
         help="Set commands['update_aux']=True when saving.",
+    )
+    p_inj.add_argument(
+        "--update",
+        action="store_true",
+        help="Write into the existing loaders instead of removing and re-creating them. "
+             "Keeps the OVL's pool and data entry layout, which JWE3 requires. The file "
+             "must already exist in the OVL and keep the same shape.",
     )
     p_inj.set_defaults(func=cmd_inject)
 

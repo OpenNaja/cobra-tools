@@ -252,6 +252,7 @@ if bpy_available:
             COBRA_PT_matcols,
             COBRA_PT_material,
             COBRA_PT_mesh,
+            COBRA_PT_object,
             COBRA_PT_model,
             COBRA_PT_scene,
             COBRA_PT_viewport,
@@ -296,6 +297,9 @@ if bpy_available:
             UpdateFins,
             UpdateLods,
             VcolToComb,
+            GenerateMirrorRig,
+            BakeMirrorRigToOriginal,
+            RemoveMirrorRigConstraints,
         )
         if hasattr(bpy.types, 'FileHandler'):
             classes += (MS2_FH_script_import, FGM_FH_script_import)

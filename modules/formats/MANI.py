@@ -98,17 +98,70 @@ class ManisLoader(MemStructLoader):
 			self.children.append(mani_loader)
 
 		self.write_root_bytes(root_data)
+		# JWE3: the ACL database bulk lives in paired LOD streams, so each tier gets its
+		# own data entry. The keys buffer is usually resident, but some bundles also keep
+		# it in a stream of their own alongside the LOD pair - Allosaurus's
+		# Anim_DynamicFight does. Moving it into STATIC there changes the archive layout
+		# and renames the stream, so honour whatever the file declares.
+		statics, extra = self._buffer_layout(manis_file, b0, b1, b2, externals)
+		self.create_data_entry(statics)
+		for ovs_name, blob in extra:
+			self.create_data_entry((None, None, blob), ovs_name=ovs_name)
+
+	def _buffer_layout(self, manis_file, b0, b1, b2, externals):
+		"""Return (static_buffers, [(ovs_name, data), ...]) - the split create() uses."""
+		stream = str(manis_file.stream or "")
 		if externals:
-			# JWE3: the ACL database bulk lives in paired LOD streams, so the static
-			# entry keeps its three buffers and each tier gets its own data entry
-			self.create_data_entry((b0, b1, b2))
-			for ovs_name, blob in externals:
-				self.create_data_entry((None, None, blob), ovs_name=ovs_name)
-		elif manis_file.stream:
-			self.create_data_entry((b0, b1, b""))
-			self.create_data_entry((None, None, b2), ovs_name=manis_file.stream)
-		else:
-			self.create_data_entry((b0, b1, b2))
+			if stream and not stream.endswith(("_L0", "_L1")):
+				return (b0, b1, b""), [(stream, b2)] + list(externals)
+			return (b0, b1, b2), list(externals)
+		if stream:
+			return (b0, b1, b""), [(stream, b2)]
+		return (b0, b1, b2), []
+
+	def update_in_place(self, file_path):
+		"""Replace this manis' contents without re-creating the loader.
+
+		A normal inject removes the loader and builds a new one, which reallocates pools
+		and data entries and leaves the OVL structurally different from the one that was
+		loaded. On JWE3 the game rejects that even when the injected file is byte
+		identical to what came out, while a plain load/save of the same OVL is fine, so
+		the contents are written into the existing structures instead.
+
+		Refuses anything that would change the shape - a different clip count, different
+		streams, or a root struct of a different size - because those cannot be applied
+		without reallocating, and a partial update is worse than a failed one.
+		"""
+		manis_file, root_data, b0, b1, b2, externals = self._get_data(file_path)
+
+		wanted_children = [f"{name}.mani" for name in manis_file.names]
+		current_children = [child.name for child in self.children]
+		if wanted_children != current_children:
+			raise ValueError(
+				f"{self.name}: has {len(current_children)} animations but the new file "
+				f"has {len(wanted_children)}; cannot update in place")
+
+		statics, extra = self._buffer_layout(manis_file, b0, b1, b2, externals)
+		wanted_entries = {self.ovs_name} | {ovs_name for ovs_name, _ in extra}
+		if not wanted_entries <= set(self.data_entries):
+			raise ValueError(
+				f"{self.name}: needs data entries {sorted(wanted_entries - set(self.data_entries))} "
+				f"which this OVL does not have; cannot update in place")
+		# Entries the new file has nothing for are left exactly as they are rather than
+		# dropped - removing one would change the archive's shape, which is what the
+		# whole in-place path exists to avoid. A database-free bundle takes this route:
+		# its LOD streams keep the old ACL bulk, which is dead weight but harmless once
+		# no clip and no database header refers to it.
+		untouched = sorted(set(self.data_entries) - wanted_entries)
+		if untouched:
+			logging.info(f"{self.name}: leaving data entries {untouched} untouched")
+
+		self.header = manis_file.header
+		self.overwrite_root_bytes(root_data)
+		self.data_entries[self.ovs_name].update_data([b for b in statics if b is not None])
+		for ovs_name, blob in extra:
+			self.data_entries[ovs_name].update_data([blob])
+		logging.info(f"Updated {self.name} in place")
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a manis"""
@@ -180,8 +233,12 @@ class ManisLoader(MemStructLoader):
 			logging.warning(f"{self.name} has an ACL database but its bulk data was not "
 							f"located; the rebuilt file will lose per-frame detail")
 			return []
-		low = raw[found["low_offset"]:found["low_offset"] + info["low_size"]]
-		med = raw[found["medium_offset"]:found["medium_offset"] + info["medium_size"]]
+		# take each tier up to the start of the next one rather than just its declared
+		# size, so the buffer padding extract() wrote is handed back verbatim. Slicing to
+		# the ACL size instead drops 14 bytes between the tiers and 12 after the last one
+		# on Indoraptor, which makes even a no-op inject differ from vanilla.
+		low = raw[found["low_offset"]:found["medium_offset"]]
+		med = raw[found["medium_offset"]:]
 		# manis_file.stream holds the first non-STATIC entry name written by extract,
 		# eg. 'Anim_L0' or 'Anim_Hunting_L0'; strip the tier suffix to get the base
 		stream = str(manis_file.stream or "Anim_L0")

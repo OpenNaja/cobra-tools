@@ -361,3 +361,92 @@ class Mdl2Duplicate(GenericRename):
 			context.scene.collection, mdl2_coll, linked=False, replacer=replacer, share_materials=self.share_materials, share_rig=self.share_rig,
 		)
 		return {"FINISHED"}
+
+
+class GenerateMirrorRig(Operator):
+	"""Create a duplicate armature whose left/right bones are true mirrors, so X-Axis Mirror works. Animate on the duplicate, then bake to the original before exporting"""
+	bl_idname = "object.cobra_generate_mirror_rig"
+	bl_label = "Generate Mirror Rig"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	bind_mesh: BoolProperty(
+		name="Bind Mesh To Duplicate",
+		description="Move the meshes onto the duplicate so the model deforms from the rig "
+					"you animate on. Retargets the armature modifier rather than applying "
+					"it, so a posed rig is never baked into the mesh",
+		default=True)
+
+	@classmethod
+	def poll(cls, context):
+		return context.active_object is not None and context.active_object.type == 'ARMATURE'
+
+	def execute(self, context):
+		b_armature_ob = context.active_object
+		try:
+			b_ctrl, pairs, meshes = rig.generate_mirror_rig(
+				b_armature_ob, bind_mesh=self.bind_mesh)
+		except Exception as err:
+			self.report({'ERROR'}, str(err))
+			logging.exception("Generate Mirror Rig failed")
+			return {'CANCELLED'}
+		msg = f"Created {b_ctrl.name}: mirrored {pairs} bone pairs"
+		if self.bind_mesh:
+			msg += f", bound {meshes} meshes"
+		self.report({'INFO'}, msg)
+		logging.info(msg)
+		# get_armature() prefers the selected armature, and both rigs now live in the
+		# same collection, so exporting from the control rig ships its re-rolled bones
+		self.report({'WARNING'},
+					f"Animate on {b_ctrl.name}, then Bake Mirror Rig To Original and select "
+					f"{b_armature_ob.name} before exporting")
+		return {'FINISHED'}
+
+
+class BakeMirrorRigToOriginal(Operator):
+	"""Bake the selected mirror control rig's animation onto the original rig, correcting for the rest-roll difference. Run this before exporting"""
+	bl_idname = "object.cobra_bake_mirror_rig"
+	bl_label = "Bake Mirror Rig To Original"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	original: StringProperty(
+		name="Original Rig",
+		description="Armature to bake onto. Defaults to the control rig's name without "
+					"the _ctrl suffix")
+
+	@classmethod
+	def poll(cls, context):
+		return context.active_object is not None and context.active_object.type == 'ARMATURE'
+
+	def execute(self, context):
+		b_ctrl = context.active_object
+		name = self.original or (b_ctrl.name[:-5] if b_ctrl.name.endswith("_ctrl") else "")
+		b_orig = bpy.data.objects.get(name)
+		if b_orig is None or b_orig.type != 'ARMATURE':
+			self.report({'ERROR'}, f"Could not find the original armature '{name}'")
+			return {'CANCELLED'}
+		try:
+			frames, bones = rig.transfer_animation_to_original(b_ctrl, b_orig)
+		except Exception as err:
+			self.report({'ERROR'}, str(err))
+			logging.exception("Bake Mirror Rig To Original failed")
+			return {'CANCELLED'}
+		msg = f"Baked {frames} frames onto {bones} bones of {b_orig.name}"
+		self.report({'INFO'}, msg)
+		logging.info(msg)
+		return {'FINISHED'}
+
+
+class RemoveMirrorRigConstraints(Operator):
+	"""Remove the Copy Transforms constraints an earlier Generate Mirror Rig added. They twist every mirrored bone by its roll difference and should not be used"""
+	bl_idname = "object.cobra_remove_mirror_rig_constraints"
+	bl_label = "Remove Mirror Rig Constraints"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	@classmethod
+	def poll(cls, context):
+		return context.active_object is not None and context.active_object.type == 'ARMATURE'
+
+	def execute(self, context):
+		removed = rig.remove_mirror_rig_constraints(context.active_object)
+		self.report({'INFO'}, f"Removed {removed} mirror rig constraints")
+		return {'FINISHED'}
