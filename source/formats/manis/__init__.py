@@ -505,28 +505,18 @@ class ManisFile(InfoHeader, IoFile):
                 ax.plot(keys[:, bone_i, 3], label='Q')
         ax.legend(loc="lower right")
 
-    def force_decompress(self, mani_info, dump=False):
-        self.decompress(mani_info, dump=dump)
-        mani_info.dtype.compression = 0
-        mani_info.dtype.has_list = 0
-        k = mani_info.keys
-        ck = mani_info.keys.compressed
-        # mani_info.keys.set_defaults()
-        k.reset_field("pos_bones")
-        k.reset_field("ori_bones")
-        k.pos_bones[:] = ck.pos_bones
-        k.ori_bones[:] = ck.ori_bones
-        # k.scl_bones[:] = ck.scl_bones
-
     def decompress(self, mani_info, dump=False):
         if BinStream is None:
             raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
+        k = mani_info.keys
         start = time.time()
         logging.debug(
             f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
-        ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
-        ck.ori_bones = np.empty((mani_info.frame_count, mani_info.ori_bone_count, 4), np.float32)
+        mani_info.dtype.compression = 0
+        mani_info.dtype.has_list = 0
+        k.reset_field("pos_bones")
+        k.reset_field("ori_bones")
         assert ck.pos_bone_count == mani_info.pos_bone_count
         assert ck.ori_bone_count == mani_info.ori_bone_count
         frame_offset = 0
@@ -537,8 +527,8 @@ class ManisFile(InfoHeader, IoFile):
                     f.write(segment.data)
             segment_frames_count = self.get_segment_frame_count(segment_i, mani_info.frame_count)
             # create views into the complete data for this segment
-            segment_pos_bones = ck.pos_bones[frame_offset:frame_offset + segment_frames_count]
-            segment_ori_bones = ck.ori_bones[frame_offset:frame_offset + segment_frames_count]
+            segment_pos_bones = k.pos_bones[frame_offset:frame_offset + segment_frames_count]
+            segment_ori_bones = k.ori_bones[frame_offset:frame_offset + segment_frames_count]
             try:
                 context = KeysContext(BinStream(segment.data), segment_frames_count)
                 self.read_pos_keys(context, segment_i, mani_info, segment_frames_count, segment_pos_bones)
@@ -548,8 +538,8 @@ class ManisFile(InfoHeader, IoFile):
             frame_offset += segment_frames_count
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
-        ck.pos_bones *= loc_ext
-        ck.pos_bones += loc_min
+        k.pos_bones *= loc_ext
+        k.pos_bones += loc_min
         logging.debug(
             f"Decompressed {mani_info.name} in {time.time() - start:.3f} seconds")
 

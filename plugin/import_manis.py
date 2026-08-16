@@ -178,7 +178,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				# logging.debug(k.floats[:, bone_i])
 		# check compression flag
 		if mi.dtype.compression != 0:
-			ck = k.compressed
 			try:
 				manis.decompress(mi)
 			except:
@@ -190,33 +189,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				stash(b_armature_ob, b_action, mi.name, 0)
 				continue
 
-			# todo - move decompressed ck.pos_bones and ck.ori_bones onto k and merge code paths
-			# todo - use arrays instead of lists in keys_adder
-			for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
-					k.pos_bones_names, ck.pos_bones, b_local_inv_mats, b_action, "location"):
-				for frame_i, key in enumerate(in_keys):
-					key = mathutils.Vector(key)
-					# # correct for scale
-					# if scale:
-					# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
-					key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
-					out_frames.append(frame_i)
-					out_keys.append(key)
-			for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
-				k.ori_bones_names, ck.ori_bones, b_local_inv_mats, b_action, "rotation_quaternion"):
-				for frame_i, key in enumerate(in_keys):
-					key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-					key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
-					# if cam_corr is not None:
-					# 	out = mathutils.Quaternion(cam_corr)
-					# 	out.rotate(key)
-					# 	key = out
-					out_frames.append(frame_i)
-					out_keys.append(key)
-
-			stash(b_armature_ob, b_action, mi.name, 0)
-			# skip uncompressed anim
-			continue
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
 		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
 				k.pos_bones_names, k.pos_bones, b_local_inv_mats, b_action, "location"):

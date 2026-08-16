@@ -206,7 +206,7 @@ class MainWindow(window.MainWindow):
 			elif dtype == "Compressed":
 				if mani_info.dtype.compression == 1 and new_val == "0":
 					logging.info(f"Decompressing")
-					self.manis_file.force_decompress(mani_info, dump=False)
+					self.manis_file.decompress(mani_info, dump=False)
 			elif dtype == "Duration":
 				logging.info(f"Changing duration to {new_val}")
 				mani_info.duration = float(new_val)
