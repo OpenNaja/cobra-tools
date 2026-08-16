@@ -654,12 +654,13 @@ class ManisFile(InfoHeader, IoFile):
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
-
                         out[:3] = raw_keys_storage[out_frame_i]
                         out[3] = 0.0
                         # todo figure out logic for scale
                         #  animationmotionextractedlocomotion.maniset535f4cdb, mandrill_male@runbase, bone 41 breaks after frame 2
                         #  https://github.com/OpenNaja/cobra-tools/issues/385
+                        #  it apparently is rotated by 180° on bone's local z, which equals a swizzling operation in blender
+                        #  it appears that maybe a different component is reconstructed (not W)
                         if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
                             logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         # scale fac (actually dynamic)
