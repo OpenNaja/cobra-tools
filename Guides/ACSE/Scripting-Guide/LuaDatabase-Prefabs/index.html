@@ -1846,7 +1846,7 @@
 <span class="nv">YOURMODNAMEDatabaseConfig</span><span class="p">.</span><span class="py">GetDatabaseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
 
 <span class="w">  </span><span class="c1">-- Prevent the inclusion of this assets if ACSE &lt;= 0.641 because</span>
-<span class="w">  </span><span class="c1">-- prefab support wasn&#39;t included until later versions.</span>
+<span class="w">  </span><span class="c1">-- prefab support wasn't included until later versions.</span>
 <span class="w">  </span><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">acse</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="py">acse</span><span class="p">.</span><span class="py">versionNumber</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.641</span><span class="w"> </span><span class="kr">then</span>
 <span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="p">{}</span>
 <span class="w">  </span><span class="kr">else</span><span class="w"> </span>
@@ -1866,7 +1866,7 @@
 <span class="w">    </span><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">acse</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">acse</span><span class="p">.</span><span class="py">versionNumber</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.641</span><span class="w"> </span><span class="kr">then</span>
 <span class="w">        </span><span class="c1">-- Note: Push/Pop user messages is only available in JWE1 and JWE2 games. </span>
 <span class="w">        </span><span class="nv">api</span><span class="p">.</span><span class="py">game</span><span class="p">.</span><span class="nf">PushUserMessage</span><span class="p">(</span>
-<span class="w">            </span><span class="s2">&quot;[STRING_LITERAL:Value=&#39;The YOURMODNAME Mod requires ACSE 0.641</span><span class="se">\n</span><span class="s2"> or greater installed and has been disabled.&#39;]&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">            </span><span class="s2">"[STRING_LITERAL:Value='The YOURMODNAME Mod requires ACSE 0.641</span><span class="se">\n</span><span class="s2"> or greater installed and has been disabled.']"</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="kr">return</span>
 <span class="w">    </span><span class="kr">end</span><span class="w"> </span>
@@ -1875,17 +1875,17 @@
 <span class="w">    </span><span class="c1">-- Continue your normal loading here.</span>
 <span class="w">    </span><span class="nb">table.insert</span><span class="p">(</span>
 <span class="w">    </span><span class="nv">_tContentToCall</span><span class="p">,</span>
-<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.YOURMODNAMEInGenDatabaseData&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Database.YOURMODNAMEInGenDatabaseData"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">)</span>
 
 <span class="w">    </span><span class="nb">table.insert</span><span class="p">(</span>
 <span class="w">    </span><span class="nv">_tContentToCall</span><span class="p">,</span>
-<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.YOURMODNAMEPrefabData&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Database.YOURMODNAMEPrefabData"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">)</span>
 
 <span class="w">    </span><span class="nb">table.insert</span><span class="p">(</span>
 <span class="w">    </span><span class="nv">_tContentToCall</span><span class="p">,</span><span class="w"> </span>
-<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Database.YOURMODNAMEtechtreeData&quot;</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Database.YOURMODNAMEtechtreeData"</span><span class="p">)</span><span class="w"> </span>
 <span class="w">    </span><span class="p">)</span>
 <span class="kr">end</span>
 </code></pre></div>
@@ -1902,8 +1902,8 @@
 <span class="kd">local</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">api</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">require</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">pairs</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector2&quot;</span><span class="p">)</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector3&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector2"</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector3"</span><span class="p">)</span>
 <span class="kd">local</span><span class="w"> </span><span class="nv">YOURMODNAMEPrefabData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
 <span class="nv">YOURMODNAMEPrefabData</span><span class="p">.</span><span class="py">tPrefabs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
@@ -1946,8 +1946,8 @@
 
 <span class="c1">-- Relay on the current entity API to generate the complete prefab</span>
 <span class="nv">PREFABNAME</span><span class="p">.</span><span class="py">GetFlattenedRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
-<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">PREFABNAME</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;PREFABNAME&#39;</span><span class="p">)</span>
-<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">&#39;PREFABNAME&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">PREFABNAME</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">'PREFABNAME'</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">'PREFABNAME'</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="kr">return</span><span class="w"> </span><span class="nv">PREFABNAME</span>
@@ -1962,7 +1962,7 @@
 <p><div class="highlight"><pre><span></span><code><span class="nv">YOURMODNAMEPrefabData</span><span class="p">.</span><span class="py">tPrefabs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="nv">MonolophosaurusDinoFootPrint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;DinoFootprintTheropods&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'DinoFootprintTheropods'</span><span class="p">,</span>
 <span class="w">        </span><span class="nv">Properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nv">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">vec3_const</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">)</span>
@@ -1973,7 +1973,7 @@
 </code></pre></div>
 In this example, consider the = sign,  <strong>MonolophosaurusDinoFootPrint</strong> is the prefab name, and everything on the right of the sign is the 'data':
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
-<span class="w">     </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;DinoFootprintTheropods&#39;</span><span class="p">,</span>
+<span class="w">     </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'DinoFootprintTheropods'</span><span class="p">,</span>
 <span class="w">     </span><span class="nv">Properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">       </span><span class="nv">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">           </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">vec3_const</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">)</span>
@@ -1996,8 +1996,8 @@ You have to be aware of the opening and closing keys {} because we need to copy 
 <span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">require</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">pairs</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">ipairs</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">ipairs</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector2&quot;</span><span class="p">)</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector3&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector2"</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector3"</span><span class="p">)</span>
 
 <span class="kd">local</span><span class="w"> </span><span class="nv">MonolophosaurusDinoFootPrint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
@@ -2007,7 +2007,7 @@ You have to be aware of the opening and closing keys {} because we need to copy 
 <span class="w">    </span><span class="c1">-- paste the data after this return keyword</span>
 <span class="w">    </span><span class="kr">return</span><span class="w"> </span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">       </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;DinoFootprintTheropods&#39;</span><span class="p">,</span>
+<span class="w">       </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'DinoFootprintTheropods'</span><span class="p">,</span>
 <span class="w">       </span><span class="nv">Properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nv">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">             </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">vec3_const</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">,</span><span class="w"> </span><span class="mf">0.35</span><span class="p">)</span>
@@ -2018,8 +2018,8 @@ You have to be aware of the opening and closing keys {} because we need to copy 
 
 <span class="c1">-- Relay on the current entity API to generate the complete prefab</span>
 <span class="nv">MonolophosaurusDinoFootPrint</span><span class="p">.</span><span class="py">GetFlattenedRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
-<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">MonolophosaurusDinoFootPrint</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;MonolophosaurusDinoFootPrint&#39;</span><span class="p">)</span>
-<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">&#39;MonolophosaurusDinoFootPrint&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">MonolophosaurusDinoFootPrint</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">'MonolophosaurusDinoFootPrint'</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">'MonolophosaurusDinoFootPrint'</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="kr">return</span><span class="w"> </span><span class="nv">MonolophosaurusDinoFootPrint</span>
@@ -2040,8 +2040,8 @@ It is strongly recommended to use a Lua beautifier to make sure the code formatt
 <span class="kd">local</span><span class="w"> </span><span class="nb">require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">require</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">pairs</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">pairs</span>
 <span class="kd">local</span><span class="w"> </span><span class="nb">ipairs</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nv">global</span><span class="p">.</span><span class="py">ipairs</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector2&quot;</span><span class="p">)</span>
-<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">&quot;Vector3&quot;</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector2"</span><span class="p">)</span>
+<span class="kd">local</span><span class="w"> </span><span class="nv">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"Vector3"</span><span class="p">)</span>
 
 <span class="kd">local</span><span class="w"> </span><span class="nv">Monolophosaurus_01</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">module</span><span class="p">(...)</span>
 
@@ -2053,14 +2053,14 @@ It is strongly recommended to use a Lua beautifier to make sure the code formatt
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="nv">Properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nv">MaterialPatternsName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Monolophosaurus_PatternSet_01&#39;</span>
+<span class="w">            </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Monolophosaurus_PatternSet_01'</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nv">MaterialVariantsName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Monolophosaurus_VariantSet_01&#39;</span>
+<span class="w">            </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Monolophosaurus_VariantSet_01'</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nv">AssetPackages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nv">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nv">__inheritance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Append&#39;</span>
+<span class="w">                </span><span class="nv">__inheritance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Append'</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nv">MaterialPatternIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
@@ -2071,15 +2071,15 @@ It is strongly recommended to use a Lua beautifier to make sure the code formatt
 <span class="w">        </span><span class="nv">Transform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Monolophosaurus&#39;</span>
+<span class="w">    </span><span class="nv">Prefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Monolophosaurus'</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="kr">end</span><span class="w"> </span>
 
 <span class="c1">-- Relay on the current entity API to generate the complete prefab</span>
 <span class="nv">Monolophosaurus_01</span><span class="p">.</span><span class="py">GetFlattenedRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">()</span>
-<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">Monolophosaurus_01</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;Monolophosaurus_01&#39;</span><span class="p">)</span>
-<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">&#39;Monolophosaurus_01&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">tPrefab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">CompilePrefab</span><span class="p">(</span><span class="w"> </span><span class="nv">Monolophosaurus_01</span><span class="p">.</span><span class="nf">GetRoot</span><span class="p">(),</span><span class="w"> </span><span class="s1">'Monolophosaurus_01'</span><span class="p">)</span>
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="nv">api</span><span class="p">.</span><span class="py">entity</span><span class="p">.</span><span class="nf">FindPrefab</span><span class="p">(</span><span class="s1">'Monolophosaurus_01'</span><span class="p">)</span>
 <span class="kr">end</span>
 
 <span class="kr">return</span><span class="w"> </span><span class="nv">Monolophosaurus_01</span>
@@ -2110,9 +2110,9 @@ It is strongly recommended to use a Lua beautifier to make sure the code formatt
 
 <span class="nv">YOURMODNAMEPrefabData</span><span class="p">.</span><span class="py">AddLuaPrefabs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">_fnAdd</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">-- Use one line for each prefab, make sure they are in the right order.</span>
-<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">&#39;MonolophosaurusDinoFootPrint&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;MonolophosaurusDinoFootPrint&#39;</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
-<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">&#39;Monolophosaurus&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;Monolophosaurus&#39;</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
-<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">&#39;Monolophosaurus_01&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">&#39;Monolophosaurus_01&#39;</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
+<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">'MonolophosaurusDinoFootPrint'</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">'MonolophosaurusDinoFootPrint'</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
+<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">'Monolophosaurus'</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">'Monolophosaurus'</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
+<span class="w">    </span><span class="nf">_fnAdd</span><span class="p">(</span><span class="s1">'Monolophosaurus_01'</span><span class="p">,</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s1">'Monolophosaurus_01'</span><span class="p">).</span><span class="nf">GetRoot</span><span class="p">())</span>
 <span class="kr">end</span>
 </code></pre></div>
 After you've done all these changes, once you run the game there should not be any error compiling the prefabs. </p>
