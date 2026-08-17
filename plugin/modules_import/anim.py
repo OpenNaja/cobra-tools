@@ -40,7 +40,21 @@ class Animation:
 		if bpy.app.version >= (4, 4, 0):
 			slot = b_action.slots.new(id_type='OBJECT', name=b_obj.name)
 			b_obj.animation_data.action_slot = slot
+		self.stash(b_obj, b_action)
 		return b_action
+
+	def stash(self, b_ob, b_action):
+		# Simulate stash :
+		# * add a track
+		# * add an action on track
+		# * lock & mute the track
+		# * remove active action from object
+		tracks = b_ob.animation_data.nla_tracks
+		new_track = tracks.new(prev=None)
+		new_track.name = b_action.name
+		strip = new_track.strips.new(b_action.name, 0, b_action)
+		new_track.lock = True
+		new_track.mute = True
 
 	def create_fcurves(self, action, key_type, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
 		""" Create fcurves in action for desired conditions. """

@@ -76,20 +76,6 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, b_local_inv_ma
 				out_keys.append(key)
 
 
-def stash(b_ob, action, track_name, start_frame):
-	# Simulate stash :
-	# * add a track
-	# * add an action on track
-	# * lock & mute the track
-	# * remove active action from object
-	tracks = b_ob.animation_data.nla_tracks
-	new_track = tracks.new(prev=None)
-	new_track.name = track_name
-	strip = new_track.strips.new(action.name, start_frame, action)
-	new_track.lock = True
-	new_track.mute = True
-
-
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	try:
 		import bitarray
@@ -184,8 +170,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				b_action.frame_start = 0
 				b_action.frame_end = mi.frame_count-1
 				reporter.show_error(f"Decompressing {mi.name} failed, skipping")
-
-				stash(b_armature_ob, b_action, mi.name, 0)
 				continue
 
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
@@ -223,7 +207,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				key = corrector.to_blender(mat).to_scale()
 				out_frames.append(frame_i)
 				out_keys.append(key)
-		stash(b_armature_ob, b_action, mi.name, 0)
 
 	scene.frame_start = 0
 	scene.frame_end = mi.frame_count-1
