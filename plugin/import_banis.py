@@ -1,10 +1,12 @@
 import math
 import os
 import logging
+import time
 from typing import Optional, TYPE_CHECKING
 
 import bpy
 import mathutils
+import numpy as np
 
 from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
@@ -19,6 +21,7 @@ interp_loc = None
 
 
 def load(reporter, files=(), filepath="", set_fps=False):
+	start_time = time.time()
 	in_dir, banis_name = os.path.split(filepath)
 	scene = bpy.context.scene
 	b_main_armature_ob = get_armature(scene.objects)
@@ -52,22 +55,22 @@ def load(reporter, files=(), filepath="", set_fps=False):
 			b_target_armature = b_armatures_map.get(arm_name, b_main_armature_ob)
 		animate_core(anim_sys, bones_table, bani, b_main_armature_ob, b_target_armature, parent_index_map)
 
-	reporter.show_info(f"Imported {banis_name}")
+	reporter.show_info(f"Imported {banis_name} in {time.time()-start_time:.2f} s")
 
 
-def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_armature_ob, b_target_armature, parent_index_map):
+def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 'BaniInfo', b_main_armature_ob, b_target_armature, parent_index_map):
 	# Fetch the animation mode defined by the flag (1=Absolute, 2=Relative, 3=Additive, 5=Version < 7)
 	anim_mode = bani.data.mode if bani.context.version >= 7 else 5
 
 	corrector = Corrector(False)
 
-	fcurves_rot = []
-	fcurves_loc = []
-
 	b_action = anim_sys.create_action(b_target_armature, bani.name)
 
-	g_bind_mats, _ = get_bone_bind_data(b_armature_ob, bones_table, corrector)
-	_, b_local_mats = get_bone_bind_data(b_target_armature, bones_table, corrector)
+	if b_main_armature_ob == b_target_armature:
+		g_bind_mats, b_local_mats = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
+	else:
+		g_bind_mats, _ = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
+		_, b_local_mats = get_bone_bind_data(b_target_armature, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
 	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
@@ -98,20 +101,11 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			scale_multiplier = rest_dist / anim_dist
 		logging.debug(f"'{bani.name}' - Scaling Multiplier: {scale_multiplier}")
 
-	for bone_i, bone_name in bones_table:
-
-		# Do not create F-Curves if the bone has no keyframes in this partial animation
-		if bone_i not in animated_bone_indices:
-			fcurves_rot.append(None)
-			fcurves_loc.append(None)
-			continue
-
-		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name))
-		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name))
-
 	g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
+	locs = np.empty((len(bani.keys) ,len(bones_table), 3), float)
+	quats = np.empty((len(bani.keys) ,len(bones_table), 4), float)
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
 
@@ -197,9 +191,16 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			#if not (is_root or is_hips):
 			#	loc_final = mathutils.Vector((0.0, 0.0, 0.0))
 
-			anim_sys.add_key(fcurves_rot[bone_i], frame_i, rot_final, interp_loc)
-			anim_sys.add_key(fcurves_loc[bone_i], frame_i, loc_final, interp_loc)
+			locs[frame_i, bone_i] = loc_final
+			quats[frame_i, bone_i] = rot_final
 
 	b_action.use_frame_range = True
 	b_action.frame_end = bani.data.num_frames
 
+	frames = np.arange(bani.data.num_frames)
+	q_range = tuple(range(4))
+	l_range = tuple(range(3))
+	for bone_i, bone_name in bones_table:
+		if bone_i in animated_bone_indices:
+			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=bone_name)
+			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=bone_name)
