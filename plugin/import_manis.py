@@ -30,7 +30,6 @@ dt_size = {
 def get_channel(m_bone_names, m_keys, b_local_inv_mats, b_action, b_dtype):
 	for bone_i, g_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(g_name)
-		logging.debug(f"Importing {b_name}")
 		if b_name in b_local_inv_mats:
 			b_local_inv_mat = b_local_inv_mats[b_name]
 			b_channel = b_name
@@ -147,7 +146,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 			else:
 				suffix = ""
 			b_name = bone_name_for_blender(g_name)
-			logging.debug(f"Importing {b_name}")
+			# logging.debug(f"Importing {b_name}")
 			keys = k.floats[:, bone_i]
 			samples = range(len(keys))
 			if g_name == "CameraFOV":

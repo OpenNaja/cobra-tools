@@ -24,6 +24,9 @@ from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.structs.InfoHeader import InfoHeader
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 
+QUANT_MIN = 128.0
+QUANT_MAX = 16383.0
+
 try:
     import bitarray
     import bitarray.util
@@ -649,7 +652,7 @@ class ManisFile(InfoHeader, IoFile):
                     # set base keyframe
                     # logging.info(f"BASE 0: {quat}, {bone_i}")
                     segment_ori_bones[0, bone_i] = quat
-                    quat_pos = quat
+                    quat_positive = quat
                     last_key_a = zeros.copy()
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
@@ -661,8 +664,8 @@ class ManisFile(InfoHeader, IoFile):
                         #  https://github.com/OpenNaja/cobra-tools/issues/385
                         #  it apparently is rotated by 180° on bone's local z, which equals a swizzling operation in blender
                         #  it appears that maybe a different component is reconstructed (not W)
-                        if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
-                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
+                        # if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
+                        #     logging.debug(f"{32*segment_i+out_frame_i}, {out}")
                         # scale fac (actually dynamic)
                         # 6.10389e-005 6.10389e-005 6.10389e-005 6.10389e-005
                         # 0.000103384 0.000103384 0.000103384 0.000103384
@@ -679,7 +682,7 @@ class ManisFile(InfoHeader, IoFile):
                         rel_scaled_q = out.copy()
                         rel_scaled_q[3] = q
 
-                        rel_inter = self.quat_multiply(quat_pos, rel_scaled_q)
+                        rel_inter = self.quat_multiply(quat_positive, rel_scaled_q)
                         norm = np.linalg.norm(rel_inter)
                         # scaled_inter is set to identity if norm == 0.0
                         if norm == 0.0:
@@ -739,11 +742,11 @@ class ManisFile(InfoHeader, IoFile):
                             # todo another round of clamping
                             # transfer signs from sign_source, store on ptr_to_final?
                             # use recon quat instead
-                            final_inter = quat_pos
+                            final_inter = quat_positive
 
                         # self.printm(final_inter)
                         # quat aka recon_quat is set to last key of curve for the next loop, todo verify
-                        quat_pos = final_inter
+                        quat_positive = final_inter
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {bone_i}")
                         segment_ori_bones[out_frame_i, bone_i, ] = final_inter
                     # break
