@@ -44,7 +44,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		# fps = int(round((num_frames - 1) / anim_length))  # manis uses num_frames - 1
 		fps = int(round(num_frames/anim_length))
 		scene.render.fps = fps
-		logging.debug(f"'{bani.name}' - FPS: {fps}")
+		logging.debug(f"'{bani.name}' - FPS: {fps}, flag: {bani.data.flags}")
 		# select target armature for pose anims of PZ1 animals with decimated skeletons
 		b_target_armature = b_main_armature_ob
 		if "_pose_" in bani.name:
@@ -66,7 +66,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 	b_action = anim_sys.create_action(b_target_armature, bani.name)
 
-	g_bind_mats, b_local_mats = get_bone_bind_data(b_armature_ob, bones_table, corrector)
+	g_bind_mats, _ = get_bone_bind_data(b_armature_ob, bones_table, corrector)
+	_, b_local_mats = get_bone_bind_data(b_target_armature, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
 	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
