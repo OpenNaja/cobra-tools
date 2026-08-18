@@ -29,8 +29,8 @@ def load(reporter, files=(), filepath="", set_fps=False):
 
 	bones_table, p_bones = get_bones_table(b_main_armature_ob)
 	logging.debug("\n[DEBUG] --- Bone Mapping ---")
-	for bone_i, bone_name in bones_table:
-		logging.debug(f"  MS2 Bone Index {bone_i} -> Bone: '{bone_name}'")
+	for bone_i, b_bone_name in bones_table:
+		logging.debug(f"  MS2 Bone Index {bone_i} -> Bone: '{b_bone_name}'")
 
 	parent_index_map = get_parent_map(p_bones)
 	anim_sys = Animation()
@@ -70,7 +70,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	# Fetch the list of bones that are actually animated in this file
 	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
 	if anim_mode == 5:
-		animated_bone_indices = set(i for i, bone_name in bones_table if bone_name in b_target_armature.pose.bones)
+		animated_bone_indices = set(i for i, b_bone_name in bones_table if b_bone_name in b_target_armature.pose.bones)
 	is_partial = len(animated_bone_indices) < len(bones_table)
 
 	scale_multiplier = 1.0
@@ -104,7 +104,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	# go frame per frame
 	for frame_i, frame in enumerate(bani.keys):
 
-		for bone_i, bone_name in bones_table:
+		for bone_i, b_bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
 			quat_data = frame["quat"][bone_i]
 			loc = [c * scale_multiplier for c in frame["loc"][bone_i]]
@@ -152,6 +152,12 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			
 			# Convert posed armature space from game to blender coordinates
 			b_posed_armature_space[bone_i] = corrector.to_blender(g_posed_armature_space[bone_i])
+			# if "head" in b_bone_name and "_02_" in bani.name and frame_i == 0:
+			# 	print(bani.name)
+			# 	print(g_key)
+			# 	# print(g_posed_armature_space[bone_i] @ g_bind_mats[bone_i].inverted())
+			# 	# print(g_bind_mats[bone_i])
+			# 	print(b_posed_armature_space[bone_i])
 
 		for bone_i, parent_i in enumerate(parent_index_map):
 			# Make posed armature-space transform relative to the posed parent bone
@@ -160,11 +166,11 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			else:
 				b_posed_local_space[bone_i] = b_posed_armature_space[bone_i]
 
-		for bone_i, bone_name in bones_table:
+		for bone_i, b_bone_name in bones_table:
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
 			b_posed_local_space[bone_i] = b_local_mats[bone_i].inverted() @ b_posed_local_space[bone_i]
 
-		for bone_i, bone_name in bones_table:
+		for bone_i, b_bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated
 			if bone_i not in animated_bone_indices:
 				continue
@@ -192,10 +198,10 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	frames = np.arange(bani.data.num_frames)
 	q_range = tuple(range(4))
 	l_range = tuple(range(3))
-	for bone_i, bone_name in bones_table:
+	for bone_i, b_bone_name in bones_table:
 		if bone_i in animated_bone_indices:
-			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=bone_name)
-			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=bone_name)
+			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=b_bone_name)
+			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=b_bone_name)
 	# Register the handler
 	if dep_graph_callback not in bpy.app.handlers.depsgraph_update_post:
 		bpy.app.handlers.depsgraph_update_post.append(dep_graph_callback)
