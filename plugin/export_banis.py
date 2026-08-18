@@ -75,6 +75,8 @@ def save(reporter, filepath=""):
 						# get the posed armature space matrix
 						g_posed_armature_space = corrector.from_blender(b_posed_armature_space)
 						g_key = g_posed_armature_space @ g_bind_mats[bone_i].inverted()
+						# todo - find correct transforms for PZ exhibit pose anims with reduced bone counts
+						#  note that eyes of frogs are correct relative to head
 						frame["loc"][bone_i] = g_key.translation
 						frame["quat"][bone_i] = g_key.to_quaternion()
 					else:
