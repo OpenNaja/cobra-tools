@@ -12,9 +12,8 @@ from generated.formats.manis.structs.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
 from plugin.import_manis import anim_sys
-from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_b_local_matrix, \
-	get_actions, fill_in_rest_data, sample_fcu
-from plugin.utils.anim import c_map
+from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_actions, fill_in_rest_data, sample_fcu
+from plugin.utils.anim import c_map, get_b_local_matrix
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections, get_g_bone_matrices
 from plugin.modules_import.anim import get_rna_path
 from plugin.utils.blender_util import bone_name_for_ovl

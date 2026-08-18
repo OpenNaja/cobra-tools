@@ -10,10 +10,9 @@ import numpy as np
 from generated.formats.manis import ManisFile
 from generated.formats.manis.versions import is_ztuac, is_dla
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
-from plugin.modules_export.animation import get_b_local_matrix
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
-from plugin.utils.anim import c_map
+from plugin.utils.anim import c_map, get_b_local_matrix
 from plugin.utils.blender_util import bone_name_for_blender, get_scale_mat
 from plugin.utils.object import create_ob
 from plugin.utils.transforms import ManisCorrector
@@ -188,13 +187,13 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
 				k.ori_bones_names, k.ori_bones, b_local_inv_mats, b_action, "rotation_quaternion"):
 			for frame_i, key in enumerate(in_keys):
-				key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
-				key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
+				g_key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
+				b_key = (b_local_inv_mat @ corrector.to_blender(g_key.to_matrix().to_4x4())).to_quaternion()
 				if cam_corr is not None:
 					out = mathutils.Quaternion(cam_corr)
-					out.rotate(key)
-					key = out
-				out_keys[frame_i] = key
+					out.rotate(b_key)
+					b_key = out
+				out_keys[frame_i] = b_key
 		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
 				k.scl_bones_names, k.scl_bones, b_local_inv_mats, b_action, "scale"):
 			for frame_i, key in enumerate(in_keys):
