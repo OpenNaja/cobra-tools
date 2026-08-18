@@ -1,9 +1,10 @@
 import logging
 
 import bpy
+from bpy_extras import anim_utils
 
 
-def get_rna_path(dtype, n_bone=None, n_shapekey=None, n_constraint=None):
+def get_rna_path(dtype, n_bone=None, n_shapekey=None, n_constraint=None, n_node_input=None):
 	if n_bone:
 		if n_constraint:
 			return f'pose.bones["{n_bone}"].constraints["{n_constraint}"].{dtype}'
@@ -11,6 +12,8 @@ def get_rna_path(dtype, n_bone=None, n_shapekey=None, n_constraint=None):
 			return f'pose.bones["{n_bone}"].{dtype}'
 	elif n_shapekey:
 		return f'key_blocks["{n_shapekey}"].{dtype}'
+	elif n_node_input:
+		return f'nodes["{dtype}"].inputs[{n_node_input}].default_value'
 	else:
 		return dtype
 
@@ -56,27 +59,48 @@ class Animation:
 		new_track.lock = True
 		new_track.mute = True
 
-	def create_fcurves(self, action, key_type, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None):
+	def create_fcurves(self, action, dtype, drange, flags=None, n_bone=None, n_shapekey=None, n_constraint=None, n_node_input=None):
 		""" Create fcurves in action for desired conditions. """
-		rna_path = get_rna_path(key_type, n_bone, n_shapekey, n_constraint)
+		rna_path = get_rna_path(dtype, n_bone, n_shapekey, n_constraint, n_node_input)
+
+		if bpy.app.version >= (5, 0, 0):
+			action_slot = action.slots[0]
+			def create_fcurve(*args, **kwargs):
+				kwargs["group_name"] = kwargs.pop("action_group")
+				channelbag = anim_utils.action_ensure_channelbag_for_slot(action, action_slot)
+				return channelbag.fcurves.ensure(*args, **kwargs)
+		else:
+			def create_fcurve(*args, **kwargs):
+				return action.fcurves.new(*args, **kwargs)
+
 		# armature pose bone animation
 		if n_bone:
 			if n_constraint:
-				fcurves = [action.fcurves.new(data_path=rna_path, index=i) for i in drange]
+				fcurves = [create_fcurve(data_path=rna_path, index=i) for i in drange]
 			else:
-				fcurves = [action.fcurves.new(data_path=rna_path, index=i, action_group=n_bone) for i in drange]
+				fcurves = [create_fcurve(data_path=rna_path, index=i, action_group=n_bone) for i in drange]
 		# shapekey pose bone animation
 		elif n_shapekey:
-			fcurves = [action.fcurves.new(data_path=rna_path, index=0)]
+			fcurves = [create_fcurve(data_path=rna_path, index=0)]
 		else:
 			# Object animation (non-skeletal) is lumped into the "LocRotScale" action_group
-			if key_type in ("rotation_euler", "rotation_quaternion", "location", "scale"):
+			if dtype in ("rotation_euler", "rotation_quaternion", "location", "scale"):
 				action_group = "LocRotScale"
 			# Non-transforming animations (eg. visibility or material anims) use no action groups
 			else:
 				action_group = ""
-			fcurves = [action.fcurves.new(data_path=rna_path, index=i, action_group=action_group) for i in drange]
+			fcurves = [create_fcurve(data_path=rna_path, index=i, action_group=action_group) for i in drange]
 		return fcurves
+
+	def iter_fcurves(self, b_action):
+		if bpy.app.version >= (5, 0, 0):
+			action_slot = b_action.slots[0]
+			channelbag = anim_utils.action_ensure_channelbag_for_slot(b_action, action_slot)
+			for fcurve in channelbag.fcurves:
+				yield fcurve
+		else:
+			for fcurve in b_action.fcurves:
+				yield fcurve
 
 	@staticmethod
 	def set_extrapolation(extend_type, fcurves):
