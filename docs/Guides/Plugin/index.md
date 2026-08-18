@@ -12,8 +12,8 @@ Once installed, import and export operators are found in their respective menus.
 
 
 !!! danger "IMPORTANT" 
-    - Supported Blender versions: 4.4, 4.5
-    - There are known issues with Blender versions up to 4.3 and starting at 5.0. Do not use Cobra Tools on those versions of blender.
+    - Supported Blender versions: 4.4 - 5.0+
+    - There are known issues with Blender versions up to 4.3. Do not use Cobra Tools on those versions of blender.
 
 
 !!! tip "Shaders"
