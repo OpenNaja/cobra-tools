@@ -15,8 +15,6 @@ Select a target armature you want to animate before importing a `.manis` file.
 
 !!! construction "Limitations"
     - Most anims are stored as compressed data, which must be decompressed before being imported.
-    - Not all anims decompress correctly. If an anim fails to decompress, you may see no keyframes at all or a distorted mess.
-    - When anims do decompress, single keyframes or whole channels may still show unexpected distortions.
     - Decompression is fairly slow. Keep track on the progress by turning on Blender's console (Window > Toggle System Console) before importing. If you have to import the same `.manis` repeatedly, consider using the [Manis Editor](#manis-editor) to decompress it once and for all.
 
 
