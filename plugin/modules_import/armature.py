@@ -474,12 +474,12 @@ def fix_bone_lengths(b_armature_data):
 			else:
 				# it is isolated from the parent, so make the bone smaller to uncluster the rig
 				bone_length = b_edit_bone.parent.length * 0.3
-		b_edit_bone.length = bone_length
 		# collect bones that are shorter than tolerance
 		if bone_length < TOLERANCE:
 			bad_bones.append(b_edit_bone)
 		else:
 			good_bones.append(b_edit_bone)
+			b_edit_bone.length = bone_length
 	# clamp to a safe minimum length
 	bone_length = 0.1
 	# take the average length of good bones in the skeleton
