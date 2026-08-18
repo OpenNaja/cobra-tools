@@ -47,7 +47,7 @@ def save(reporter, filepath=""):
 		if "_pose_" in b_target_armature.name:
 			b_armature_ob = [b_ob for b_ob in anim_map if "_pose_" not in b_ob.name][0]
 		bones_table, p_bones = get_bones_table(b_armature_ob)
-		g_bind_mats, _ = get_bone_bind_data(b_armature_ob, bones_table, corrector)
+		g_bind_armature_space, _ = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 		# per anim
 		for b_action in sorted(actions, key=lambda x: x.name):
 			logging.info(f"Exporting {b_action.name} for {b_target_armature.name}")
@@ -74,16 +74,16 @@ def save(reporter, filepath=""):
 						b_posed_armature_space = p_bone.matrix
 						# get the posed armature space matrix
 						g_posed_armature_space = corrector.from_blender(b_posed_armature_space)
-						g_key = g_posed_armature_space @ g_bind_mats[bone_i].inverted()
+						g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
 						# todo - find correct transforms for PZ exhibit pose anims with reduced bone counts
 						#  note that eyes of frogs are correct relative to head
 						#  b_posed_armature_space appears not to match for the reduced versions
 						# if "head" in b_bone_name and "_02_" in bani.name and frame_i == 0:
 						# 	print(bani.name)
 						# 	print(g_key)
-						# 	# print(g_bind_mats[bone_i])
+						# 	# print(g_bind_armature_space[bone_i])
 						# 	print(b_posed_armature_space)
-						# 	# print(g_posed_armature_space[bone_i] @ g_bind_mats[bone_i].inverted())
+						# 	# print(g_posed_armature_space[bone_i] @ g_bind_armature_space[bone_i].inverted())
 						frame["loc"][bone_i] = g_key.translation
 						frame["quat"][bone_i] = g_key.to_quaternion()
 					else:

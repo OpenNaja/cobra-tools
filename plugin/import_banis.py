@@ -62,10 +62,10 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	# store fps on action to retrieve it and set to the scene when changing actions
 	b_action["fps"] = int(round((bani.data.num_frames - 1) / bani.data.animation_length))
 	if b_main_armature_ob == b_target_armature:
-		g_bind_mats, b_local_mats = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
+		g_bind_armature_space, b_bind_local_space = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
 	else:
-		g_bind_mats, _ = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
-		_, b_local_mats = get_bone_bind_data(b_target_armature, bones_table, corrector)
+		g_bind_armature_space, _ = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
+		_, b_bind_local_space = get_bone_bind_data(b_target_armature, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
 	animated_bone_indices = set(getattr(bani, "animated_bone_indices", range(len(bones_table))))
@@ -82,8 +82,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		bone_b_idx = 1  # Example: Hips
 
 		# Get the distance in native 1.0x Blender rest pose
-		rest_pos_a = g_bind_mats[bone_a_idx].translation
-		rest_pos_b = g_bind_mats[bone_b_idx].translation
+		rest_pos_a = g_bind_armature_space[bone_a_idx].translation
+		rest_pos_b = g_bind_armature_space[bone_b_idx].translation
 		rest_dist = (rest_pos_b - rest_pos_a).length
 
 		# Get the distance in the raw .banis absolute coordinates at Frame 0
@@ -124,34 +124,34 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				if is_partial and parent_i is not None:
 					# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
 					# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
-					g_posed_armature_space[bone_i] = g_bind_mats[-1] @ g_key
+					g_posed_armature_space[bone_i] = g_bind_armature_space[-1] @ g_key
 				else:
 					# Mode 2 I have looked at don't get here
-					g_posed_armature_space[bone_i] = g_key  # Maybe g_bind_mats[bone_i] @ g_key
+					g_posed_armature_space[bone_i] = g_key  # Maybe g_bind_armature_space[bone_i] @ g_key
 
 			elif anim_mode == 3:
 				# MODE 3: Additive
 				if is_partial:
-					g_posed_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
+					g_posed_armature_space[bone_i] = g_key @ g_bind_armature_space[bone_i]
 				else:
-					# TODO: Blows up, `g_key @ g_bind_mats[bone_i]` doesn't work either
+					# TODO: Blows up, `g_key @ g_bind_armature_space[bone_i]` doesn't work either
 					# bodyflume_bendup, bodyflume_benddown
 					# Non-partial, 1:1 bone mapping, read_i==255 (None)
 					# Not reassigning parent_i also blows up
 					parent_i = None if read_i == 255 else parent_i
-					g_posed_armature_space[bone_i] = g_bind_mats[bone_i] @ g_key
+					g_posed_armature_space[bone_i] = g_bind_armature_space[bone_i] @ g_key
 
 			elif anim_mode == 5:
 				# Mode 5: Legacy (Version < 7)
-				g_posed_armature_space[bone_i] = g_key @ g_bind_mats[bone_i]
+				g_posed_armature_space[bone_i] = g_key @ g_bind_armature_space[bone_i]
 			
 			# Convert posed armature space from game to blender coordinates
 			b_posed_armature_space[bone_i] = corrector.to_blender(g_posed_armature_space[bone_i])
 			# if "head" in b_bone_name and "_02_" in bani.name and frame_i == 0:
 			# 	print(bani.name)
 			# 	print(g_key)
-			# 	# print(g_posed_armature_space[bone_i] @ g_bind_mats[bone_i].inverted())
-			# 	# print(g_bind_mats[bone_i])
+			# 	# print(g_posed_armature_space[bone_i] @ g_bind_armature_space[bone_i].inverted())
+			# 	# print(g_bind_armature_space[bone_i])
 			# 	print(b_posed_armature_space[bone_i])
 
 		for bone_i, parent_i in enumerate(parent_index_map):
@@ -166,7 +166,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			if bone_i not in animated_bone_indices:
 				continue
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
-			b_posed_delta_space = b_local_mats[bone_i].inverted() @ b_posed_local_space[bone_i]
+			b_posed_delta_space = b_bind_local_space[bone_i].inverted() @ b_posed_local_space[bone_i]
 
 			quats[frame_i, bone_i] = b_posed_delta_space.to_quaternion()
 			locs[frame_i, bone_i] = b_posed_delta_space.translation
