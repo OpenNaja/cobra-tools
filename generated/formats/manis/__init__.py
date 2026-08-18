@@ -1,32 +1,33 @@
 from generated.formats.manis.imports import name_type_map
 import logging
-import math
 import os
 import time
 from copy import copy
 from typing import TYPE_CHECKING
-
-from generated.formats.manis.basic import BoneIndex
 
 if TYPE_CHECKING:
     import matplotlib
 
 import numpy as np
 
-from modules.formats.shared import djb2
-
 np.seterr(all='warn')
 # np.seterr(all='print')
 np.set_printoptions(precision=4, suppress=True)
 
 from generated.io import IoFile
-from generated.formats.manis.versions import get_game, set_game
+from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.structs.InfoHeader import InfoHeader
-from generated.formats.manis.bitfields.ManisDtype import ManisDtype
+from generated.formats.manis.versions import get_game, set_game
+from modules.formats.shared import djb2
 
-QUANT_MIN = 128.0
-QUANT_MAX = 16383.0
+COMPONENT_BITS = 15
+SEGMENT_FRAME_COUNT = 32
+QUANT_MIN = np.float32(128.0)
+QUANT_MAX = np.float32(16383.0)
+PACK_SCALE = np.float32(1.0) / QUANT_MAX
+ROTATION_VECTOR_SCALE = np.float32(2.0 * np.pi) * PACK_SCALE
+FLOAT32_EPSILON = np.finfo(np.float32).eps
 
 try:
     import bitarray
@@ -44,7 +45,11 @@ try:
 
         def read(self, size: int) -> bitarray.bitarray:
             d = self.data[self.pos: self.pos + size]
-            assert len(d) == size, f"Reached end of chunk reading {size} bits at bit {self.pos}, byte {self.pos / 8}, got {len(d)} bits"
+            if len(d) != size:
+                raise EOFError(
+                    f"Reached end of chunk reading {size} bits at bit {self.pos}, "
+                    f"byte {self.pos / 8}, got {len(d)} bits"
+                )
             self.pos += size
             return d
 
@@ -61,25 +66,23 @@ try:
             bits.reverse()
             return bitarray.util.ba2int(bits, signed=False)
 
-        def read_unary_count(self, max_size: int):
+        def read_unary_count(self, max_size: int) -> int:
             for rel_size in range(max_size):
-                new_bit = self.read_uint(1)
-                if not new_bit:
+                if not self.read_uint(1):
                     return rel_size
-            return -1
+            raise ValueError(f"Unary value exceeds its {max_size}-bit limit")
 
         @staticmethod
-        def decode_zigzag(*args):
-            # use zigzag encoding
-            return [-(x + 1 >> 1) if x & 1 else x >> 1 for x in args]
+        def decode_zigzag(*values: int) -> list[int]:
+            return [-(value + 1 >> 1) if value & 1 else value >> 1 for value in values]
 
         def find_all(self, bits):
             for match_offset in self.data.itersearch(bits):
                 yield match_offset
 
-except:
+except ImportError:
     BinStream = None
-    logging.warning(f"bitarray module is not installed")
+    logging.warning("bitarray module is not installed")
 
 
 POS = "pos"
@@ -91,24 +94,108 @@ root_name = "def_c_root_joint"
 srb_name = "srb"
 
 
+def clamp_normalized_vector(vec: np.ndarray) -> np.ndarray:
+    """Clamp a normalized codec vector to the native signed-unit range."""
+    return np.asarray(np.clip(vec, -1.0, 1.0), dtype=np.float32)
+
+
+def has_stored_keys(keys_flag: StoreKeys) -> bool:
+    """Return whether any X/Y/Z relative-key stream is present."""
+    return bool(keys_flag.x or keys_flag.y or keys_flag.z)
+
+
+def get_rotation_pack_scale(quantisation_level: int, norm: float) -> np.float32:
+    """Return the native rotation scale for the following relative key.
+
+    The decoder only selects its dynamic quantisation factor for a relative
+    vector norm strictly inside (0, 0.5). All other norms use 1 / 16383.
+    """
+    norm = np.float32(np.clip(np.float32(norm), np.float32(0.0), np.float32(1.0)))
+    if not (np.float32(0.0) < norm < np.float32(0.5)):
+        return PACK_SCALE
+    quant_factor = np.float32(quantisation_level) / norm
+    quant_factor = np.float32(np.clip(quant_factor, QUANT_MIN, QUANT_MAX))
+    return np.float32(1.0) / quant_factor
+
+
+def get_quat_scale_fac(half_angle: float) -> tuple[np.float32, np.float32]:
+    """Return ``(cos(half_angle), sin(half_angle))`` as float32 values.
+
+    The native helper uses a range-reduced SIMD polynomial, but its semantic
+    result is ordinary sine and cosine. NumPy already applies quadrant signs;
+    no additional octant sign correction is appropriate.
+    """
+    angle = np.float32(half_angle)
+    return np.float32(np.cos(angle)), np.float32(np.sin(angle))
+
+
+def axis_angle_vector_to_quaternion(vec: np.ndarray) -> np.ndarray:
+    """Convert an XYZ rotation vector to an XYZW unit quaternion."""
+    angle = np.float32(np.linalg.norm(vec[:3]))
+    if angle <= FLOAT32_EPSILON:
+        return np.array((0.0, 0.0, 0.0, 1.0), dtype=np.float32)
+    cos_half, sin_half = get_quat_scale_fac(np.float32(0.5) * angle)
+    quat = np.zeros(4, dtype=np.float32)
+    quat[:3] = np.asarray(vec[:3], dtype=np.float32) * (sin_half / angle)
+    quat[3] = cos_half
+    return quat
+
+
+def multiply_quaternions(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
+    """Return the Hamilton product ``q1 * q2`` for XYZW quaternions."""
+    x1, y1, z1, w1 = q1
+    x2, y2, z2, w2 = q2
+    return np.array(
+        (
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+        ),
+        dtype=np.float32,
+    )
+
+
+def reconstruct_relative_quaternion(relative_xyz: np.ndarray) -> np.ndarray:
+    """Reconstruct the fixed, non-negative W omitted by the relative format."""
+    relative = np.zeros(4, dtype=np.float32)
+    relative[:3] = np.asarray(relative_xyz[:3], dtype=np.float32)
+    xyz_length_sq = np.float32(np.dot(relative[:3], relative[:3]))
+    relative[3] = np.sqrt(np.maximum(np.float32(0.0), np.float32(1.0) - xyz_length_sq))
+    return relative
+
+
+def normalize_quaternion_or_identity(quat: np.ndarray) -> np.ndarray:
+    """Normalize a quaternion, using identity for the native zero-length case."""
+    norm = np.float32(np.linalg.norm(quat))
+    if norm == np.float32(0.0):
+        return np.array((0.0, 0.0, 0.0, 1.0), dtype=np.float32)
+    return np.asarray(quat / norm, dtype=np.float32)
+
+
 class KeysContext:
-    def __init__(self, stream, segment_frames_count: int):
+    def __init__(self, stream: BinStream, segment_frames_count: int):
         self.stream = stream
-        # this is a jump to the end of the compressed keys
+        self.do_increment = False
+        self.runs_left = 0
+        self.init_k_a = 0
+        self.init_k_b = 0
+        self.frames_left = 0
+        self.begun = False
+
+        # The first ushort is a byte offset to the shared frame-map stream.
         context_offset = stream.read_uint_reversed(16) * 8
-        logging.debug(f"context at bit {context_offset}")
+        logging.debug(f"Context starts at bit {context_offset}")
         self.stream.seek(context_offset)
         if segment_frames_count == 1:
-            # JWE2 carcharo standtorun - points to end of stream
-            if self.stream.data.nbytes == context_offset:
-                logging.debug(f"Stream has no context")
+            if len(self.stream.data) == context_offset:
+                logging.debug("Stream has no relative-key context")
             else:
-                # stream can have 00 00 at context_offset for a segment with 1 frame = no relative keys
+                # A one-frame segment may contain an explicit empty context.
                 empty = self.stream.read_uint(16)
                 assert empty == 0, "Stream with no relative keys must have 00 00 context"
-            self.do_increment = self.runs_left = self.init_k_a = self.init_k_b = 0
         else:
-            self.do_increment = self.stream.read_uint(1)
+            self.do_increment = bool(self.stream.read_uint(1))
             self.runs_left = self.stream.read_uint(16)
             self.init_k_a = self.stream.read_uint_reversed(4)
             self.init_k_b = self.stream.read_uint_reversed(4)
@@ -117,62 +204,56 @@ class KeysContext:
             logging.debug(self)
             self.do_increment = not self.do_increment
             self.begun = True
-            self.frames_left = 0
         self.frame_map_offset = stream.pos
-        # seek to start of base keys
         stream.seek(16)
 
-    def read_golomb_rice_data(self, segment_frames_count: int, keys_flag: StoreKeys) -> (np.ndarray, np.ndarray):
-        raw_keys_storage = np.zeros((52, 3), dtype=np.float32)
-        frame_map = np.zeros(32, dtype=np.uint32)
-        # logging.info(f"golomb_rice at bit {self.stream.pos}")
-        keyframe_count = 0
+    def read_golomb_rice_data(
+        self,
+        segment_frames_count: int,
+        keys_flag: StoreKeys,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Decode per-axis deltas and the shared stored-frame mask."""
+        raw_keys = np.zeros((segment_frames_count, 3), dtype=np.int32)
+        stored_frames = np.zeros(segment_frames_count, dtype=np.bool_)
         keys_offset = self.stream.pos
+
         self.stream.seek(self.frame_map_offset)
         for frame_i in range(1, segment_frames_count):
             if self.frames_left == 0:
-                assert self.runs_left != 0
+                if self.runs_left == 0:
+                    raise ValueError("Frame-map run stream ended before the segment")
                 self.runs_left -= 1
                 self.do_increment = not self.do_increment
                 init_k = self.init_k_a if self.do_increment else self.init_k_b
-                # logging.info(f"do_increment {do_increment} init_k {init_k} at {self.stream.pos}")
                 self.frames_left = self.decode_adaptive_golomb(init_k, 32 - init_k)
             self.frames_left -= 1
             if self.do_increment:
-                frame_map[keyframe_count] = frame_i
-                keyframe_count += 1
+                stored_frames[frame_i] = True
+
         self.frame_map_offset = self.stream.pos
         self.stream.seek(keys_offset)
         for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
             if is_active:
-                # logging.info(f"rel_keys[{channel_i}] at bit {context.stream.pos}")
-                # define the minimal key size for this channel
                 base_size = self.stream.read_uint_reversed(4)
-                # logging.info(f"channel[{channel_i}] base_size {base_size} at bit {context.stream.pos}")
-                for trg_frame_i in frame_map[:keyframe_count]:
-                    # clamp to ushort max
+                for target_frame in np.flatnonzero(stored_frames):
                     result = self.decode_adaptive_golomb(base_size, 32) & 0xffff
-                    raw_keys_storage[trg_frame_i, channel_i] = self.stream.decode_zigzag(result)[0]
-        return raw_keys_storage, frame_map
+                    raw_keys[target_frame, channel_i] = self.stream.decode_zigzag(result)[0]
+        return raw_keys, stored_frames
 
     def decode_adaptive_golomb(self, base_size: int, rel_size_limit: int) -> int:
-        assert base_size < 32
+        if not 0 <= base_size < 32:
+            raise ValueError(f"Invalid Golomb base size: {base_size}")
         rel_size = self.stream.read_unary_count(rel_size_limit)
         offset = (1 << (base_size & 31)) * ((1 << rel_size) - 1)
-        total_size = base_size + rel_size
-        # clamp key size to 0-15 bits
-        total_size = min(total_size, 15)
-        # ensure the final key size is valid
-        assert total_size <= 32
-        # read the key if it has a size
-        if total_size:
-            rel_key = self.stream.read_uint_reversed(total_size)
-        else:
-            rel_key = 0
+        total_size = min(base_size + rel_size, COMPONENT_BITS)
+        rel_key = self.stream.read_uint_reversed(total_size) if total_size else 0
         return offset + rel_key
 
     def __repr__(self):
-        return f"Context: do_increment {self.do_increment}, runs_left {self.runs_left}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
+        return (
+            f"KeysContext(do_increment={self.do_increment}, runs_left={self.runs_left}, "
+            f"init_k_a={self.init_k_a}, init_k_b={self.init_k_b})"
+        )
 
 
 class ManisFile(InfoHeader, IoFile):
@@ -192,10 +273,7 @@ class ManisFile(InfoHeader, IoFile):
         set_game(self, game_name)
 
     def name_used(self, new_name):
-        for mani in self.mani_infos:
-            if mani.name == new_name:
-                return True
-        return False
+        return any(mani.name == new_name for mani in self.mani_infos)
 
     def rename_file(self, old, new):
         logging.info(f"Renaming .mani in {self.name}")
@@ -203,7 +281,8 @@ class ManisFile(InfoHeader, IoFile):
             if mani.name == old:
                 mani.name = new
 
-    def get_max_v(self, mani_info):
+    @staticmethod
+    def get_max_v(mani_info):
         # BoneIndex in ManiInfo and bone arrays in ManiBlock use different ways to handle it in our code, but both are affected
         return 65535 if mani_info.dtype.use_ushort else 255
 
@@ -214,15 +293,15 @@ class ManisFile(InfoHeader, IoFile):
                 if mani.dtype.compression == 1:
                     logging.warning(f"{mani_name} is compressed, decompressing before editing")
                     self.force_decompress(mani)
-                MAX_V = self.get_max_v(mani)
+                max_bone_index = self.get_max_v(mani)
                 dtype_bare = dtype.replace("_bones", "")
                 names = getattr(mani.keys, f"{dtype}_names")
                 if len(names):
-                    root_name = ""
+                    root_bone_name = ""
                     if dtype_bare in ("ori", "pos"):
                         root_index = getattr(mani, f"root_{dtype_bare}_bone")
-                        if root_index != MAX_V:
-                            root_name = names[root_index]
+                        if root_index != max_bone_index:
+                            root_bone_name = names[root_index]
 
                     remove_i = names.index(bone_name)
                     names2 = names[:remove_i] + names[remove_i + 1:]
@@ -237,7 +316,8 @@ class ManisFile(InfoHeader, IoFile):
                         setattr(mani, "float_count", len(names))
                     self.delete_from_array(dtype, mani, remove_i, 1)
                     # update root bone index
-                    setattr(mani, f"root_{dtype_bare}_bone", names.index(root_name) if root_name in names else MAX_V)
+                    root_index = names.index(root_bone_name) if root_bone_name in names else max_bone_index
+                    setattr(mani, f"root_{dtype_bare}_bone", root_index)
 
     def delete_from_array(self, field_name, mani, remove_i, axis):
         keys = getattr(mani.keys, field_name)
@@ -303,13 +383,11 @@ class ManisFile(InfoHeader, IoFile):
 
     @staticmethod
     def get_wsm_name(mi):
-        bone_name = "srb"
-        wsm_name = f"{mi.name}_{bone_name}.wsm"
-        return wsm_name
+        return f"{mi.name}_srb.wsm"
 
     @property
     def sorted_ms2_bone_names(self):
-        return [n for n, i in sorted(self.context.bones_lut.items(), key=lambda kv: kv[1])]
+        return [name for name, bone_index in sorted(self.context.bones_lut.items(), key=lambda item: item[1])]
 
     def load(self, filepath):
         # clear lut when loading a new file to make sure it is populated afresh
@@ -395,7 +473,7 @@ class ManisFile(InfoHeader, IoFile):
             # logging.debug(f"ManiInfo {mani_info.name} getting names")
             try:
                 k = mani_info.keys
-            except:
+            except AttributeError:
                 logging.warning(f"ManiInfo {mani_info.name} has no keys")
                 raise
             target_names.update(k.pos_bones_names)
@@ -422,15 +500,17 @@ class ManisFile(InfoHeader, IoFile):
 
     def iter_compressed_manis(self):
         for mani_info in self.mani_infos:
-            if hasattr(mani_info, "keys"):
-                if mani_info.dtype.compression and hasattr(mani_info.keys.compressed, "segments"):
-                    yield mani_info
+            if (
+                hasattr(mani_info, "keys")
+                and mani_info.dtype.compression
+                and hasattr(mani_info.keys.compressed, "segments")
+            ):
+                yield mani_info
 
     def iter_uncompressed_manis(self):
         for mani_info in self.mani_infos:
-            if hasattr(mani_info, "keys"):
-                if not mani_info.dtype.compression:
-                    yield mani_info
+            if hasattr(mani_info, "keys") and not mani_info.dtype.compression:
+                yield mani_info
 
     def iter_compressed_keys(self):
         for mani_info in self.iter_compressed_manis():
@@ -445,8 +525,7 @@ class ManisFile(InfoHeader, IoFile):
 
     @staticmethod
     def get_segment_frame_count(i, frame_count):
-        # get from chunk index
-        return min(32, frame_count - (i * 32))
+        return min(SEGMENT_FRAME_COUNT, frame_count - (i * SEGMENT_FRAME_COUNT))
 
     def log_loc_keys(self):
         for mani_info in self.iter_uncompressed_manis():
@@ -470,19 +549,7 @@ class ManisFile(InfoHeader, IoFile):
         for mani_info in self.iter_compressed_manis():
             if target and mani_info.name != target:
                 continue
-            # acro debug keys
-            pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-            dump_path = os.path.join(pkg_dir, "dumps", f"{mani_info.name}_keys.txt")
-            if os.path.isfile(dump_path):
-                logging.info(f"Found reference keys for {mani_info.name}")
-                keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
-                keys_iter = iter(keys)
-            # logging.info(mani_info)
-            # logging.info(mani_info.keys.compressed)
-            try:
-                self.decompress(mani_info, dump=dump)
-            except:
-                logging.exception(f"Decompressing {mani_info.name} failed")
+            self.decompress(mani_info, dump=dump)
 
     def show_keys_by_dtype(self, mani_name, dtype, bone_name, ax: 'matplotlib.axes.Axes'):
         mani_info = self.get_mani(mani_name)
@@ -514,279 +581,174 @@ class ManisFile(InfoHeader, IoFile):
             raise ModuleNotFoundError("Install the 'bitarray' module to decompress animations")
         ck = mani_info.keys.compressed
         k = mani_info.keys
-        start = time.time()
-        logging.debug(
-            f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
+        start = time.perf_counter()
+        logging.debug(f"Decompressing {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
+        original_compression = mani_info.dtype.compression
+        original_has_list = mani_info.dtype.has_list
         mani_info.dtype.compression = 0
         mani_info.dtype.has_list = 0
         k.reset_field("pos_bones")
         k.reset_field("ori_bones")
         assert ck.pos_bone_count == mani_info.pos_bone_count
         assert ck.ori_bone_count == mani_info.ori_bone_count
+
         frame_offset = 0
         for segment_i, segment in enumerate(ck.segments):
-            # dump compressed segment data if needed
             if dump:
                 with open(os.path.join(self.dir, f"{mani_info.name}_{segment_i}.maniskeys"), "wb") as f:
                     f.write(segment.data)
             segment_frames_count = self.get_segment_frame_count(segment_i, mani_info.frame_count)
-            # create views into the complete data for this segment
             segment_pos_bones = k.pos_bones[frame_offset:frame_offset + segment_frames_count]
             segment_ori_bones = k.ori_bones[frame_offset:frame_offset + segment_frames_count]
+
+            context = None
             try:
                 context = KeysContext(BinStream(segment.data), segment_frames_count)
                 self.read_pos_keys(context, segment_i, mani_info, segment_frames_count, segment_pos_bones)
                 self.read_ori_keys(context, segment_i, mani_info, segment_frames_count, segment_ori_bones)
-            except:
-                logging.exception(f"Reading Segment[{segment_i}] (frames {frame_offset}-{frame_offset+segment_frames_count}) failed at bit {context.stream.pos}, byte {context.stream.pos / 8}, size {len(segment.data)} bytes")
+            except Exception as error:
+                mani_info.dtype.compression = original_compression
+                mani_info.dtype.has_list = original_has_list
+                bit_position = context.stream.pos if context is not None else "unknown"
+                raise RuntimeError(
+                    f"Failed to decode {mani_info.name} segment {segment_i} "
+                    f"(frames {frame_offset}-{frame_offset + segment_frames_count}, "
+                    f"bit {bit_position}, {len(segment.data)} bytes)"
+                ) from error
             frame_offset += segment_frames_count
+
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
         k.pos_bones *= loc_ext
         k.pos_bones += loc_min
-        logging.debug(
-            f"Decompressed {mani_info.name} in {time.time() - start:.3f} seconds")
+        logging.debug(f"Decompressed {mani_info.name} in {time.perf_counter() - start:.3f} seconds")
 
     def read_pos_keys(self, context, segment_i, mani_info, segment_frames_count, segment_pos_bones):
-        identity = np.zeros(3, np.float32)
-        scale = self.get_pack_scale(mani_info)
-        for bone_i, bone_name in enumerate(mani_info.keys.pos_bones_names):
-            # defines basic loc value; not byte aligned
+        zero_delta = np.zeros(3, dtype=np.float32)
+        for bone_i, _bone_name in enumerate(mani_info.keys.pos_bones_names):
             vec, keys_flag = self.read_vec3(context.stream)
-            vec = vec[:3]
-            vec *= scale
-            # the scale per bone is always norm = 0 in acro_run
-            scale_pack = self.get_pack_scale(mani_info)
-            if keys_flag.x or keys_flag.y or keys_flag.z:
-                raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, keys_flag)
-                if segment_frames_count > 1:
-                    frame_inc = 0
-                    # set base keyframe
-                    segment_pos_bones[0, bone_i] = vec
-                    # set other keyframes
-                    last_key_a = identity
-                    last_key_b = identity
-                    final = vec.copy()
-                    for out_frame_i in range(1, segment_frames_count):
-                        trg_frame_i = frame_map[frame_inc]
-                        out = raw_keys_storage[out_frame_i]
-                        # todo - scale or sth before for JWE2 dev acro, only single channels, so probably fairly early
-                        if mani_info.name == "acrocanthosaurus@jumpattackdefendthrowright" and segment_i == 2 and bone_i == 10:
-                            # motionextracted.manisetf96acca0.manis, root, Y
-                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
-                        if mani_info.name == "acrocanthosaurus@walk" and segment_i == 0 and bone_i == 142:
-                            # motionextracted.maniset85c65403.manis, def_horselink_joint_IKBlend.L, Z; segment[1] is fine
-                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
-                            # scale_pack = scale * 1.25
-                        if mani_info.name == "acrocanthosaurus@socialinteractionb" and segment_i == 1 and bone_i == 141:
-                            # discontinuities for several mostly static bones e.g. 48, 49 at 185-186
-                            # motionextracted.maniset8be90845.manis, def_horselink_joint_IKBlend.L, Z; other segments fine
-                            logging.debug(f"{32*segment_i+out_frame_i}, {out}")
-                        #  maybe create a dedicated copy that includes just that bone?
-                        last_key_delta = 2 * last_key_b - last_key_a
-                        if out_frame_i == trg_frame_i:
-                            frame_inc += 1
-                            # a key is stored for this frame
-                            # instead of scale_pack, this scale is hard-coded to the corresponding float of 1 / 16383
-                            final = final + last_key_delta + out * 6.103888e-05
-                            last_key_a = last_key_b.copy()
-                            # this scale uses the calculated scale
-                            last_key_b = last_key_delta + out * scale_pack
-                        else:
-                            # hold key from previous frame
-                            # print(bone_i, segment_i* 32 + out_frame_i)
-                            final = segment_pos_bones[out_frame_i-1, bone_i]
-                            last_key_a = identity
-                            last_key_b = identity
-                            # update scale_pack here, todo check if / what norm is used with conditional breakpoint
-                            # apparently also norm = 0 in acro_run, but too many to properly verify that for successive bones
-                            # scale_pack = self.get_pack_scale(mani_info)
-                        # scale_pack = self.get_pack_scale(mani_info, norm=np.linalg.norm(out))
-                        segment_pos_bones[out_frame_i, bone_i] = final
-            else:
-                # set all keyframes
-                segment_pos_bones[:, bone_i] = vec
-        logging.debug(f"Segment[{segment_i}] loc finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
+            base = np.asarray(vec[:3] * PACK_SCALE, dtype=np.float32)
 
-    @staticmethod
-    def quat_multiply(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
-        """
-        Performs Hamilton product multiplication of two quaternions (q1 * q2).
-        """
-        x1, y1, z1, w1 = q1
-        x2, y2, z2, w2 = q2
-        return np.array([
-            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
-            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
-            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
-            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-        ], dtype=np.float32)
+            if not has_stored_keys(keys_flag):
+                segment_pos_bones[:, bone_i] = base
+                continue
 
-    @staticmethod
-    def printm(v):
-        """print in order of memory register"""
-        print(list(reversed(v)))
+            raw_keys, stored_frames = context.read_golomb_rice_data(segment_frames_count, keys_flag)
+            segment_pos_bones[0, bone_i] = base
+            previous_delta = zero_delta.copy()
+            current_delta = zero_delta.copy()
+            final = base.copy()
+            scale = PACK_SCALE
 
-    def read_ori_keys(self, context, segment_i, mani_info, segment_frames_count, segment_ori_bones):
-        q_scale = 2 * math.pi  # 6.283185
-        zeros = np.zeros(4, dtype=np.float32)
-        identity = zeros.copy()
-        identity[3] = 1.0
-        scale = self.get_pack_scale(mani_info)
-        for bone_i, bone_name in enumerate(mani_info.keys.ori_bones_names):
-            # logging.info(context)
-            # defines basic rot values
-            # logging.info(f"ori[{bone_i}] {bone_name} at bit {context.stream.pos}")
-            vec, keys_flag = self.read_vec3(context.stream)
-            scale_pack = float(scale)
-            # vec *= scale_pack * q_scale
-            vec *= scale * q_scale
-            quat = self.axis_angle_to_quaternion(identity, vec)
-            if keys_flag.x or keys_flag.y or keys_flag.z:
-                raw_keys_storage, frame_map = context.read_golomb_rice_data(segment_frames_count, keys_flag)
-                # logging.info(f"key {i} = {rel_key_masked}")
-                if segment_frames_count > 1:
-                    frame_inc = 0
-                    out = np.zeros(4, float)
-                    # sign flipping happens before setting quat itself but for cleaner output in the graphs
-                    quat = quat * -1 if quat[3] < 0 else quat
-                    # set base keyframe
-                    # logging.info(f"BASE 0: {quat}, {bone_i}")
-                    segment_ori_bones[0, bone_i] = quat
-                    quat_positive = quat
-                    last_key_a = zeros.copy()
-                    # set other keyframes
-                    for out_frame_i in range(1, segment_frames_count):
-                        trg_frame_i = frame_map[frame_inc]
-                        out[:3] = raw_keys_storage[out_frame_i]
-                        out[3] = 0.0
+            for frame_i in range(1, segment_frames_count):
+                if stored_frames[frame_i]:
+                    predicted_delta = np.asarray(
+                        np.float32(2.0) * current_delta - previous_delta,
+                        dtype=np.float32,
+                    )
+                    raw_delta = np.asarray(raw_keys[frame_i], dtype=np.float32)
+                    predicted_base = clamp_normalized_vector(final + predicted_delta)
+                    scaled_delta = np.asarray(raw_delta * scale, dtype=np.float32)
+                    final = np.asarray(predicted_base + scaled_delta, dtype=np.float32)
+                    previous_delta = current_delta.copy()
+                    current_delta = np.asarray(
+                        predicted_delta + scaled_delta,
+                        dtype=np.float32,
+                    )
+                else:
+                    previous_delta.fill(0.0)
+                    current_delta.fill(0.0)
+                    scale = PACK_SCALE
 
-                        scaled_rel_key = out * scale_pack
-                        # these are ok
-                        out = scaled_rel_key + last_key_a
-                        q = math.sqrt(max(0.0, 1.0 - np.sum(np.square(out))))
-                        # q stays 0.0
-                        rel_scaled = out.copy()
-                        rel_scaled_q = out.copy()
-                        rel_scaled_q[3] = q
+                # Native output is saturated while packing to signed-normalized
+                # int16. Preserve its range here; exact int16 rounding is not
+                # needed for the later location-bounds transform.
+                segment_pos_bones[frame_i, bone_i] = clamp_normalized_vector(final)
 
-                        rel_inter = self.quat_multiply(quat_positive, rel_scaled_q)
-                        norm = np.linalg.norm(rel_inter)
-                        # scaled_inter is set to identity if norm == 0.0
-                        if norm == 0.0:
-                            scaled_inter = identity.copy()
-                        else:
-                            # normalize
-                            scaled_inter = rel_inter / norm
-                        # if 0 == bone_i:
-                        #     # self.printm(rel_inter)
-                        #     # print(norm)
-                        #     self.printm(scaled_inter)
+        logging.debug(f"Segment[{segment_i}] position keys ended at bit {context.stream.pos} (byte {context.stream.pos / 8:.3f})")
 
-                        # xmm12 0 0 -0.000366233 0
-                        # probably not clipped to 0.0, but -1.0
-                        rel_scaled_clamped_copy = np.clip(rel_scaled, -1.0, 1.0)
-                        # if 0 == bone_i:
-                        #     # [0.0, 0.0, -0.0003662333, 0.0]
-                        #     self.printm(rel_scaled_clamped_copy)
-                        # dbg 0 0 1.34127e-007 0.000366233  # only last coord is set to sqrt
-                        norm = np.linalg.norm(rel_scaled_clamped_copy)
-                        norm = np.clip(norm, 0.0, 1.0)
-                        scale_pack = self.get_pack_scale(mani_info, norm)
-                        # not sure about the cond here
-                        # print(quant_fac_clamped)
-                        # if 0.0 <= norm <= 0.5:
-                        #     quant_fac_picked = quant_fac_clamped
-                        # else:
-                        #     quant_fac_picked = quant_fac_clamped
-                        # quant_fac_switched[0] = (float)(quant_fac_clamped[0] & norm_is_0_05);
-                        # quant_fac_switched[1] = 0.0;
-                        # quant_fac_switched[2] = 0.0;
-                        # quant_fac_switched[3] = (float)quant_fac_clamped[3];
-                        # vec4f_16383_b[0] = (float)(~norm_is_0_05 & 0x467ffc00);
-                        # vec4f_16383_b[1] = 16383.0;
-                        # vec4f_16383_b[2] = 16383.0;
-                        # vec4f_16383_b[3] = 16383.0;
-                        # quant_fac_picked = (float[4])((undefined[16])quant_fac_switched & (undefined[16])0xffffffffffffffff | (undefined[16]) vec4f_16383_b);
-                        # scale_rel._0_8_ = CONCAT44(scale_fac / quant_fac_picked[0], quant_fac_picked[0]);
-                        # scale_rel[2] = (float)quant_fac_picked[1];
-                        # scale_rel[3] = 0.0;
+    def read_ori_keys(
+        self,
+        context,
+        segment_i,
+        mani_info,
+        segment_frames_count,
+        segment_ori_bones,
+    ):
+        quantisation_level = mani_info.keys.compressed.quantisation_level
+        for bone_i, _bone_name in enumerate(mani_info.keys.ori_bones_names):
+            rotation_vector, keys_flag = self.read_vec3(context.stream)
+            rotation_vector = np.asarray(
+                rotation_vector * ROTATION_VECTOR_SCALE,
+                dtype=np.float32,
+            )
+            base_quat = axis_angle_vector_to_quaternion(rotation_vector)
 
-                        # todo check if this is used for more than the isFinite sanity check
-                        # todo do sth with quant_fac_picked
-                        # todo update scale_pack when needed
+            if not has_stored_keys(keys_flag):
+                segment_ori_bones[:, bone_i] = base_quat
+                continue
 
-                        do_increment = out_frame_i == trg_frame_i
-                        next_key_offset = 0 if do_increment else 4
-                        which_key_flag = True if next_key_offset else False
-                        # last key_a derives from rel_scaled
-                        last_key_a = zeros.copy() if which_key_flag else rel_scaled_clamped_copy.copy()
+            raw_keys, stored_frames = context.read_golomb_rice_data(
+                segment_frames_count,
+                keys_flag,
+            )
 
-                        if out_frame_i == trg_frame_i:
-                            frame_inc += 1
-                            last_key_a = rel_scaled_clamped_copy.copy()
-                            quat_positive = scaled_inter
-                        else:
-                            last_key_a.fill(0.0)
-                            scale_pack = np.float32(1.0 / 16383.0)
+            # q and -q encode the same orientation. The native decoder starts
+            # relative updates from the representative with non-negative W.
+            current_quat = -base_quat if base_quat[3] < 0.0 else base_quat.copy()
+            segment_ori_bones[0, bone_i] = current_quat
 
-                        # logging.info(f"INTER {out_frame_i}: {final_inter}, {bone_i}")
-                        segment_ori_bones[out_frame_i, bone_i, ] = scaled_inter
-                    # break
-            else:
-                # set all keyframes
-                segment_ori_bones[:, bone_i] = quat
-        logging.debug(f"Segment[{segment_i}] rot finished at bit {context.stream.pos}, byte {context.stream.pos / 8}")
+            accumulated_xyz = np.zeros(3, dtype=np.float32)
+            scale = PACK_SCALE
+            for frame_i in range(1, segment_frames_count):
+                if stored_frames[frame_i]:
+                    raw_delta = np.asarray(raw_keys[frame_i], dtype=np.float32)
+                    relative_xyz = np.asarray(
+                        accumulated_xyz + raw_delta * scale,
+                        dtype=np.float32,
+                    )
 
-    def axis_angle_to_quaternion(self, identity, vec):
-        norm = np.linalg.norm(vec)
-        # logging.info(f"{bone_i} {bone_name} {vec} {norm}")
-        if norm < 1.1920929E-7:  # 1 / 8388608 (=2**23)
-            quat = identity.copy()
-        else:
-            c, s = get_quat_scale_fac(norm * 0.5)
-            quat = vec / norm
-            quat *= s
-            quat[3] = c
-        return quat
+                    # Relative keys always omit W. The decoder reconstructs the
+                    # non-negative root; this is fixed-W, not smallest-three.
+                    relative_quat = reconstruct_relative_quaternion(relative_xyz)
+                    candidate = normalize_quaternion_or_identity(
+                        multiply_quaternions(current_quat, relative_quat)
+                    )
 
-    def get_pack_scale(self, mani_info, norm=0.0):
-        n = np.float32(np.clip(np.float32(norm), 0.0, 1.0))
-        if not (np.float32(0.0) < n < np.float32(0.5)):
-            return np.float32(1.0 / 16383.0)
-        q = np.float32(mani_info.keys.compressed.quantisation_level) / n
-        q = np.float32(np.clip(q, 128.0, 16383.0))
-        return np.float32(1.0) / q
+                    accumulated_xyz = np.asarray(
+                        np.clip(relative_xyz, -1.0, 1.0),
+                        dtype=np.float32,
+                    )
+                    state_norm = np.float32(
+                        np.clip(np.linalg.norm(accumulated_xyz), 0.0, 1.0)
+                    )
+                    scale = get_rotation_pack_scale(
+                        quantisation_level,
+                        state_norm,
+                    )
+                    current_quat = candidate
+                else:
+                    # Native held frames clear both pieces of relative state.
+                    accumulated_xyz.fill(0.0)
+                    scale = PACK_SCALE
 
-    def read_vec3(self, f: BinStream):
+                segment_ori_bones[frame_i, bone_i] = current_quat
+
+        logging.debug(f"Segment[{segment_i}] rotation keys ended at bit {context.stream.pos} (byte {context.stream.pos / 8:.3f})")
+
+    def read_vec3(self, stream: BinStream) -> tuple[np.ndarray, StoreKeys]:
+        """Read a zigzag-coded 15/15/15 base triplet and its X/Y/Z key mask."""
         if self.context.version > 259:
-            # current PZ, JWE2
-            x = f.read_uint(15)
-            y = f.read_uint(15)
-            z = f.read_uint(15)
+            encoded = [stream.read_uint(COMPONENT_BITS) for _ in range(3)]
         else:
-            # PC, JWE1, old PZ have the order reversed
-            x = f.read_uint_reversed(15)
-            y = f.read_uint_reversed(15)
-            z = f.read_uint_reversed(15)
-        vec = np.zeros(4, dtype=np.float32)
-        vec[:] = f.decode_zigzag(x, y, z, 0)
-        # which channels are keyframed
-        keys_flag = f.read_uint(3)
-        keys_flag = StoreKeys.from_value(keys_flag)
+            encoded = [stream.read_uint_reversed(COMPONENT_BITS) for _ in range(3)]
+
+        vec = np.asarray(
+            stream.decode_zigzag(*encoded, 0),
+            dtype=np.float32,
+        )
+        keys_flag = StoreKeys.from_value(stream.read_uint(3))
         return vec, keys_flag
-
-
-def get_quat_scale_fac(norm_half_abs: float):
-    epsilon = 1.1920929E-7
-    cos = np.cos(norm_half_abs)
-    sin = np.sin(norm_half_abs)
-    # wrap to 2pi range, then check whether to apply flips
-    octant = int(norm_half_abs % (2*np.pi) / np.pi * 4 - epsilon)
-    if 4 < octant < 7:
-        sin = -sin
-        cos = -cos
-    return cos, sin
 
 
 if __name__ == "__main__":
@@ -795,6 +757,3 @@ if __name__ == "__main__":
     for k in (0, 1, 4, 5, 6, 8, 9, 14, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82, 48, 112, 113, 114):
         print(ManisDtype.from_value(k))
     manis = ManisFile()
-    # WH
-    # manis.load("C:/Users/arnfi/Desktop/animation.manisetb22bfc73.manis")  # first is uncompressed
-    # manis.load("C:/Users/arnfi/Desktop/animation.maniset273472b1.manis")
