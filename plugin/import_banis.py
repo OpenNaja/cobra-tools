@@ -44,8 +44,7 @@ def load(reporter, files=(), filepath="", set_fps=False):
 		scene.frame_start = 0
 		scene.frame_end = num_frames-1
 
-		# fps = int(round((num_frames - 1) / anim_length))  # manis uses num_frames - 1
-		fps = int(round(num_frames/anim_length))
+		fps = int(round((num_frames - 1) / anim_length))  # same as in manis
 		scene.render.fps = fps
 		logging.debug(f"'{bani.name}' - FPS: {fps}, flag: {bani.data.flags}")
 		# select target armature for pose anims of PZ1 animals with decimated skeletons
