@@ -30,7 +30,7 @@ class Animation:
 		if action_name in bpy.data.actions:
 			b_action = bpy.data.actions[action_name]
 			# clear and overwrite existing keys
-			b_action.fcurves.clear()
+			self.get_data(b_action).fcurves.clear()
 		else:
 			b_action = bpy.data.actions.new(action_name)
 			b_action.use_fake_user = True
@@ -41,8 +41,9 @@ class Animation:
 		b_obj.animation_data.action = b_action
 		# https://developer.blender.org/docs/release_notes/4.4/python_api/#slotted-actions
 		if bpy.app.version >= (4, 4, 0):
-			slot = b_action.slots.new(id_type='OBJECT', name=b_obj.name)
-			b_obj.animation_data.action_slot = slot
+			if not b_action.slots:
+				slot = b_action.slots.new(id_type='OBJECT', name=b_obj.name)
+				b_obj.animation_data.action_slot = slot
 		self.stash(b_obj, b_action)
 		return b_action
 
@@ -92,15 +93,13 @@ class Animation:
 			fcurves = [create_fcurve(data_path=rna_path, index=i, action_group=action_group) for i in drange]
 		return fcurves
 
-	def iter_fcurves(self, b_action):
+	def get_data(self, b_action):
 		if bpy.app.version >= (5, 0, 0):
 			action_slot = b_action.slots[0]
 			channelbag = anim_utils.action_ensure_channelbag_for_slot(b_action, action_slot)
-			for fcurve in channelbag.fcurves:
-				yield fcurve
+			return channelbag
 		else:
-			for fcurve in b_action.fcurves:
-				yield fcurve
+			return b_action
 
 	@staticmethod
 	def set_extrapolation(extend_type, fcurves):
