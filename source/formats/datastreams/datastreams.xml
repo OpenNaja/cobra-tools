@@ -6,18 +6,23 @@
 
     <struct name="DataStreamsRoot" inherit="MemStruct">
         JWE1 16 bytes
-        <field name="count" type="uint64" />
-        <field name="layer_list"  type="ArrayPointer" template="DataStreamsSettings" arg="count"/>
+        <field name="layers_count" type="uint64" />
+        <field name="layers"  type="ArrayPointer" template="DataStreamsSettings" arg="layers_count"/>
     </struct>
 
     <struct name="DataStreamsSettings" inherit="MemStruct">
         JWE1 48 bytes
+        JWE3 64 bytes
+<!--        use ovl version, as mime version is still 1 -->
+        <field name="c0" type="ushort" default="1" since="20" />
+        <field name="c1" type="ushort" default="1" since="20" />
+        <field name="z0" type="uint" default="0" optional="True" since="20" />
         <field name="name_a"  type="Pointer" template="ZString"/>
         <field name="name_b"  type="Pointer" template="ZString"/>
-        <field name="z0" type="uint64" />
-        <field name="z1" type="uint64" />
-        <field name="count" type="uint64" />
-        <field name="data"  type="ArrayPointer" template="CurveDataPoint" arg="count"/>
+        <field name="z1" type="uint64" default="0" optional="True" />
+        <field name="z2" type="uint64" default="0" optional="True" />
+        <field name="data_count" type="uint64" />
+        <field name="data"  type="ArrayPointer" template="CurveDataPoint" arg="data_count"/>
     </struct>
 
     <!-- below is copied directly from motiongraph! -->
