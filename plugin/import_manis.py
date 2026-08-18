@@ -28,6 +28,7 @@ dt_size = {
 
 
 def get_channel(m_bone_names, m_keys, b_local_inv_mats, b_action, b_dtype):
+	frames = range(len(m_keys))
 	for bone_i, g_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(g_name)
 		if b_name in b_local_inv_mats:
@@ -42,14 +43,14 @@ def get_channel(m_bone_names, m_keys, b_local_inv_mats, b_action, b_dtype):
 			else:
 				logging.warning(f"Ignoring extraneous bone '{b_name}'")
 				continue
-		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], b_local_inv_mat)
+		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], b_local_inv_mat, frames)
 
 
-def keys_adder(b_action, b_channel, b_dtype, in_keys, b_local_inv_mat):
-	out_keys = []
-	out_frames = []
-	yield b_channel, b_local_inv_mat, out_frames, out_keys, in_keys
-	anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_frames, out_keys, None, n_bone=b_channel)
+def keys_adder(b_action, b_channel, b_dtype, in_keys, b_local_inv_mat, frames):
+	dt_range = dt_size[b_dtype]
+	out_keys = np.empty((len(in_keys), len(dt_range)), float)
+	yield b_channel, b_local_inv_mat, out_keys, in_keys
+	anim_sys.add_keys(b_action, b_dtype, dt_range, None, frames, out_keys, None, n_bone=b_channel)
 
 
 def import_wsm(corrector, b_action, folder, mani_info, bone_name, b_local_inv_mats):
@@ -83,6 +84,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 	except:
 		reporter.show_error(f"Install the 'bitarray' module to blender to import compressed animations.\nRefer to the Cobra Tools wiki for help")
 
+	start_time = time.time()
 	folder, manis_name = os.path.split(filepath)
 	scene = bpy.context.scene
 	manis = ManisFile()
@@ -173,7 +175,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				continue
 
 		scale_lut = {name: i for i, name in enumerate(k.scl_bones_names)}
-		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
 				k.pos_bones_names, k.pos_bones, b_local_inv_mats, b_action, "location"):
 			scale_i = scale_lut.get(b_channel, None)
 			for frame_i, key in enumerate(in_keys):
@@ -184,9 +186,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				else:
 					key = mathutils.Vector(key)
 				key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
-				out_frames.append(frame_i)
-				out_keys.append(key)
-		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				out_keys[frame_i] = key
+		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
 				k.ori_bones_names, k.ori_bones, b_local_inv_mats, b_action, "rotation_quaternion"):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
@@ -195,9 +196,8 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					out = mathutils.Quaternion(cam_corr)
 					out.rotate(key)
 					key = out
-				out_frames.append(frame_i)
-				out_keys.append(key)
-		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in get_channel(
+				out_keys[frame_i] = key
+		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
 				k.scl_bones_names, k.scl_bones, b_local_inv_mats, b_action, "scale"):
 			for frame_i, key in enumerate(in_keys):
 				# swizzle
@@ -205,13 +205,12 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				# correct axes
 				mat = get_scale_mat(key)
 				key = corrector.to_blender(mat).to_scale()
-				out_frames.append(frame_i)
-				out_keys.append(key)
+				out_keys[frame_i] = key
 
 	scene.frame_start = 0
 	scene.frame_end = mi.frame_count-1
 	scene.render.fps = int(round((mi.frame_count-1) / mi.duration))
-	reporter.show_info(f"Imported {manis_name}")
+	reporter.show_info(f"Imported {manis_name}in {time.time()-start_time:.2f} s")
 
 
 def get_constraint(p_bone, c_type="IK", create=True):
