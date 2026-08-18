@@ -38,15 +38,10 @@ def load(reporter, files=(), filepath="", set_fps=False):
 	banis.load(filepath)
 
 	for bani in banis.anims:
-		anim_length = bani.data.animation_length
-		num_frames = bani.data.num_frames
+		# anim_length = bani.data.animation_length
+		# num_frames = bani.data.num_frames
 
-		scene.frame_start = 0
-		scene.frame_end = num_frames-1
-
-		fps = int(round((num_frames - 1) / anim_length))  # same as in manis
-		scene.render.fps = fps
-		logging.debug(f"'{bani.name}' - FPS: {fps}, flag: {bani.data.flags}")
+		logging.debug(f"'{bani.name}', flag: {bani.data.flags}")
 		# select target armature for pose anims of PZ1 animals with decimated skeletons
 		b_target_armature = b_main_armature_ob
 		if "_pose_" in bani.name:
@@ -64,7 +59,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	corrector = Corrector(False)
 
 	b_action = anim_sys.create_action(b_target_armature, bani.name)
-
+	# store fps on action to retrieve it and set to the scene when changing actions
+	b_action["fps"] = int(round((bani.data.num_frames - 1) / bani.data.animation_length))
 	if b_main_armature_ob == b_target_armature:
 		g_bind_mats, b_local_mats = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
 	else:
@@ -193,9 +189,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			locs[frame_i, bone_i] = loc_final
 			quats[frame_i, bone_i] = rot_final
 
-	b_action.use_frame_range = True
-	b_action.frame_end = bani.data.num_frames
-
 	frames = np.arange(bani.data.num_frames)
 	q_range = tuple(range(4))
 	l_range = tuple(range(3))
@@ -203,3 +196,25 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		if bone_i in animated_bone_indices:
 			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=bone_name)
 			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=bone_name)
+	# Register the handler
+	if dep_graph_callback not in bpy.app.handlers.depsgraph_update_post:
+		bpy.app.handlers.depsgraph_update_post.append(dep_graph_callback)
+
+
+# Cache to store the last known action name/reference per object
+_action_cache = {}
+
+
+def dep_graph_callback(scene, depsgraph):
+	obj = bpy.context.object
+	if obj and obj.animation_data:
+		current_action = obj.animation_data.action
+		last_action = _action_cache.get(obj.name)
+
+		if current_action != last_action:
+			_action_cache[obj.name] = current_action
+			scene.frame_start = int(round(current_action.frame_range[0]))
+			scene.frame_end = int(round(current_action.frame_range[1]))
+			scene.render.fps = current_action.get("fps", 24)
+			logging.info(f"Action changed to {current_action.name if current_action else 'None'} with {scene.render.fps} FPS")
+
