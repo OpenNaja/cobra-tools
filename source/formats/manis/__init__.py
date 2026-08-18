@@ -560,14 +560,12 @@ class ManisFile(InfoHeader, IoFile):
             ax.plot(k.floats[:, bone_i], label="floats")
         else:
             if mani_info.dtype.compression:
-                ck = k.compressed
-                if not hasattr(ck, dtype):
-                    self.decompress(mani_info)
-                keys = getattr(ck, dtype)
+                self.decompress(mani_info)
+            if k.compressed:
                 # mark every 32 frame
-                ax.vlines(range(0, len(keys[:, bone_i, 0]), 32), -1, 1, colors=(0, 0, 0, 0.2), linestyles='--', label='',)
-            else:
-                keys = getattr(k, dtype)
+                for x in range(0, mani_info.frame_count, 32):
+                    ax.axvline(x, color=(0, 0, 0, 0.2), linestyle='--', label='',)
+            keys = getattr(k, dtype)
             ax.plot(keys[:, bone_i, 0], label='X')
             ax.plot(keys[:, bone_i, 1], label='Y')
             ax.plot(keys[:, bone_i, 2], label='Z')
