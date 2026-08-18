@@ -106,13 +106,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 
 		for bone_i, b_bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
-			quat_data = frame["quat"][bone_i]
-			loc = [c * scale_multiplier for c in frame["loc"][bone_i]]
-
-			quat = mathutils.Quaternion(quat_data)
-
-			g_key: mathutils.Matrix = quat.to_matrix().to_4x4()
-			g_key.translation = loc
+			g_key: mathutils.Matrix = mathutils.Quaternion(frame["quat"][bone_i]).to_matrix().to_4x4()
+			g_key.translation = [c * scale_multiplier for c in frame["loc"][bone_i]]
 
 			# Fetch the readIdx for this bone
 			read_i = getattr(bani, "read_mapping", {}).get(bone_i, 255)
@@ -167,20 +162,14 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				b_posed_local_space[bone_i] = b_posed_armature_space[bone_i]
 
 		for bone_i, b_bone_name in bones_table:
-			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
-			b_posed_local_space[bone_i] = b_local_mats[bone_i].inverted() @ b_posed_local_space[bone_i]
-
-		for bone_i, b_bone_name in bones_table:
 			# Skip pushing keyframes to Blender if the curve is un-animated
 			if bone_i not in animated_bone_indices:
 				continue
+			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
+			b_posed_delta_space = b_local_mats[bone_i].inverted() @ b_posed_local_space[bone_i]
 
-			rot_final = mathutils.Quaternion((1, 0, 0, 0))
-			loc_final = mathutils.Vector((0, 0, 0))
-			b_key = b_posed_local_space[bone_i]
-			if b_key:
-				rot_final = b_key.to_quaternion()
-				loc_final = b_key.translation
+			quats[frame_i, bone_i] = b_posed_delta_space.to_quaternion()
+			locs[frame_i, bone_i] = b_posed_delta_space.translation
 
 			## HACK - When all else fails, ignore translation
 			## We allow the Root and its immediate child (Hips) to translate through space.
@@ -191,9 +180,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			#
 			#if not (is_root or is_hips):
 			#	loc_final = mathutils.Vector((0.0, 0.0, 0.0))
-
-			locs[frame_i, bone_i] = loc_final
-			quats[frame_i, bone_i] = rot_final
 
 	frames = np.arange(bani.data.num_frames)
 	q_range = tuple(range(4))
