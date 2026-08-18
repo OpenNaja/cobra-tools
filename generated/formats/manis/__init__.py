@@ -660,19 +660,6 @@ class ManisFile(InfoHeader, IoFile):
                         trg_frame_i = frame_map[frame_inc]
                         out[:3] = raw_keys_storage[out_frame_i]
                         out[3] = 0.0
-                        # todo figure out logic for scale
-                        #  animationmotionextractedlocomotion.maniset535f4cdb, mandrill_male@runbase, bone 41 breaks after frame 2
-                        #  https://github.com/OpenNaja/cobra-tools/issues/385
-                        #  it apparently is rotated by 180° on bone's local z, which equals a swizzling operation in blender
-                        #  it appears that maybe a different component is reconstructed (not W)
-                        # if mani_info.name == "mandrill_male@runbase" and bone_i == 41:
-                        #     logging.debug(f"{32*segment_i+out_frame_i}, {out}")
-                        # scale fac (actually dynamic)
-                        # 6.10389e-005 6.10389e-005 6.10389e-005 6.10389e-005
-                        # 0.000103384 0.000103384 0.000103384 0.000103384
-                        # 0.00015692 0.00015692 0.00015692 0.00015692
-                        # 0.000169376 0.000169376 0.000169376 0.000169376
-                        # 0.000182325 0.000182325 0.000182325 0.000182325
 
                         scaled_rel_key = out * scale_pack
                         # these are ok
@@ -737,19 +724,14 @@ class ManisFile(InfoHeader, IoFile):
 
                         if out_frame_i == trg_frame_i:
                             frame_inc += 1
-                            final_inter = scaled_inter
-                            # use scaled_inter_vec_copy
+                            last_key_a = rel_scaled_clamped_copy.copy()
+                            quat_positive = scaled_inter
                         else:
-                            # todo another round of clamping
-                            # transfer signs from sign_source, store on ptr_to_final?
-                            # use recon quat instead
-                            final_inter = quat_positive
+                            last_key_a.fill(0.0)
+                            scale_pack = np.float32(1.0 / 16383.0)
 
-                        # self.printm(final_inter)
-                        # quat aka recon_quat is set to last key of curve for the next loop, todo verify
-                        quat_positive = final_inter
                         # logging.info(f"INTER {out_frame_i}: {final_inter}, {bone_i}")
-                        segment_ori_bones[out_frame_i, bone_i, ] = final_inter
+                        segment_ori_bones[out_frame_i, bone_i, ] = scaled_inter
                     # break
             else:
                 # set all keyframes
@@ -768,22 +750,13 @@ class ManisFile(InfoHeader, IoFile):
             quat[3] = c
         return quat
 
-    def get_pack_scale(self, mani_info, norm=0.000000000000000000000001):
-        # the default initial scale seems to be for loc and rot
-        # 1 / 16383 = 6.103888e-05
-        # apparently starting out with norm=0
-        # 0.00036623328924179077
-        # print(norm)
-        # xmm1 0 0 0 2730.5  # scale_f = 1 / norm
-        # quantisation_level 420
-        # just set non-zero to avoid RuntimeWarning
-        norm = max(norm, 0.000000000000000000000001)
-        quant_fac = mani_info.keys.compressed.quantisation_level / norm
-        # quant_fac in xmm3 0 0 0 1.14681e+006
-        # quant_fac = 1146810.0
-        quant_fac_clamped = np.clip(quant_fac, 128.0, 16383.0)
-        # update the packed scale
-        return 1 / quant_fac_clamped
+    def get_pack_scale(self, mani_info, norm=0.0):
+        n = np.float32(np.clip(np.float32(norm), 0.0, 1.0))
+        if not (np.float32(0.0) < n < np.float32(0.5)):
+            return np.float32(1.0 / 16383.0)
+        q = np.float32(mani_info.keys.compressed.quantisation_level) / n
+        q = np.float32(np.clip(q, 128.0, 16383.0))
+        return np.float32(1.0) / q
 
     def read_vec3(self, f: BinStream):
         if self.context.version > 259:
