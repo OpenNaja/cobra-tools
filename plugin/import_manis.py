@@ -59,22 +59,20 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, b_local_inv_ma
 	if os.path.isfile(wsm_path):
 		logging.info(f"Importing {wsm_name}")
 		wsm = WsmHeader.from_xml_file(wsm_path, mani_info.context)
-		# print(wsm)
 		b_local_inv_mat = b_local_inv_mats[bone_name]
-		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in keys_adder(
-				b_action, bone_name, "location", wsm.locs.data, b_local_inv_mat):
+		frames = range(wsm.frame_count)
+		for b_channel, b_local_inv_mat, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "location", wsm.locs.data, b_local_inv_mat, frames):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Vector(key)
 				key = (b_local_inv_mat @ corrector.to_blender(mathutils.Matrix.Translation(key))).to_translation()
-				out_frames.append(frame_i)
-				out_keys.append(key)
-		for b_channel, b_local_inv_mat, out_frames, out_keys, in_keys in keys_adder(
-				b_action, bone_name, "rotation_quaternion", wsm.quats.data, b_local_inv_mat):
+				out_keys[frame_i] = key
+		for b_channel, b_local_inv_mat, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "rotation_quaternion", wsm.quats.data, b_local_inv_mat, frames):
 			for frame_i, key in enumerate(in_keys):
 				key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
 				key = (b_local_inv_mat @ corrector.to_blender(key.to_matrix().to_4x4())).to_quaternion()
-				out_frames.append(frame_i)
-				out_keys.append(key)
+				out_keys[frame_i] = key
 
 
 def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
