@@ -498,58 +498,9 @@ class ManisFile(InfoHeader, IoFile):
                 return mani_info
         raise AttributeError(f"Name {name} not found")
 
-    def iter_compressed_manis(self):
-        for mani_info in self.mani_infos:
-            if (
-                hasattr(mani_info, "keys")
-                and mani_info.dtype.compression
-                and hasattr(mani_info.keys.compressed, "segments")
-            ):
-                yield mani_info
-
-    def iter_uncompressed_manis(self):
-        for mani_info in self.mani_infos:
-            if hasattr(mani_info, "keys") and not mani_info.dtype.compression:
-                yield mani_info
-
-    def iter_compressed_keys(self):
-        for mani_info in self.iter_compressed_manis():
-            # logging.info(mani_info.keys.compressed)
-            for i, mb in enumerate(mani_info.keys.compressed.segments):
-                yield mani_info, i, mb
-
-    def dump_keys(self):
-        for mani_info, i, mb in self.iter_compressed_keys():
-            with open(os.path.join(self.dir, f"{mani_info.name}_{i}.maniskeys"), "wb") as f:
-                f.write(mb.data)
-
     @staticmethod
     def get_segment_frame_count(i, frame_count):
         return min(SEGMENT_FRAME_COUNT, frame_count - (i * SEGMENT_FRAME_COUNT))
-
-    def log_loc_keys(self):
-        for mani_info in self.iter_uncompressed_manis():
-            # logging.info(mani_info)
-            for bone_i, bone_name in enumerate(mani_info.keys.pos_bones_names):
-                v = mani_info.keys.pos_bones[0][bone_i]
-                x, y, z = v.x, v.y, v.z
-                logging.info(f"unc {bone_i} {bone_name} {(x, y, z)}")
-            break
-
-    def log_rot_keys(self):
-        for mani_info in self.iter_uncompressed_manis():
-            # logging.info(mani_info)
-            for bone_i, bone_name in enumerate(mani_info.keys.ori_bones_names):
-                v = mani_info.keys.ori_bones[0][bone_i]
-                x, y, z, w = v.x, v.y, v.z, v.w
-                # if "def_c_hips_joint" == bone_name:
-                #     logging.info(f"{bone_i} {bone_name} {(x, y, z, w)}")
-
-    def parse_keys(self, target=None, dump=False):
-        for mani_info in self.iter_compressed_manis():
-            if target and mani_info.name != target:
-                continue
-            self.decompress(mani_info, dump=dump)
 
     def show_keys_by_dtype(self, mani_name, dtype, bone_name, ax: 'matplotlib.axes.Axes'):
         mani_info = self.get_mani(mani_name)
