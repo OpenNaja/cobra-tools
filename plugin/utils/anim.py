@@ -2,6 +2,7 @@ import math
 import logging
 
 import bpy
+from bpy.app.handlers import persistent
 import mathutils
 
 
@@ -41,6 +42,7 @@ def get_b_local_matrix(b_bone: bpy.types.Bone) -> mathutils.Matrix:
 _action_cache = {}
 
 
+@persistent
 def set_fps_from_action_callback(scene, depsgraph):
 	obj = bpy.context.object
 	if obj and obj.animation_data:
