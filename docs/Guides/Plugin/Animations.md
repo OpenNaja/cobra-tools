@@ -88,4 +88,5 @@ They are generally used for simple building or character animations, such as:
 - exhibit animals
 
 !!! construction "Limitations"
-    The transforms used by `.banis` are currently not fully understood. Import is experimental and close to expected for some `.banis`, but totally broken for others. Export is not useable in production.
+    The `.banis` format has been updated for PC2 and JWE3. Not all of its features are currently fully understood. Import is experimental and close to expected for some `.banis`, but broken for others. No export yet.
+    The `.banis` format for older games (PZ1, PC1, JWE1, JWE2) is fully supported by the plugin. Import and export should round-trip perfectly.
