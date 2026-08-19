@@ -64,7 +64,9 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	if b_main_armature_ob == b_target_armature:
 		g_bind_armature_space, b_bind_local_space = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
 	else:
+		# main armature's bind is actually in rest pose
 		g_bind_armature_space, _ = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
+		# target armature's bind is already posed
 		_, b_bind_local_space = get_bone_bind_data(b_target_armature, bones_table, corrector)
 
 	# Fetch the list of bones that are actually animated in this file
@@ -144,9 +146,16 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			elif anim_mode == 5:
 				# Mode 5: Legacy (Version < 7)
 				g_posed_armature_space[bone_i] = g_key @ g_bind_armature_space[bone_i]
+				# n.b. for reduced anims, this is not in posed armature space because the bind pose is posed
 			
 			# Convert posed armature space from game to blender coordinates
 			b_posed_armature_space[bone_i] = corrector.to_blender(g_posed_armature_space[bone_i])
+			# if "_02_flourish" in bani.name and frame_i == 0:
+			# 	if bone_i in animated_bone_indices:
+			# 		empty = create_ob(bpy.context.scene, b_bone_name, None)
+			# 		empty.matrix_local = b_posed_armature_space[bone_i]
+			# 		empty.empty_display_type = "ARROWS"
+			# 		empty.empty_display_size = 0.005
 			# if "head" in b_bone_name and "_02_" in bani.name and frame_i == 0:
 			# 	print(bani.name)
 			# 	print(g_key)
