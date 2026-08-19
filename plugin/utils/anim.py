@@ -1,4 +1,5 @@
 import math
+import logging
 
 import bpy
 import mathutils
@@ -34,3 +35,21 @@ def get_b_local_matrix(b_bone: bpy.types.Bone) -> mathutils.Matrix:
 	if b_bone.parent:
 		return b_bone.parent.matrix_local.inverted() @ b_bone.matrix_local
 	return b_bone.matrix_local
+
+
+# Cache to store the last known action name/reference per object
+_action_cache = {}
+
+
+def set_fps_from_action_callback(scene, depsgraph):
+	obj = bpy.context.object
+	if obj and obj.animation_data:
+		current_action = obj.animation_data.action
+		last_action = _action_cache.get(obj.name)
+
+		if current_action != last_action:
+			_action_cache[obj.name] = current_action
+			scene.frame_start = int(round(current_action.frame_range[0]))
+			scene.frame_end = int(round(current_action.frame_range[1]))
+			scene.render.fps = current_action.get("fps", 24)
+			logging.info(f"Action changed to {current_action.name if current_action else 'None'} with {scene.render.fps} FPS")

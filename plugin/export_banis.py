@@ -62,11 +62,11 @@ def save(reporter, filepath=""):
 			# store pose data for b_action
 			b_target_armature.animation_data.action = b_action
 			num_frames = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
-
+			fps = b_action.get("fps", scene.render.fps)
 			bani = banis.anims[bani_i]
 			bani.name = b_action.name
 			bani.data.banis.pool_index = 0
-			bani.data.animation_length = (num_frames-1) / scene.render.fps
+			bani.data.animation_length = (num_frames-1) / fps
 			bani.keys = np.empty(dtype=banis.dt_float, shape=(num_frames, len(bones_table)))
 			bani_i += 1
 

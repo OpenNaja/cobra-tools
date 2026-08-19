@@ -140,7 +140,8 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		last_frame = int(last_frame) + 1
 		mani_info.frame_count = last_frame - first_frame
 		# index of last frame / fps
-		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
+		fps = b_action.get("fps", scene.render.fps)
+		mani_info.duration = (mani_info.frame_count - 1) / fps
 		mani_info.target_bone_count = len(b_local_mats)
 
 		# create arrays for loc, rot, scale keys

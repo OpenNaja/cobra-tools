@@ -119,6 +119,7 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		# store ovs name
 		b_action["stream"] = manis.stream
+		b_action["fps"] = int(round((mi.frame_count-1) / mi.duration))
 		# print(mi)
 		logging.debug(f"Compression = {mi.dtype.compression}")
 		k = mi.keys
@@ -204,9 +205,6 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 				key = corrector.to_blender(mat).to_scale()
 				out_keys[frame_i] = key
 
-	scene.frame_start = 0
-	scene.frame_end = mi.frame_count-1
-	scene.render.fps = int(round((mi.frame_count-1) / mi.duration))
 	reporter.show_info(f"Imported {manis_name}in {time.time()-start_time:.2f} s")
 
 
