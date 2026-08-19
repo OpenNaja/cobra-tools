@@ -71,29 +71,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		animated_bone_indices = set(i for i, b_bone_name in bones_table if b_bone_name in b_target_armature.pose.bones)
 	is_partial = len(animated_bone_indices) < len(bones_table)
 
-	scale_multiplier = 1.0
-	# We only apply scale correction on full-body animations
-	if anim_mode in (1, ) and not is_partial and len(bones_table) > 1:
-		# TODO: Find longest hard bone
-		# Pick two bones that define a solid, non-stretching segment of the rig (e.g. Root to Hips).
-		bone_a_idx = 0  # Example: Root
-		bone_b_idx = 1  # Example: Hips
-
-		# Get the distance in native 1.0x Blender rest pose
-		rest_pos_a = g_bind_armature_space[bone_a_idx].translation
-		rest_pos_b = g_bind_armature_space[bone_b_idx].translation
-		rest_dist = (rest_pos_b - rest_pos_a).length
-
-		# Get the distance in the raw .banis absolute coordinates at Frame 0
-		anim_pos_a = mathutils.Vector(bani.keys[0]["loc"][bone_a_idx])
-		anim_pos_b = mathutils.Vector(bani.keys[0]["loc"][bone_b_idx])
-		anim_dist = (anim_pos_b - anim_pos_a).length
-
-		# Calculate the scalar required to conform the anim to the rest pose
-		if anim_dist > 0.0001:  # Prevent divide-by-zero on collapsed rigs
-			scale_multiplier = rest_dist / anim_dist
-		logging.debug(f"'{bani.name}' - Scaling Multiplier: {scale_multiplier}")
-
 	g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
@@ -105,7 +82,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		for bone_i, b_bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
 			g_key: mathutils.Matrix = mathutils.Quaternion(frame["quat"][bone_i]).to_matrix().to_4x4()
-			g_key.translation = [c * scale_multiplier for c in frame["loc"][bone_i]]
+			g_key.translation = frame["loc"][bone_i]
 
 			# Fetch the readIdx for this bone
 			read_i = getattr(bani, "read_mapping", {}).get(bone_i, 255)
@@ -160,19 +137,8 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				continue
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
 			b_posed_delta_space = b_bind_local_space[bone_i].inverted() @ b_posed_local_space[bone_i]
-
 			quats[frame_i, bone_i] = b_posed_delta_space.to_quaternion()
 			locs[frame_i, bone_i] = b_posed_delta_space.translation
-
-			## HACK - When all else fails, ignore translation
-			## We allow the Root and its immediate child (Hips) to translate through space.
-			## We lock all other limbs to their strict rest lengths so they don't stretch/squish.
-			#parent_i = parent_index_map[bone_i]
-			#is_root = (parent_i is None)
-			#is_hips = (parent_i is not None and parent_index_map[parent_i] is None)
-			#
-			#if not (is_root or is_hips):
-			#	loc_final = mathutils.Vector((0.0, 0.0, 0.0))
 
 	frames = np.arange(bani.data.num_frames)
 	q_range = tuple(range(4))
@@ -181,5 +147,3 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 		if bone_i in animated_bone_indices:
 			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=b_bone_name)
 			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=b_bone_name)
-
-

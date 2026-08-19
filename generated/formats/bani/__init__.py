@@ -196,7 +196,6 @@ class BanisFile(BanisInfoHeader, IoFile):
 					# Use the GPU index stored in the CPU header
 					gpu_header_idx = bani.data.gpu_buffer_index
 					gpu_header = self.gpu_headers[gpu_header_idx]
-					# gpu_header2 = self.gpu_headers[anim_idx]
 					channel_map = self.parsed_gpu_channels[gpu_header_idx]
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
