@@ -1,4 +1,3 @@
-import math
 import os
 import logging
 import time
@@ -12,8 +11,8 @@ from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
 from plugin.utils.anim import get_bone_bind_data
-from plugin.utils.transforms import BanisCorrector, Corrector
-from plugin.utils.object import create_ob, get_bones_table, get_parent_map
+from plugin.utils.transforms import Corrector
+from plugin.utils.object import get_bones_table, get_parent_map
 if TYPE_CHECKING:
 	from generated.formats.bani.structs.BaniInfo import BaniInfo
 
@@ -38,9 +37,6 @@ def load(reporter, files=(), filepath="", set_fps=False):
 	banis.load(filepath)
 
 	for bani in banis.anims:
-		# anim_length = bani.data.animation_length
-		# num_frames = bani.data.num_frames
-
 		logging.debug(f"'{bani.name}', flag: {bani.data.flags}")
 		# select target armature for pose anims of PZ1 animals with decimated skeletons
 		b_target_armature = b_main_armature_ob
@@ -150,18 +146,6 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 			
 			# Convert posed armature space from game to blender coordinates
 			b_posed_armature_space[bone_i] = corrector.to_blender(g_posed_armature_space[bone_i])
-			# if "_02_flourish" in bani.name and frame_i == 0:
-			# 	if bone_i in animated_bone_indices:
-			# 		empty = create_ob(bpy.context.scene, b_bone_name, None)
-			# 		empty.matrix_local = b_posed_armature_space[bone_i]
-			# 		empty.empty_display_type = "ARROWS"
-			# 		empty.empty_display_size = 0.005
-			# if "head" in b_bone_name and "_02_" in bani.name and frame_i == 0:
-			# 	print(bani.name)
-			# 	print(g_key)
-			# 	# print(g_posed_armature_space[bone_i] @ g_bind_armature_space[bone_i].inverted())
-			# 	# print(g_bind_armature_space[bone_i])
-			# 	print(b_posed_armature_space[bone_i])
 
 		for bone_i, parent_i in enumerate(parent_index_map):
 			# Make posed armature-space transform relative to the posed parent bone
