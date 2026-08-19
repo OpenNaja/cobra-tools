@@ -51,7 +51,10 @@ def set_fps_from_action_callback(scene, depsgraph):
 
 		if current_action != last_action:
 			_action_cache[obj.name] = current_action
-			scene.frame_start = int(round(current_action.frame_range[0]))
-			scene.frame_end = int(round(current_action.frame_range[1]))
-			scene.render.fps = current_action.get("fps", 24)
-			logging.info(f"Action changed to {current_action.name if current_action else 'None'} with {scene.render.fps} FPS")
+			fps = current_action.get("fps")
+			if fps is not None:
+				# note - manually authored animations do not have a set frame_range!
+				scene.frame_start = int(round(current_action.frame_range[0]))
+				scene.frame_end = int(round(current_action.frame_range[1]))
+				scene.render.fps = fps
+				logging.info(f"Action changed to {current_action.name if current_action else 'None'} with {scene.render.fps} FPS")
