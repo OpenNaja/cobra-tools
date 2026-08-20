@@ -137,22 +137,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 				pos_after_header = stream.tell()
 				metadata_gap_size = self.data.gpu_anim_headers_size + self.data.channel_bones_size + self.data.channel_bones_lod_size
 				keys_start_pos = pos_after_header + metadata_gap_size
-				stream.seek(0, os.SEEK_END)
-				eof_pos = stream.tell()
-				keys_size = self.data.keys_size
 				
 				logging.debug("\n[DEBUG] --- FILE ALIGNMENT DIAGNOSTICS ---")
-				logging.debug(f"  EOF Position       : {eof_pos}")
 				logging.debug(f"  Pos after header   : {pos_after_header}")
 				logging.debug(f"  Keys Start Pos     : {keys_start_pos}")
-				logging.debug(f"  Expected Keys Size : {keys_size}")
 				logging.debug(f"  Header gpu_anim_headers_size     : {self.data.gpu_anim_headers_size}")
 				logging.debug(f"  Header channel_bones_size   : {self.data.channel_bones_size}")
 				logging.debug(f"  Header channel_bones_lod_size   : {self.data.channel_bones_lod_size}")
 				logging.debug(f"  Metadata Gap Size  : {metadata_gap_size}")
-
-				# Rewind to header end
-				stream.seek(pos_after_header)
 
 				# Read GPU Headers
 				self.gpu_headers = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
