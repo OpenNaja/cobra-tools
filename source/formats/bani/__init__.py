@@ -5,19 +5,9 @@ from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
 from generated.formats.bani.structs.BanisInfoHeader import BanisInfoHeader
 from generated.io import IoFile
 import os
-import struct
 import logging
 
 import numpy as np
-
-
-class BaniContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
 
 
 class BanisFile(BanisInfoHeader, IoFile):
@@ -35,7 +25,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 	])
 
 	def __init__(self):
-		super().__init__(BaniContext())
+		super().__init__(self)
 
 	def decompress_keyframes(self, keys_raw, quantization_info):
 		"""Applies the Smallest-3 decompression, de-quantization"""
@@ -251,16 +241,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 		if self.context.version >= 7:
 			raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
 
-		self.num_anims = len(self.anims)
-		offset = 0
+		self.data.bytes_per_frame = 12
+		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 		self.data.num_frames = 0
+		offset = 0
 		for bani in self.anims:
 			self.data.num_frames += bani.data.num_frames
 			bani.data.read_start_frame = offset
 			offset += bani.data.num_frames
-
-		self.data.bytes_per_frame = 12
-		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 
 		# Reassemble the whole array as floats
 		quats_all = np.vstack([bani.quats for bani in self.anims])

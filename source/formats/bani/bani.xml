@@ -2,7 +2,15 @@
 <!DOCTYPE fileformat>
 <fileformat>
 
-    <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+	<version id="PC" version="2" >Planet Coaster</version>
+	<version id="PZ" version="5" >Planet Zoo</version>
+	<version id="JWE" version="5" >Jurassic World Evolution</version>
+	<version id="JWE2" version="5" >Jurassic World Evolution 2</version>
+	<version id="WAR" version="5" >Warhammer Age of Sigmar - Realms of Ruin</version>
+	<version id="PC2" version="7">Planet Coaster 2</version>
+	<version id="JWE3" version="7" >Jurassic World Evolution 3</version>
 
     <struct name="Vector3Ushort" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).

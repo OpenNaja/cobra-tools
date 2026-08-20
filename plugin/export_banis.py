@@ -7,6 +7,7 @@ import mathutils
 import numpy as np
 
 from generated.formats.bani import BanisFile
+from generated.formats.bani.versions import set_game
 from plugin.modules_export.animation import get_actions
 from plugin.modules_export.armature import get_armatures_collections
 from plugin.utils.anim import get_bone_bind_data
@@ -37,8 +38,7 @@ def save(reporter, filepath=""):
 	all_actions = [action for actions in anim_map.values() for action in actions]
 
 	banis = BanisFile()
-	# legacy format
-	banis.version = 5
+	set_game(banis, scene.cobra.game)
 	banis.num_anims = len(all_actions)
 	banis.reset_field("anims")
 	bani_i = 0
