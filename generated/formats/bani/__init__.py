@@ -38,8 +38,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 	def __init__(self):
 		super().__init__(BaniContext())
 
-	def decompress_keyframes(self, rot_raw, loc_raw, scale, bias):
+	def decompress_keyframes(self, keys_raw, quantization_info):
 		"""Applies the Smallest-3 decompression, de-quantization"""
+		rot_raw = keys_raw["rot_raw"]
+		loc_raw = keys_raw["loc_raw"]
 		c0 = rot_raw[:, :, 0] & 0x7FFF
 		c1 = rot_raw[:, :, 1] & 0x7FFF
 		c2 = rot_raw[:, :, 2] & 0x7FFF
@@ -66,11 +68,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 		# De-quantize translation
 		loc_game = loc_raw.astype(np.float32)
-		loc_game = (loc_game * scale) + bias
-
+		loc_game = (loc_game * quantization_info.scale) + quantization_info.bias
 		return quats, loc_game
 
-	def compress_keyframes(self, quats, loc_game, scale, bias):
+	def compress_keyframes(self, quats, loc_game, quantization_info):
 		"""Reverses the Smallest-3 decompression and quantization"""
 		# Ensure quaternions are valid and normalized
 		quats = np.asarray(quats, dtype=np.float32)
@@ -114,9 +115,11 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 		rot_raw = np.stack((c0_packed, c1_packed, c2_packed), axis=-1)
 
+		# Calculate translation scale and bias to spread range across 0 - 65535
+		self.set_quantization_params(loc_game, quantization_info)
 		# Compress translation
-		if scale > 1e-8:
-			loc_raw_float = (loc_game - bias) / scale
+		if quantization_info.scale > 1e-8:
+			loc_raw_float = (loc_game - quantization_info.bias) / quantization_info.scale
 		else:
 			loc_raw_float = np.zeros_like(loc_game)
 			
@@ -179,17 +182,13 @@ class BanisFile(BanisInfoHeader, IoFile):
 				# PC2 keys are read directly from disk below
 			else:
 				# For older versions, read directly into a structured array
-				keys_packed = np.empty(dtype=BanisFile.dt_packed, shape=(self.data.num_frames, self.data.num_bones))
-				stream.readinto(keys_packed)
+				all_keys_raw = self.read_raw_keys(stream, self.data.num_frames, self.data.num_bones)
 
 			global_num_bones = self.data.num_bones
 
 			for anim_idx, bani in enumerate(self.anims):
 				num_frames = bani.data.num_frames
-				# Initialize output array to Identity transforms (for non-animated bones)
-				bani.keys = np.empty((num_frames, global_num_bones), dtype=BanisFile.dt_float)
-				bani.keys["quat"] = [1.0, 0.0, 0.0, 0.0]
-				bani.keys["loc"] = [0.0, 0.0, 0.0]
+				self.init_uncompressed_arrays(bani, num_frames, global_num_bones)
 				bani.animated_bone_indices = []
 
 				if is_pc2:
@@ -199,8 +198,6 @@ class BanisFile(BanisInfoHeader, IoFile):
 					channel_map = self.parsed_gpu_channels[gpu_header_idx]
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
-					scale = gpu_header.quantization_info.scale
-					bias = gpu_header.quantization_info.bias
 
 					# Calculate absolute keys offset using the corrected GPU index
 					current_pos = pos_after_header + (gpu_header_idx * 16)
@@ -211,69 +208,46 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 					# Read keys from disk
 					stream.seek(keys_pos_absolute)
-					expected_bytes = num_frames * num_local_bones * 12
-					anim_raw_bytes = stream.read(expected_bytes)
+					keys_raw = self.read_raw_keys(stream, num_frames, num_local_bones)
 
-					anim_keys_raw = np.frombuffer(anim_raw_bytes, dtype=BanisFile.dt_packed).reshape((num_frames, num_local_bones))
-
-					# --- DEBUG LOGGING: START ---
 					logging.debug(f"\n[DEBUG] --- Animation {anim_idx}: {bani.name} ---")
-					logging.debug(f"  Scale       : {scale:.10f}")
-					logging.debug(f"  Bias        : {bias:.10f}")
 					logging.debug(f"  Local Bones : {num_local_bones}")
 					logging.debug(f"  Total Frames: {num_frames}")
 					logging.debug(f"  GPU Index:  : {gpu_header_idx}")
-					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {keys_pos_absolute + expected_bytes}")
+					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {stream.tell()}")
 					logging.debug(f"  Bone Map    : {channel_map}")
 
-					#if num_local_bones > 0 and num_frames > 0:
-					#	logging.debug("  [Frame 0 Raw Hex]")
-					#	for local_i in range(num_local_bones):
-					#		r_raw = anim_keys_raw["rot_raw"][0, local_i]
-					#		l_raw = anim_keys_raw["loc_raw"][0, local_i]
-					#		global_i = channel_map[local_i]
-					#
-					#		logging.debug(f"    Curve {local_i:02d} -> Maps to Target Bone {global_i:02d}")
-					#		logging.debug(f"      Rot: [{r_raw[0]:04X}, {r_raw[1]:04X}, {r_raw[2]:04X}]  Loc: [{l_raw[0]:04X}, {l_raw[1]:04X}, {l_raw[2]:04X}]")
-
-					## Debug for specific anims
-					#if anim_idx == 95 and num_frames > 0:
-					#	logging.debug(f"Scale: {scale}, Bias: {bias}")
-					#	for f in range(min(8, num_frames)):
-					#		logging.debug(f"Animation 0, Frame {f}")
-					#		for local_i in range(min(25, num_local_bones)):
-					#			global_i, read_i = channel_map[local_i]
-					#			l_raw = anim_keys_raw["loc_raw"][f, local_i]
-					#			l_float = locs[f, local_i]
-					#			logging.debug(f"  Local Curve {local_i:02d} -> Global Bone {global_i:02d} -> Read {read_i:02d}")
-					#			logging.debug(f"    Hex Loc:   [{l_raw[0]:04X}, {l_raw[1]:04X}, {l_raw[2]:04X}]")
-					#			logging.debug(f"    Float Loc: [{l_float[0]:.6f}, {l_float[1]:.6f}, {l_float[2]:.6f}] meters")
-					## --- DEBUG LOGGING: END ---
-
 					# Decompress
-					quats, locs = self.decompress_keyframes(anim_keys_raw["rot_raw"], anim_keys_raw["loc_raw"], scale, bias)
+					quats, locs = self.decompress_keyframes(keys_raw, gpu_header.quantization_info)
 
 					# Read mapping
 					bani.read_mapping = {}
 					# Map channels to bones
 					for local_i, (write_i, read_i) in enumerate(channel_map):
 						if write_i < global_num_bones:
-							bani.keys["quat"][:, write_i] = quats[:, local_i]
-							bani.keys["loc"][:, write_i] = locs[:, local_i]
+							bani.quats[:, write_i] = quats[:, local_i]
+							bani.locs[:, write_i] = locs[:, local_i]
 							bani.animated_bone_indices.append(write_i)
 							bani.read_mapping[write_i] = read_i
 				else:
 					# Fallback for old titles
 					start_frame = bani.data.read_start_frame
 					end_frame = start_frame + num_frames
-
-					anim_keys_raw = keys_packed[start_frame:end_frame]
-					bani.keys["quat"][:], bani.keys["loc"][:] = self.decompress_keyframes(
-						anim_keys_raw["rot_raw"], anim_keys_raw["loc_raw"],
-						self.data.quantization_info.scale, self.data.quantization_info.bias
-					)
+					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_keys_raw[start_frame:end_frame], self.data.quantization_info)
 					bani.animated_bone_indices = list(range(global_num_bones))
-	
+
+	def init_uncompressed_arrays(self, bani, num_frames, num_bones):
+		# Initialize output array to Identity transforms (for non-animated bones)
+		bani.locs = np.zeros((num_frames, num_bones, 3), dtype=np.float32)
+		bani.quats = np.zeros((num_frames, num_bones, 4), dtype=np.float32)
+		bani.quats[:, :, 0] = 1.0
+
+	def read_raw_keys(self, stream, num_frames, num_bones):
+		all_keys_raw = np.empty(dtype=BanisFile.dt_packed, shape=(num_frames, num_bones))
+		# all_keys_raw = np.empty(dtype=np.uint16, shape=(num_frames, num_bones, 6))
+		stream.readinto(all_keys_raw)
+		return all_keys_raw
+
 	def save(self, filepath):
 		if self.context.version >= 7:
 			raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
@@ -281,44 +255,34 @@ class BanisFile(BanisInfoHeader, IoFile):
 		self.num_anims = len(self.anims)
 		offset = 0
 		self.data.num_frames = 0
-
 		for bani in self.anims:
-			bani.data.num_frames = len(bani.keys)
 			self.data.num_frames += bani.data.num_frames
 			bani.data.read_start_frame = offset
 			offset += bani.data.num_frames
 
-		# Assume all animations have the same bone count in Version < 7
-		_num_frames, self.data.num_bones = self.anims[0].keys.shape
 		self.data.bytes_per_frame = 12
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 
 		# Reassemble the whole array as floats
-		quats_all = np.empty((self.data.num_frames, self.data.num_bones, 4), dtype=np.float32)
-		locs_all = np.empty((self.data.num_frames, self.data.num_bones, 3), dtype=np.float32)
+		quats_all = np.vstack([bani.quats for bani in self.anims])
+		locs_all = np.vstack([bani.locs for bani in self.anims])
+		# quats_all = np.empty((self.data.num_frames, self.data.num_bones, 4), dtype=np.float32)
+		# locs_all = np.empty((self.data.num_frames, self.data.num_bones, 3), dtype=np.float32)
+		# for bani in self.anims:
+		# 	start = bani.data.read_start_frame
+		# 	end = start + bani.data.num_frames
+		# 	quats_all[start:end] = bani.quats
+		# 	locs_all[start:end] = bani.locs
 
-		for bani in self.anims:
-			start = bani.data.read_start_frame
-			end = start + bani.data.num_frames
-			quats_all[start:end] = bani.keys["quat"]
-			locs_all[start:end] = bani.keys["loc"]
-
-		# Calculate translation scale and bias to spread range across 0 - 65535
-		self.set_quantization_params(locs_all, self.data.quantization_info)
-
-		# Compress
-		rot_raw, loc_raw = self.compress_keyframes(quats_all, locs_all, self.data.quantization_info.scale, self.data.quantization_info.bias)
-		
 		# Pack into the final uint16 structured array
-		keys_packed = np.empty((self.data.num_frames, self.data.num_bones), dtype=BanisFile.dt_packed)
-		keys_packed["rot_raw"] = rot_raw
-		keys_packed["loc_raw"] = loc_raw
+		all_keys_raw = np.empty((self.data.num_frames, self.data.num_bones), dtype=BanisFile.dt_packed)
+		all_keys_raw["rot_raw"], all_keys_raw["loc_raw"] = self.compress_keyframes(quats_all, locs_all, self.data.quantization_info)
 
 		with open(filepath, "wb") as stream:
 			# Write headers
 			self.write_fields(stream, self)
 			# Write keyframes
-			stream.write(keys_packed.tobytes())
+			stream.write(all_keys_raw.tobytes())
 
 	@staticmethod
 	def set_quantization_params(locs, quantization_info):

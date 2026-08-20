@@ -56,22 +56,23 @@ def save(reporter, filepath=""):
 		b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 		b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 		parent_index_map = get_parent_map(p_bones)
+		banis.data.num_bones = len(bones_table)
 		# per anim
 		for b_action in sorted(actions, key=lambda x: x.name):
 			logging.info(f"Exporting {b_action.name} for {b_target_armature.name}")
 			# store pose data for b_action
 			b_target_armature.animation_data.action = b_action
-			num_frames = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
-			fps = b_action.get("fps", scene.render.fps)
 			bani = banis.anims[bani_i]
 			bani.name = b_action.name
 			bani.data.banis.pool_index = 0
-			bani.data.animation_length = (num_frames-1) / fps
-			bani.keys = np.empty(dtype=banis.dt_float, shape=(num_frames, len(bones_table)))
+			bani.data.num_frames = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
+			fps = b_action.get("fps", scene.render.fps)
+			bani.data.animation_length = (bani.data.num_frames-1) / fps
+			banis.init_uncompressed_arrays(bani, bani.data.num_frames, len(bones_table))
 			bani_i += 1
 
 			# sample each frame
-			for frame_i, frame in enumerate(bani.keys):
+			for frame_i in range(bani.data.num_frames):
 				bpy.context.scene.frame_set(frame_i)
 				bpy.context.view_layer.update()
 				if b_target_armature == b_main_armature_ob:
@@ -82,8 +83,8 @@ def save(reporter, filepath=""):
 						# get the posed armature space matrix
 						g_posed_armature_space = corrector.from_blender(b_posed_armature_space)
 						g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
-						frame["loc"][bone_i] = g_key.translation
-						frame["quat"][bone_i] = g_key.to_quaternion()
+						bani.locs[frame_i, bone_i] = g_key.translation
+						bani.quats[frame_i, bone_i] = g_key.to_quaternion()
 				else:
 					# undo the transforms from import for PZ exhibit pose anims with reduced bone counts
 					# because b_posed_armature_space is not actually that on import, as the bind poses differ
@@ -116,8 +117,8 @@ def save(reporter, filepath=""):
 
 						g_posed_armature_space = corrector.from_blender(b_posed_armature_space[bone_i])
 						g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
-						frame["loc"][bone_i] = g_key.translation
-						frame["quat"][bone_i] = g_key.to_quaternion()
+						bani.locs[frame_i, bone_i] = g_key.translation
+						bani.quats[frame_i, bone_i] = g_key.to_quaternion()
 
 	banis.save(filepath)
 	reporter.show_info(f"Exported {banis_name}")

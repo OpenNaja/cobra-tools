@@ -74,15 +74,15 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	g_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_armature_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
 	b_posed_local_space: list[Optional[mathutils.Matrix]] = [None for _ in bones_table]
-	locs = np.empty((len(bani.keys) ,len(bones_table), 3), float)
-	quats = np.empty((len(bani.keys) ,len(bones_table), 4), float)
+	b_posed_delta_locs = np.empty_like(bani.locs)
+	b_posed_delta_quats = np.empty_like(bani.quats)
 	# go frame per frame
-	for frame_i, frame in enumerate(bani.keys):
+	for frame_i in range(bani.data.num_frames):
 
 		for bone_i, b_bone_name in bones_table:
 			# Un-animated bones will receive (1,0,0,0) and (0,0,0) here, mapping safely to Bind Pose.
-			g_key: mathutils.Matrix = mathutils.Quaternion(frame["quat"][bone_i]).to_matrix().to_4x4()
-			g_key.translation = frame["loc"][bone_i]
+			g_key: mathutils.Matrix = mathutils.Quaternion(bani.quats[frame_i, bone_i]).to_matrix().to_4x4()
+			g_key.translation = bani.locs[frame_i, bone_i]
 
 			# Fetch the readIdx for this bone
 			read_i = getattr(bani, "read_mapping", {}).get(bone_i, 255)
@@ -137,13 +137,13 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 				continue
 			# Factor out Blender's natural Rest Pose to create pure Delta F-Curves
 			b_posed_delta_space = b_bind_local_space[bone_i].inverted() @ b_posed_local_space[bone_i]
-			quats[frame_i, bone_i] = b_posed_delta_space.to_quaternion()
-			locs[frame_i, bone_i] = b_posed_delta_space.translation
+			b_posed_delta_quats[frame_i, bone_i] = b_posed_delta_space.to_quaternion()
+			b_posed_delta_locs[frame_i, bone_i] = b_posed_delta_space.translation
 
 	frames = np.arange(bani.data.num_frames)
 	q_range = tuple(range(4))
 	l_range = tuple(range(3))
 	for bone_i, b_bone_name in bones_table:
 		if bone_i in animated_bone_indices:
-			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, quats[:, bone_i], None, n_bone=b_bone_name)
-			anim_sys.add_keys(b_action, "location", l_range, None, frames, locs[:, bone_i], None, n_bone=b_bone_name)
+			anim_sys.add_keys(b_action, "rotation_quaternion", q_range, None, frames, b_posed_delta_quats[:, bone_i], None, n_bone=b_bone_name)
+			anim_sys.add_keys(b_action, "location", l_range, None, frames, b_posed_delta_locs[:, bone_i], None, n_bone=b_bone_name)
