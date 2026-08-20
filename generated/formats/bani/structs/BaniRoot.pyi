@@ -4,8 +4,8 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class BaniRoot(MemStruct):
     banis: Pointer[object]
-    gpu_buffer_index: int
-    gpu_buffer_offset: int
+    gpu_header_index: int
+    gpu_header_offset: int
     read_start_frame: int
     num_frames: int
     animation_length: float

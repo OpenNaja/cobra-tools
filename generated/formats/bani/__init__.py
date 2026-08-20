@@ -16,8 +16,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 	QUAT_BIAS = 0.7071067
 
 	dt_packed = np.dtype([
-		("rot_raw", np.uint16, (3,)),
-		("loc_raw", np.uint16, (3,)),
+		("quats", np.uint16, (3,)),
+		("locs", np.uint16, (3,)),
 	])
 
 	dt_float = np.dtype([
@@ -28,13 +28,13 @@ class BanisFile(BanisInfoHeader, IoFile):
 	def __init__(self):
 		super().__init__(self)
 
-	def decompress_keyframes(self, keys_raw, quantization_info):
+	def decompress_keyframes(self, packed_keys, quantization_info):
 		"""Applies the Smallest-3 decompression, de-quantization"""
-		rot_raw = keys_raw["rot_raw"]
-		loc_raw = keys_raw["loc_raw"]
-		c0 = rot_raw[:, :, 0] & 0x7FFF
-		c1 = rot_raw[:, :, 1] & 0x7FFF
-		c2 = rot_raw[:, :, 2] & 0x7FFF
+		quats = packed_keys["quats"]
+		locs = packed_keys["locs"]
+		c0 = quats[:, :, 0] & 0x7FFF
+		c1 = quats[:, :, 1] & 0x7FFF
+		c2 = quats[:, :, 2] & 0x7FFF
 
 		# Remap [0, 32767] to [-0.7071067, 0.7071067]
 		v0 = c0 * self.QUAT_SCALE - self.QUAT_BIAS
@@ -44,9 +44,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 		sq_sum = v0**2 + v1**2 + v2**2
 		w = np.sqrt(np.clip(1.0 - sq_sum, 0.0, 1.0))
 		
-		drop_idx = ((rot_raw[:, :, 0] >> 14) & 2) | ((rot_raw[:, :, 1] >> 15) & 1)
+		drop_idx = ((quats[:, :, 0] >> 14) & 2) | ((quats[:, :, 1] >> 15) & 1)
 		
-		quats = np.empty(rot_raw.shape[:-1] + (4,), dtype=np.float32)
+		quats = np.empty(quats.shape[:-1] + (4,), dtype=np.float32)
 		# where is faster than stacking masked arrays and take_along_axis
 		# drop_idx refers to Frontier's XYZW quaternion, but we already change it to blender's WXYZ order here
 		quats[..., 0] = np.where(drop_idx == 3, w, v2)
@@ -57,12 +57,15 @@ class BanisFile(BanisInfoHeader, IoFile):
 		quats[sq_sum > 1.0] = [1.0, 0.0, 0.0, 0.0]
 
 		# De-quantize translation
-		loc_game = loc_raw.astype(np.float32)
+		loc_game = locs.astype(np.float32)
 		loc_game = (loc_game * quantization_info.scale) + quantization_info.bias
 		return quats, loc_game
 
 	def compress_keyframes(self, quats, loc_game, quantization_info):
-		"""Reverses the Smallest-3 decompression and quantization"""
+		"""Reverses the Smallest-3 decompression and quantization
+		Pack into the final uint16 structured array"""
+
+		packed_keys = np.empty(quats.shape[:2], dtype=BanisFile.dt_packed)
 		# Ensure quaternions are valid and normalized
 		quats = np.asarray(quats, dtype=np.float32)
 		norms = np.linalg.norm(quats, axis=-1, keepdims=True)
@@ -103,7 +106,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 		c1_packed = c1 | ((drop_idx & 1) << 15).astype(np.uint16)
 		c2_packed = c2
 
-		rot_raw = np.stack((c0_packed, c1_packed, c2_packed), axis=-1)
+		packed_keys["quats"] = np.stack((c0_packed, c1_packed, c2_packed), axis=-1)
 
 		# Calculate translation scale and bias to spread range across 0 - 65535
 		self.set_quantization_params(loc_game, quantization_info)
@@ -112,10 +115,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 			loc_raw_float = (loc_game - quantization_info.bias) / quantization_info.scale
 		else:
 			loc_raw_float = np.zeros_like(loc_game)
-			
-		loc_raw = np.clip(np.round(loc_raw_float), 0, 65535).astype(np.uint16)
-
-		return rot_raw, loc_raw
+		
+		packed_keys["locs"] = np.clip(np.round(loc_raw_float), 0, 65535).astype(np.uint16)
+		return packed_keys
 
 	def load(self, filepath):
 		self.file = filepath
@@ -128,7 +130,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 			is_pc2 = self.context.version >= 7
 
-			self.parsed_gpu_channels = []
+			self.gpu_channels = []
 
 			if is_pc2:
 				# ==========================================
@@ -148,15 +150,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 				# Read GPU Headers
 				self.gpu_headers = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
-				for i, gpu_header in enumerate(self.gpu_headers):
-					offset = i * 16
-					current_pos = pos_after_header + offset
+				for gpu_header_index, gpu_header in enumerate(self.gpu_headers):
+					current_pos = pos_after_header + (gpu_header_index * 16)
 					channels_pos = current_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
 
 					# Read GPU Channels
 					stream.seek(channels_pos)
 					bani_gpu_channels = BaniGpuChannels.from_stream(stream, self.context, arg=gpu_header)
-					self.parsed_gpu_channels.append(bani_gpu_channels.data)
+					self.gpu_channels.append(bani_gpu_channels.data)
 
 				# TODO: Skip LOD Channel for now
 
@@ -164,25 +165,25 @@ class BanisFile(BanisInfoHeader, IoFile):
 				# PC2 keys are read directly from disk below
 			else:
 				# For older versions, read directly into a structured array
-				all_keys_raw = self.read_raw_keys(stream, self.data.num_frames, self.data.num_bones)
+				all_packed_keys = self.read_packed_keys(stream, self.data.num_frames, self.data.num_bones)
 
-			global_num_bones = self.data.num_bones
+			num_global_bones = self.data.num_bones
 
 			for anim_idx, bani in enumerate(self.anims):
 				num_frames = bani.data.num_frames
-				self.init_uncompressed_arrays(bani, num_frames, global_num_bones)
+				self.init_uncompressed_arrays(bani, num_frames, num_global_bones)
 				bani.animated_bone_indices = []
 
 				if is_pc2:
 					# Use the GPU index stored in the CPU header
-					gpu_header_idx = bani.data.gpu_buffer_index
-					gpu_header = self.gpu_headers[gpu_header_idx]
-					channel_map = self.parsed_gpu_channels[gpu_header_idx]
+					gpu_header_index = bani.data.gpu_header_index
+					gpu_header = self.gpu_headers[gpu_header_index]
+					channel_map = self.gpu_channels[gpu_header_index]
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 
-					# Calculate absolute keys offset using the corrected GPU index
-					current_pos = pos_after_header + (gpu_header_idx * 16)
+					# Calculate absolute keys offset using the GPU index
+					current_pos = pos_after_header + (gpu_header_index * 16)
 					keys_base_disk_offset = current_pos + (gpu_header.keyframes_offset * 16)
 					# Skip currently unread LOD channels
 					keys_base_disk_offset += self.data.channel_bones_lod_size
@@ -190,23 +191,26 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 					# Read keys from disk
 					stream.seek(keys_pos_absolute)
-					keys_raw = self.read_raw_keys(stream, num_frames, num_local_bones)
+					packed_keys = self.read_packed_keys(stream, num_frames, num_local_bones)
 
 					logging.debug(f"\n[DEBUG] --- Animation {anim_idx}: {bani.name} ---")
+					logging.debug(f"  Mode : {bani.data.mode}")
+					logging.debug(f"  keyframes_offset : {gpu_header.keyframes_offset}")
+					logging.debug(f"  read_start_frame : {bani.data.read_start_frame}")
 					logging.debug(f"  Local Bones : {num_local_bones}")
 					logging.debug(f"  Total Frames: {num_frames}")
-					logging.debug(f"  GPU Index:  : {gpu_header_idx}")
+					logging.debug(f"  GPU Index:  : {gpu_header_index}")
 					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {stream.tell()}")
-					logging.debug(f"  Bone Map    : {channel_map}")
+					# logging.debug(f"  Bone Map    : {channel_map}")
 
 					# Decompress
-					quats, locs = self.decompress_keyframes(keys_raw, gpu_header.quantization_info)
+					quats, locs = self.decompress_keyframes(packed_keys, gpu_header.quantization_info)
 
 					# Read mapping
 					bani.read_mapping = {}
 					# Map channels to bones
 					for local_i, (write_i, read_i) in enumerate(channel_map):
-						if write_i < global_num_bones:
+						if write_i < num_global_bones:
 							bani.quats[:, write_i] = quats[:, local_i]
 							bani.locs[:, write_i] = locs[:, local_i]
 							bani.animated_bone_indices.append(write_i)
@@ -215,8 +219,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 					# Fallback for old titles
 					start_frame = bani.data.read_start_frame
 					end_frame = start_frame + num_frames
-					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_keys_raw[start_frame:end_frame], self.data.quantization_info)
-					bani.animated_bone_indices = list(range(global_num_bones))
+					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_packed_keys[start_frame:end_frame], self.data.quantization_info)
+					bani.animated_bone_indices = list(range(num_global_bones))
 
 	def init_uncompressed_arrays(self, bani, num_frames, num_bones):
 		# Initialize output array to Identity transforms (for non-animated bones)
@@ -224,17 +228,16 @@ class BanisFile(BanisInfoHeader, IoFile):
 		bani.quats = np.zeros((num_frames, num_bones, 4), dtype=np.float32)
 		bani.quats[:, :, 0] = 1.0
 
-	def read_raw_keys(self, stream, num_frames, num_bones):
-		all_keys_raw = np.empty(dtype=BanisFile.dt_packed, shape=(num_frames, num_bones))
-		# all_keys_raw = np.empty(dtype=np.uint16, shape=(num_frames, num_bones, 6))
-		stream.readinto(all_keys_raw)
-		return all_keys_raw
+	def read_packed_keys(self, stream, num_frames, num_bones):
+		packed_keys = np.empty(dtype=BanisFile.dt_packed, shape=(num_frames, num_bones))
+		# packed_keys = np.empty(dtype=np.uint16, shape=(num_frames, num_bones, 6))
+		stream.readinto(packed_keys)
+		return packed_keys
 
 	def save(self, filepath):
 		if self.context.version >= 7:
 			raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
 
-		self.data.bytes_per_frame = 12
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 		self.data.num_frames = 0
 		offset = 0
@@ -242,27 +245,27 @@ class BanisFile(BanisInfoHeader, IoFile):
 			self.data.num_frames += bani.data.num_frames
 			bani.data.read_start_frame = offset
 			offset += bani.data.num_frames
-
-		# Reassemble the whole array as floats
-		quats_all = np.vstack([bani.quats for bani in self.anims])
-		locs_all = np.vstack([bani.locs for bani in self.anims])
-		# quats_all = np.empty((self.data.num_frames, self.data.num_bones, 4), dtype=np.float32)
-		# locs_all = np.empty((self.data.num_frames, self.data.num_bones, 3), dtype=np.float32)
-		# for bani in self.anims:
-		# 	start = bani.data.read_start_frame
-		# 	end = start + bani.data.num_frames
-		# 	quats_all[start:end] = bani.quats
-		# 	locs_all[start:end] = bani.locs
-
-		# Pack into the final uint16 structured array
-		all_keys_raw = np.empty((self.data.num_frames, self.data.num_bones), dtype=BanisFile.dt_packed)
-		all_keys_raw["rot_raw"], all_keys_raw["loc_raw"] = self.compress_keyframes(quats_all, locs_all, self.data.quantization_info)
+		
+		all_packed_keys = []
+		if self.context.version < 7:
+			# Reassemble the whole array as floats and quantize in one sweep
+			quats_all = np.vstack([bani.quats for bani in self.anims])
+			locs_all = np.vstack([bani.locs for bani in self.anims])
+			packed_keys = self.compress_keyframes(quats_all, locs_all, self.data.quantization_info)
+			all_packed_keys.append(packed_keys)
+		else:
+			# Quantize each bani individually
+			for bani, gpu_header in zip(self.anims, self.gpu_headers):
+				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
+				all_packed_keys.append(packed_keys)
 
 		with open(filepath, "wb") as stream:
 			# Write headers
 			self.write_fields(stream, self)
-			# Write keyframes
-			stream.write(all_keys_raw.tobytes())
+			# Write quantized keyframe data
+			for packed_keys in all_packed_keys:
+				stream.write(packed_keys.tobytes())
+
 
 	@staticmethod
 	def set_quantization_params(locs, quantization_info):

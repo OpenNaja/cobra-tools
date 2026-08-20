@@ -33,8 +33,8 @@ class BanisRoot(MemStruct):
 		# bytes per bone * num bones
 		self.bytes_per_frame = name_type_map['Uint'](self.context, 0, None)
 
-		# seen 12 (PC2 pigeon), 16 (PC1 pigeon)
-		self.bytes_per_bone = name_type_map['Uint'](self.context, 0, None)
+		# 12 (v5-7 ushort[6]), 16 (v2 in PC1, ushort[8], apparently x,y,z,zero,x,y,z,w)
+		self.bytes_per_bone = name_type_map['Uint'].from_value(12)
 
 		# Number of frames for all bani files in banis buffer
 		self.num_frames = name_type_map['Uint'](self.context, 0, None)
@@ -68,7 +68,7 @@ class BanisRoot(MemStruct):
 		yield 'keys_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (lambda context: context.version <= 5, None)
 		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, 12), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None), (lambda context: context.version <= 5, None)
@@ -95,7 +95,7 @@ class BanisRoot(MemStruct):
 		if instance.context.version <= 5:
 			yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None)
 		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None)
-		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None)
+		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, 12)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 5:
