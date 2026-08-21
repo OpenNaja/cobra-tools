@@ -182,8 +182,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 
 					# Calculate absolute keys offset using the GPU index
-					current_pos = pos_after_header + (gpu_header_index * 16)
-					keys_base_disk_offset = current_pos + (gpu_header.keyframes_offset * 16)
+					gpu_header_pos = pos_after_header + (gpu_header_index * 16)
+					keys_base_disk_offset = gpu_header_pos + (gpu_header.keyframes_offset * 16)
 					# Skip currently unread LOD channels
 					keys_base_disk_offset += self.data.channel_bones_lod_size
 					keys_pos_absolute = keys_base_disk_offset + (bani.data.read_start_frame * 12)
