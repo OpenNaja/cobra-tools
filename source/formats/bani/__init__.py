@@ -2,6 +2,8 @@ from generated.array import Array
 from generated.formats.bani.structs.BaniGpuAnimHeader import BaniGpuAnimHeader
 from generated.formats.bani.structs.BaniGpuChannelBones import BaniGpuChannelBones
 from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
+from generated.formats.bani.structs.BaniGpuChannelsLod import BaniGpuChannelsLod
+from generated.formats.bani.structs.BaniGpuChannelsLod256 import BaniGpuChannelsLod256
 from generated.formats.bani.structs.BanisInfoHeader import BanisInfoHeader
 from generated.io import IoFile
 import os
@@ -129,12 +131,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 			is_pc2 = self.context.version >= 7
 
-			self.gpu_channels = []
+			self.channel_bones = []
 
 			if is_pc2:
-				# ==========================================
-				# FILE ALIGNMENT DIAGNOSTICS
-				# ==========================================
 				pos_after_header = stream.tell()
 				metadata_gap_size = self.data.gpu_anim_headers_size + self.data.channel_bones_size + self.data.channel_bones_lod_size
 				keys_start_pos = pos_after_header + metadata_gap_size
@@ -149,18 +148,18 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 				# Read GPU Headers
 				self.gpu_headers = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
-				for gpu_header_index, gpu_header in enumerate(self.gpu_headers):
-					current_pos = pos_after_header + (gpu_header_index * 16)
-					channels_pos = current_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
+				# for gpu_header_index, gpu_header in enumerate(self.gpu_headers):
+				# 	gpu_header_pos = pos_after_header + (gpu_header_index * 16)
+				# 	channels_pos = gpu_header_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
 
-					# Read GPU Channels
-					stream.seek(channels_pos)
-					bani_gpu_channels = BaniGpuChannels.from_stream(stream, self.context, arg=gpu_header)
-					self.gpu_channels.append(bani_gpu_channels.data)
+				self.channel_bones = Array(self.context, 0, None, (len(self.gpu_headers),), BaniGpuChannels, set_default=False)
+				self.channel_bones[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.gpu_headers]
 
-				# TODO: Skip LOD Channel for now
+				lod_dtype = BaniGpuChannelsLod if self.data.channel_bones_size == self.data.channel_bones_lod_size else BaniGpuChannelsLod256
+				self.channel_bones_lod = Array(self.context, 0, None, (len(self.gpu_headers),), lod_dtype, set_default=False)
+				self.channel_bones_lod[:] = [lod_dtype.from_stream(stream, self.context, arg) for arg in self.gpu_headers]
 
-				stream.seek(keys_start_pos)
+				assert stream.tell() == keys_start_pos
 				# PC2 keys are read directly from disk below
 			else:
 				# For older versions, read directly into a structured array
@@ -177,7 +176,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					# Use the GPU index stored in the CPU header
 					gpu_header_index = bani.data.gpu_header_index
 					gpu_header = self.gpu_headers[gpu_header_index]
-					channel_map = self.gpu_channels[gpu_header_index]
+					channel_map = self.channel_bones[gpu_header_index].data
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 

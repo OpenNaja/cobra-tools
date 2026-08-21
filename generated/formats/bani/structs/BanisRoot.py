@@ -49,6 +49,8 @@ class BanisRoot(MemStruct):
 		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniGpuAnimHeader'])
 		self.channel_bones = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannels'])
 		self.channel_bones_lod = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannelsLod256'])
+
+		# this is not correct, as each bani can have different frame and bone counts from two different sources, but there's no way to get this mapping into the current xml syntax
 		self.keys = name_type_map['Pointer'](self.context, (self.num_frames, self.num_bones), name_type_map['BaniKeys'])
 		if set_default:
 			self.set_defaults()
