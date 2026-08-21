@@ -57,6 +57,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 	b_action = anim_sys.create_action(b_target_armature, bani.name)
 	# store fps on action to retrieve it and set to the scene when changing actions
 	b_action["fps"] = int(round((bani.data.num_frames - 1) / bani.data.animation_length))
+	b_action["mode"] = anim_mode
 	if b_main_armature_ob == b_target_armature:
 		g_bind_armature_space, b_bind_local_space = get_bone_bind_data(b_main_armature_ob, bones_table, corrector)
 	else:
@@ -117,7 +118,7 @@ def animate_core(anim_sys: Animation, bones_table: list[tuple[int, str]], bani: 
 					g_posed_armature_space[bone_i] = g_bind_armature_space[bone_i] @ g_key
 
 			elif anim_mode == 5:
-				# Mode 5: Legacy (Version < 7)
+				# MODE 5: Legacy (Version < 7)
 				g_posed_armature_space[bone_i] = g_key @ g_bind_armature_space[bone_i]
 				# n.b. for reduced anims, this is not in posed armature space because the bind pose is posed
 			

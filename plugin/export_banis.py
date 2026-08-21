@@ -67,6 +67,7 @@ def save(reporter, filepath=""):
 			bani.data.banis.pool_index = 0
 			bani.data.num_frames = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
 			fps = b_action.get("fps", scene.render.fps)
+			anim_mode = b_action.get("mode", 1)
 			bani.data.animation_length = (bani.data.num_frames-1) / fps
 			banis.init_uncompressed_arrays(bani, bani.data.num_frames, len(bones_table))
 			bani_i += 1
@@ -82,10 +83,30 @@ def save(reporter, filepath=""):
 						b_posed_armature_space = p_bone.matrix
 						# get the posed armature space matrix
 						g_posed_armature_space = corrector.from_blender(b_posed_armature_space)
-						g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
+
+						# Blend Modes
+						if anim_mode == 1:
+							# MODE 1 (Absolute): Keys are fully baked to world space. Ignore parent.
+							g_key = g_posed_armature_space
+
+						elif anim_mode == 2:
+							# MODE 2 Relative/FK
+							# 0 = Root bone, attached to spine. For Walk Partials 0 is the actual read_i, yet it blows up
+							# -1 (SRB) works for Walk Partials, read_i/parent_i *does not*
+							g_key = g_bind_armature_space[-1].inverted() @ g_posed_armature_space
+
+						elif anim_mode == 3:
+							# MODE 3: Additive
+							g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
+
+						elif anim_mode == 5:
+							# MODE 5: Legacy (Version < 7)
+							g_key = g_posed_armature_space @ g_bind_armature_space[bone_i].inverted()
+
 						bani.locs[frame_i, bone_i] = g_key.translation
 						bani.quats[frame_i, bone_i] = g_key.to_quaternion()
 				else:
+					assert banis.version < 7, f"Armatures with reduced bone counts are not supported in BANIS for {scene.cobra.game}"
 					# undo the transforms from import for PZ exhibit pose anims with reduced bone counts
 					# because b_posed_armature_space is not actually that on import, as the bind poses differ
 					for bone_i, b_bone_name in bones_table:
