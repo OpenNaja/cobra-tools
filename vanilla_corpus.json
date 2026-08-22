@@ -1,0 +1,60 @@
+{
+  "_comment": [
+    "Pinned VANILLA files for vanilla_corpus_check.py. Every entry must be a pristine,",
+    "unmodified game file - a modified one turns the baseline into a record of the",
+    "modification rather than of the format.",
+    "",
+    "The FGM entries are the canary for shared XML/pointer machinery: layer, pattern and",
+    "variant materials legitimately omit <textures>, which is the case that broke when the",
+    "motiongraph work changed ArrayPointer.from_xml. Keep them even though they look",
+    "unrelated to whatever you are editing - that is the point.",
+    "",
+    "Acrocanthosaurus_Female.ovl is verified pristine (md5 8b85983669bd4bfb52601b4303513435)",
+    "per the Motiongraph Research notes, and carries a motiongraph."
+  ],
+  "game": "Jurassic World Evolution 3",
+  "entries": [
+    {
+      "kind": "ovl",
+      "path": "D:\\JWE2 Stuff\\Cobra Tool Versions\\Main Mod Kit\\Backup_Indoraptor_vanilla_20260815\\Indoraptor.ovl",
+      "note": "12 manis bundles, 226 mani, 40 fgm - the animation workhorse",
+      "signature": "c65ca7fbf09d55c4f7ac"
+    },
+    {
+      "kind": "ovl",
+      "path": "D:\\JWE2 Stuff\\Cobra Tool Versions\\Main Mod Kit\\JWE 3 Luas\\Base Game\\Dinosaur Files\\Motiongraph Research\\Round Trip 1\\Original Copy\\Acrocanthosaurus_Female.ovl",
+      "note": "verified pristine stock, md5 8b85983669bd4bfb52601b4303513435, carries a motiongraph",
+      "signature": "6e30def776006f85dae1"
+    },
+    {
+      "kind": "manis",
+      "path": "D:\\JWE2 Stuff\\Personal Mods\\JWE3\\Images and Models\\Dinosaurs\\Land (Base)\\Indoraptor\\notmotionextracted.manisetf0ad5573.manis",
+      "note": "27 ACL clips incl. standidle01 (clip 21) - the bundle proven in game",
+      "signature": "5a6b553a630356f38e31"
+    },
+    {
+      "kind": "manis",
+      "path": "D:\\JWE2 Stuff\\Personal Mods\\JWE3\\Images and Models\\Dinosaurs\\Land (Base)\\Indoraptor\\hatcheryexitcamera.manisetc1124db0.manis",
+      "note": "the only shipped dtype 0 bundle - the uncompressed layout was read off this",
+      "signature": "7c54e75113a61fa9d43c"
+    },
+    {
+      "kind": "manis",
+      "path": "D:\\JWE2 Stuff\\Personal Mods\\JWE3\\Images and Models\\Dinosaurs\\Land (Base)\\Indoraptor\\notmotionextracted.manisetc519be8e.manis",
+      "note": "dtype 48/49 partial animations - the awkward one",
+      "signature": "ca29c39cc740de1f5237"
+    },
+    {
+      "kind": "fgm",
+      "path": "D:\\JWE2 Stuff\\Cobra Tool Versions\\Main Mod Kit\\Backup3\\ViralBabyTrike\\Dinosaurs\\Land\\ViralTrikeBaby\\New folder\\viraltrikebaby_layer_01.fgm",
+      "note": "CANARY: omits <textures> entirely - the case the motiongraph change broke",
+      "signature": "a1b9617da3856b637e86"
+    },
+    {
+      "kind": "fgm",
+      "path": "D:\\JWE2 Stuff\\Cobra Tool Versions\\Main Mod Kit\\Backup3\\AnteosaurusCosmetic7\\mosasaurus_pattern_01_00.fgm",
+      "note": "CANARY: empty self-closing <textures /> - the adjacent case",
+      "signature": "f678d7b0224b1428ad6d"
+    }
+  ]
+}
