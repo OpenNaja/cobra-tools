@@ -146,9 +146,13 @@
         <field name="states" type="ArrayPointer" template="StateReference" arg="states count"/>
     </struct>
 
+    <struct name="AllocationArrayPointer" inherit="ArrayPointer">
+        Motiongraph pointer whose target allocation is a contiguous array.
+    </struct>
+
     <struct name="TransStruct" inherit="MemStruct">
         24 bytes
-        <field name="another MRF_Reference2" type="Pointer" />
+        <field name="another MRF_Reference2" type="AllocationArrayPointer" template="TransitionConditionRecord" />
         <!-- links to other states -->
         <field name="states" type="StateArray" />
     </struct>
@@ -225,6 +229,22 @@
 
     <struct name="CurveDataPoint" inherit="MemStruct">
         12 bytes
+
+        y, SubsequentCurveParam and SubsequentCurveParamB are stored as 16 bits
+        but are NOT integers. Each holds float32(value + 2.0) truncated to its
+        top 16 bits, i.e. a bfloat16 with a +2 bias:
+
+            value = bf16(raw) - 2.0
+            raw   = top16(float32(value + 2.0))
+
+        The bias pins the exponent so the 7-bit mantissa acts as fixed point:
+        step 1/64 for value >= 0 (biased into [2,4)), and 1/128 for value &lt; 0
+        (biased into [1,2)). Verified on the stock JWE3 Acrocanthosaurus graph:
+        all 6,240 y values are exact multiples of 1/64 with range 0..30, the two
+        most common being 0.0 and 1.0 as expected for boolean signals; the two
+        curve params follow the same rule and reach -1.6.
+
+        x is normalised time, observed 0.0..4.0.
         <field name="x" type="float"/>
         <field name="y" type="short"/>
         <field name="SubCurveType" type="SubCurveType"/>
@@ -237,6 +257,24 @@
         16 bytes
         <field name="count" type="uint64"/>
         <field name="Points" type="ArrayPointer" template="CurveDataPoint" arg="count" />
+    </struct>
+
+    <struct name="TransitionConditionRecord" inherit="MemStruct">
+        72-byte transition-local condition record.
+        <field name="transition" type="Pointer" template="Transition"/>
+        <field name="curve" type="Pointer"/>
+        <field name="trigger" type="Pointer" template="ZString"/>
+        <field name="activities" type="ArrayPointer" template="ActivityReference" arg="num activities"/>
+        <field name="curve length" type="float" default="-1.0"/>
+        <field name="field 36" type="int"/>
+        <field name="num activities" type="ushort"/>
+        <field name="activity flags" type="ushort"/>
+        <field name="field 44" type="uint"/>
+        <field name="decision instructions" type="AllocationArrayPointer" template="MRFMember1"/>
+        <field name="field 56" type="short"/>
+        <field name="tier" type="ushort"/>
+        <field name="field 60" type="int"/>
+        <field name="id" type="Pointer" template="ZString"/>
     </struct>
 
     <struct name="DataStreamResourceData" inherit="MemStruct">
@@ -501,7 +539,11 @@
     </struct>
 
     <struct name="Locomotion2BlendSpaceNode" inherit="MemStruct">
-        16 bytes
+        16 bytes in JWE2/PZ, 24 bytes in JWE3.
+        JWE3 inserts 8 unused bytes between anim_name and speed. JWE2 and JWE3
+        share version 20 / user_version 25108 / flag 1, so no vercond can tell
+        them apart; the extra field is added conditionally on context.game in
+        source/formats/motiongraph/structs/Locomotion2BlendSpaceNode.py.
         <field name="anim_name" type="Pointer" template="ZString"/>
         <field name="speed" type="float"/>
         <field name="orientation" type="float"/>
@@ -585,6 +627,91 @@
         <field name="num_activities" type="uint64"/>
     </struct>
 
+    <!-- JWE3 activity payloads. Names remain conservative where semantics are
+         not yet proven; the layouts and pointer targets are verified from the
+         stock Acrocanthosaurus Female graph. -->
+    <struct name="InertializationData" inherit="MemStruct">
+        <field name="BlendTime" type="float"/>
+        <field name="Flags" type="uint"/>
+    </struct>
+
+    <struct name="CrossFadeData" inherit="MemStruct">
+        <field name="BlendTime" type="float"/>
+        <field name="Flags" type="uint"/>
+        <field name="Curve" type="Pointer" template="CurveData"/>
+    </struct>
+
+    <struct name="ToggledActivityActivityData" inherit="MemStruct">
+        <field name="Variable" type="Pointer" template="ZString"/>
+        <field name="Activity" type="Pointer" template="Activity"/>
+        <field name="BlendInTime" type="float"/>
+        <field name="BlendOutTime" type="float"/>
+        <field name="Flags" type="uint"/>
+        <field name="_padding" type="uint"/>
+    </struct>
+
+    <struct name="FootPlantActivitySmoothTransitionData" inherit="MemStruct">
+        <field name="Weight" type="FloatInputData"/>
+        <field name="RotationNoIKWeight" type="FloatInputData"/>
+        <field name="Unknown" type="uint64"/>
+        <field name="Curve" type="Pointer" template="CurveData"/>
+    </struct>
+
+    <!-- Planet Zoo only: not present in any sampled JWE2 or JWE3 graph.
+         8 bytes, no pointers. Only two byte patterns occur across stock PZ
+         animals - 01 00 00 00 00 00 00 00 and 01 01 00 00 00 00 00 00 - so the
+         first byte is 1 everywhere observed and the second is 0 or 1. Field
+         names stay neutral until varying data proves their meaning; the layout
+         resembles the ForwardActivityData flag/suppress/priority header but
+         that is not confirmed. -->
+    <struct name="ForwardActivitySmoothTransitionData" inherit="MemStruct">
+        8 bytes
+        <field name="unk_0" type="ubyte"/>
+        <field name="unk_1" type="ubyte"/>
+        <field name="_padding_0" type="ushort"/>
+        <field name="_padding_1" type="uint"/>
+    </struct>
+
+    <struct name="SetBoolVariableActivityData" inherit="MemStruct">
+        <field name="Variable" type="Pointer" template="ZString"/>
+        <field name="Value" type="uint64"/>
+    </struct>
+
+    <struct name="VariableBlendedActivityInfo" inherit="MemStruct">
+        <field name="Activity" type="Pointer" template="Activity"/>
+        <field name="Value" type="float"/>
+        <field name="_padding" type="uint"/>
+    </struct>
+
+    <struct name="VariableBlendedActivityActivityData" inherit="MemStruct">
+        <field name="Activities" type="ArrayPointer" template="VariableBlendedActivityInfo" arg="NumActivities"/>
+        <field name="NumActivities" type="uint64"/>
+        <field name="Variable" type="Pointer" template="ZString"/>
+    </struct>
+
+    <struct name="RandomSequenceActivityInfo" inherit="MemStruct">
+        <field name="Activity" type="Pointer" template="Activity"/>
+        <field name="SequenceIndex" type="uint"/>
+        <field name="_padding" type="uint"/>
+    </struct>
+
+    <struct name="RandomSequenceActivityData" inherit="MemStruct">
+        <field name="InitialActivity" type="Pointer" template="Activity"/>
+        <field name="Activities" type="ArrayPointer" template="RandomSequenceActivityInfo" arg="NumActivities"/>
+        <field name="NumActivities" type="uint64"/>
+        <field name="Unknown0" type="uint"/>
+        <field name="Unknown1" type="uint"/>
+        <field name="Unknown2" type="uint"/>
+        <field name="Unknown3" type="uint"/>
+        <field name="Unknown4" type="uint"/>
+        <field name="Unknown5" type="uint"/>
+        <field name="Unknown6" type="ubyte"/>
+        <field name="Unknown7" type="ubyte"/>
+        <field name="_padding0" type="ushort"/>
+        <field name="Unknown8" type="uint"/>
+        <field name="Unknown9" type="uint64"/>
+        <field name="Variable" type="Pointer" template="ZString"/>
+    </struct>
     <struct name="SinglePtr" inherit="MemStruct">
         8 bytes
         <field name="ptr" type="Pointer" template="#T#" />
@@ -621,10 +748,28 @@ WARNING | Pointer at 50 | 9648 to 57 | 1200 is missing for MotiongraphVars (rel 
         <field name="transition" type="Transition" cond="#ARG# #EQ# 8"/>
     </struct>
 
+    <struct name="MotiongraphResultParam" inherit="MemStruct">
+        <field name="Field" type="Pointer" template="ZString"/>
+        <field name="Value" type="uint64"/>
+        <field name="Type" type="uint64"/>
+    </struct>
     <struct name="Something" inherit="MemStruct">
         16 bytes
         <field name="ptr" type="Pointer" /> <!-- usually empty -->
         <field name="unk" type="uint64"/>
+    </struct>
+
+    <struct name="MotiongraphRangeParam" inherit="MemStruct">
+        24-byte named signed range endpoint used by Something.unk == 2.
+        <field name="name" type="Pointer" template="ZString"/>
+        <field name="value" type="int64"/>
+        <field name="value type" type="uint64"/>
+    </struct>
+
+    <struct name="MotiongraphRangeParams" inherit="MemStruct">
+        48-byte Min/Max pair used by transition-local float decisions.
+        <field name="minimum" type="MotiongraphRangeParam"/>
+        <field name="maximum" type="MotiongraphRangeParam"/>
     </struct>
 
     <struct name="MRFChild" inherit="MemStruct">
@@ -638,3 +783,6 @@ WARNING | Pointer at 50 | 9648 to 57 | 1200 is missing for MotiongraphVars (rel 
     </struct>
 
 </fileformat>
+
+
+

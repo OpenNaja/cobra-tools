@@ -1,3 +1,6 @@
+from generated.formats.ovl_base.structs.MemStruct import MemStruct
+from generated.formats.motiongraph.imports import name_type_map
+
 from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
@@ -29,3 +32,16 @@ class Something(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptr', name_type_map['Pointer'], (0, None), (False, None)
 		yield 'unk', name_type_map['Uint64'], (0, None), (False, None)
+
+	def get_ptr_template(self, prop):
+		if prop != "ptr":
+			return None
+		if int(self.unk) == 0:
+			return name_type_map["MotiongraphVar"]
+		if int(self.unk) == 1:
+			return name_type_map["MotiongraphResultParam"]
+		if int(self.unk) == 2:
+			return name_type_map["MotiongraphRangeParams"]
+		return None
+
+

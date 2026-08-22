@@ -63,6 +63,19 @@ class Activity(MemStruct):
 			yield 'other_activities', name_type_map['ArrayPointer'], (instance.num_other_activities, name_type_map['ActivityReference']), (False, None)
 		yield 'name_b', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		"""Infer optional activity counts from their serialized array bodies."""
+		if "num_sub_activities" not in elem.attrib:
+			sub_activities = elem.find("./sub_activities")
+			if sub_activities is not None:
+				instance.num_sub_activities = name_type_map['Uint'].from_value(len(sub_activities))
+		if "num_other_activities" not in elem.attrib:
+			other_activities = elem.find("./other_activities")
+			if other_activities is not None:
+				instance.num_other_activities = name_type_map['Uint'].from_value(len(other_activities))
+		return super()._from_xml(instance, elem)
+
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""

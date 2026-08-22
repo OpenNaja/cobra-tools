@@ -1,3 +1,4 @@
+# START_GLOBALS
 from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.structs.MemStruct import MemStruct
 
@@ -21,37 +22,12 @@ from generated.formats.ovl_base.structs.MemStruct import MemStruct
 # drops the anim_name of every record that does not land on a 24-byte boundary.
 JWE3_GAME = "Jurassic World Evolution 3"
 
-from generated.formats.motiongraph.imports import name_type_map
-from generated.formats.ovl_base.structs.MemStruct import MemStruct
+# END_GLOBALS
 
 
 class Locomotion2BlendSpaceNode(MemStruct):
 
-	"""
-	16 bytes in JWE2/PZ, 24 bytes in JWE3.
-	JWE3 inserts 8 unused bytes between anim_name and speed. JWE2 and JWE3
-	share version 20 / user_version 25108 / flag 1, so no vercond can tell
-	them apart; the extra field is added conditionally on context.game in
-	source/formats/motiongraph/structs/Locomotion2BlendSpaceNode.py.
-	"""
-
-	__name__ = 'Locomotion2BlendSpaceNode'
-
-
-	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default=False)
-		self.speed = name_type_map['Float'](self.context, 0, None)
-		self.orientation = name_type_map['Float'](self.context, 0, None)
-		self.anim_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		if set_default:
-			self.set_defaults()
-
-	@classmethod
-	def _get_attribute_list(cls):
-		yield from super()._get_attribute_list()
-		yield 'anim_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'speed', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'orientation', name_type_map['Float'], (0, None), (False, None), (None, None)
+# START_CLASS
 
 	# Class-level default so get_size() and set_defaults() work on an instance
 	# that has not been read from a stream yet.
@@ -65,4 +41,3 @@ class Locomotion2BlendSpaceNode(MemStruct):
 			yield 'jwe3_gap', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'speed', name_type_map['Float'], (0, None), (False, None)
 		yield 'orientation', name_type_map['Float'], (0, None), (False, None)
-
