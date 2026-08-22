@@ -92,6 +92,24 @@ def ref_alignment(data: bytes, alignment: int = 16) -> int:
 	return next(iter(classes))
 
 
+
+def blob_alignments(data: bytes, alignment: int = 16):
+	"""EXPERIMENTAL - returns 16 for every blob; do not use 8.
+
+	The runtime walks a ManiBlock as `align8 -> 0x90 header -> align16 -> transform
+	blob -> align16 -> scalar blob -> align8 -> limb structure`, and probing vanilla
+	says the limb structure really does sit at align8 of the scalar blob's end: a
+	plausible outer count is there for 20/20 clips versus 8/20 at align16.
+
+	Padding the last blob to 8 nevertheless produces a file cobra cannot read - Gate B
+	drops to 1/27 ManiBlocks, where 16 gives 27/27 - because the schema models the
+	trailing PadAlign as 16 and KeysReader's scan does not recover from the shift. So
+	the two views disagree and 16 is the one that round-trips. Kept as a hook, and as a
+	record that the align8 reading is unresolved rather than wrong-and-forgotten.
+	"""
+	return [alignment] * len(list_clip_blobs(data))
+
+
 def replace_blob(data: bytes, index: int, new_blob: bytes, align_to: int = None,
 				 alignment: int = 16) -> bytes:
 	"""Swap the blob at `index` for `new_blob`, copying everything else verbatim.

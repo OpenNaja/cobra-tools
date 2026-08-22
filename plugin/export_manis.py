@@ -11,9 +11,9 @@ from generated.formats.manis import ManisFile, POS, ORI, SCL, FLO, EUL, root_nam
 from generated.formats.manis.structs.ManiBlock import ManiBlock
 from generated.formats.manis.versions import set_game
 from generated.formats.wsm.structs.WsmHeader import WsmHeader
-from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_b_local_matrix, \
-	get_actions, fill_in_rest_data, sample_fcu
-from plugin.utils.anim import c_map
+from plugin.import_manis import anim_sys
+from plugin.modules_export.animation import store_pose_frame_info, reasonably_close, needs_keyframes, get_actions, fill_in_rest_data, sample_fcu
+from plugin.utils.anim import c_map, get_b_local_matrix
 from plugin.modules_export.armature import assign_p_bone_indices, get_armatures_collections, get_g_bone_matrices
 from plugin.modules_import.anim import get_rna_path
 from plugin.utils.blender_util import bone_name_for_ovl
@@ -140,7 +140,8 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 		last_frame = int(last_frame) + 1
 		mani_info.frame_count = last_frame - first_frame
 		# index of last frame / fps
-		mani_info.duration = (mani_info.frame_count - 1) / scene.render.fps
+		fps = b_action.get("fps", scene.render.fps)
+		mani_info.duration = (mani_info.frame_count - 1) / fps
 		mani_info.target_bone_count = len(b_local_mats)
 
 		# create arrays for loc, rot, scale keys
@@ -199,7 +200,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 							rna_path = get_rna_path("influence", p_bone.name, None, const.name)
 							constraint_bones[rna_path] = (c_suffix, limits, bone_name_for_ovl(p_bone.name))
 			# export fcurves for those constraints
-			for fcu in b_action.fcurves:
+			for fcu in anim_sys.get_data(b_action).fcurves:
 				if fcu.data_path in constraint_bones and fcu.array_index == 0:
 					c_suffix, limits, g_name = constraint_bones[fcu.data_path]
 					keys = sample_fcu(fcu, first_frame, last_frame, mani_info)
@@ -214,7 +215,7 @@ def export_actions(b_ob, actions, manis, mani_infos, folder, scene):
 			# FOV is in the camera data action, which has to be queried and looped
 			b_data_action = bpy.data.actions.get(f"{b_action.name}_Data", None)
 			if b_data_action:
-				for fcu in b_data_action.fcurves:
+				for fcu in anim_sys.get_data(b_data_action).fcurves:
 					if fcu.data_path == get_rna_path("lens"):
 						keys = sample_fcu(fcu, first_frame, last_frame, mani_info)
 						# FOV = 2*arctan(w / (2*focal_len))

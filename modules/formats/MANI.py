@@ -9,6 +9,9 @@ from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.formats.shared import get_padding
 from modules.helpers import as_bytes
 
+# JWE3 / PC2 ManiInfo stride
+MANI_INFO_SIZE = 304
+
 
 class ManiLoader(BaseFile):
 	extension = ".mani"
@@ -158,10 +161,27 @@ class ManisLoader(MemStructLoader):
 
 		self.header = manis_file.header
 		self.overwrite_root_bytes(root_data)
-		self.data_entries[self.ovs_name].update_data([b for b in statics if b is not None])
+		resident = [b for b in statics if b is not None]
+		self.data_entries[self.ovs_name].update_data(resident)
+		self._match_vanilla_sizes(self.data_entries[self.ovs_name], resident)
 		for ovs_name, blob in extra:
 			self.data_entries[ovs_name].update_data([blob])
+			self._match_vanilla_sizes(self.data_entries[ovs_name], [blob])
 		logging.info(f"Updated {self.name} in place")
+
+	@staticmethod
+	def _match_vanilla_sizes(data_entry, buffers):
+		"""Put the whole payload in size_1, the way vanilla JWE3 manis do.
+
+		DataEntry.update_data() guesses a split - first two buffers into size_1 and the
+		rest into size_2 - but vanilla puts the total in size_1 and leaves size_2 at 0
+		(STATIC 346358/0 for buffers 6320+4424+335616, Anim_L0 283218/0). Those fields
+		describe how much of the entry the runtime has to hand, so a keys buffer that
+		grows past what size_1 advertises is a good way to end up reading unmapped
+		memory once a clip is actually decompressed.
+		"""
+		data_entry.size_1 = sum(len(b) for b in buffers)
+		data_entry.size_2 = 0
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a manis"""
@@ -198,9 +218,24 @@ class ManisLoader(MemStructLoader):
 		for mani_barename in manis_file.names:
 			preamble += len(as_bytes(str(mani_barename)))
 		preamble += len(root_data)
-		# buffer 1 round-trips exactly, so it anchors the b0/b1 boundary
+		# Buffer 0 is the ManiInfo array, then the ACL compressed_database, then padding
+		# up to 16. Compute that boundary rather than searching for the name buffer:
+		# when the database size is not a multiple of 16 the name buffer's leading bytes
+		# match inside that zero padding, so a search lands early and hands the tail of
+		# buffer 0 to buffer 1. Indoraptor's f0ad5573 has a 296 byte database and loses
+		# exactly 8 bytes that way, while 45ad1411's 240 byte database is already aligned
+		# and hides the bug.
+		from source.formats.manis.database import find_database
 		b1 = as_bytes(manis_file.name_buffer)
-		b1_start = raw.find(b1, preamble)
+		infos_end = preamble + len(manis_file.mani_infos) * MANI_INFO_SIZE
+		database = find_database(raw)
+		b0_size = (infos_end - preamble) + (database[1] if database and database[0] == infos_end else 0)
+		# the pad is relative to the start of buffer 0, not to the file
+		b1_start = preamble + b0_size + (-b0_size % 16)
+		if raw[b1_start:b1_start + len(b1)] != b1:
+			logging.warning(f"{self.name}: name buffer is not where the layout puts it, "
+							f"falling back to searching for it")
+			b1_start = raw.find(b1, preamble)
 		if b1_start == -1:
 			logging.warning(f"{self.name}: could not locate the name buffer, "
 							f"falling back to re-serialised buffers")

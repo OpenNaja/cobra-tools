@@ -65,13 +65,6 @@ def needs_keyframes(keys):
 				yield ch_i
 
 
-def get_b_local_matrix(b_bone: bpy.types.Bone) -> mathutils.Matrix:
-	"""Returns the local space matrix for b_bone in blender coordinates."""
-	if b_bone.parent:
-		return b_bone.parent.matrix_local.inverted() @ b_bone.matrix_local
-	return b_bone.matrix_local
-
-
 def get_actions(b_ob):
 	"""Returns a list of actions associated with b_ob"""
 	actions = set()

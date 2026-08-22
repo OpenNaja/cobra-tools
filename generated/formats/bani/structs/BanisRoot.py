@@ -33,8 +33,8 @@ class BanisRoot(MemStruct):
 		# bytes per bone * num bones
 		self.bytes_per_frame = name_type_map['Uint'](self.context, 0, None)
 
-		# seen 12 (PC2 pigeon), 16 (PC1 pigeon)
-		self.bytes_per_bone = name_type_map['Uint'](self.context, 0, None)
+		# 12 (v5-7 ushort[6]), 16 (v2 in PC1, ushort[8], apparently x,y,z,zero,x,y,z,w)
+		self.bytes_per_bone = name_type_map['Uint'].from_value(12)
 
 		# Number of frames for all bani files in banis buffer
 		self.num_frames = name_type_map['Uint'](self.context, 0, None)
@@ -49,6 +49,8 @@ class BanisRoot(MemStruct):
 		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniGpuAnimHeader'])
 		self.channel_bones = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannels'])
 		self.channel_bones_lod = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannelsLod256'])
+
+		# this is not correct, as each bani can have different frame and bone counts from two different sources, but there's no way to get this mapping into the current xml syntax
 		self.keys = name_type_map['Pointer'](self.context, (self.num_frames, self.num_bones), name_type_map['BaniKeys'])
 		if set_default:
 			self.set_defaults()
@@ -68,7 +70,7 @@ class BanisRoot(MemStruct):
 		yield 'keys_size', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (lambda context: context.version <= 5, None)
 		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, 12), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None), (lambda context: context.version <= 5, None)
@@ -95,7 +97,7 @@ class BanisRoot(MemStruct):
 		if instance.context.version <= 5:
 			yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None)
 		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None)
-		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None)
+		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, 12)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 5:

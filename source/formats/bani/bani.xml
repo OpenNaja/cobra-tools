@@ -2,7 +2,15 @@
 <!DOCTYPE fileformat>
 <fileformat>
 
-    <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+	<version id="PC" version="2" >Planet Coaster</version>
+	<version id="PZ" version="5" >Planet Zoo</version>
+	<version id="JWE" version="5" >Jurassic World Evolution</version>
+	<version id="JWE2" version="5" >Jurassic World Evolution 2</version>
+	<version id="WAR" version="5" >Warhammer Age of Sigmar - Realms of Ruin</version>
+	<version id="PC2" version="7">Planet Coaster 2</version>
+	<version id="JWE3" version="7" >Jurassic World Evolution 3</version>
 
     <struct name="Vector3Ushort" size="6" allow_np="true">
         A signed int16 vector in 3D space (x,y,z).
@@ -16,8 +24,8 @@
         older: 24 bytes
         PC2: 32 bytes
         <field name="banis" type="Pointer" >points to the banis file used</field>
-        <field name="gpu_buffer_index" type="uint" since="7">Maps this CPU-side struct to the struct in the GPU buffer</field>
-        <field name="gpu_buffer_offset" type="uint" since="7">Offset into the engine GPU buffer. gpu_buffer_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.</field>
+        <field name="gpu_header_index" type="uint" since="7">Maps this CPU-side struct to the struct in the GPU buffer</field>
+        <field name="gpu_header_offset" type="uint" since="7">Offset into the engine GPU buffer. gpu_header_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.</field>
         <field name="read_start_frame" type="uint">The frame in the banis where this bani starts reading</field>
         <field name="num_frames" type="uint">Number of frames in this bani file</field>
         <field name="animation_length" type="float">length of the animation, can easily get keyframe spacing now</field>
@@ -98,7 +106,7 @@
         <!-- padded with FF bytes, 32 byte alignment / 256 byte alignment for larger skeletons -->
         <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod" since="7" cond="channel_bones_size #EQ# channel_bones_lod_size" />
         <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod_256" since="7" cond="channel_bones_size #NEQ# channel_bones_lod_size" />
-        <field name="keys" type="Pointer" template="BaniKeys" arg1="num frames" arg2="num bones" since="7"/>
+        <field name="keys" type="Pointer" template="BaniKeys" arg1="num_frames" arg2="num_bones" since="7">this is not correct, as each bani can have different frame and bone counts from two different sources, but there's no way to get this mapping into the current xml syntax</field>
         <field name="zeros" type="uint" arr1="3" since="7"/>
         <field name="gpu_anim_headers_size" type="uint" since="7">Size of BaniGpuAnimHeader block in bytes</field>
         <field name="channel_bones_size" type="uint" since="7">Size of the first channels block in bytes</field>
@@ -108,7 +116,7 @@
         <field name="zeros" type="uint64" arr1="2" until="5"/>
 
         <field name="bytes_per_frame" type="uint">bytes per bone * num bones</field>
-        <field name="bytes_per_bone" type="uint">seen 12 (PC2 pigeon), 16 (PC1 pigeon)</field>
+        <field name="bytes_per_bone" type="uint" default="12">12 (v5-7 ushort[6]), 16 (v2 in PC1, ushort[8], apparently x,y,z,zero,x,y,z,w)</field>
         <field name="num_frames" type="uint">Number of frames for all bani files in banis buffer</field>
         <field name="num_bones" type="uint">number of bones in data, must correspond to ms2</field>
 

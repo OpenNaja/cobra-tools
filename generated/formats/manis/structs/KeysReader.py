@@ -45,9 +45,9 @@ class KeysReader(BaseStruct):
 					instance.inter_block_data.append(stream.read(block_start - gap_start))
 				mani_block_start = stream.tell()
 				logging.debug(f"Reading keys block at {mani_block_start}")
-				logging.info(mani_info)
+				logging.debug(mani_info)
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, bone_dtype)
-				logging.info(mani_info.keys)
+				logging.debug(mani_info.keys)
 			except:
 				logging.exception(f"Reading ManiBlock failed at {stream.tell()} for {mani_info}")
 				break

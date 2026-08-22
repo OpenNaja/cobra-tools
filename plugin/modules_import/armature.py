@@ -22,9 +22,8 @@ def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
 	# print(f"is_old_orientation {is_old_orientation}")
 	corrector = plugin.utils.transforms.Corrector(is_old_orientation)
-	# corrector = matrix_util.Corrector(False)
 	bone_info = model_info.bone_info
-	logging.debug(bone_info)
+	# logging.debug(bone_info)
 	if bone_info:
 		if bone_info.name in bpy.data.objects:
 			armature_ob = bpy.data.objects[bone_info.name]
@@ -475,17 +474,17 @@ def fix_bone_lengths(b_armature_data):
 			else:
 				# it is isolated from the parent, so make the bone smaller to uncluster the rig
 				bone_length = b_edit_bone.parent.length * 0.3
-		# never assign a degenerate length: blender collapses the bone and it loses
-		# its direction, so the average length applied to bad bones below lands on
-		# an axis-less bone and can come back inverted. Observed on mutadon
-		# def_c_jaw_joint, whose rest y_axis flipped to (0, -0.65, 0.76) and left
-		# every animated frame exactly 180 degrees out.
-		b_edit_bone.length = bone_length if bone_length >= TOLERANCE else 0.1
 		# collect bones that are shorter than tolerance
+		# never assign a degenerate length: blender collapses the bone and it loses its
+		# direction, so the average length applied to bad bones below lands on an axis-less
+		# bone and can come back inverted. Observed on mutadon def_c_jaw_joint, whose rest
+		# y_axis flipped to (0, -0.65, 0.76) and left every animated frame exactly 180
+		# degrees out. Hence the assignment sits inside the else, not before the check.
 		if bone_length < TOLERANCE:
 			bad_bones.append(b_edit_bone)
 		else:
 			good_bones.append(b_edit_bone)
+			b_edit_bone.length = bone_length
 	# clamp to a safe minimum length
 	bone_length = 0.1
 	# take the average length of good bones in the skeleton

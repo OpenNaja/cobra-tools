@@ -17,10 +17,10 @@ class BaniRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Maps this CPU-side struct to the struct in the GPU buffer
-		self.gpu_buffer_index = name_type_map['Uint'](self.context, 0, None)
+		self.gpu_header_index = name_type_map['Uint'](self.context, 0, None)
 
-		# Offset into the engine GPU buffer. gpu_buffer_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.
-		self.gpu_buffer_offset = name_type_map['Uint'](self.context, 0, None)
+		# Offset into the engine GPU buffer. gpu_header_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.
+		self.gpu_header_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
@@ -47,8 +47,8 @@ class BaniRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None), (None, None)
-		yield 'gpu_buffer_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'gpu_buffer_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_header_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'gpu_header_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
@@ -61,8 +61,8 @@ class BaniRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None)
 		if instance.context.version >= 7:
-			yield 'gpu_buffer_index', name_type_map['Uint'], (0, None), (False, None)
-			yield 'gpu_buffer_offset', name_type_map['Uint'], (0, None), (False, None)
+			yield 'gpu_header_index', name_type_map['Uint'], (0, None), (False, None)
+			yield 'gpu_header_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)

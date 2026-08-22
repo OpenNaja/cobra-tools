@@ -31,7 +31,7 @@ from source.formats.manis.bindpose import read_ms2_bind, bind_bytes
 from source.formats.manis.database import find_database, read_bulk_info, locate_bulk
 from source.formats.manis.selfcontained import count_parsed_maniblocks
 from source.formats.manis.splice import (
-	list_clip_blobs, read_blob_header, ref_alignment, replace_blob)
+	blob_alignments, list_clip_blobs, read_blob_header, ref_alignment, replace_blob)
 
 QVVF = 12
 BULK_ALIGNMENT = 16
@@ -51,7 +51,7 @@ def pad_to(data, alignment=BULK_ALIGNMENT):
 	return data if not over else data + b"\x00" * (alignment - over)
 
 
-def build_database(streams, headers, bind, work_dir):
+def build_database(streams, headers, bind, work_dir, precision=None):
 	"""Run the ACL database builder over every transform clip.
 
 	Returns (bound_blobs_by_stream_index, database_bytes, low_bulk, medium_bulk).
@@ -81,9 +81,10 @@ def build_database(streams, headers, bind, work_dir):
 	if not os.path.isfile(builder):
 		sys.exit(f"ACL database builder not found at '{builder}'. "
 				 f"Build acl_decoder/build_database.cmd or set COBRA_ACL_DATABASE.")
-	result = subprocess.run(
-		[builder, manifest, out_dir, "--bind", bind_file],
-		check=False, capture_output=True, text=True)
+	command = [builder, manifest, out_dir, "--bind", bind_file]
+	if precision is not None:
+		command += ["--precision", repr(precision)]
+	result = subprocess.run(command, check=False, capture_output=True, text=True)
 	if result.returncode != 0:
 		sys.exit(f"ACL database build failed: {result.stderr.strip() or result.stdout.strip()}")
 	print(result.stdout.rstrip())
@@ -101,6 +102,46 @@ def build_database(streams, headers, bind, work_dir):
 	return bound, database, low, medium
 
 
+def apply_yaw(streams, headers, bind, clip, track, degrees):
+	"""Rotate one bone on one clip, so a deliberate change can be proven in game.
+
+	A default sub-track decodes to NaN, so the bind value is substituted first -
+	otherwise the rotation is applied to nothing and the clip comes back unchanged.
+	"""
+	import math
+
+	transforms = [i for i, h in enumerate(headers) if h["track_type"] == QVVF]
+	if not 0 <= clip < len(transforms):
+		sys.exit(f"clip {clip} out of range (bundle has {len(transforms)})")
+	index = transforms[clip]
+	values = streams[index].values.copy()
+	if not 0 <= track < values.shape[1]:
+		sys.exit(f"track {track} out of range (clip has {values.shape[1]})")
+
+	missing = np.isnan(values[:, track, 0:4])
+	if missing.any():
+		values[:, track, 0:4][missing] = np.broadcast_to(
+			bind[track, 0:4], (values.shape[0], 4))[missing]
+
+	half = math.radians(degrees) / 2.0
+	spin = np.array([0.0, math.sin(half), 0.0, math.cos(half)])
+
+	def multiply(a, b):
+		x1, y1, z1, w1 = a
+		x2, y2, z2, w2 = b
+		return np.array([w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+						 w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+						 w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+						 w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2])
+
+	for sample in range(values.shape[0]):
+		values[sample, track, 0:4] = multiply(spin, values[sample, track, 0:4].astype(float))
+	streams[index].values = values
+	print(f"  edit: clip {clip} (blob {index}) track {track} rotated {degrees:g} deg "
+		  f"on {values.shape[0]} samples")
+	return streams
+
+
 def main():
 	ap = argparse.ArgumentParser(description=__doc__,
 								 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -108,6 +149,13 @@ def main():
 	ap.add_argument("--out", required=True)
 	ap.add_argument("--ms2", required=True,
 					help="skeleton supplying the bind pose used as ACL defaults")
+	ap.add_argument("--precision", type=float,
+					help="ACL error threshold in cm; looser values avoid the raw bit rate "
+						 "(index 31 in the stream) that vanilla never uses")
+	ap.add_argument("--yaw-clip", type=int,
+					help="clip index to rotate, for proving an edit reaches the game")
+	ap.add_argument("--yaw-track", type=int, help="track (== .ms2 bone index) to rotate")
+	ap.add_argument("--yaw-deg", type=float, default=60.0, help="degrees to rotate")
 	args = ap.parse_args()
 
 	with open(args.manis, "rb") as fh:
@@ -130,13 +178,19 @@ def main():
 	print(f"  bind pose: {len(parents)} bones from {os.path.basename(args.ms2)}")
 	bind = bind_bytes(parents, bind_values)
 
+	if args.yaw_clip is not None and args.yaw_track is not None:
+		streams = apply_yaw(streams, headers, bind_values, args.yaw_clip,
+							args.yaw_track, args.yaw_deg)
+
 	with tempfile.TemporaryDirectory(prefix="jwe3_acl_db_") as work_dir:
-		bound, database, low, medium = build_database(streams, headers, bind, work_dir)
+		bound, database, low, medium = build_database(streams, headers, bind, work_dir,
+																   precision=args.precision)
 
 	# rebuild back to front so offsets stay valid: bulk, then clips, then the database
 	data = data[:found["low_offset"]] + pad_to(low) + pad_to(medium)
 
 	align_to = ref_alignment(data)
+	aligns = blob_alignments(data)
 	worst = 0.0
 	for index in range(len(streams) - 1, -1, -1):
 		stream = streams[index]
@@ -153,7 +207,7 @@ def main():
 		rebuilt = read_blob_header(blob)
 		if stream.track_type == QVVF and not rebuilt.get("has_database"):
 			sys.exit(f"clip {index} came back without a database; build_database did not bind it")
-		data = replace_blob(data, index, blob, align_to=align_to)
+		data = replace_blob(data, index, blob, align_to=align_to, alignment=16)
 		print(f"  stream {index:>3}: {old_size:>7} -> {len(blob):>7} bytes"
 			  f"{'  database-backed' if stream.track_type == QVVF else '  scalar'}")
 

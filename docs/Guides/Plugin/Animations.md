@@ -15,8 +15,6 @@ Select a target armature you want to animate before importing a `.manis` file.
 
 !!! construction "Limitations"
     - Most anims are stored as compressed data, which must be decompressed before being imported.
-    - Not all anims decompress correctly. If an anim fails to decompress, you may see no keyframes at all or a distorted mess.
-    - When anims do decompress, single keyframes or whole channels may still show unexpected distortions.
     - Decompression is fairly slow. Keep track on the progress by turning on Blender's console (Window > Toggle System Console) before importing. If you have to import the same `.manis` repeatedly, consider using the [Manis Editor](#manis-editor) to decompress it once and for all.
 
 
@@ -90,4 +88,5 @@ They are generally used for simple building or character animations, such as:
 - exhibit animals
 
 !!! construction "Limitations"
-    The transforms used by `.banis` are currently not fully understood. Import is experimental and close to expected for some `.banis`, but totally broken for others. Export is not useable in production.
+    The `.banis` format has been updated for PC2 and JWE3. Not all of its features are currently fully understood. Import is experimental and close to expected for some `.banis`, but broken for others. No export yet.
+    The `.banis` format for older games (PZ1, PC1, JWE1, JWE2) is fully supported by the plugin. Import and export should round-trip perfectly.

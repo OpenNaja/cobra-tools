@@ -44,7 +44,7 @@ def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, c
 	return ob, me
 
 
-def create_ob(scene, ob_name, ob_data, coll_name=None, coll=None):
+def create_ob(scene, ob_name, ob_data, coll_name=None, coll=None) -> bpy.types.Object:
 	logging.debug(f"Adding {ob_name} to scene {scene.name}")
 	ob = bpy.data.objects.new(ob_name, ob_data)
 	if coll_name is not None:

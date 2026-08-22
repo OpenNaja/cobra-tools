@@ -62,11 +62,16 @@ class CompressedHeaderReader(BaseStruct):
 		if len(head) == 12:
 			size, _hash, tag = struct.unpack("<III", head)
 			if tag == ACL_DATABASE_TAG and size >= ACL_DATABASE_MIN_SIZE:
-				instance.data = stream.read(size)
-				if len(instance.data) != size:
+				# the blob is followed by padding up to 16, which belongs to buffer 0.
+				# Reading only `size` leaves the stream 8 bytes early on any database
+				# whose size is not a multiple of 16 (Indoraptor f0ad5573 is 296), and
+				# the name/hash buffer is then parsed out of that padding.
+				padded = size + (-size % 16)
+				instance.data = stream.read(padded)
+				if len(instance.data) != padded:
 					raise BufferError(
-						f"ACL compressed_database claims {size} bytes but only "
-						f"{len(instance.data)} were available")
+						f"ACL compressed_database claims {size} bytes ({padded} padded) "
+						f"but only {len(instance.data)} were available")
 		logging.debug(f"CompressedHeaderReader read {0 if instance.data is None else len(instance.data)} bytes")
 		instance.io_size = stream.tell() - instance.io_start
 
