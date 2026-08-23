@@ -151,6 +151,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 				# for gpu_header_index, gpu_header in enumerate(self.data.gpu_anim_headers.data):
 				# 	gpu_header_pos = pos_after_header + (gpu_header_index * 16)
 				# 	channels_pos = gpu_header_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
+				for bani in self.anims:
+					gpu_header = self.data.gpu_anim_headers.data[bani.data.gpu_header_index]
+					assert gpu_header.packed_offset_bones.num_bones == bani.data.num_bones
 
 				self.data.channel_bones.data = Array(self.context, 0, None, (len(self.data.gpu_anim_headers.data),), BaniGpuChannels, set_default=False)
 				self.data.channel_bones.data[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.data.gpu_anim_headers.data]
@@ -247,11 +250,11 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 		self.data.num_frames = 0
-		offset = 0
+		frame_offset = 0
 		for bani in self.anims:
 			self.data.num_frames += bani.data.num_frames
-			bani.data.read_start_frame = offset
-			offset += bani.data.num_frames
+			bani.data.read_start_frame = frame_offset
+			frame_offset += bani.data.num_frames
 		
 		all_packed_keys = []
 		if self.context.version < 7:
@@ -262,9 +265,20 @@ class BanisFile(BanisInfoHeader, IoFile):
 			all_packed_keys.append(packed_keys)
 		else:
 			# Quantize each bani individually
-			for bani, gpu_header in zip(self.anims, self.data.gpu_anim_headers.data):
+			for i, bani, gpu_header, channel_bones, channel_bones_lod in enumerate(
+					zip(self.anims, self.data.gpu_anim_headers.data, self.data.channel_bones.data, self.data.channel_bones_lod)):
 				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
 				all_packed_keys.append(packed_keys)
+				bani.data.gpu_header_index = i
+				gpu_header.packed_offset_bones.num_bones = bani.data.num_bones = bani.quats.shape[1]
+				# todo
+				# channel_bones =
+				# channel_bones_lod =
+				# bani.data.gpu_header_offset =
+				# gpu_header.keyframes_offset =
+				# gpu_header.packed_offset_bones.bone_channels_offset =
+
+			self.data.keys_size = sum(len(packed_keys) for packed_keys in all_packed_keys)
 
 		with open(filepath, "wb") as stream:
 			# Write headers

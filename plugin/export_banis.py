@@ -69,6 +69,7 @@ def save(reporter, filepath=""):
 			fps = b_action.get("fps", scene.render.fps)
 			anim_mode = b_action.get("mode", 1)
 			bani.data.animation_length = (bani.data.num_frames-1) / fps
+			bani.data.mode = anim_mode
 			banis.init_uncompressed_arrays(bani, bani.data.num_frames, len(bones_table))
 			bani_i += 1
 
