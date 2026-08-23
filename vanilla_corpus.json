@@ -10,7 +10,15 @@
     "unrelated to whatever you are editing - that is the point.",
     "",
     "Acrocanthosaurus_Female.ovl is verified pristine (md5 8b85983669bd4bfb52601b4303513435)",
-    "per the Motiongraph Research notes, and carries a motiongraph."
+    "per the Motiongraph Research notes, and carries a motiongraph.",
+    "",
+    "2026-08-22 re-baselined after anchoring KeysReader's ManiBlock scan to ACL's tag.",
+    "The Indoraptor f0ad5573 signature changed legitimately: clips 23 (standpreen) and 26",
+    "(winchtostand) previously parsed with 151 pos names of which only 135 were unique -",
+    "silently corrupt. Citation for the change is ACL's documented compressed_tracks tag",
+    "0xAC11AC11 plus the structural invariant that a clip cannot drive one bone through two",
+    "channels. The in-game build did not catch it because only clip 21 (standidle) is ever",
+    "exercised by the spawner."
   ],
   "game": "Jurassic World Evolution 3",
   "entries": [
@@ -30,7 +38,7 @@
       "kind": "manis",
       "path": "D:\\JWE2 Stuff\\Personal Mods\\JWE3\\Images and Models\\Dinosaurs\\Land (Base)\\Indoraptor\\notmotionextracted.manisetf0ad5573.manis",
       "note": "27 ACL clips incl. standidle01 (clip 21) - the bundle proven in game",
-      "signature": "5a6b553a630356f38e31"
+      "signature": "10a9de7d037ceb552799"
     },
     {
       "kind": "manis",

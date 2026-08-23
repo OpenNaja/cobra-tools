@@ -49,6 +49,45 @@ class KeysReader(BaseStruct):
 			and mani_info.dtype.compression > 0
 		)
 
+	ACL_TRACKS_TAG = 0xAC11AC11
+	ACL_TRANSFORM_TRACK_TYPE = 12
+
+	@classmethod
+	def acl_blob_offsets(cls, stream, instance):
+		"""Offsets of every ACL transform blob in the keys buffer, relative to io_start.
+
+		ACL's compressed_tracks tag is documented magic, so this is ground truth - unlike
+		scanning for something that merely looks like a name table. Cached per instance
+		because the whole buffer is read to build it.
+		"""
+		cached = getattr(instance, "_acl_blob_offsets", None)
+		if cached is not None:
+			return cached
+		here = stream.tell()
+		stream.seek(instance.io_start)
+		data = stream.read()
+		stream.seek(here)
+		tag = struct.pack("<I", cls.ACL_TRACKS_TAG)
+		offsets = []
+		pos = 0
+		while True:
+			magic = data.find(tag, pos)
+			if magic == -1:
+				break
+			start = magic - 8
+			if start < 0:
+				pos = magic + 1
+				continue
+			size = struct.unpack_from("<I", data, start)[0]
+			if size < 32 or start + size > len(data):
+				pos = magic + 1
+				continue
+			if data[start + 15] == cls.ACL_TRANSFORM_TRACK_TYPE:
+				offsets.append(start)
+			pos = start + size
+		instance._acl_blob_offsets = offsets
+		return offsets
+
 	@classmethod
 	def find_acl_block_start(cls, stream, instance, mani_info, bone_dtype):
 		"""Find a JWE3 ManiBlock after the preceding clip's auxiliary data."""
@@ -66,7 +105,27 @@ class KeysReader(BaseStruct):
 		map_size = 2 if bone_dtype is Ushort else 1
 		needed = name_count * 4 + map_count * map_size
 		first_rel = get_padding_size(origin - instance.io_start, alignment=16)
-		for rel in range(first_rel, len(data) - needed + 1, 16):
+		# Bound the search by this clip's ACL transform blob. The names and channel maps
+		# sit immediately before it, so the block cannot start after it - and searching
+		# BACKWARDS from there means the offset closest to the blob wins, instead of the
+		# first stretch of auxiliary limb data that happens to look like a name table.
+		origin_rel = origin - instance.io_start
+		blob_rel = None
+		for candidate in cls.acl_blob_offsets(stream, instance):
+			if candidate >= origin_rel:
+				blob_rel = candidate
+				break
+		search = range(first_rel, len(data) - needed + 1, 16)
+		if blob_rel is not None:
+			# `rel` is an offset into `data`, which starts at `origin`; blob_rel is
+			# relative to io_start. Convert, then take the highest 16-aligned offset in
+			# first_rel's residue class at or before the blob.
+			blob_in_data = blob_rel - origin_rel
+			last_rel = first_rel + (blob_in_data - first_rel) // 16 * 16
+			last_rel = min(last_rel, len(data) - needed)
+			if last_rel >= first_rel:
+				search = range(last_rel, first_rel - 1, -16)
+		for rel in search:
 			name_values = struct.unpack_from(f"<{name_count}I", data, rel) if name_count else ()
 			if name_values and (max(name_values) >= name_limit or len(set(name_values)) < 2):
 				continue

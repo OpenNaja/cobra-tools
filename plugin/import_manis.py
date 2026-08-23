@@ -292,8 +292,18 @@ def load(reporter, files=(), filepath="", disable_ik=False, set_fps=False):
 					out.rotate(b_key)
 					b_key = out
 				out_keys[frame_i] = keep_quat_hemisphere(b_key, out_keys, frame_i)
-		for b_channel, b_local_inv_mat, out_keys, in_keys in get_channel(
-				k.scl_bones_names, k.scl_bones, b_local_inv_mats, b_action, "scale"):
+		# ACL clips do not import scale. A compressed clip leaves scl_bones as an empty
+		# 1-D array even when scl_bone_count and scl_bones_names are non-zero (deinosuchus
+		# carries 8 scale bones against a (0,) array), so this loop indexed m_keys[:, bone_i]
+		# and raised "too many indices for array" - it never ran before the compressed and
+		# uncompressed paths were merged, because the ACL branch ended in `continue`.
+		# Filling scl_bones from the decoded transforms is NOT the fix: slots 7:10 come back
+		# as zeros for these tracks, and a zero scale collapses the bone. Until that is
+		# understood, ACL scale is left unimported and key_unanimated_channels supplies the
+		# rest value, which matches the behaviour that was verified against JWE2.
+		scale_channels = () if use_acl else get_channel(
+			k.scl_bones_names, k.scl_bones, b_local_inv_mats, b_action, "scale")
+		for b_channel, b_local_inv_mat, out_keys, in_keys in scale_channels:
 			for frame_i, key in enumerate(in_keys):
 				# swizzle
 				key = mathutils.Vector([key[2], key[1], key[0]])
