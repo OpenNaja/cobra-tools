@@ -105,8 +105,7 @@
         <field name="channel_bones" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannels" since="7"/>
         <!-- padded with FF bytes, 32 byte alignment / 256 byte alignment for larger skeletons -->
         <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod" since="7" cond="channel_bones_size #EQ# channel_bones_lod_size" />
-        <field name="channel_bones_lod" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannelsLod_256" since="7" cond="channel_bones_size #NEQ# channel_bones_lod_size" />
-        <field name="keys" type="Pointer" template="BaniKeys" arg1="num_frames" arg2="num_bones" since="7">this is not correct, as each bani can have different frame and bone counts from two different sources, but there's no way to get this mapping into the current xml syntax</field>
+        <field name="keys" type="Pointer" template="Blob" arg="keys_size" since="7">each bani can have different frame and bone counts from two different sources, so there's no way to get this mapping into the current xml syntax</field>
         <field name="zeros" type="uint" arr1="3" since="7"/>
         <field name="gpu_anim_headers_size" type="uint" since="7">Size of BaniGpuAnimHeader block in bytes</field>
         <field name="channel_bones_size" type="uint" since="7">Size of the first channels block in bytes</field>

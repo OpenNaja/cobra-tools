@@ -6,6 +6,7 @@ from generated.formats.bani.structs.BaniGpuChannels import BaniGpuChannels
 from generated.formats.bani.structs.BaniGpuChannelsLod import BaniGpuChannelsLod
 from generated.formats.bani.structs.BaniGpuChannelsLod256 import BaniGpuChannelsLod256
 from generated.formats.bani.structs.BanisInfoHeader import BanisInfoHeader
+from generated.formats.base.structs.Blob import Blob
 from generated.io import IoFile
 import os
 import logging
@@ -132,8 +133,6 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 			is_pc2 = self.context.version >= 7
 
-			self.channel_bones = []
-
 			if is_pc2:
 				pos_after_header = stream.tell()
 				metadata_gap_size = self.data.gpu_anim_headers_size + self.data.channel_bones_size + self.data.channel_bones_lod_size
@@ -148,22 +147,25 @@ class BanisFile(BanisInfoHeader, IoFile):
 				logging.debug(f"  Metadata Gap Size  : {metadata_gap_size}")
 
 				# Read GPU Headers
-				self.gpu_headers = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
-				# for gpu_header_index, gpu_header in enumerate(self.gpu_headers):
+				self.data.gpu_anim_headers.data = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
+				# for gpu_header_index, gpu_header in enumerate(self.data.gpu_anim_headers.data):
 				# 	gpu_header_pos = pos_after_header + (gpu_header_index * 16)
 				# 	channels_pos = gpu_header_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
 
-				self.channel_bones = Array(self.context, 0, None, (len(self.gpu_headers),), BaniGpuChannels, set_default=False)
-				self.channel_bones[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.gpu_headers]
+				self.data.channel_bones.data = Array(self.context, 0, None, (len(self.data.gpu_anim_headers.data),), BaniGpuChannels, set_default=False)
+				self.data.channel_bones.data[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.data.gpu_anim_headers.data]
 
 				lod_dtype = BaniGpuChannelsLod if self.data.channel_bones_size == self.data.channel_bones_lod_size else BaniGpuChannelsLod256
-				self.channel_bones_lod = Array(self.context, 0, None, (len(self.gpu_headers),), lod_dtype, set_default=False)
-				self.channel_bones_lod[:] = [lod_dtype.from_stream(stream, self.context, arg) for arg in self.gpu_headers]
+				self.data.channel_bones_lod.data = Array(self.context, 0, None, (len(self.data.gpu_anim_headers.data),), lod_dtype, set_default=False)
+				self.data.channel_bones_lod.data[:] = [lod_dtype.from_stream(stream, self.context, arg) for arg in self.data.gpu_anim_headers.data]
 
 				assert stream.tell() == keys_start_pos
+				self.data.keys.data = Blob(self.context)
+				self.data.keys.data.data = self.read_keys_bytes(stream)
 				# PC2 keys are read directly from disk below
 			else:
 				# For older versions, read directly into a structured array
+				self.keys_bytes = self.read_keys_bytes(stream)
 				all_packed_keys = self.read_packed_keys(stream, self.data.num_frames, self.data.num_bones)
 
 			num_global_bones = self.data.num_bones
@@ -176,8 +178,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 				if is_pc2:
 					# Use the GPU index stored in the CPU header
 					gpu_header_index = bani.data.gpu_header_index
-					gpu_header = self.gpu_headers[gpu_header_index]
-					channel_map = self.channel_bones[gpu_header_index].data
+					gpu_header = self.data.gpu_anim_headers.data[gpu_header_index]
+					channel_map = self.data.channel_bones.data[gpu_header_index].data
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 
@@ -221,6 +223,12 @@ class BanisFile(BanisInfoHeader, IoFile):
 					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_packed_keys[start_frame:end_frame], self.data.quantization_info)
 					bani.animated_bone_indices = list(range(num_global_bones))
 
+	def read_keys_bytes(self, stream):
+		start_of_keys = stream.tell()
+		keys_bytes = stream.read()
+		stream.seek(start_of_keys)
+		return keys_bytes
+
 	def init_uncompressed_arrays(self, bani, num_frames, num_bones):
 		# Initialize output array to Identity transforms (for non-animated bones)
 		bani.locs = np.zeros((num_frames, num_bones, 3), dtype=np.float32)
@@ -254,7 +262,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 			all_packed_keys.append(packed_keys)
 		else:
 			# Quantize each bani individually
-			for bani, gpu_header in zip(self.anims, self.gpu_headers):
+			for bani, gpu_header in zip(self.anims, self.data.gpu_anim_headers.data):
 				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
 				all_packed_keys.append(packed_keys)
 

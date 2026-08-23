@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 
-from generated.formats.bani import BanisInfoHeader
+from generated.formats.bani import BanisInfoHeader, BanisFile
 from generated.formats.bani.structs.BanisRoot import BanisRoot
 from generated.formats.bani.structs.BaniRoot import BaniRoot
 from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
@@ -75,10 +75,9 @@ class BanisLoader(MimeVersionedLoader):
 		return out_paths
 
 	def create(self, file_path):
-		with open(file_path, 'rb') as stream:
-			banis = BanisInfoHeader.from_stream(stream, self.context)
-			self.header = banis.data
-			keys = stream.read()
+		banis = BanisFile()
+		banis.load(file_path)
+		self.header = banis.data
 		self.write_memory_data()
 		self.extra_loaders = []
 		for bani in banis.anims:
@@ -86,6 +85,8 @@ class BanisLoader(MimeVersionedLoader):
 			bani_loader = self.ovl.create_file(f"dummy_dir/{bani_name}", bani_name)
 			bani_loader.create_header(bani.data, self)
 			self.extra_loaders.append(bani_loader)
-		self.create_data_entry((keys,))
+		# newer versions store keys on the header
+		if banis.version <= 5:
+			self.create_data_entry((banis.keys_bytes,))
 
 

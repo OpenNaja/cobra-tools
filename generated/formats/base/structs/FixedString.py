@@ -1,7 +1,7 @@
-from generated.base_struct import BaseStruct
+from generated.formats.base.structs.Blob import Blob
 
 
-class FixedString(BaseStruct):
+class FixedString(Blob):
 
 	"""
 	Holds a string of a fixed size, given as #ARG#.
@@ -9,6 +9,11 @@ class FixedString(BaseStruct):
 
 	__name__ = 'FixedString'
 
+
+	def __init__(self, context, arg=0, template=None, set_default=True):
+		super().__init__(context, arg, template, set_default=False)
+		if set_default:
+			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -18,28 +23,7 @@ class FixedString(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
-	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default=False)
-		self.data = b""
-
 	@classmethod
 	def format_indented(cls, self, indent=0):
 		return str(self.data)
-
-	@classmethod
-	def read_fields(cls, stream, instance):
-		instance.data = stream.read(instance.arg)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		stream.write(instance.data)
-
-	@classmethod
-	def validate_instance(cls, instance, context, arg=0, template=None):
-		super().validate_instance(instance, context, arg, template)
-		assert len(instance.data) == arg
-
-	@staticmethod
-	def get_size(instance, context, arg=0, template=None):
-		return len(instance.data)
 
