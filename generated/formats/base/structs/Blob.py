@@ -24,7 +24,7 @@ class Blob(BaseStruct):
 
 	@classmethod
 	def format_indented(cls, self, indent=0):
-		return hex(self.data)
+		return str(self.data)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
