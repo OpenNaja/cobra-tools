@@ -1,3 +1,5 @@
+import math
+
 from generated.array import Array
 from generated.formats.bani.structs.BaniGpuAnimHeader import BaniGpuAnimHeader
 from generated.formats.bani.structs.BaniGpuChannelBones import BaniGpuChannelBones
@@ -137,7 +139,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 				metadata_gap_size = self.data.gpu_anim_headers_size + self.data.channel_bones_size + self.data.channel_bones_lod_size
 				keys_start_pos = pos_after_header + metadata_gap_size
 				
-				logging.debug("\n[DEBUG] --- FILE ALIGNMENT DIAGNOSTICS ---")
+				logging.debug("FILE ALIGNMENT DIAGNOSTICS")
 				logging.debug(f"  Pos after header   : {pos_after_header}")
 				logging.debug(f"  Keys Start Pos     : {keys_start_pos}")
 				logging.debug(f"  Header gpu_anim_headers_size     : {self.data.gpu_anim_headers_size}")
@@ -150,9 +152,13 @@ class BanisFile(BanisInfoHeader, IoFile):
 				# for gpu_header_index, gpu_header in enumerate(self.data.gpu_anim_headers.data):
 				# 	gpu_header_pos = pos_after_header + (gpu_header_index * 16)
 				# 	channels_pos = gpu_header_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
-				for bani in self.anims:
-					gpu_header = self.data.gpu_anim_headers.data[bani.data.gpu_header_index]
-					assert gpu_header.packed_offset_bones.num_bones == bani.data.num_bones
+				for bani in sorted(self.anims, key=lambda b: b.data.gpu_header_index):
+					bani_header = bani.data
+					gpu_header = self.data.gpu_anim_headers.data[bani_header.gpu_header_index]
+					assert bani_header.gpu_header_index * self.get_header_alignment() == bani_header.gpu_header_offset
+					assert gpu_header.packed_offset_bones.num_bones == bani_header.num_bones
+					print(f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
+						  f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
 
 				self.data.channel_bones.data = Array(self.context, 0, None, (len(self.data.gpu_anim_headers.data),), BaniGpuChannels, set_default=False)
 				self.data.channel_bones.data[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.data.gpu_anim_headers.data]
@@ -225,6 +231,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_packed_keys[start_frame:end_frame], self.data.quantization_info)
 					bani.animated_bone_indices = list(range(num_global_bones))
 
+	def get_header_alignment(self):
+		alignment = int(math.ceil(self.data.num_bones / 16) * 16)
+		return alignment
+
 	def read_keys_bytes(self, stream):
 		start_of_keys = stream.tell()
 		keys_bytes = stream.read()
@@ -244,8 +254,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 		return packed_keys
 
 	def save(self, filepath):
-		if self.context.version >= 7:
-			raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
+		# if self.context.version >= 7:
+		# 	raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
 
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 		self.data.num_frames = 0
@@ -264,18 +274,33 @@ class BanisFile(BanisInfoHeader, IoFile):
 			all_packed_keys.append(packed_keys)
 		else:
 			# Quantize each bani individually
-			for i, bani, gpu_header, channel_bones, channel_bones_lod in enumerate(
-					zip(self.anims, self.data.gpu_anim_headers.data, self.data.channel_bones.data, self.data.channel_bones_lod)):
+			bone_channels_offset = len(self.anims)
+			for i, (bani, gpu_header, channel_bones, channel_bones_lod) in enumerate(
+					zip(
+						sorted(self.anims, key=lambda ba: ba.data.gpu_header_index), self.data.gpu_anim_headers.data, self.data.channel_bones.data, self.data.channel_bones_lod.data)):
 				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
 				all_packed_keys.append(packed_keys)
-				bani.data.gpu_header_index = i
-				gpu_header.packed_offset_bones.num_bones = bani.data.num_bones = bani.quats.shape[1]
-				# todo
-				# channel_bones =
-				# channel_bones_lod =
-				# bani.data.gpu_header_offset =
-				# gpu_header.keyframes_offset =
-				# gpu_header.packed_offset_bones.bone_channels_offset =
+				bani_header = bani.data
+				# bani_header.gpu_header_index = i  # todo - add back in once rest works
+				bani_header.gpu_header_offset = bani_header.gpu_header_index * self.get_header_alignment()
+				# todo quats is not actually reduced bone count here!
+				# gpu_header.packed_offset_bones.num_bones = bani_header.num_bones = bani.quats.shape[1]
+				gpu_header.packed_offset_bones.bone_channels_offset = bone_channels_offset
+				bone_channels_offset += int(math.ceil(bani_header.num_bones * 2 / 16))
+			print("save")
+
+			for i, gpu_header in enumerate(reversed(self.data.gpu_anim_headers.data)):
+				gpu_header.keyframes_offset = bone_channels_offset + i - 2  # todo - just because the resave gets two extra indices in bone_channels_offset
+
+			for bani in sorted(self.anims, key=lambda ba: ba.data.gpu_header_index):
+				bani_header = bani.data
+				gpu_header = self.data.gpu_anim_headers.data[bani_header.gpu_header_index]
+				print(
+					f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
+					f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
+			# todo
+			# channel_bones =
+			# channel_bones_lod =
 
 			self.data.keys_size = sum(len(packed_keys) for packed_keys in all_packed_keys)
 
@@ -295,3 +320,11 @@ class BanisFile(BanisInfoHeader, IoFile):
 			quantization_info.scale = (loc_max - quantization_info.bias) / 65535.0
 		else:
 			quantization_info.scale = 1.0
+
+
+if __name__ == "__main__":
+	b = BanisFile()
+	# b.load("C:/Users/arnfi/Desktop/animation.baniset7b77b17d.banis")
+	b.load("C:/Users/arnfi/Desktop/GUESTS_af.banisetfc27d51a.banis")
+	b.save("C:/Users/arnfi/Desktop/GUESTS_af.banisetfc27d51a222.banis")
+	# print(b)
