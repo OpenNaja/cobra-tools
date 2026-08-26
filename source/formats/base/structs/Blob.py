@@ -9,7 +9,7 @@ class Blob:
 
 	@classmethod
 	def format_indented(cls, self, indent=0):
-		return str(self.data)
+		return f"{self.data[:100]}..."
 
 	@classmethod
 	def read_fields(cls, stream, instance):
