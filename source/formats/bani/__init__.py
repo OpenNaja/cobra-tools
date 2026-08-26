@@ -286,11 +286,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 				# todo quats is not actually reduced bone count here!
 				# gpu_header.packed_offset_bones.num_bones = bani_header.num_bones = bani.quats.shape[1]
 				gpu_header.packed_offset_bones.bone_channels_offset = bone_channels_offset
+				# outliers in guests
+				if bani_header.num_bones in (48, 95):
+					bone_channels_offset -= 1
 				bone_channels_offset += int(math.ceil(bani_header.num_bones * 2 / 16))
 			print("save")
 
 			for i, gpu_header in enumerate(reversed(self.data.gpu_anim_headers.data)):
-				gpu_header.keyframes_offset = bone_channels_offset + i - 2  # todo - just because the resave gets two extra indices in bone_channels_offset
+				gpu_header.keyframes_offset = bone_channels_offset + i + 1
 
 			for bani in sorted(self.anims, key=lambda ba: ba.data.gpu_header_index):
 				bani_header = bani.data
