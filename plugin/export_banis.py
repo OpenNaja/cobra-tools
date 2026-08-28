@@ -73,6 +73,16 @@ def save(reporter, filepath=""):
 			banis.init_uncompressed_arrays(bani, bani.data.num_frames, len(bones_table))
 			bani_i += 1
 
+			# todo - overhaul for v7
+			# 1. sample the whole action into temp array
+			# 2. if mode == partial:
+				# a. decide which bones are static with code from manis export
+				# b. find the common parent bone of animated bones -> read_i
+			# 3. update local bone counts + arrays of quats & locs + bani.read_mapping
+			# 4. store transforms
+
+			# bani.read_mapping = {}
+
 			# sample each frame
 			for frame_i in range(bani.data.num_frames):
 				bpy.context.scene.frame_set(frame_i)

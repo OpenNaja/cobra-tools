@@ -188,6 +188,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					gpu_header_index = bani.data.gpu_header_index
 					gpu_header = self.data.gpu_anim_headers.data[gpu_header_index]
 					channel_map = self.data.channel_bones.data[gpu_header_index].data
+					channel_map_lod = self.data.channel_bones_lod.data[gpu_header_index].data
 
 					num_local_bones = gpu_header.packed_offset_bones.num_bones
 
@@ -210,8 +211,13 @@ class BanisFile(BanisInfoHeader, IoFile):
 					logging.debug(f"  Total Frames: {num_frames}")
 					logging.debug(f"  GPU Index:  : {gpu_header_index}")
 					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {stream.tell()}")
-					# logging.debug(f"  Bone Map    : {channel_map}")
-
+					logging.debug(f"  Bone Map    : {channel_map}")
+					if not np.array_equal(channel_map, channel_map_lod, equal_nan=False):
+						# partials are generally different, non-partials are equal
+						# observed values when different:
+						# write_i = 255 if skipped for LOD, else index into channel_map
+						# read_i = 255 if skipped for LOD, else same value as in channel_map
+						logging.debug(f"  Bone Map LOD: {channel_map_lod}")
 					# Decompress
 					quats, locs = self.decompress_keyframes(packed_keys, gpu_header.quantization_info)
 
@@ -219,11 +225,12 @@ class BanisFile(BanisInfoHeader, IoFile):
 					bani.read_mapping = {}
 					# Map channels to bones
 					for local_i, (write_i, read_i) in enumerate(channel_map):
-						if write_i < num_global_bones:
-							bani.quats[:, write_i] = quats[:, local_i]
-							bani.locs[:, write_i] = locs[:, local_i]
-							bani.animated_bone_indices.append(write_i)
-							bani.read_mapping[write_i] = read_i
+						# for non-lod version write_i is always valid
+						assert write_i < num_global_bones
+						bani.quats[:, write_i] = quats[:, local_i]
+						bani.locs[:, write_i] = locs[:, local_i]
+						bani.animated_bone_indices.append(write_i)
+						bani.read_mapping[write_i] = read_i
 				else:
 					# Fallback for old titles
 					start_frame = bani.data.read_start_frame
@@ -278,13 +285,24 @@ class BanisFile(BanisInfoHeader, IoFile):
 			for i, (bani, gpu_header, channel_bones, channel_bones_lod) in enumerate(
 					zip(
 						sorted(self.anims, key=lambda ba: ba.data.gpu_header_index), self.data.gpu_anim_headers.data, self.data.channel_bones.data, self.data.channel_bones_lod.data)):
+
+				bani_header = bani.data
+
+				# todo quats is not actually reduced bone count here, but should be decimated!
+				gpu_header.packed_offset_bones.num_bones = bani_header.num_bones = len(bani.read_mapping)
+				if bani.quats.shape[1] != bani_header.num_bones:
+					pass
+
+				# write bone mapping
+				for local_i, (write_i, read_i) in enumerate(sorted(bani.read_mapping.items())):
+					channel_bones.data[write_i] = (write_i, read_i)
+				# todo
+				# channel_bones_lod =
+
 				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
 				all_packed_keys.append(packed_keys)
-				bani_header = bani.data
-				# bani_header.gpu_header_index = i  # todo - add back in once rest works
+				bani_header.gpu_header_index = i
 				bani_header.gpu_header_offset = bani_header.gpu_header_index * self.get_header_alignment()
-				# todo quats is not actually reduced bone count here!
-				# gpu_header.packed_offset_bones.num_bones = bani_header.num_bones = bani.quats.shape[1]
 				gpu_header.packed_offset_bones.bone_channels_offset = bone_channels_offset
 				# outliers in guests
 				if bani_header.num_bones in (48, 95):
@@ -301,10 +319,6 @@ class BanisFile(BanisInfoHeader, IoFile):
 				print(
 					f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
 					f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
-			# todo
-			# channel_bones =
-			# channel_bones_lod =
-
 			self.data.keys_size = sum(len(packed_keys) for packed_keys in all_packed_keys)
 
 		with open(filepath, "wb") as stream:
