@@ -44,9 +44,9 @@ class BanisRoot(MemStruct):
 
 		# For translation de-quantization
 		self.quantization_info = name_type_map['QuantizationInfo'](self.context, 0, None)
-		self.bani_count = name_type_map['Uint'](self.context, 0, None)
+		self.num_anims = name_type_map['Uint'](self.context, 0, None)
 		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
-		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.bani_count, name_type_map['BaniGpuAnimHeader'])
+		self.gpu_anim_headers = name_type_map['ArrayPointer'](self.context, self.num_anims, name_type_map['BaniGpuAnimHeader'])
 		self.channel_bones = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannels'])
 		self.channel_bones_lod = name_type_map['ForEachPointer'](self.context, self.gpu_anim_headers, name_type_map['BaniGpuChannelsLod256'])
 
@@ -74,14 +74,14 @@ class BanisRoot(MemStruct):
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None), (lambda context: context.version <= 5, None)
-		yield 'bani_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
+		yield 'num_anims', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 7:
-			yield 'gpu_anim_headers', name_type_map['ArrayPointer'], (instance.bani_count, name_type_map['BaniGpuAnimHeader']), (False, None)
+			yield 'gpu_anim_headers', name_type_map['ArrayPointer'], (instance.num_anims, name_type_map['BaniGpuAnimHeader']), (False, None)
 			yield 'channel_bones', name_type_map['ForEachPointer'], (instance.gpu_anim_headers, name_type_map['BaniGpuChannels']), (False, None)
 		if instance.context.version >= 7 and instance.channel_bones_size == instance.channel_bones_lod_size:
 			yield 'channel_bones_lod', name_type_map['ForEachPointer'], (instance.gpu_anim_headers, name_type_map['BaniGpuChannelsLod']), (False, None)
@@ -103,5 +103,5 @@ class BanisRoot(MemStruct):
 		if instance.context.version <= 5:
 			yield 'quantization_info', name_type_map['QuantizationInfo'], (0, None), (False, None)
 		if instance.context.version >= 7:
-			yield 'bani_count', name_type_map['Uint'], (0, None), (False, None)
+			yield 'num_anims', name_type_map['Uint'], (0, None), (False, None)
 			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

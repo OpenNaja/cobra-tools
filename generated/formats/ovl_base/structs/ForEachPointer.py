@@ -31,16 +31,25 @@ class ForEachPointer(Pointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
+	def set_defaults(self):
+		super(ForEachPointer, self).set_defaults()
+		args = self.init_data()
+		self.data[:] = [self.template(self.context, arg=arg, template=None, set_default=True) for arg in args]
+
 	def read_template(self, stream):
 		if self.template:
-			if isinstance(self.arg, ArrayPointer):
-				args = self.arg.data
-			else:
-				raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
-			self.data = Array(self.context, 0, None, (len(args),), self.template, set_default=False)
+			args = self.init_data()
 			# for i, arg in enumerate(args):
 			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
+
+	def init_data(self):
+		if isinstance(self.arg, ArrayPointer):
+			args = self.arg.data
+		else:
+			raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
+		self.data = Array(self.context, 0, None, (len(args),), self.template, set_default=False)
+		return args
 
 	# @classmethod
 	# def _to_xml(cls, instance, elem, debug):

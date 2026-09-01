@@ -28,7 +28,7 @@ class BanisRoot(MemStruct):
     num_frames: int
     num_bones: int
     quantization_info: QuantizationInfo
-    bani_count: int
+    num_anims: int
     zero_2: int
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

@@ -22,8 +22,9 @@ class BaniRoot(MemStruct):
 		# Offset into the engine GPU buffer. gpu_header_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.
 		self.gpu_header_offset = name_type_map['Uint'](self.context, 0, None)
 
-		# The frame in the banis where this bani starts reading
-		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
+		# v5: The frame in the banis where this bani starts reading
+		# v7: The offset from the start of the keys buffer: keys_start * 12
+		self.keys_start = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of frames in this bani file
 		self.num_frames = name_type_map['Uint'](self.context, 0, None)
@@ -49,7 +50,7 @@ class BaniRoot(MemStruct):
 		yield 'banis', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 		yield 'gpu_header_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
 		yield 'gpu_header_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 7, None)
-		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'keys_start', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 5, None)
@@ -63,7 +64,7 @@ class BaniRoot(MemStruct):
 		if instance.context.version >= 7:
 			yield 'gpu_header_index', name_type_map['Uint'], (0, None), (False, None)
 			yield 'gpu_header_offset', name_type_map['Uint'], (0, None), (False, None)
-		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
+		yield 'keys_start', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)
 		if instance.context.version <= 5:

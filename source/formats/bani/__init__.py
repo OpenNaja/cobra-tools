@@ -148,7 +148,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 				logging.debug(f"  Metadata Gap Size  : {metadata_gap_size}")
 
 				# Read GPU Headers
-				self.data.gpu_anim_headers.data = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.bani_count, ), dtype=BaniGpuAnimHeader)
+				self.data.gpu_anim_headers.data = Array.from_stream(stream, self.context, arg=0, template=None, shape=(self.data.num_anims, ), dtype=BaniGpuAnimHeader)
 				# for gpu_header_index, gpu_header in enumerate(self.data.gpu_anim_headers.data):
 				# 	gpu_header_pos = pos_after_header + (gpu_header_index * 16)
 				# 	channels_pos = gpu_header_pos + (gpu_header.packed_offset_bones.bone_channels_offset * 16)
@@ -157,8 +157,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 					gpu_header = self.data.gpu_anim_headers.data[bani_header.gpu_header_index]
 					assert bani_header.gpu_header_index * self.get_header_alignment() == bani_header.gpu_header_offset
 					assert gpu_header.packed_offset_bones.num_bones == bani_header.num_bones
-					print(f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
-						  f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
+					# print(f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
+					# 	  f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
 
 				self.data.channel_bones.data = Array(self.context, 0, None, (len(self.data.gpu_anim_headers.data),), BaniGpuChannels, set_default=False)
 				self.data.channel_bones.data[:] = [BaniGpuChannels.from_stream(stream, self.context, arg) for arg in self.data.gpu_anim_headers.data]
@@ -197,7 +197,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 					keys_base_disk_offset = gpu_header_pos + (gpu_header.keyframes_offset * 16)
 					# Skip currently unread LOD channels
 					keys_base_disk_offset += self.data.channel_bones_lod_size
-					keys_pos_absolute = keys_base_disk_offset + (bani.data.read_start_frame * 12)
+					keys_pos_absolute = keys_base_disk_offset + (bani.data.keys_start * 12)
 
 					# Read keys from disk
 					stream.seek(keys_pos_absolute)
@@ -206,14 +206,14 @@ class BanisFile(BanisInfoHeader, IoFile):
 					logging.debug(f"\n[DEBUG] --- Animation {anim_idx}: {bani.name} ---")
 					logging.debug(f"  Mode : {bani.data.mode}")
 					logging.debug(f"  keyframes_offset : {gpu_header.keyframes_offset}")
-					logging.debug(f"  read_start_frame : {bani.data.read_start_frame}")
+					logging.debug(f"  keys_start : {bani.data.keys_start}")
 					logging.debug(f"  Local Bones : {num_local_bones}")
 					logging.debug(f"  Total Frames: {num_frames}")
 					logging.debug(f"  GPU Index:  : {gpu_header_index}")
 					logging.debug(f"  Disk Offset : {keys_pos_absolute} to {stream.tell()}")
 					logging.debug(f"  Bone Map    : {channel_map}")
 					if not np.array_equal(channel_map, channel_map_lod, equal_nan=False):
-						# partials are generally different, non-partials are equal
+						# partials (mode 2 or 3 with reduced bone counts) are generally different, non-partials are equal
 						# observed values when different:
 						# write_i = 255 if skipped for LOD, else index into channel_map
 						# read_i = 255 if skipped for LOD, else same value as in channel_map
@@ -233,7 +233,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 						bani.read_mapping[write_i] = read_i
 				else:
 					# Fallback for old titles
-					start_frame = bani.data.read_start_frame
+					start_frame = bani.data.keys_start
 					end_frame = start_frame + num_frames
 					bani.quats[:], bani.locs[:] = self.decompress_keyframes(all_packed_keys[start_frame:end_frame], self.data.quantization_info)
 					bani.animated_bone_indices = list(range(num_global_bones))
@@ -261,17 +261,17 @@ class BanisFile(BanisInfoHeader, IoFile):
 		return packed_keys
 
 	def save(self, filepath):
-		# if self.context.version >= 7:
-		# 	raise NotImplementedError("Saving Version 7+ banis files is not yet implemented.")
-
-		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
+		self.data.bytes_per_frame = self.data.num_bones * self.data.bytes_per_bone
 		self.data.num_frames = 0
 		frame_offset = 0
 		for bani in self.anims:
 			self.data.num_frames += bani.data.num_frames
-			bani.data.read_start_frame = frame_offset
-			frame_offset += bani.data.num_frames
-		
+			bani.data.keys_start = frame_offset
+			if self.context.version < 7:
+				frame_offset += bani.data.num_frames
+			else:
+				frame_offset += bani.data.num_frames * bani.data.num_bones
+
 		all_packed_keys = []
 		if self.context.version < 7:
 			# Reassemble the whole array as floats and quantize in one sweep
@@ -282,24 +282,31 @@ class BanisFile(BanisInfoHeader, IoFile):
 		else:
 			# Quantize each bani individually
 			bone_channels_offset = len(self.anims)
-			for i, (bani, gpu_header, channel_bones, channel_bones_lod) in enumerate(
-					zip(
-						sorted(self.anims, key=lambda ba: ba.data.gpu_header_index), self.data.gpu_anim_headers.data, self.data.channel_bones.data, self.data.channel_bones_lod.data)):
+			for i, (bani, gpu_header, channel_bones, channel_bones_lod) in enumerate(zip(
+					sorted(self.anims, key=lambda ba: ba.data.gpu_header_index),
+					self.data.gpu_anim_headers.data,
+					self.data.channel_bones.data,
+					self.data.channel_bones_lod.data)):
 
 				bani_header = bani.data
 
-				# todo quats is not actually reduced bone count here, but should be decimated!
-				gpu_header.packed_offset_bones.num_bones = bani_header.num_bones = len(bani.read_mapping)
-				if bani.quats.shape[1] != bani_header.num_bones:
-					pass
+				# todo - for resaving existing banis, quats do not have the reduced bone count here
+				gpu_header.packed_offset_bones.num_bones = bani_header.num_bones
+				assert bani.quats.shape[1] == bani_header.num_bones
 
 				# write bone mapping
+				channel_bones.reset_field("data")
 				for local_i, (write_i, read_i) in enumerate(sorted(bani.read_mapping.items())):
-					channel_bones.data[write_i] = (write_i, read_i)
-				# todo
-				# channel_bones_lod =
+					channel_bones.data[local_i] = (write_i, read_i)
+				# todo - determine which bones to remove for lod
+				channel_bones_lod.reset_field("data")
+				for local_i, (write_i, read_i) in enumerate(sorted(bani.read_mapping.items())):
+					channel_bones_lod.data[local_i] = (write_i, read_i)
+				# todo - 256 byte alignment for bigger skeletons
+				self.data.channel_bones_size += int(math.ceil(bani_header.num_bones * 2 / 32)) * 32
+				self.data.channel_bones_lod_size += int(math.ceil(bani_header.num_bones * 2 / 32)) * 32
 
-				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info)
+				packed_keys = self.compress_keyframes(bani.quats, bani.locs, gpu_header.quantization_info).tobytes()
 				all_packed_keys.append(packed_keys)
 				bani_header.gpu_header_index = i
 				bani_header.gpu_header_offset = bani_header.gpu_header_index * self.get_header_alignment()
@@ -308,25 +315,30 @@ class BanisFile(BanisInfoHeader, IoFile):
 				if bani_header.num_bones in (48, 95):
 					bone_channels_offset -= 1
 				bone_channels_offset += int(math.ceil(bani_header.num_bones * 2 / 16))
-			print("save")
 
 			for i, gpu_header in enumerate(reversed(self.data.gpu_anim_headers.data)):
 				gpu_header.keyframes_offset = bone_channels_offset + i + 1
 
-			for bani in sorted(self.anims, key=lambda ba: ba.data.gpu_header_index):
-				bani_header = bani.data
-				gpu_header = self.data.gpu_anim_headers.data[bani_header.gpu_header_index]
-				print(
-					f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
-					f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
+			# for bani in sorted(self.anims, key=lambda ba: ba.data.gpu_header_index):
+			# 	bani_header = bani.data
+			# 	gpu_header = self.data.gpu_anim_headers.data[bani_header.gpu_header_index]
+			# 	print(
+			# 		f"gpu_header_index = {bani_header.gpu_header_index}, gpu_header_offset = {bani_header.gpu_header_offset}, num_bones = {bani_header.num_bones}, "
+			# 		f"bone_channels_offset = {gpu_header.packed_offset_bones.bone_channels_offset}, keyframes_offset = {gpu_header.keyframes_offset}")
+
+			self.data.gpu_anim_headers_size = 16 * self.data.num_anims
 			self.data.keys_size = sum(len(packed_keys) for packed_keys in all_packed_keys)
 
 		with open(filepath, "wb") as stream:
 			# Write headers
 			self.write_fields(stream, self)
+			if self.context.version >= 7:
+				self.data.gpu_anim_headers.data.to_stream(self.data.gpu_anim_headers.data, stream, self.context)
+				self.data.channel_bones.data.to_stream(self.data.channel_bones.data, stream, self.context)
+				self.data.channel_bones_lod.data.to_stream(self.data.channel_bones_lod.data, stream, self.context)
 			# Write quantized keyframe data
 			for packed_keys in all_packed_keys:
-				stream.write(packed_keys.tobytes())
+				stream.write(packed_keys)
 
 
 	@staticmethod

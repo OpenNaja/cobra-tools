@@ -10,9 +10,24 @@ from generated.formats.bani import BanisFile
 from generated.formats.bani.versions import set_game
 from plugin.modules_export.animation import get_actions
 from plugin.modules_export.armature import get_armatures_collections
+from plugin.modules_import.anim import Animation
 from plugin.utils.anim import get_bone_bind_data
 from plugin.utils.transforms import Corrector
 from plugin.utils.object import get_bones_table, get_parent_map
+
+
+anim_sys = Animation()
+
+
+def clear_pose(b_armature_ob):
+	# clear pose to ensure no distorted pose is applied
+	if b_armature_ob:
+		for p_bone in b_armature_ob.pose.bones:
+			p_bone.matrix_basis = mathutils.Matrix().to_4x4()
+
+
+def reasonably_close(a, b):
+	return np.allclose(a, b, rtol=1e-03, atol=1e-05, equal_nan=False)
 
 
 def save(reporter, filepath=""):
@@ -39,7 +54,8 @@ def save(reporter, filepath=""):
 
 	banis = BanisFile()
 	set_game(banis, scene.cobra.game)
-	banis.num_anims = len(all_actions)
+	banis.reset_field("data")
+	banis.num_anims = banis.data.num_anims = len(all_actions)
 	banis.reset_field("anims")
 	bani_i = 0
 	for b_target_armature, actions in anim_map.items():
@@ -65,25 +81,18 @@ def save(reporter, filepath=""):
 			bani = banis.anims[bani_i]
 			bani.name = b_action.name
 			bani.data.banis.pool_index = 0
-			bani.data.num_frames = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
+			first_frame, last_frame = b_action.frame_range
+			first_frame = int(first_frame)
+			last_frame = int(last_frame) + 1
+			bani.data.num_frames = last_frame - first_frame
 			fps = b_action.get("fps", scene.render.fps)
 			anim_mode = b_action.get("mode", 1)
-			bani.data.animation_length = (bani.data.num_frames-1) / fps
+			bani.data.animation_length = (bani.data.num_frames - 1) / fps
 			bani.data.mode = anim_mode
 			banis.init_uncompressed_arrays(bani, bani.data.num_frames, len(bones_table))
 			bani_i += 1
-
-			# todo - overhaul for v7
-			# 1. sample the whole action into temp array
-			# 2. if mode == partial:
-				# a. decide which bones are static with code from manis export
-				# b. find the common parent bone of animated bones -> read_i
-			# 3. update local bone counts + arrays of quats & locs + bani.read_mapping
-			# 4. store transforms
-
-			# bani.read_mapping = {}
-
 			# sample each frame
+			clear_pose(b_target_armature)
 			for frame_i in range(bani.data.num_frames):
 				bpy.context.scene.frame_set(frame_i)
 				bpy.context.view_layer.update()
@@ -152,5 +161,30 @@ def save(reporter, filepath=""):
 						bani.locs[frame_i, bone_i] = g_key.translation
 						bani.quats[frame_i, bone_i] = g_key.to_quaternion()
 
+			if banis.version >= 7:
+				if anim_mode in (2, 3):
+					# decide which bones are keyframed by peeking into the fcurves
+					animated_bones = set(bone_i for bone_i, b_bone_name in bones_table if b_bone_name in anim_sys.get_data(b_action).groups.keys())
+					sorted_animated_bones = sorted(animated_bones)
+					# find the common parent bone of animated bones to store as read_i
+					# shortcut - assume the sorting of the bones table already puts the suitable bone at the start
+					bone_i = sorted_animated_bones[0]
+					common_parent = parent_index_map[bone_i]
+					# update local bone counts + bani.read_mapping
+					bani.read_mapping = {bone_i: common_parent for bone_i in animated_bones}
+					# decimate arrays of quats & locs
+					bani.quats = bani.quats[:, sorted_animated_bones]
+					bani.locs = bani.locs[:, sorted_animated_bones]
+				else:
+					bani.read_mapping = {bone_i: 255 for bone_i, b_bone_name in bones_table}
+				bani.data.num_bones = len(bani.read_mapping)
+
+	banis.data.gpu_anim_headers.arg = banis.num_anims
+	banis.data.gpu_anim_headers.set_defaults()
+	banis.data.channel_bones.arg = banis.data.gpu_anim_headers
+	banis.data.channel_bones.set_defaults()
+	banis.data.channel_bones_lod.arg = banis.data.gpu_anim_headers
+	banis.data.channel_bones_lod.set_defaults()
+	print(banis.data)
 	banis.save(filepath)
 	reporter.show_info(f"Exported {banis_name}")

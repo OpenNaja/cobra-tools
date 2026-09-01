@@ -6,7 +6,7 @@ class BaniRoot(MemStruct):
     banis: Pointer[object]
     gpu_header_index: int
     gpu_header_offset: int
-    read_start_frame: int
+    keys_start: int
     num_frames: int
     animation_length: float
     flags: int

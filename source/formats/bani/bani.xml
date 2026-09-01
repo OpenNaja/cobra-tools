@@ -26,7 +26,9 @@
         <field name="banis" type="Pointer" >points to the banis file used</field>
         <field name="gpu_header_index" type="uint" since="7">Maps this CPU-side struct to the struct in the GPU buffer</field>
         <field name="gpu_header_offset" type="uint" since="7">Offset into the engine GPU buffer. gpu_header_index * [compute shader thread count or 16-byte rounded bones count] for wavefront/warp alignment.</field>
-        <field name="read_start_frame" type="uint">The frame in the banis where this bani starts reading</field>
+        <field name="keys_start" type="uint">
+            v5: The frame in the banis where this bani starts reading
+            v7: The offset from the start of the keys buffer: keys_start * 12</field>
         <field name="num_frames" type="uint">Number of frames in this bani file</field>
         <field name="animation_length" type="float">length of the animation, can easily get keyframe spacing now</field>
         <field name="flags" type="uint" until="5">unknown - seen 0 or 1381323599</field>
@@ -100,7 +102,7 @@
     <struct name="BanisRoot" inherit="MemStruct">
         older games: 40 bytes
         PC2: new structure, 4 pointers to keyframe data at start
-        <field name="gpu_anim_headers" type="ArrayPointer" arg="bani_count" template="BaniGpuAnimHeader" since="7"/>
+        <field name="gpu_anim_headers" type="ArrayPointer" arg="num_anims" template="BaniGpuAnimHeader" since="7"/>
         <!-- padded with 00 bytes, 32 byte alignment-->
         <field name="channel_bones" type="ForEachPointer" arg="gpu_anim_headers" template="BaniGpuChannels" since="7"/>
         <!-- padded with FF bytes, 32 byte alignment / 256 byte alignment for larger skeletons -->
@@ -122,7 +124,7 @@
 
         <field name="QuantizationInfo" type="QuantizationInfo" until="5">For translation de-quantization</field>
 
-        <field name="bani_count" type="uint" since="7"/>
+        <field name="num_anims" type="uint" since="7"/>
         <field name="zero2" type="uint64" since="7"/>
     </struct>
 
