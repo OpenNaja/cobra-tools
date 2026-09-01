@@ -87,6 +87,9 @@ class BanisLoader(MimeVersionedLoader):
 			self.extra_loaders.append(bani_loader)
 		# newer versions store keys on the header
 		if banis.version <= 5:
-			self.create_data_entry((banis.keys_bytes,))
+			self.create_data_entry((banis.keys_bytes, ))
+		else:
+			# this dummy data is required
+			self.create_data_entry((struct.pack("<IIII", 47, 4747, 474747, 47474747), ))
 
 
