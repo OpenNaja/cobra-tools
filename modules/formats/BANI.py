@@ -1,11 +1,9 @@
-import logging
-import os
 import struct
 
-from generated.formats.bani import BanisInfoHeader, BanisFile
+from generated.formats.bani import BanisFile
 from generated.formats.bani.structs.BanisRoot import BanisRoot
 from generated.formats.bani.structs.BaniRoot import BaniRoot
-from modules.formats.BaseFormat import MemStructLoader, MimeVersionedLoader
+from modules.formats.BaseFormat import MimeVersionedLoader
 from modules.helpers import as_bytes
 
 
@@ -13,10 +11,6 @@ class BaniLoader(MimeVersionedLoader):
 	extension = ".bani"
 	target_class = BaniRoot
 	can_extract = False
-
-	# def collect(self):
-	# 	super().collect()
-	# 	print(self.header)
 
 	def create(self, file_path):
 		pass
@@ -29,16 +23,11 @@ class BaniLoader(MimeVersionedLoader):
 		self.delete_frag(pool, self.header.banis.io_start, *banis_loader.root_ptr)
 		self.attach_frag_to_ptr(pool, self.header.banis.io_start, *banis_loader.root_ptr)
 		self.header.banis.link = banis_loader.root_ptr
-		# print(self.fragments)
 
 
 class BanisLoader(MimeVersionedLoader):
 	extension = ".banis"
 	target_class = BanisRoot
-
-	def collect(self):
-		super().collect()
-		#print(self.header)
 
 	def validate(self):
 		self.extra_loaders = []
@@ -50,29 +39,23 @@ class BanisLoader(MimeVersionedLoader):
 
 	def extract(self, out_dir):
 		name = self.name
-		if not self.data_entry:
-			raise AttributeError(f"No data entry for {name}")
+		assert self.data_entry, f"No data entry for {name}"
 		buffers = self.data_entry.buffer_datas
-		if len(buffers) != 1:
-			raise AttributeError(f"Wrong amount of buffers for {name}")
+		assert len(buffers) == 1, f"Wrong amount of buffers for {name}"
 		out_path = out_dir(name)
-		out_paths = [out_path, ]
 		with open(out_path, 'wb') as stream:
 			stream.write(struct.pack("<II", self.mime_version, len(self.extra_loaders)))
 			for bani in self.extra_loaders:
-				stream.write(as_bytes(os.path.splitext(bani.name)[0]))
+				stream.write(as_bytes(bani.basename))
 				bani.header.to_stream(bani.header, stream, bani.header.context)
 			self.header.to_stream(self.header, stream, self.header.context)
-			# the keys themselves
+			# write the keys themselves
 			if self.mime_version < 7:
 				stream.write(buffers[0])
 			else:
-				self.header.gpu_anim_headers.data.to_stream(self.header.gpu_anim_headers.data, stream, self.header.context)
-				self.header.channel_bones.data.to_stream(self.header.channel_bones.data, stream, self.header.context)
-				self.header.channel_bones_lod.data.to_stream(self.header.channel_bones_lod.data, stream, self.header.context)
-				self.header.keys.data.to_stream(self.header.keys.data, stream, self.header.context)
-
-		return out_paths
+				for ptr in (self.header.gpu_anim_headers, self.header.channel_bones, self.header.channel_bones_lod, self.header.keys):
+					ptr.data.to_stream(ptr.data, stream, self.header.context)
+		return out_path,
 
 	def create(self, file_path):
 		banis = BanisFile()
@@ -86,7 +69,7 @@ class BanisLoader(MimeVersionedLoader):
 			bani_loader.create_header(bani.data, self)
 			self.extra_loaders.append(bani_loader)
 		# newer versions store keys on the header
-		if banis.version <= 5:
+		if banis.version < 7:
 			self.create_data_entry((banis.keys_bytes, ))
 		else:
 			# this dummy data is required
