@@ -110,24 +110,33 @@
     <enum name="DdsTypeCoaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
 		PC1 uses [1, 48, 59, 74, 76, 97, 98, 101, 102, 105, 121, 123, 127]
-		<option value="74" name="D24_UNORM_S8_UINT">ZTUAC ele heights textures</option>
-		<option value="76" name="D24_UNORM_S8_UINT_B">?</option>
-		<option value="97" name="BC1_UNORM"></option>
-		<option value="98" name="BC1_UNORM_SRGB"></option>
-		<option value="99" name="BC2_UNORM"></option>
-		<option value="100" name="BC2_UNORM_SRGB"></option>
-		<option value="101" name="BC3_UNORM">looks like it could be SRGB on PC1 icons</option>
-		<option value="102" name="BC3_UNORM_SRGB"></option>
-		<option value="103" name="BC4_UNORM"></option>
-		<option value="104" name="BC4_SNORM"></option>
-		<option value="105" name="BC5_UNORM"></option>
-		<option value="106" name="BC5_SNORM"></option>
-
-		<option value="121" name="BC4_UNORM_B"></option>
-		<option value="126" name="BC7_UNORM"></option>
-		<option value="127" name="BC7_UNORM_SRGB"></option>
-
-		<option value="250" name="ALL"></option>
+		<option value="1" name="UNK0">used in PC1</option>
+		<option value="48" name="UNK1">used in PC1</option>
+		<option value="59" name="UNK2">used in PC1</option>
+		<option value="74" name="D24_UNORM_S8_UINT">used in PC1, ZTUAC ele heights textures</option>
+		<option value="76" name="D24_UNORM_S8_UINT_B">used in PC1</option>
+		<option value="97" name="BC1_UNORM">used a lot in PC1</option>
+		<option value="98" name="BC1_UNORM_SRGB">used a lot in PC1</option>
+		<option value="99" name="BC2_UNORM">not used in PC1</option>
+		<option value="100" name="BC2_UNORM_SRGB">not used in PC1</option>
+		<option value="101" name="BC3_UNORM_SRGB">in PC1, exclusively used on icons</option>
+		<option value="102" name="BC3_UNORM">used rarely in PC1, and apparently on very bright textures where SRGB does not matter
+			'Content0\\Environment\\Scenery\\Themes\\PC_PlanetCoaster\\PC_Signs\\PC_Signs_Park',
+			'Content0\\Environment\\Scenery\\Themes\\FT_FairyTale\\FT_WallLamps',
+			'Content0\\Environment\\Scenery\\Themes\\WS_Western\\WS_WallLamps',
+			'Content0\\Environment\\Terrain\\TerrainEditor',
+			'PDLC_GHB\\Environment\\Scenery\\ProtonBeam',
+			'Content0\\Environment\\Scenery\\Themes\\WS_Western\\WS_Decorations',
+			'Content0\\Environment\\Scenery\\Themes\\FT_FairyTale\\FT_IronChandelier'
+		</option>
+		<option value="103" name="BC4_UNORM">not used in PC1</option>
+		<option value="104" name="BC4_SNORM">not used in PC1</option>
+		<option value="105" name="BC5_UNORM">used in PC1</option>
+		<option value="106" name="BC5_SNORM">not used in PC1</option>
+		<option value="121" name="BC4_UNORM_B">used in PC1</option>
+		<option value="123" name="UNK3">used in PC1</option>
+		<option value="126" name="BC7_UNORM">not used in PC1</option>
+		<option value="127" name="BC7_UNORM_SRGB">used in PC1</option>
     </enum>
 
 	<struct name="TexBuffer" inherit="MemStruct" >
@@ -189,7 +198,7 @@
 		<field vercond="!is_PC2" name="buffer_infos" type="ArrayPointer" since="19" template="TexBuffer" arg="stream_count"/>
 		<field vercond="!is_PC2" name="size_info" type="Pointer" since="19" template="SizeInfo"/>
 		<!-- compression types do not index directly into the official DDS enum -->
-		<field vercond="!is_PC2" name="compression type" type="DdsType_Coaster" until="18"/>
+		<field vercond="!is_PC2" name="compression type" type="DdsTypeCoaster" until="18"/>
 		<field vercond="!is_PC2" name="compression type" type="DdsType" since="19"/>
 		<field vercond="!is_PC2" name="one 0" type="ubyte">0 or 1</field>
 		<field vercond="!is_PC2" name="num mips" type="ubyte" until="15"/>
