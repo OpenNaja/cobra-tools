@@ -19,6 +19,8 @@ class TrackElementData(MemStruct):
     tracktype_bitfield: TracktypeBitfield
     start_connection_bitfield: int
     end_connection_bitfield: int
+    start_connection_bitfield: int
+    end_connection_bitfield: int
     offset: float
     unk_5: int
     x_offset: float

@@ -22,6 +22,8 @@ class TrackElementData(MemStruct):
 
 		# Every bit encodes some track property
 		self.tracktype_bitfield = name_type_map['TracktypeBitfield'].from_value(0)
+		self.start_connection_bitfield = name_type_map['Uint64'].from_value(1)
+		self.end_connection_bitfield = name_type_map['Uint64'].from_value(1)
 		self.start_connection_bitfield = name_type_map['Uint'].from_value(1)
 		self.end_connection_bitfield = name_type_map['Uint'].from_value(1)
 
@@ -75,8 +77,10 @@ class TrackElementData(MemStruct):
 		yield 'direction', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'tracktype_bitfield', name_type_map['TracktypeBitfield'], (0, None), (False, 0), (None, None)
-		yield 'start_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1), (None, None)
-		yield 'end_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1), (None, None)
+		yield 'start_connection_bitfield', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 12, None)
+		yield 'end_connection_bitfield', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 12, None)
+		yield 'start_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1), (lambda context: context.version <= 11, None)
+		yield 'end_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1), (lambda context: context.version <= 11, None)
 		yield 'offset', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'unk_5', name_type_map['Uint'], (0, None), (False, 0), (None, None)
 		yield 'x_offset', name_type_map['Float'], (0, None), (False, 0), (lambda context: context.version >= 12, None)
@@ -101,8 +105,12 @@ class TrackElementData(MemStruct):
 		yield 'direction', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'tracktype_bitfield', name_type_map['TracktypeBitfield'], (0, None), (False, 0)
-		yield 'start_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1)
-		yield 'end_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1)
+		if instance.context.version >= 12:
+			yield 'start_connection_bitfield', name_type_map['Uint64'], (0, None), (False, 1)
+			yield 'end_connection_bitfield', name_type_map['Uint64'], (0, None), (False, 1)
+		if instance.context.version <= 11:
+			yield 'start_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1)
+			yield 'end_connection_bitfield', name_type_map['Uint'], (0, None), (False, 1)
 		yield 'offset', name_type_map['Float'], (0, None), (False, None)
 		yield 'unk_5', name_type_map['Uint'], (0, None), (False, 0)
 		if instance.context.version >= 12:
