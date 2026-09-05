@@ -99,8 +99,13 @@
 
 	    <field name="tracktype_bitfield" type="TracktypeBitfield" default="0">Every bit encodes some track property</field>
 
-        <field name="start_connection_bitfield" type="uint" default="1" />
-        <field name="end_connection_bitfield" type="uint" default="1" />
+        <!-- Planet Coaster 2 uses u64's for the connectors since upd11 -->
+        <field name="start_connection_bitfield" type="uint64" default="1" since="12" />
+        <field name="end_connection_bitfield" type="uint64" default="1" since="12" />
+
+        <!-- The rest keeps the old u32 fields -->
+        <field name="start_connection_bitfield" type="uint" default="1" until="11" />
+        <field name="end_connection_bitfield" type="uint" default="1" until="11" />
 
         <field name="offset" type="float">Used to offset the track on the Y when there is no spline (e.g. double line segments)</field>
         <field name="unk_5" type="uint" default="0" />
