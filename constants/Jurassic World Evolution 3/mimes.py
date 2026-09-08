@@ -102,6 +102,7 @@ mimes = {
 	".trackedridecar": Mime(name='Game:TrackedRideCar:trackedridecar', hash=861396402, version=5, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".txt": Mime(name='FGDK:Text:txt', hash=640591496, version=4, triplets=[], pool=1, set_pool=0),
 	".uisettings": Mime(name='Game:UISettings:uisettings', hash=1254887356, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
+	".weaponssettings": Mime(name='Game:WeaponsSettings:weaponssettings', hash=348112858, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".weatherevents": Mime(name='Game:WeatherEvents:weatherevents', hash=3540973900, version=5, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".wmetasb": Mime(name='Casino:WwiseMetaDataSoundbanks:wmetasb', hash=1945549149, version=2, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	".world": Mime(name='Casino:WorldDesc:world', hash=1570896903, version=26, triplets=[(1, 2, 3)], pool=4, set_pool=0),
