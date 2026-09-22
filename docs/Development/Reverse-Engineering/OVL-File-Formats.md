@@ -24,29 +24,24 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
         extension = ".animalresearchunlockssettings"
     ```
 
-2. Open an OVL file with your format in the OVL editor, run `Util > Dump Debug Data`.
+2. Open an OVL file with your format in the OVL editor, select one or several of the files with the format and run `Util > Dump Debug Data`.
 
     !!! note "DEV MODE"
         Certain dev functions require the existence of a `.git` folder in the `cobra-tools` location. Either checkout the repository with `git`, or create this folder to enable Dev Mode.
 
-3. Open the `.stack` file that was created in your OVL's folder. Search for your file extension. You will find, for example, the following:
+3. Open the `.stack` file that was created in your OVL's folder. Search for your file. You will find, for example, the following:
 
     ```
-    FILE [  0 |    896] (  64) cc_anubis.fgm
-    PTR @ 16   -> SUB [  0 |    164] ( 120)
-    PTR @ 24   -> SUB [  0 |    288] ( 608)
-    PTR @ 32   -> SUB [  0 |   1008] (  40)
-        DEP @ 0    -> cc_anubis.paosamplertexture.tex
-        DEP @ 8    -> cc_anubis.pbasecolourtexture.tex
-        DEP @ 16   -> cc_anubis.pflexicolourmaskssamplertexture.tex
-        DEP @ 24   -> cc_anubis.pmetalsmoothnesscavitysamplertexture.tex
-        DEP @ 32   -> cc_anubis.pnormaltexture.tex
-    PTR @ 40   -> SUB [  0 |      0] ( 164)
+    FILE 0 | 896 (  64) cc_anubis.fgm
+      05 00 00 00 00 00 00 00 26 00 00 00 00 00 00 00  ........&.......
+      40 50 4F 49 4E 54 45 52 40 50 4F 49 4E 54 45 52  @POINTER@POINTER
+      40 50 4F 49 4E 54 45 52 40 50 4F 49 4E 54 45 52  @POINTER@POINTER
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
     ```
 
 4. The above tells you that the main struct for `cc_anubis.fgm` starts in pool number 0 at offset `896` and occupies `64` bytes, starting at that offset.
 
-5. Open the pool `.dmp` file in a hex editor. If you set the width to `8` (not always useful), navigate to offset `896`, you will see the following:
+5. You can also open the pool `.dmp` file in a hex editor. If you set the width to `8` (not always useful), navigate to offset `896`, you will see the following:
 
     ```
     Offset(d) 00       04
@@ -81,21 +76,21 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
     ```
     Setting `type` to `Pointer` will make the tool read those 8 bytes as a pointer and then read a sub-struct at the address that this pointer points to. But first, you need to figure out the data layout of the pointer's sub-struct for this to work.
 
-6. Look at the sub-structs pointed to by the pointers.
+6. Look at the sub-structs pointed to by the pointers. They appear indented in the stack.
 
     For `PTR @ 16`, you'll find 120 bytes starting at offset 164. You'll notice a repetition in the pattern after 24 bytes.
     ```
-    Offset(d) 00       04
-    00000160           AC020000      ¬...
-    00000168  08000000 00000000  ........
-    00000176  00000000 00000000  ........
-    00000184  00000000 BE020000  ....¾...
-    00000192  08000000 01000000  ........
-    00000200  00000000 00000000  ........
-    00000208  00000000 D1020000  ....Ñ...
-    ........
+      PTR @ 16   -> SUB 0 | 164 ( 124)
+        AC 02 00 00 08 00 00 00 00 00 00 00 00 00 00 00  ¬...............
+        00 00 00 00 00 00 00 00 BE 02 00 00 08 00 00 00  ........¾.......
+        01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+        D1 02 00 00 08 00 00 00 02 00 00 00 00 00 00 00  Ñ...............
+        00 00 00 00 00 00 00 00 F1 02 00 00 08 00 00 00  ........ñ.......
+        03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+        16 03 00 00 08 00 00 00 04 00 00 00 00 00 00 00  ................
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
     ```
-    The size `24 (size of sub-sub-struct) * 5 (count) = 120 (size of sub-struct)` indicates that the count is actually used for this pointer, and you're looking at an array. The whole struct for `PTR @ 16`, now set to 24 bytes width. Now you can see the sub-sub-struct is likely composed of 6 `uint`s. The first of these could be a string offset, the second is constantly 8, the third increments (an index?) and the rest are zeros.
+    It can be helpful to set the width of your hex editor to the presumed size of a struct, which makes patterns more obvious. The size `24 (size of sub-sub-struct) * 5 (count) = 120 (size of sub-struct)` indicates that the count is actually used for this pointer, and you're looking at an array. The whole struct for `PTR @ 16`, now set to 24 bytes width. Now you can see the sub-sub-struct is likely composed of 6 `uint`s. The first of these could be a string offset, the second is constantly 8, the third increments (an index?) and the rest are zeros.
 
     ```
     Offset(d) 00       04       08       12       16       20
@@ -111,12 +106,16 @@ This tutorial assumes that you have basic knowledge of a hex editor, data types 
 
     For `PTR @ 32`, you'll find 40 bytes, occupied only by 5 dependency links. The stack log tells you which external file dependency points there.
     ```
-    Offset(d) 00       04
-    00001008  40444550 454E4453  @DEPENDS
-    00001016  40444550 454E4453  @DEPENDS
-    00001024  40444550 454E4453  @DEPENDS
-    00001032  40444550 454E4453  @DEPENDS
-    00001040  40444550 454E4453  @DEPENDS
+      PTR @ 32   -> SUB 0 | 1008 (  40)
+        40 44 45 50 45 4E 44 53 40 44 45 50 45 4E 44 53  @DEPENDS@DEPENDS
+        40 44 45 50 45 4E 44 53 40 44 45 50 45 4E 44 53  @DEPENDS@DEPENDS
+        40 44 45 50 45 4E 44 53 00 00 00 00 00 00 00 00  @DEPENDS........
+    
+        DEP @ 0    -> cc_anubis.paosamplertexture.tex
+        DEP @ 8    -> cc_anubis.pbasecolourtexture.tex
+        DEP @ 16   -> cc_anubis.pflexicolourmaskssamplertexture.tex
+        DEP @ 24   -> cc_anubis.pmetalsmoothnesscavitysamplertexture.tex
+        DEP @ 32   -> cc_anubis.pnormaltexture.tex
     ```
 
 7. Now you have some more knowledge of the format, so time to document the struct in XML syntax for the codegen. This will result in something like the following:
