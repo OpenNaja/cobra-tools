@@ -1816,31 +1816,26 @@
 </ul>
 </li>
 <li>
-<p>Open an OVL file with your format in the OVL editor, run <code>Util &gt; Dump Debug Data</code>.</p>
+<p>Open an OVL file with your format in the OVL editor, select one or several of the files with the format and run <code>Util &gt; Dump Debug Data</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">DEV MODE</p>
 <p>Certain dev functions require the existence of a <code>.git</code> folder in the <code>cobra-tools</code> location. Either checkout the repository with <code>git</code>, or create this folder to enable Dev Mode.</p>
 </div>
 </li>
 <li>
-<p>Open the <code>.stack</code> file that was created in your OVL's folder. Search for your file extension. You will find, for example, the following:</p>
-<div class="highlight"><pre><span></span><code>FILE [  0 |    896] (  64) cc_anubis.fgm
-PTR @ 16   -&gt; SUB [  0 |    164] ( 120)
-PTR @ 24   -&gt; SUB [  0 |    288] ( 608)
-PTR @ 32   -&gt; SUB [  0 |   1008] (  40)
-    DEP @ 0    -&gt; cc_anubis.paosamplertexture.tex
-    DEP @ 8    -&gt; cc_anubis.pbasecolourtexture.tex
-    DEP @ 16   -&gt; cc_anubis.pflexicolourmaskssamplertexture.tex
-    DEP @ 24   -&gt; cc_anubis.pmetalsmoothnesscavitysamplertexture.tex
-    DEP @ 32   -&gt; cc_anubis.pnormaltexture.tex
-PTR @ 40   -&gt; SUB [  0 |      0] ( 164)
+<p>Open the <code>.stack</code> file that was created in your OVL's folder. Search for your file. You will find, for example, the following:</p>
+<div class="highlight"><pre><span></span><code>FILE 0 | 896 (  64) cc_anubis.fgm
+  05 00 00 00 00 00 00 00 26 00 00 00 00 00 00 00  ........&amp;.......
+  40 50 4F 49 4E 54 45 52 40 50 4F 49 4E 54 45 52  @POINTER@POINTER
+  40 50 4F 49 4E 54 45 52 40 50 4F 49 4E 54 45 52  @POINTER@POINTER
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 </code></pre></div>
 </li>
 <li>
 <p>The above tells you that the main struct for <code>cc_anubis.fgm</code> starts in pool number 0 at offset <code>896</code> and occupies <code>64</code> bytes, starting at that offset.</p>
 </li>
 <li>
-<p>Open the pool <code>.dmp</code> file in a hex editor. If you set the width to <code>8</code> (not always useful), navigate to offset <code>896</code>, you will see the following:</p>
+<p>You can also open the pool <code>.dmp</code> file in a hex editor. If you set the width to <code>8</code> (not always useful), navigate to offset <code>896</code>, you will see the following:</p>
 <div class="highlight"><pre><span></span><code>Offset(d) 00       04
 00000896  05000000 00000000  ........
 00000904  26000000 00000000  &amp;.......
@@ -1872,19 +1867,19 @@ PTR @ 40   -&gt; SUB [  0 |      0] ( 164)
 Setting <code>type</code> to <code>Pointer</code> will make the tool read those 8 bytes as a pointer and then read a sub-struct at the address that this pointer points to. But first, you need to figure out the data layout of the pointer's sub-struct for this to work.</p>
 </li>
 <li>
-<p>Look at the sub-structs pointed to by the pointers.</p>
+<p>Look at the sub-structs pointed to by the pointers. They appear indented in the stack.</p>
 <p>For <code>PTR @ 16</code>, you'll find 120 bytes starting at offset 164. You'll notice a repetition in the pattern after 24 bytes.
-<div class="highlight"><pre><span></span><code>Offset(d) 00       04
-00000160           AC020000      ¬...
-00000168  08000000 00000000  ........
-00000176  00000000 00000000  ........
-00000184  00000000 BE020000  ....¾...
-00000192  08000000 01000000  ........
-00000200  00000000 00000000  ........
-00000208  00000000 D1020000  ....Ñ...
-........
+<div class="highlight"><pre><span></span><code>  PTR @ 16   -&gt; SUB 0 | 164 ( 124)
+    AC 02 00 00 08 00 00 00 00 00 00 00 00 00 00 00  ¬...............
+    00 00 00 00 00 00 00 00 BE 02 00 00 08 00 00 00  ........¾.......
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    D1 02 00 00 08 00 00 00 02 00 00 00 00 00 00 00  Ñ...............
+    00 00 00 00 00 00 00 00 F1 02 00 00 08 00 00 00  ........ñ.......
+    03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    16 03 00 00 08 00 00 00 04 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 </code></pre></div>
-The size <code>24 (size of sub-sub-struct) * 5 (count) = 120 (size of sub-struct)</code> indicates that the count is actually used for this pointer, and you're looking at an array. The whole struct for <code>PTR @ 16</code>, now set to 24 bytes width. Now you can see the sub-sub-struct is likely composed of 6 <code>uint</code>s. The first of these could be a string offset, the second is constantly 8, the third increments (an index?) and the rest are zeros.</p>
+It can be helpful to set the width of your hex editor to the presumed size of a struct, which makes patterns more obvious. The size <code>24 (size of sub-sub-struct) * 5 (count) = 120 (size of sub-struct)</code> indicates that the count is actually used for this pointer, and you're looking at an array. The whole struct for <code>PTR @ 16</code>, now set to 24 bytes width. Now you can see the sub-sub-struct is likely composed of 6 <code>uint</code>s. The first of these could be a string offset, the second is constantly 8, the third increments (an index?) and the rest are zeros.</p>
 <div class="highlight"><pre><span></span><code>Offset(d) 00       04       08       12       16       20
 
 00000144                                               AC020000                      ¬...
@@ -1895,12 +1890,16 @@ The size <code>24 (size of sub-sub-struct) * 5 (count) = 120 (size of sub-struct
 00000264  08000000 04000000 00000000 00000000 00000000           ....................
 </code></pre></div>
 <p>For <code>PTR @ 32</code>, you'll find 40 bytes, occupied only by 5 dependency links. The stack log tells you which external file dependency points there.
-<div class="highlight"><pre><span></span><code>Offset(d) 00       04
-00001008  40444550 454E4453  @DEPENDS
-00001016  40444550 454E4453  @DEPENDS
-00001024  40444550 454E4453  @DEPENDS
-00001032  40444550 454E4453  @DEPENDS
-00001040  40444550 454E4453  @DEPENDS
+<div class="highlight"><pre><span></span><code>  PTR @ 32   -&gt; SUB 0 | 1008 (  40)
+    40 44 45 50 45 4E 44 53 40 44 45 50 45 4E 44 53  @DEPENDS@DEPENDS
+    40 44 45 50 45 4E 44 53 40 44 45 50 45 4E 44 53  @DEPENDS@DEPENDS
+    40 44 45 50 45 4E 44 53 00 00 00 00 00 00 00 00  @DEPENDS........
+
+    DEP @ 0    -&gt; cc_anubis.paosamplertexture.tex
+    DEP @ 8    -&gt; cc_anubis.pbasecolourtexture.tex
+    DEP @ 16   -&gt; cc_anubis.pflexicolourmaskssamplertexture.tex
+    DEP @ 24   -&gt; cc_anubis.pmetalsmoothnesscavitysamplertexture.tex
+    DEP @ 32   -&gt; cc_anubis.pnormaltexture.tex
 </code></pre></div></p>
 </li>
 <li>
@@ -1984,7 +1983,7 @@ Notice that <code>ptr_0</code> has been renamed to <code>array_0</code>, its <co
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 21, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 22, 2026</span>
   </span>
 
     
@@ -2003,6 +2002,11 @@ Notice that <code>ptr_0</code> has been renamed to <code>array_0</code>, its <co
     
     <nav>
       
+        <a href="https://github.com/HENDRIX-ZT2" class="md-author" title="@HENDRIX-ZT2">
+          
+          <img src="../../../assets/external/avatars.githubusercontent.com/u/28632661.fe356448.png" alt="HENDRIX-ZT2">
+        </a>
+      
         <a href="https://github.com/hexabits" class="md-author" title="@hexabits">
           
           <img src="../../../assets/external/avatars.githubusercontent.com/u/170077.fe356448.png" alt="hexabits">
@@ -2011,11 +2015,6 @@ Notice that <code>ptr_0</code> has been renamed to <code>array_0</code>, its <co
         <a href="https://github.com/zachguo" class="md-author" title="@zachguo">
           
           <img src="../../../assets/external/avatars.githubusercontent.com/u/3478203.fe356448.jpg" alt="zachguo">
-        </a>
-      
-        <a href="https://github.com/HENDRIX-ZT2" class="md-author" title="@HENDRIX-ZT2">
-          
-          <img src="../../../assets/external/avatars.githubusercontent.com/u/28632661.fe356448.png" alt="HENDRIX-ZT2">
         </a>
       
       
