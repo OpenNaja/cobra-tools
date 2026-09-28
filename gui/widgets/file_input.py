@@ -286,6 +286,7 @@ class DirWidget(FileDirWidget):
 
 	def __init__(self, parent: QWidget, cfg: 'Config', cfg_key: str = "DIR", ask_user: bool = True) -> None:
 		super().__init__(parent=parent, cfg=cfg, cfg_key=cfg_key, ask_user=ask_user)
+		self.reload_btn.setVisible(False)
 
 	def open_dir(self, dirpath: str) -> None:
 		if not self.accept_dir(dirpath):
