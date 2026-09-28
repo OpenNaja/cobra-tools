@@ -224,7 +224,8 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 		if not os.path.isfile(png_file_path):
 			raise FileNotFoundError(f"{png_file_path} does not exist")
 		logging.debug(f"Need not process {png_file_path}")
-		return png_file_path
+		return png_file_path, [png_file_path, ]
+	component_paths = []
 	# rebuild from channel pngs, but only if the un-split png does not already exist
 	if channels and not os.path.isfile(png_file_path):
 		im = None
@@ -235,6 +236,7 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 				# logging.warning(f"Tile {os.path.basename(tile_png_path)} of {channels} does not exist")
 				# continue
 			tile = imread(tile_png_path)
+			component_paths.append(tile_png_path)
 			if im is None:
 				im = np.zeros(tile.shape, dtype=np.uint8)
 			else:
@@ -250,6 +252,7 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 		# non-tiled files that need fixes - normal maps without channel packing
 		# just read the one input file
 		im = imread(png_file_path)
+		component_paths.append(png_file_path)
 
 	# flip channels
 	if flip == "GB":
@@ -260,4 +263,4 @@ def join_png(game, path_basename, tmp_dir, compression=None):
 	# this is shared for all pngs that have to be read
 	logging.debug(f"Writing output to {tmp_png_file_path}")
 	iio.imwrite(tmp_png_file_path, im, compress_level=2)
-	return tmp_png_file_path
+	return tmp_png_file_path, component_paths

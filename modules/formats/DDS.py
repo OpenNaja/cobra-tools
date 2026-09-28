@@ -183,16 +183,11 @@ class DdsLoader(MemStructLoader):
 		in_dir, name_ext, basename, ext = self.get_names(tex_path)
 		with self.get_tmp_dir() as tmp_dir:
 			size_info = self.get_tex_structs()
-			# todo - only convert to dds if max(time of any png) is newer than time of dds, for each tile
-			#  os.path.getmtime(path)
-			#  get_image_files will need changes to fill both regardless, and probably a dict {tile_i|None : [files] }
 			#  also take channel reconstruction into account
-			#  change tmp_dir to input dir
 			# load all DDS files we need
-			dds_paths = []
-			png_paths = []
+			dds_paths = {}
+			png_paths = {}
 			exceptions = []
-			# ignore num_tiles from tex
 			# try to get an image without array tile suffix
 			if not self.get_image_files(basename, in_dir, tmp_dir, dds_paths, png_paths, exceptions):
 				# try to find array tiles
@@ -205,11 +200,17 @@ class DdsLoader(MemStructLoader):
 			if not png_paths and not dds_paths:
 				for exception in exceptions:
 					raise exception
+			# convert any PNGs that are needed to DDS
 			if png_paths:
-				for png_path in self.ovl.reporter.iter_progress(png_paths, "Converting", cond=len(png_paths) > 1):
-					dds_path = self.convert_png(png_path, tmp_dir)
-					dds_paths.append(dds_path)
-			dds_files = [self.load_dds(dds_path) for dds_path in dds_paths]
+				# keep newly created DDS files in the folder for subsequent packings
+				if self.show_temp_files:
+					out_dir = in_dir
+				else:
+					out_dir = tmp_dir
+				for tile_name, png_path in self.ovl.reporter.iter_progress(png_paths.items(), "Converting", cond=len(png_paths) > 1):
+					dds_path = self.convert_png(png_path, out_dir)
+					dds_paths[tile_name] = dds_path
+			dds_files = [self.load_dds(dds_path) for tile_name, dds_path in sorted(dds_paths.items())]
 			# start updating the tex
 			assert dds_files, f"Found no DDS files for {name_ext}"
 			assert len(set(
@@ -378,19 +379,27 @@ class DdsLoader(MemStructLoader):
 		"""Returns a valid dds file object, or None"""
 		bare_path = os.path.join(in_dir, tile_name)
 		dds_path = f"{bare_path}.dds"
-		# prioritize dds files if they exist
+		time_dds_mod = 0.0
+		found = False
+		# look for existing dds
 		if os.path.isfile(dds_path):
-			dds_paths.append(dds_path)
-			return True
-		else:
-			try:
-				# try to reassemble a flat PNG for this tile, and then convert it to DDS
-				png_path = png_splitting.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
-				png_paths.append(png_path)
-				return True
-			except FileNotFoundError as exception:
-				exceptions.append(exception)
-		return False
+			dds_paths[tile_name] = dds_path
+			time_dds_mod = os.path.getmtime(dds_path)
+			found = True
+		# look for pngs
+		try:
+			# try to reassemble a flat PNG for this tile, and then convert it to DDS
+			joined_png_path, component_paths = png_splitting.join_png(self.ovl.game, bare_path, tmp_dir, self.compression_name)
+			# only convert to dds if any channel png is newer than the of dds
+			if any(os.path.getmtime(png_path) > time_dds_mod for png_path in component_paths):
+				logging.debug(f"PNGs {component_paths} newer than dds file {dds_path}, compressing again")
+				png_paths[tile_name] = joined_png_path
+				found = True
+			else:
+				logging.debug(f"PNGs {component_paths} older than dds file {dds_path}, keeping dds")
+		except FileNotFoundError as exception:
+			exceptions.append(exception)
+		return found
 
 	def get_names(self, file_path):
 		assert file_path == os.path.normpath(file_path)
