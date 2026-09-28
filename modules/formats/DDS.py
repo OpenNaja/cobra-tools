@@ -376,7 +376,7 @@ class DdsLoader(MemStructLoader):
 				return [packed[b.offset: b.offset + b.size] for b in texbuffers]
 
 	def get_image_files(self, tile_name, in_dir, tmp_dir, dds_paths, png_paths, exceptions):
-		"""Returns a valid dds file object, or None"""
+		"""Returns True if an image for tile_name has been found, otherwise False."""
 		bare_path = os.path.join(in_dir, tile_name)
 		dds_path = f"{bare_path}.dds"
 		time_dds_mod = 0.0
