@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
 from gui import widgets, GuiOptions
 from gui.app_utils import DelayedMimeData
-from gui.widgets import window, MenuItem, SubMenuItem, SeparatorMenuItem
+from gui.widgets import window, MenuItem, SubMenuItem, SeparatorMenuItem, FlowWidget, FlowHLayout
 from modules import walker
 import modules.formats.shared
 from generated.formats.ovl import games, OvlFile
@@ -89,16 +89,19 @@ class MainWindow(window.MainWindow):
 		self.filter = f"Supported files ({exts})"
 
 		self.file_widget = self.make_file_widget()
+		self.file_widget.entry.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+		self.file_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
-		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
+		self.ovl_game_choice = widgets.CleverCombo(self, [g.value for g in games])
+		self.ovl_game_choice.currentTextChanged.connect(self.game_changed)
 		self.ovl_game_choice.setToolTip("Game version of current OVL")
-		self.ovl_game_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+		self.ovl_game_choice.setMinimumContentsLength(5)
+		self.ovl_game_choice.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
 
-		self.compression_choice = widgets.LabelCombo(
-			"Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed,
-			activated_fn=self.compression_touched_by_user)
+		self.compression_choice = widgets.CleverCombo(self, [c.name for c in Compression])
+		self.compression_choice.currentTextChanged.connect(self.compression_touched_by_user)
 		self.compression_choice.setToolTip("Compression of current OVL")
-		self.compression_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+		self.compression_choice.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
 
 		self.extract_types_choice = widgets.CheckableComboBox()
 		self.extract_types_choice.addItems(self.ovl_data.formats_dict.extractables)
@@ -135,27 +138,20 @@ class MainWindow(window.MainWindow):
 			"These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.update_includes)
 
-		# toggles
-		self.e_name_old = QtWidgets.QTextEdit("")
-		self.e_name_old.setPlaceholderText("Find")
-		self.e_name_old.setToolTip("Old strings - one item per line, case-sensitive")
-		self.e_name_new = QtWidgets.QTextEdit("")
-		self.e_name_new.setPlaceholderText("Replace")
-		self.e_name_new.setToolTip("New strings - one item per line, case-sensitive")
-		self.e_name_new.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-		self.e_name_old.setTabChangesFocus(True)
-		self.e_name_new.setTabChangesFocus(True)
-
 		grid = QtWidgets.QGridLayout()
-		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
-		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
-		grid.addWidget(self.ovl_game_choice, 0, 2)
-		grid.addWidget(self.compression_choice, 1, 2)
-		grid.addWidget(self.extract_types_choice, 2, 2)
+
+		file_line = FlowWidget(self)
+		file_line_lay = FlowHLayout(file_line)
+		file_line_lay.addWidget(self.file_widget, hide_index=-1)
+		file_line_lay.addWidget(self.ovl_game_choice, hide_index=0)
+		file_line_lay.addWidget(self.compression_choice, hide_index=1)
+		file_line_lay.setContentsMargins(0, 0, 0, 0)
+		file_line.show()
+		file_line.setMinimumWidth(self.file_widget.minimumWidth())
 
 		right_frame = widgets.pack_in_box(
-			self.file_widget,
+			file_line,
+			self.extract_types_choice,
 			self.files_container,
 			self.included_ovls_view,
 			margins=(3, 0, 0, 0)
@@ -175,7 +171,6 @@ class MainWindow(window.MainWindow):
 				SeparatorMenuItem(),
 				MenuItem("Rename Files", self.rename, shortcut="CTRL+R", icon="rename"),
 				MenuItem("Rename Contents", self.rename_contents, shortcut="CTRL+SHIFT+R", icon="rename_contents"),
-				MenuItem("Rename Both", self.rename_both, shortcut="CTRL+ALT+R"),
 				SeparatorMenuItem(),
 				MenuItem("Load Included OVL List", self.load_included_ovls),
 				MenuItem("Export Included OVL List", self.save_included_ovls),
@@ -321,7 +316,7 @@ class MainWindow(window.MainWindow):
 		if self.is_open_ovl():
 			filepath = self.file_widget.get_open_file_name(f'Open OVL to compare with')
 			if filepath:
-				commands = {"game": self.ovl_game_choice.entry.currentText()}
+				commands = {"game": self.ovl_game_choice.currentText()}
 				other_ovl_data = OvlFile()
 				try:
 					other_ovl_data.load_hash_table()
@@ -341,7 +336,7 @@ class MainWindow(window.MainWindow):
 
 	def set_ovl_game_choice_game(self, game=None):
 		# logging.debug(f"Setting OVL game to {game}")
-		self.ovl_game_choice.entry.setText(game)
+		self.ovl_game_choice.setText(game)
 
 	def get_selected_ovl_paths(self):
 		selected_path = self.ovl_manager.dirs.get_selected_path()
@@ -437,7 +432,7 @@ class MainWindow(window.MainWindow):
 	def game_changed(self, game: Optional[str] = None):
 		"""Updates game for self.ovl_data from current GUI selection"""
 		if game is None:
-			game = self.ovl_game_choice.entry.currentText()
+			game = self.ovl_game_choice.currentText()
 		logging.info(f"Setting OVL version to {game}")
 		self.ovl_data.game = game
 
@@ -463,7 +458,7 @@ class MainWindow(window.MainWindow):
 
 	def open(self, filepath):
 		if filepath:
-			commands = {"game": self.ovl_game_choice.entry.currentText(), "update_aux": self.cfg.get("update_aux")}
+			commands = {"game": self.ovl_game_choice.currentText(), "update_aux": self.cfg.get("update_aux")}
 			self.set_clean()
 			# logging.debug(f"Loading threaded {threaded}")
 			logging.debug(f"Loading self.suppress_popups {self.suppress_popups}")
@@ -481,7 +476,7 @@ class MainWindow(window.MainWindow):
 		# clear the ovl
 		self.ovl_data.clear()
 		self.game_changed()
-		commands = {"game": self.ovl_game_choice.entry.currentText(), "update_aux": self.cfg.get("update_aux")}
+		commands = {"game": self.ovl_game_choice.currentText(), "update_aux": self.cfg.get("update_aux")}
 		try:
 			self.ovl_data.create(dirpath, commands=commands)
 		except:
@@ -490,7 +485,7 @@ class MainWindow(window.MainWindow):
 
 	def choices_update(self):
 		self.set_ovl_game_choice_game(self.ovl_data.game)
-		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+		self.compression_choice.setText(self.ovl_data.user_version.compression.name)
 
 	def is_open_ovl(self):
 		if self.file_widget.filename or self.file_widget.dirty:
@@ -569,16 +564,34 @@ class MainWindow(window.MainWindow):
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
-		old = self.e_name_old.toPlainText()
-		new = self.e_name_new.toPlainText()
-		# make sure at least one is non-empty
-		if not (old or new):
+		# toggles
+
+		dialog = window.ModalDialog(self, "Search and Replace")
+		e_name_old = QtWidgets.QTextEdit("")
+		e_name_old.setPlaceholderText("Find")
+		e_name_old.setToolTip("Old strings - one item per line, case-sensitive")
+		e_name_new = QtWidgets.QTextEdit("")
+		e_name_new.setPlaceholderText("Replace")
+		e_name_new.setToolTip("New strings - one item per line, case-sensitive")
+		e_name_new.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+		e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+		e_name_old.setTabChangesFocus(True)
+		e_name_new.setTabChangesFocus(True)
+		dialog.addWidget(e_name_old, 0, 0)
+		dialog.addWidget(e_name_new, 1, 0)
+		if dialog.exec():
+			old = e_name_old.toPlainText()
+			new = e_name_new.toPlainText()
+			# make sure at least one is non-empty
+			if not (old or new):
+				return ()
+			old = old.splitlines()
+			new = new.splitlines()
+			if len(old) != len(new):
+				self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
+			return set(zip(old, new))
+		else:
 			return ()
-		old = old.splitlines()
-		new = new.splitlines()
-		if len(old) != len(new):
-			self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
-		return set(zip(old, new))
 
 	def rename(self, batch=False):
 		names = self.get_replace_strings()
@@ -616,10 +629,6 @@ class MainWindow(window.MainWindow):
 			only_files = ()
 			for ovl in self.handle_path(batch=True):
 				ovl.rename_contents(names, only_files)
-
-	def rename_both(self):
-		self.rename_contents()
-		self.rename()
 
 	def save_file_list(self):
 		"""Save the OVL file list to disk"""
