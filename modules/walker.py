@@ -67,7 +67,7 @@ def search_for_files_in_ovls(search_dialog, dir_walk, search_str):
 				ovl_data = OvlFile()
 				for ovl_path in search_dialog.reporter.iter_progress(ovl_files, "Searching"):
 					try:
-						file_names = ovl_data.load(ovl_path, commands={"generate_names": True, "game": search_dialog.ovl_game_choice.entry.currentText()})
+						file_names = ovl_data.load(ovl_path, commands={"generate_names": True, "game": search_dialog.ovl_game_choice.currentText()})
 						matches = [
 							# remove the leading slash for ovl path, else it is interpreted as relative to C:
 							[file_name, splitext_safe(file_name)[1], os.path.relpath(ovl_path, dir_walk)]
@@ -102,7 +102,7 @@ def generate_hash_table(gui, dir_walk):
 					continue
 				try:
 					# read ovl file
-					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts, "game": gui.ovl_game_choice.entry.currentText()})
+					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts, "game": gui.ovl_game_choice.currentText()})
 					all_deps_exts.update(new_exts)
 					for list_id, attribs in lists.items():
 						array = getattr(ovl_data, list_id)
@@ -337,7 +337,7 @@ def ovls_in_path(gui, dir_walk, only_types):
 	for ovl_path in gui.reporter.iter_progress(ovl_files, "Walking OVL files"):
 		try:
 			# read ovl file
-			ovl_data.load(ovl_path, commands={"only_types": only_types, "game": gui.ovl_game_choice.entry.currentText()})
+			ovl_data.load(ovl_path, commands={"only_types": only_types, "game": gui.ovl_game_choice.currentText()})
 			yield ovl_data, ovl_path
 		except Exception as ex:
 			logging.exception(f"Opening OVL failed: {ovl_path}")
