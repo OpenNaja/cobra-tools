@@ -67,7 +67,8 @@ class Animation:
 		if bpy.app.version >= (5, 0, 0):
 			action_slot = action.slots[0]
 			def create_fcurve(*args, **kwargs):
-				kwargs["group_name"] = kwargs.pop("action_group")
+				if "action_group" in kwargs:
+					kwargs["group_name"] = kwargs.pop("action_group")
 				channelbag = anim_utils.action_ensure_channelbag_for_slot(action, action_slot)
 				return channelbag.fcurves.ensure(*args, **kwargs)
 		else:
@@ -87,7 +88,7 @@ class Animation:
 			# Object animation (non-skeletal) is lumped into the "LocRotScale" action_group
 			if dtype in ("rotation_euler", "rotation_quaternion", "location", "scale"):
 				action_group = "LocRotScale"
-			# Non-transforming animations (eg. visibility or material anims) use no action groups
+			# Non-transforming animations (e.g. visibility or material anims) use no action groups
 			else:
 				action_group = ""
 			fcurves = [create_fcurve(data_path=rna_path, index=i, action_group=action_group) for i in drange]
