@@ -7,18 +7,31 @@ A single-file GUI tool to view, extract, import, drag-and-drop, and edit
 
 Features
 - Open/Save .ppuipkg files (custom XML-like format shown by the user)
+- Read Base64 and legacy decimal content; save as Base64 or legacy decimals
 - View a virtual folder tree of file_name entries
 - Drag files OUT to the OS (materializes temp files with full in-archive path)
 - Drag files IN from the OS (drop onto a folder or root to add/replace)
 - Extract All to folder (recreates full paths)
 - Import All from folder (recursive; paths relative to chosen folder)
+- Import texture assets as icon metadata using their .tex sidecar's ovs value
+- Preserve icon metadata on Open/Save; skip texture assets during extraction/drag-out
 - Edit `game` and `basic_path` fields; changes are saved
 - Context menu: Export Selected, Remove, Rename (in-archive path), Replace From File
 
 Notes & assumptions
 - The package format has a root element PPUIPKGRoot with attributes
-  file_count, icondata_count, game; a <basic_path> element; a <files> list of
-  <ppuipkgfile> with <file_name> and <file_content> (space-separated decimals).
+  files_count, icondata_count, game; a <basic_path> element; a <files> list of
+  <ppuipkgfile> with <file_name> and <file_content>. Base64 content has
+  encoding="base64"; unmarked content and encoding="decimal" use space-separated
+  decimal bytes. file_size is always the decoded byte count.
+- Saves default to Base64, matching cobra-tools' Base64ArrayPointer. Choose
+  Decimal (legacy) in Package Metadata when saving for older readers.
+- Texture assets are virtual entries: their bytes are never stored or exported.
+  On save they become <icondata>/<userinterfaceicondata> entries with <ovs>.
+  Legacy <types>, <asset_package>, and <assetPackage> remain readable. Only a duplicated
+  .png.png suffix loses its final .png; other image names retain their suffix.
+  An existing .tex sidecar identifies non-PNG texture assets. Appended .tex and
+  replacement-extension .tex sidecars are read only for metadata and never added.
 - Drag-out creates temporary real files under a temp session directory and
   provides file:// URLs so your OS can receive them. Extract All is the
   recommended way to put files in a permanent location.
@@ -31,10 +44,13 @@ Tested with: Python 3.9+, PyQt5
 Run: python ppuipkg_explorer.py
 """
 from __future__ import annotations
+import base64
+import binascii
 import os
 import sys
 import tempfile
 import shutil
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 import xml.etree.ElementTree as ET
@@ -53,17 +69,51 @@ def decimal_string_to_bytes(s: str) -> bytes:
     s = s.strip()
     if not s:
         return b""
-    parts = s.split()
     try:
-        return bytes(int(p) & 0xFF for p in parts)
+        values = [int(p, 10) for p in s.split()]
     except ValueError as e:
-        raise ValueError(f"Invalid decimal byte in content: {e}")
+        raise ValueError(f"Invalid decimal byte in content: {e}") from e
+    if any(value < -128 or value > 255 for value in values):
+        raise ValueError("Decimal byte values must be between -128 and 255")
+    return bytes(value & 0xFF for value in values)
+
+
+def file_content_to_bytes(elem: ET.Element) -> bytes:
+    """Decode the explicit XML encoding; unmarked content is legacy decimal."""
+    if len(elem):
+        raise ValueError("file_content must contain text, not child elements")
+    encoding = elem.get("encoding")
+    text = elem.text or ""
+    if encoding in (None, "decimal"):
+        return decimal_string_to_bytes(text)
+    if encoding == "base64":
+        try:
+            return base64.b64decode("".join(text.split()), validate=True)
+        except (binascii.Error, ValueError) as e:
+            raise ValueError(f"Invalid Base64 file_content: {e}") from e
+    raise ValueError(f"Unsupported file_content encoding: {encoding!r}")
 
 
 @dataclass
 class PPUIPKGFile:
     file_name: str
     content: bytes
+    # Private import metadata; texture/TEX contents are not retained in the package.
+    _asset_package: Optional[str] = field(default=None, repr=False)
+
+    @property
+    def is_icondata(self) -> bool:
+        return self._asset_package is not None
+
+    @property
+    def image_name(self) -> str:
+        """Remove only the extra PNG export suffix, preserving other formats."""
+        return self.file_name[:-4] if is_png_asset(self.file_name) else self.file_name
+
+    @property
+    def is_extractable(self) -> bool:
+        return not (self.is_icondata or is_png_asset(self.file_name)
+                    or is_texture_sidecar(self.file_name))
 
 
 @dataclass
@@ -71,6 +121,7 @@ class PPUIPKG:
     game: str = ""
     basic_path: str = ""
     files: Dict[str, PPUIPKGFile] = field(default_factory=dict)
+    _other_types: List[ET.Element] = field(default_factory=list, repr=False)
 
     @staticmethod
     def load(path: str) -> "PPUIPKG":
@@ -80,7 +131,7 @@ class PPUIPKG:
             raise ValueError("Not a PPUIPKGRoot document")
         game = root.attrib.get("game", "")
         basic_path_el = root.find("basic_path")
-        basic_path = basic_path_el.text if basic_path_el is not None else ""
+        basic_path = (basic_path_el.text or "") if basic_path_el is not None else ""
         files_el = root.find("files")
         files: Dict[str, PPUIPKGFile] = {}
         if files_el is not None:
@@ -89,40 +140,125 @@ class PPUIPKG:
                 cont_el = f.find("file_content")
                 if name_el is None or cont_el is None:
                     continue
-                name = name_el.text or ""
-                content = decimal_string_to_bytes(cont_el.text or "")
+                name = normalize_archive_path(name_el.text or "")
+                if is_texture_sidecar(name):
+                    continue
+                try:
+                    content = file_content_to_bytes(cont_el)
+                    declared_size = f.get("file_size")
+                    if declared_size is not None and int(declared_size) != len(content):
+                        raise ValueError(f"file_size is {declared_size}, but decoded file_content has {len(content)} bytes")
+                except ValueError as e:
+                    raise ValueError(f"{name}: {e}") from e
                 files[name] = PPUIPKGFile(name, content)
         pkg = PPUIPKG(game=game, basic_path=basic_path, files=files)
+        types_el = root.find("icondata")
+        if types_el is None:
+            types_el = root.find("types")
+        if types_el is not None:
+            for node in types_el:
+                if node.tag != "userinterfaceicondata":
+                    pkg._other_types.append(deepcopy(node))
+                    continue
+                image_name = normalize_archive_path(node.findtext("image_name") or "")
+                asset_package_el = node.find("ovs")
+                if asset_package_el is None:
+                    asset_package_el = node.find("asset_package")
+                if asset_package_el is None:
+                    asset_package_el = node.find("assetPackage")
+                asset_package = asset_package_el.text if asset_package_el is not None else None
+                if not image_name or not asset_package or not asset_package.strip():
+                    raise ValueError("Invalid userinterfaceicondata: image_name and ovs are required")
+                # Restore PNG export names without adding PNG suffixes to other
+                # image formats or to already doubled legacy names.
+                name = image_name
+                if name.lower().endswith(".png") and not is_png_asset(name):
+                    name += ".png"
+                pkg.files[name] = PPUIPKGFile(name, b"", asset_package)
         return pkg
 
-    def save(self, path: str) -> None:
+    def save(self, path: str, *, content_encoding: str = "base64") -> None:
+        if content_encoding not in ("base64", "decimal"):
+            raise ValueError(f"Unsupported output content encoding: {content_encoding!r}")
+        regular_files = []
+        icon_files = []
+        for name in sorted(self.files):
+            pfile = self.files[name]
+            if is_texture_sidecar(pfile.file_name):
+                continue
+            if pfile.is_icondata:
+                icon_files.append(pfile)
+            elif is_png_asset(pfile.file_name):
+                raise ValueError(f"PNG asset has no asset_package metadata: {pfile.file_name}")
+            else:
+                regular_files.append(pfile)
         root = ET.Element("PPUIPKGRoot", attrib={
-            "file_count": str(len(self.files)),
-            "icondata_count": "0",
+            "files_count": str(len(regular_files)),
+            "icondata_count": str(len(icon_files)),
             "game": self.game,
         })
         basic = ET.SubElement(root, "basic_path")
         basic.text = self.basic_path
         files_el = ET.SubElement(root, "files")
         # Deterministic order
-        for name in sorted(self.files.keys()):
-            pfile = self.files[name]
+        for pfile in regular_files:
             pnode = ET.SubElement(files_el, "ppuipkgfile", attrib={
                 "file_size": str(len(pfile.content)),
             })
             n = ET.SubElement(pnode, "file_name")
             n.text = pfile.file_name
             c = ET.SubElement(pnode, "file_content")
-            c.text = bytes_to_decimal_string(pfile.content)
-        ET.SubElement(root, "types")  # present but empty
+            if content_encoding == "base64":
+                c.set("encoding", "base64")
+                c.text = base64.b64encode(pfile.content).decode("ascii")
+            else:
+                c.text = bytes_to_decimal_string(pfile.content)
+        types_el = ET.SubElement(root, "icondata")
+        for pfile in icon_files:
+            icon = ET.SubElement(types_el, "userinterfaceicondata")
+            ET.SubElement(icon, "image_name").text = pfile.image_name
+            ET.SubElement(icon, "ovs").text = pfile._asset_package
+        for node in self._other_types:
+            types_el.append(deepcopy(node))
         tree = ET.ElementTree(root)
         # Pretty-print by manual newline/indent (ElementTree has limited pretty)
         indent_xml(root)
         tree.write(path, encoding="utf-8", xml_declaration=False)
 
-    def add_or_replace(self, archive_path: str, content: bytes):
+    def add_or_replace(self, archive_path: str, content: bytes = b"",
+                       *, asset_package: Optional[str] = None) -> bool:
         archive_path = normalize_archive_path(archive_path)
-        self.files[archive_path] = PPUIPKGFile(archive_path, content)
+        if is_texture_sidecar(archive_path):
+            return False
+        existing = self.files.get(archive_path)
+        if (is_png_asset(archive_path) or asset_package is not None
+                or (existing is not None and existing.is_icondata)):
+            if asset_package is None:
+                asset_package = existing._asset_package if existing else None
+            if not asset_package or not asset_package.strip():
+                raise ValueError(f"Texture asset requires a .tex sidecar with an ovs value: {archive_path}")
+            self.files[archive_path] = PPUIPKGFile(archive_path, b"", asset_package)
+        else:
+            self.files[archive_path] = PPUIPKGFile(archive_path, content)
+        return True
+
+    def import_file(self, source_path: str, archive_path: Optional[str] = None) -> bool:
+        """Import bytes for normal files, or only ovs metadata for textures."""
+        archive_path = normalize_archive_path(archive_path or os.path.basename(source_path))
+        if is_texture_sidecar(source_path) or is_texture_sidecar(archive_path):
+            return False
+        if is_png_asset(source_path) and not is_png_asset(archive_path):
+            raise ValueError("PNG assets must use a .png.png archive path")
+        existing = self.files.get(archive_path)
+        if (is_png_asset(archive_path)
+                or (existing is not None and existing.is_icondata)
+                or any(os.path.isfile(p) for p in texture_sidecar_paths(source_path))):
+            if not os.path.isfile(source_path):
+                raise FileNotFoundError(source_path)
+            asset_package = read_image_asset_package(source_path)
+            return self.add_or_replace(archive_path, asset_package=asset_package)
+        with open(source_path, "rb") as f:
+            return self.add_or_replace(archive_path, f.read())
 
     def remove(self, archive_path: str):
         archive_path = normalize_archive_path(archive_path)
@@ -133,6 +269,18 @@ class PPUIPKG:
         new_path = normalize_archive_path(new_path)
         if old_path not in self.files:
             return
+        pf = self.files[old_path]
+        if is_texture_sidecar(new_path):
+            raise ValueError(".tex sidecars cannot be added to a package")
+        if pf.is_icondata:
+            if is_png_asset(old_path):
+                if not is_png_asset(new_path):
+                    raise ValueError("PNG assets must keep the .png.png suffix")
+            elif (is_png_asset(new_path)
+                  or os.path.splitext(old_path)[1].lower() != os.path.splitext(new_path)[1].lower()):
+                raise ValueError("Texture assets must keep their image extension")
+        elif is_png_asset(new_path):
+            raise ValueError("Import a PNG with its .tex sidecar to create an icon")
         pf = self.files.pop(old_path)
         pf.file_name = new_path
         self.files[new_path] = pf
@@ -161,6 +309,35 @@ def indent_xml(elem: ET.Element, level: int = 0):
 def normalize_archive_path(p: str) -> str:
     p = p.replace("\\", "/").strip("/")
     return p
+
+
+def is_png_asset(path: str) -> bool:
+    return path.lower().endswith(".png.png")
+
+
+def is_texture_sidecar(path: str) -> bool:
+    return path.lower().endswith(".tex")
+
+
+def texture_sidecar_paths(source_path: str) -> List[str]:
+    # Prefer the exact appended sidecar if both spellings exist.
+    return [source_path + ".tex", os.path.splitext(source_path)[0] + ".tex"]
+
+
+def read_image_asset_package(source_path: str) -> str:
+    candidates = texture_sidecar_paths(source_path)
+    for tex_path in candidates:
+        if not os.path.isfile(tex_path):
+            continue
+        try:
+            root = ET.parse(tex_path).getroot()
+        except (ET.ParseError, OSError) as e:
+            raise ValueError(f"Cannot read texture sidecar {tex_path}: {e}") from e
+        asset_package = root.get("ovs")
+        if not asset_package or not asset_package.strip():
+            raise ValueError(f"Texture sidecar has no non-empty ovs attribute: {tex_path}")
+        return asset_package
+    raise ValueError(f"Texture sidecar not found for {source_path}; expected {candidates[0]} or {candidates[1]}")
 
 
 def ensure_parent_dir(path: str):
@@ -203,8 +380,9 @@ class FileTreeWidget(QtWidgets.QTreeWidget):
         urls = []
         for it in items:
             apath = it.data(0, QtCore.Qt.UserRole)
-            if not apath or apath.endswith("/"):
-                # skip folders on drag out
+            if (not apath or apath.endswith("/")
+                    or not it.data(0, QtCore.Qt.UserRole + 2)):
+                # Only regular files may be written to the drag-out temp dir.
                 continue
             # materialize temp file with full path under temp root
             temp_target = os.path.join(self._temp_dir, apath)
@@ -282,8 +460,13 @@ class MainWindow(QtWidgets.QMainWindow):
         form = QtWidgets.QFormLayout(meta_box)
         self.game_edit = QtWidgets.QLineEdit()
         self.basic_path_edit = QtWidgets.QLineEdit()
+        self.content_encoding_combo = QtWidgets.QComboBox()
+        self.content_encoding_combo.addItem("Base64", "base64")
+        self.content_encoding_combo.addItem("Decimal (legacy)", "decimal")
+        self.content_encoding_combo.setToolTip("Saves default to Base64. Choose Decimal for older cobra-tools readers.")
         form.addRow("game:", self.game_edit)
         form.addRow("basic_path:", self.basic_path_edit)
+        form.addRow("Content encoding:", self.content_encoding_combo)
 
         splitter = QtWidgets.QSplitter()
         splitter.addWidget(self.tree)
@@ -347,6 +530,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_path = path
         self.game_edit.setText(pkg.game)
         self.basic_path_edit.setText(pkg.basic_path)
+        self.content_encoding_combo.setCurrentIndex(0)
         self.rebuild_tree()
         self.statusBar().showMessage(f"Loaded {os.path.basename(path)}")
 
@@ -360,7 +544,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         try:
             self.persist_metadata()
-            self.pkg.save(self.current_path)
+            self.pkg.save(self.current_path, content_encoding=self.content_encoding_combo.currentData())
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Save failed", str(e))
             return
@@ -380,6 +564,8 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         count = 0
         for name, pf in self.pkg.files.items():
+            if not pf.is_extractable:
+                continue
             target = os.path.join(folder, name)
             ensure_parent_dir(target)
             with open(target, "wb") as f:
@@ -391,17 +577,14 @@ class MainWindow(QtWidgets.QMainWindow):
         folder = QtWidgets.QFileDialog.getExistingDirectory(self, "Import All from folder (recursive)")
         if not folder:
             return
-        added = 0
+        pairs = []
         for root, _, files in os.walk(folder):
             for fn in files:
                 full = os.path.join(root, fn)
                 rel = os.path.relpath(full, folder).replace("\\", "/")
-                with open(full, "rb") as f:
-                    data = f.read()
-                self.pkg.add_or_replace(rel, data)
-                added += 1
-        self.rebuild_tree()
-        QtWidgets.QMessageBox.information(self, "Import All", f"Imported/updated {added} file(s) from:\n{folder}")
+                pairs.append((full, rel))
+        added = self.import_sources(pairs)
+        QtWidgets.QMessageBox.information(self, "Import All", f"Imported/updated {added} entry/entries from:\n{folder}")
 
     def action_export_selected(self):
         items = self.tree.selectedItems()
@@ -414,7 +597,8 @@ class MainWindow(QtWidgets.QMainWindow):
         for it in items:
             apath = it.data(0, QtCore.Qt.UserRole)
             content = it.data(0, QtCore.Qt.UserRole + 1)
-            if isinstance(apath, str) and content is not None and not apath.endswith("/"):
+            if (isinstance(apath, str) and content is not None and not apath.endswith("/")
+                    and it.data(0, QtCore.Qt.UserRole + 2)):
                 target = os.path.join(folder, apath)
                 ensure_parent_dir(target)
                 with open(target, "wb") as f:
@@ -429,12 +613,8 @@ class MainWindow(QtWidgets.QMainWindow):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Choose replacement file", "", "All files (*.*)")
         if not path:
             return
-        with open(path, "rb") as f:
-            new_bytes = f.read()
-        for it in items:
-            apath = it.data(0, QtCore.Qt.UserRole)
-            self.pkg.add_or_replace(apath, new_bytes)
-        self.rebuild_tree(select_paths=[it.data(0, QtCore.Qt.UserRole) for it in items])
+        paths = [it.data(0, QtCore.Qt.UserRole) for it in items]
+        self.import_sources([(path, apath) for apath in paths], select_paths=paths)
 
     def action_remove_selected(self):
         items = self.tree.selectedItems()
@@ -457,7 +637,11 @@ class MainWindow(QtWidgets.QMainWindow):
         new, ok = QtWidgets.QInputDialog.getText(self, "Rename", "New archive path:", text=apath)
         if not ok or not new:
             return
-        self.pkg.rename(apath, new)
+        try:
+            self.pkg.rename(apath, new)
+        except ValueError as e:
+            QtWidgets.QMessageBox.warning(self, "Rename failed", str(e))
+            return
         self.rebuild_tree(select_paths=[normalize_archive_path(new)])
 
     def action_add_file(self):
@@ -470,28 +654,34 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if prefix:
             prefix = normalize_archive_path(prefix) + "/"
+        added = self.import_sources([(p, os.path.basename(p)) for p in files], prefix)
+        self.statusBar().showMessage(f"Added/updated {added} entries")
+
+    def import_sources(self, pairs: List[Tuple[str, str]], prefix: str = "",
+                       select_paths: Optional[List[str]] = None) -> int:
+        """Use the same texture/sidecar rules for folder, add, replace and drop."""
+        prefix = normalize_archive_path(prefix)
+        if prefix:
+            prefix += "/"
         added = 0
-        for p in files:
-            with open(p, "rb") as f:
-                data = f.read()
-            rel = os.path.basename(p)
-            self.pkg.add_or_replace(prefix + rel, data)
-            added += 1
-        self.rebuild_tree()
-        self.statusBar().showMessage(f"Added {added} file(s)")
+        errors = []
+        for src, rel in pairs:
+            apath = prefix + normalize_archive_path(rel)
+            try:
+                if self.pkg.import_file(src, apath):
+                    added += 1
+            except (OSError, ValueError) as e:
+                errors.append(f"{apath}: {e}")
+        self.rebuild_tree(select_paths=select_paths)
+        if errors:
+            QtWidgets.QMessageBox.warning(self, "Import incomplete",
+                                         "Could not import the following entries:\n\n" + "\n\n".join(errors))
+        return added
 
     # ----------------- Drop handling
     def on_files_dropped(self, pairs: List[Tuple[str, str]], prefix: str):
-        prefix = normalize_archive_path(prefix)  # may be ""
-        if prefix:
-            if not prefix.endswith("/"):
-                prefix += "/"
-        for src, rel in pairs:
-            with open(src, "rb") as f:
-                data = f.read()
-            apath = prefix + normalize_archive_path(rel)
-            self.pkg.add_or_replace(apath, data)
-        self.rebuild_tree()
+        added = self.import_sources(pairs, prefix)
+        self.statusBar().showMessage(f"Imported/updated {added} entries")
 
     # ----------------- Tree building
     def rebuild_tree(self, select_paths: Optional[List[str]] = None):
@@ -523,6 +713,10 @@ class MainWindow(QtWidgets.QMainWindow):
             item = QtWidgets.QTreeWidgetItem([fname])
             item.setData(0, QtCore.Qt.UserRole, apath)
             item.setData(0, QtCore.Qt.UserRole + 1, pf.content)
+            item.setData(0, QtCore.Qt.UserRole + 2, pf.is_extractable)
+            if pf.is_icondata:
+                item.setToolTip(0, f"userinterfaceicondata\nimage_name: {pf.image_name}\n"
+                                   f"ovs: {pf._asset_package}\nTexture contents are not packaged or extracted.")
             item.setIcon(0, self.style().standardIcon(QtWidgets.QStyle.SP_FileIcon))
             parent.addChild(item)
 

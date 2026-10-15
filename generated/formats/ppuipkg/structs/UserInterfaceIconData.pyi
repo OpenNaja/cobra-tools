@@ -4,6 +4,6 @@ from generated.formats.ovl_base.structs.Pointer import Pointer
 
 class UserInterfaceIconData(MemStruct):
     image_name: Pointer[str]
-    asset_package: Pointer[str]
+    ovs: Pointer[str]
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

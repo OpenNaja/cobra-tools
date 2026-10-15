@@ -7,9 +7,9 @@ from generated.formats.ppuipkg.structs.UserInterfaceIconData import UserInterfac
 
 class PPUIPKGRoot(MemStruct):
     basic_path: Pointer[str]
-    file_count: int
+    files_count: int
     files: ArrayPointer[Ppuipkgfile]
     icondata_count: int
-    types: ArrayPointer[UserInterfaceIconData]
+    icondata: ArrayPointer[UserInterfaceIconData]
 
     def __init__(self, context: object, arg: int = 0, template: object = None, set_default: bool = True) -> None: ...

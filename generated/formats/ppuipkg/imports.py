@@ -46,6 +46,7 @@ type_module_name_map = {
 	'NestedPointers': 'generated.formats.ovl_base.structs.NestedPointers',
 	'ZStringList': 'generated.formats.ovl_base.structs.ZStringList',
 	'ByteColor': 'generated.formats.ovl_base.structs.ByteColor',
+	'Base64ArrayPointer': 'generated.formats.ppuipkg.structs.Base64ArrayPointer',
 	'Ppuipkgfile': 'generated.formats.ppuipkg.structs.Ppuipkgfile',
 	'UserInterfaceIconData': 'generated.formats.ppuipkg.structs.UserInterfaceIconData',
 	'PPUIPKGRoot': 'generated.formats.ppuipkg.structs.PPUIPKGRoot',

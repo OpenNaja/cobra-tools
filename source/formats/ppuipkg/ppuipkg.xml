@@ -2,27 +2,33 @@
 <!DOCTYPE fileformat>
 <fileformat>
 
-	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+    <xi:include href="../ovl_base/ovl_base.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xpointer="xpointer(*/*)" />
+
+    <struct name="Base64ArrayPointer" inherit="ArrayPointer"> 
+        A byte-array pointer with Base64 XML serialization.
+    </struct>
 
     <struct name="ppuipkgfile" inherit="MemStruct">
         <field name="file_name" type="Pointer" template="ZString" />
         <field name="file_size" type="uint64" />
-        <field name="file_content" type="ArrayPointer" template="Char" arg="file_size" />
+        <field name="file_content" type="Base64ArrayPointer" template="Char" arg="file_size" />
     </struct>
 
     <struct name="UserInterfaceIconData" inherit="MemStruct">
         <field name="image_name" type="Pointer" template="ZString" />
-        <field name="assetPackage" type="Pointer" template="ZString"  />
+        <field name="ovs" type="Pointer" template="ZString" />
     </struct>
 
     <struct name="PPUIPKGRoot" inherit="MemStruct">
         <field name="basic_path" type="Pointer" template="ZString" />
 
-        <field name="file_count" type="uint64" />
-        <field name="files" type="ArrayPointer" template="ppuipkgfile" arg="file_count"/>
+        <field name="files_count" type="uint64" />
+        <field name="files" type="ArrayPointer" template="ppuipkgfile" arg="files_count" />
 
         <field name="icondata_count" type="uint64" />
-        <field name="types" type="ArrayPointer" template="UserInterfaceIconData" arg="icondata_count"/>
+        <field name="icondata" type="ArrayPointer" template="UserInterfaceIconData" arg="icondata_count" />
     </struct>
 
 </fileformat>
